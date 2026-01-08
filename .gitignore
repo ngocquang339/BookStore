@@ -1,0 +1,14 @@
+# Bỏ qua thư mục biên dịch (Rác)
+target/
+*.war
+*.class
+
+# Bỏ qua cài đặt riêng của VS Code (Mỗi máy mỗi khác, không nên share)
+.vscode/
+.settings/
+.classpath
+.project
+
+# File tạm của hệ thống
+.DS_Store
+Thumbs.db
