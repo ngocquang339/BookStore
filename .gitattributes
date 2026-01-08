@@ -1,0 +1,5 @@
+# Giữ cho script Linux luôn là LF (xuống dòng kiểu Linux)
+mvnw text eol=lf
+
+# Giữ cho script Windows luôn là CRLF
+mvnw.cmd text eol=crlf
