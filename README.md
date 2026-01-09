@@ -8,6 +8,7 @@ https://git-scm.com/download/win -> Chọn click here to download, tải xong m�
 
 Tổng quan toàn bộ quy trình dùng git:
 1. Clone dự án về máy(lệnh này chỉ dùng cho lần lấy dự án lần đầu tiên, tức là trong máy ae chưa có dự án, còn khi clone xong rồi thì trong máy ae đã có dự án rồi, những lần sau không dùng clone nữa)
+   
    git clone https://github.com/ngocquang339/BookStore.git
    
 2. Sau khi clone xong, dùng lệnh này để chuyển dự án clone thành 1 branch(nhánh) để code chức năng(Phải chuyến thành nhánh thì giả dụ khi code bị sai hoặc lỗi cũng không ảnh hưởng đến main)
