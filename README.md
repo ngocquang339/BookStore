@@ -12,6 +12,7 @@ Tổng quan toàn bộ quy trình dùng git:
    git clone https://github.com/ngocquang339/BookStore.git
    
 2. Sau khi clone xong, dùng lệnh này để chuyển dự án clone thành 1 branch(nhánh) để code chức năng(Phải chuyến thành nhánh thì giả dụ khi code bị sai hoặc lỗi cũng không ảnh hưởng đến main)
+   
    git checkout -b feature/login
    
 (Thay feature/login bằng tên chức năng ae làm, ví dụ: feature/cart, feature/payment...)
@@ -23,6 +24,7 @@ Tổng quan toàn bộ quy trình dùng git:
    git add .
    
    git commit -m "chuc nang dang nhap"
+   
    (2 lệnh này là để ae lưu code của chức năng ae đang code dở, tránh bị mất khi pull phiên bản dự án mới nhất về)
    
    Sau đó dùng 2 lệnh này:
