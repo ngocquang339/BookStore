@@ -1,0 +1,134 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+/* BAN MOI NHAT 1234 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Roboto', sans-serif;
+}
+
+body {
+    background-color: #f0f0f0; /* Màu nền xám nhẹ cho toàn trang */
+}
+
+/* Container chung để căn giữa nội dung */
+.container {
+    width: 1200px;
+    margin: 0 auto;
+    max-width: 100%;
+}
+
+/* 1. CSS CHO BANNER */
+.top-banner img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+}
+
+/* 2. CSS CHO HEADER */
+.main-header {
+    background-color: #fff;
+    padding: 15px 0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.main-header .container {
+    display: flex; /* Dàn hàng ngang */
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Logo */
+.logo a {
+    text-decoration: none;
+    color: #333;
+    font-size: 24px;
+}
+
+/* Ô tìm kiếm */
+.search-box {
+    flex: 1;
+    margin: 0 40px;
+    display: flex;
+    position: relative;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    outline: none;
+    font-size: 14px;
+}
+
+.search-box button {
+    position: absolute;
+    right: 4px;
+    top: 4px;
+    background-color: #C92127;
+    color: white;
+    border: none;
+    padding: 6px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    height: 34px;
+    font-size: 16px;
+}
+
+/* Các Icon bên phải */
+.header-icons {
+    display: flex;
+    gap: 25px;
+    align-items: center;
+}
+
+.icon-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #555;
+    cursor: pointer;
+    font-size: 13px;
+    position: relative;
+}
+
+.icon-item i {
+    font-size: 20px;
+    margin-bottom: 5px;
+    color: #777;
+}
+
+.icon-item:hover i, .icon-item:hover span {
+    color: #C92127;
+}
+
+/* Phần tài khoản */
+.user-account {
+    flex-direction: row; 
+    gap: 8px;
+}
+
+.account-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.account-info a {
+    text-decoration: none;
+    color: inherit;
+}
+/* Nội dung chính */
+.main-content {
+    background: white;
+    min-height: 500px;
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 8px;
+}

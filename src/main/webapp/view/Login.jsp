@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Đăng nhập Bookstore</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/login.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/login.css">
 </head>
 <body>
 
