@@ -1,6 +1,8 @@
 package com.group2.bookstore.model;
 
-public class User {
+import java.io.Serializable; // <--- Thêm dòng này
+public class User implements Serializable{
+    private static final long serialVersionUID = 1L; // <--- Thêm dòng này (tuỳ chọn, nhưng nên có)
     private int id;
     private String username;
     private String password;
