@@ -4,6 +4,7 @@ import java.io.Serializable; // <--- Thêm dòng này
 public class User implements Serializable{
     private static final long serialVersionUID = 1L; // <--- Thêm dòng này (tuỳ chọn, nhưng nên có)
     private int id;
+    private String phone_number;
     private String username;
     private String password;
     private String email;
@@ -13,13 +14,14 @@ public class User implements Serializable{
     public User() {
     }
 
-    public User(int id, String username, String password, String email, String fullname, int role) {
+    public User(int id, String username, String password, String email, String fullname, int role, String phone_number) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.email = email;
         this.fullname = fullname;
         this.role = role;
+        this.phone_number = phone_number;
     }
 
     // --- Getter và Setter (Bắt buộc phải có để JSP đọc được) ---
@@ -40,4 +42,7 @@ public class User implements Serializable{
 
     public int getRole() { return role; }
     public void setRole(int role) { this.role = role; }
+
+    public String getPhone_number() { return phone_number; }
+    public void setPhone_number(String newPhoneNumber) { this.phone_number = newPhoneNumber; }
 }

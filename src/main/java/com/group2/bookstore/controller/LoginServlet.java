@@ -14,15 +14,12 @@ import com.group2.bookstore.model.User;
 @WebServlet(name = "LoginServlet", urlPatterns = {"/login"})
 public class LoginServlet extends HttpServlet {
 
-    // Xử lý khi người dùng vào trang Login (GET request)
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Chuyển hướng sang trang giao diện nhập liệu
         request.getRequestDispatcher("view/Login.jsp").forward(request, response);
     }
 
-    // Xử lý khi người dùng bấm nút "Đăng nhập" (POST request)
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -51,10 +48,7 @@ public class LoginServlet extends HttpServlet {
             session.setAttribute("user", account); // Lưu biến "user" để Home.jsp dùng
             
             // Chuyển hướng về trang chủ (hoặc trang admin tùy role)
-            response.sendRedirect("view/Home.jsp"); // Giả sử bạn có HomeServlet mapping là /home
-            // Nếu chưa có HomeServlet thì tạm thời dẫn về file jsp:
-            // response.sendRedirect("view/Home.jsp");
+            response.sendRedirect("view/Home.jsp"); 
         }
-        // ... (Logic check database) ...
     }
 }

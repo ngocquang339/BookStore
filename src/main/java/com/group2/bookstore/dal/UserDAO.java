@@ -26,13 +26,36 @@ public class UserDAO extends DBContext{
                     rs.getString("password"),
                     rs.getString("email"),
                     rs.getString("fullname"),
-                    rs.getInt("role")
+                    rs.getInt("role"),
+                    rs.getString("phone_number")
                 );
                 return u; 
             }
-        } catch (Exception e) {
+        } catch (Exception e){
             System.out.println(e);
         }
-        return null; // Không tìm thấy hoặc lỗi thì trả về null
+        return null; 
+    }
+
+    public boolean updateUser(User user){
+        String sql = "UPDATE Users SET username = ?, email = ?, phone_number = ? WHERE id = ?";
+        try {
+            // 2. Chuẩn bị câu lệnh
+            PreparedStatement st = getConnection().prepareStatement(sql);
+            st.setString(1, user.getUsername()); 
+            st.setString(2, user.getEmail()); 
+            st.setString(3, user.getPhone_number());
+            st.setInt(4, user.getId());
+            
+            int rowsUpdated = st.executeUpdate();
+
+            // Đóng kết nối để tránh tràn bộ nhớ
+            st.close();
+            getConnection().close();
+            return rowsUpdated > 0;
+        } catch (Exception e){  
+            System.out.println(e);
+            return false;
+        }
     }
 }

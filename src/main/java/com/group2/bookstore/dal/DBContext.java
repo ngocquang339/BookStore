@@ -24,7 +24,7 @@ public class DBContext {
                    + ";encrypt=true;trustServerCertificate=true;";
 
         if (instance == null || instance.trim().isEmpty()) {
-             url = "jdbc:sqlserver://" + serverName + ":" + portNumber 
+             url = "jdbc:sqlserver://" + serverName + ":" + portNumber   
                    + ";databaseName=" + dbName 
                    + ";encrypt=true;trustServerCertificate=true;";
         }

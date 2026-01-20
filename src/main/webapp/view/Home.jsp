@@ -39,12 +39,12 @@
                     <div class="account-info">
                         <c:if test="${sessionScope.user == null}">
                            <a href="${pageContext.request.contextPath}/login" class="account-link">
-                               <span>Tài khoản</span>
+                               <span>Đăng nhập</span>
                            </a>
                         </c:if>
                         <c:if test="${sessionScope.user != null}">
                             <span style="color: #C92127; font-weight: bold;">${sessionScope.user.username}</span>
-                            <small><a href="${pageContext.request.contextPath}/logout">Đăng xuất</a></small>
+                            <small><a href="${pageContext.request.contextPath}/update-profile">Hồ sơ</a></small>
                         </c:if>
                     </div>
                 </div>
