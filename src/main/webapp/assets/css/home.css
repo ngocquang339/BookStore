@@ -132,3 +132,72 @@ body {
     padding: 20px;
     border-radius: 8px;
 }
+
+/* =========================================
+   3. CSS CHO KHU VỰC BANNER (STYLE FAHASA)
+   ========================================= */
+
+.banner-section {
+    margin-top: 20px; /* Cách header một đoạn */
+}
+
+/* --- Phần Trên (Banner to + 2 nhỏ) --- */
+.banner-top {
+    display: flex;       /* Dàn hàng ngang */
+    gap: 10px;           /* Khoảng cách giữa cột trái và phải */
+    height: 320px;       /* Chiều cao cố định để ảnh khớp nhau */
+    margin-bottom: 10px; /* Cách hàng dưới 10px */
+}
+
+/* Cột Trái (68% chiều rộng) */
+.banner-left {
+    flex: 2.1;           /* Chiếm phần lớn diện tích */
+    border-radius: 8px;
+    overflow: hidden;    /* Bo góc ảnh */
+}
+
+.banner-left img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;   /* Ảnh tự co giãn không bị méo */
+    display: block;
+}
+
+/* Cột Phải (32% chiều rộng) */
+.banner-right {
+    flex: 0.9;           /* Chiếm phần nhỏ hơn */
+    display: flex;
+    flex-direction: column; /* Xếp dọc 2 ảnh */
+    gap: 10px;           /* Khoảng cách giữa 2 ảnh dọc */
+}
+
+.banner-right img {
+    width: 100%;
+    height: calc(50% - 5px); /* Mỗi ảnh cao 50% trừ đi khoảng cách gap */
+    object-fit: cover;
+    border-radius: 8px;
+    display: block;
+}
+
+/* --- Phần Dưới (4 Banner nhỏ) --- */
+.banner-bottom {
+    display: flex;
+    gap: 10px;
+}
+
+.banner-bottom img {
+    width: 25%;          /* Chia đều 4 ảnh (100% / 4) */
+    height: auto;
+    border-radius: 8px;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease; /* Hiệu ứng khi di chuột */
+}
+
+/* Hiệu ứng hover nhẹ cho đẹp */
+.banner-left img:hover, 
+.banner-right img:hover, 
+.banner-bottom img:hover {
+    opacity: 0.9;
+    cursor: pointer;
+}

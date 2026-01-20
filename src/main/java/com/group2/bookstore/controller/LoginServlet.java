@@ -30,6 +30,12 @@ public class LoginServlet extends HttpServlet {
         String u = request.getParameter("username");
         String p = request.getParameter("password");
         
+        if (u == null || u.trim().isEmpty() || p == null || p.trim().isEmpty()) {
+            // Xử lý lỗi: Chuyển hướng lại trang login và báo lỗi
+            request.setAttribute("mess", "Không được để trống thông tin!");
+            request.getRequestDispatcher("login.jsp").forward(request, response);
+            return;
+        }
         // 2. Gọi DAO để kiểm tra trong Database
         UserDAO dao = new UserDAO();
         User account = dao.checkLogin(u, p);
