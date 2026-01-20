@@ -8,10 +8,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 
-import com.group2.bookstore.dal.UserDAO; 
-import com.group2.bookstore.model.User; 
+import com.group2.bookstore.dal.UserDAO;
+import com.group2.bookstore.model.User;
 
-@WebServlet(name = "LoginServlet", urlPatterns = {"/login"})
+@WebServlet(name = "LoginServlet", urlPatterns = { "/login" })
 public class LoginServlet extends HttpServlet {
 
     // Xử lý khi người dùng vào trang Login (GET request)
@@ -29,26 +29,36 @@ public class LoginServlet extends HttpServlet {
         // Code xử lý đăng nhập sẽ viết ở đây
         String u = request.getParameter("username");
         String p = request.getParameter("password");
-        
+
         // 2. Gọi DAO để kiểm tra trong Database
         UserDAO dao = new UserDAO();
         User account = dao.checkLogin(u, p);
 
-        // 3. Xử lý kết quả
         if (account == null) {
-            // Trường hợp SAI: Báo lỗi và quay lại trang login
             request.setAttribute("mess", "Thông tin đăng nhập không chính xác!");
             request.getRequestDispatcher("view/Login.jsp").forward(request, response);
         } else {
-            // Trường hợp ĐÚNG: Lưu vào Session và về trang chủ
+            // Đăng nhập THÀNH CÔNG
             HttpSession session = request.getSession();
-            session.setAttribute("user", account); // Lưu biến "user" để Home.jsp dùng
-            
-            // Chuyển hướng về trang chủ (hoặc trang admin tùy role)
-            response.sendRedirect("view/Home.jsp"); // Giả sử bạn có HomeServlet mapping là /home
-            // Nếu chưa có HomeServlet thì tạm thời dẫn về file jsp:
-            // response.sendRedirect("view/Home.jsp");
+            session.setAttribute("user", account);
+
+            // --- BẮT ĐẦU SỬA TỪ ĐÂY ---
+
+            // Kiểm tra quyền (Role)
+            // Lưu ý: Đảm bảo account.getRole() trả về đúng số 4 từ Database
+            if (account.getRole() == 4) {
+                // Nếu là Warehouse -> Chuyển sang Dashboard
+                // Đường dẫn này phải khớp với urlPatterns trong WarehouseDashboardServlet
+                response.sendRedirect("warehouse/dashboard");
+            } else if (account.getRole() == 1) {
+                // Nếu là Admin (ví dụ)
+                response.sendRedirect("admin/dashboard");
+            } else {
+                // Các role còn lại (User/Manager) -> Về trang chủ mua hàng
+                response.sendRedirect("view/Home.jsp");
+            }
+
+            // --- KẾT THÚC SỬA ---
         }
-        // ... (Logic check database) ...
     }
 }
