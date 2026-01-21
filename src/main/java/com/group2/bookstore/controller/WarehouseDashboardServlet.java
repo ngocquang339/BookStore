@@ -12,7 +12,6 @@ public class WarehouseDashboardServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Chuyển hướng đến file JSP giao diện
         request.getRequestDispatcher("/view/warehouse/dashboard.jsp").forward(request, response);
     }
 }
