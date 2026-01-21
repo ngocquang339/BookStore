@@ -1,6 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
-
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -56,6 +56,7 @@
         <div class="banner-top">
             <div class="banner-left">
                 <img src="${pageContext.request.contextPath}/assets/image/Banner/Screenshot 2026-01-19 150229.png" alt="Banner Chính">
+            </div>
             <div class="banner-right">
                 <img src="https://cdn0.fahasa.com/media/wysiwyg/Thang-01-2024/VPP_T124_392x156.jpg" alt="Banner Phụ 1">
                 <img src="https://cdn0.fahasa.com/media/wysiwyg/Thang-01-2024/Manga_T124_392x156.jpg" alt="Banner Phụ 2">
@@ -72,13 +73,33 @@
 
     <main class="main-content container">
         <h2 style="margin-top: 20px; border-left: 4px solid #C92127; padding-left: 10px;">Sách Mới Nổi Bật</h2>
-        <p>Khu vực hiển thị danh sách sản phẩm...</p>
         
-        <c:if test="${sessionScope.user != null}">
-            <div style="background: #e1f7d5; padding: 10px; margin-top: 10px; border-radius: 5px;">
-                Chào mừng <b>${sessionScope.user.username}</b> đã quay trở lại!
-            </div>
-        </c:if>
+        <div class="book-list">
+            
+            <c:forEach items="${randomBooks}" var="b">
+                <div class="book-card">
+                    <div class="book-image">
+                        <img src="${pageContext.request.contextPath}/assets/image/books/${b.imageUrl}" alt="${b.title}">
+                    </div>
+                    
+                    <div class="book-info">
+                        <h3 class="book-title">${b.title}</h3>
+                        <p class="book-author">${b.author}</p>
+                        
+                        <div class="book-price">
+                            <fmt:formatNumber value="${b.price}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
+                        </div>
+                        
+                        <a href="${pageContext.request.contextPath}/add-to-cart?id=${b.id}" class="btn-buy">
+                            <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ hàng
+                        </a>
+                    </div>
+                </div>
+            </c:forEach>
+
+        </div>
+
+        <c:if test="${sessionScope.user != null}">...</c:if>
     </main>
 
 </body>
