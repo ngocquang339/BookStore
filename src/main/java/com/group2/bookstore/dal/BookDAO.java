@@ -7,20 +7,43 @@ import java.util.List;
 
 public class BookDAO extends DBContext {
 
-    // Hàm đa năng: Lấy sách, có Search, có Filter Category, có Lọc hàng sắp hết
-    public List<Book> getBooks(String keyword, int cid, boolean onlyLowStock) {
+    // Sửa lại dòng khai báo hàm: thêm tham số String sort
+    public List<Book> getBooks(String keyword, int cid, String author, String col, String order) {
         List<Book> list = new ArrayList<>();
         String sql = "SELECT * FROM Books WHERE 1=1 ";
 
+        // --- FILTER ---
         if (keyword != null && !keyword.isEmpty()) {
             sql += " AND title LIKE ? ";
         }
         if (cid > 0) {
             sql += " AND category_id = ? ";
         }
-        if (onlyLowStock) {
-            sql += " AND stock_quantity < 5 "; // Quy ước dưới 5 là sắp hết
+        if (author != null && !author.isEmpty()) {
+            sql += " AND author = ? ";
         }
+
+        // --- SORT (Thêm logic cho category và publisher) ---
+        String orderBy = " ORDER BY book_id ASC"; 
+        
+        if (col != null && order != null) {
+            if (!order.equalsIgnoreCase("ASC") && !order.equalsIgnoreCase("DESC")) {
+                order = "ASC";
+            }
+            switch (col) {
+                case "title": orderBy = " ORDER BY title " + order; break;
+                case "author": orderBy = " ORDER BY author " + order; break;
+                case "stock": orderBy = " ORDER BY stock_quantity " + order; break;
+                case "price": orderBy = " ORDER BY price " + order; break;
+                
+                // THÊM 2 CASE MỚI Ở ĐÂY:
+                case "category": orderBy = " ORDER BY category_id " + order; break; 
+                case "publisher": orderBy = " ORDER BY publisher " + order; break; 
+                
+                default: break;
+            }
+        }
+        sql += orderBy;
 
         try {
             PreparedStatement st = getConnection().prepareStatement(sql);
@@ -31,9 +54,12 @@ public class BookDAO extends DBContext {
             if (cid > 0) {
                 st.setInt(index++, cid);
             }
+            if (author != null && !author.isEmpty()) {
+                st.setString(index++, author);
+            }
+            
             ResultSet rs = st.executeQuery();
             while (rs.next()) {
-                // Map dữ liệu từ DB sang Object Book (cấu trúc theo bài trước)
                 Book b = new Book(
                     rs.getInt("book_id"),
                     rs.getString("title"),
@@ -42,22 +68,27 @@ public class BookDAO extends DBContext {
                     rs.getInt("stock_quantity"),
                     rs.getString("image"),
                     rs.getInt("category_id"),
-                    rs.getString("description")
+                    rs.getString("description"),
+                    rs.getString("publisher") // <--- LẤY CỘT PUBLISHER TỪ DB
                 );
                 list.add(b);
             }
         } catch (Exception e) { e.printStackTrace(); }
         return list;
     }
-
-    // Hàm cập nhật số lượng (Cho trang Update Stock)
-    public void updateStock(int bookId, int newQuantity) {
-        String sql = "UPDATE Books SET stock_quantity = ? WHERE book_id = ?";
+    public List<String> getAllAuthors() {
+        List<String> authors = new ArrayList<>();
+        // Query lấy các tác giả khác nhau, bỏ qua giá trị null
+        String sql = "SELECT DISTINCT author FROM Books WHERE author IS NOT NULL";
         try {
             PreparedStatement st = getConnection().prepareStatement(sql);
-            st.setInt(1, newQuantity);
-            st.setInt(2, bookId);
-            st.executeUpdate();
-        } catch (Exception e) { e.printStackTrace(); }
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                authors.add(rs.getString("author"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return authors;
     }
 }

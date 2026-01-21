@@ -7,7 +7,7 @@
 </head>
 <body class="bg-light">
     <div class="container mt-5">
-        <h2 class="text-center mb-4">QUẢN LÝ KHO HÀNG (WAREHOUSE)</h2>
+        <h2 class="text-center mb-4">QUẢN LÝ KHO HÀNG</h2>
         <div class="row text-center">
             
             <div class="col-md-4">

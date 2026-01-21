@@ -3,22 +3,24 @@ package com.group2.bookstore.model;
 import java.io.Serializable;
 
 public class Book implements Serializable {
-    
+
     private int id;
     private String title;
     private String author;
     private double price;
     private int stockQuantity; // Map với cột 'stock_quantity' trong DB
-    private String imageUrl;   // Map với cột 'image' trong DB
-    private int categoryId;    // Map với cột 'category_id' trong DB
+    private String imageUrl; // Map với cột 'image' trong DB
+    private int categoryId; // Map với cột 'category_id' trong DB
     private String description;
+    private String publisher;
 
     // Constructor rỗng (Bắt buộc phải có để JSP không lỗi khi khởi tạo mặc định)
     public Book() {
     }
 
     // Constructor đầy đủ (Dùng cho DAO khi load dữ liệu từ DB lên)
-    public Book(int id, String title, String author, double price, int stockQuantity, String imageUrl, int categoryId, String description) {
+    public Book(int id, String title, String author, double price, int stockQuantity, String imageUrl, int categoryId,
+            String description, String publisher) {
         this.id = id;
         this.title = title;
         this.author = author;
@@ -27,10 +29,11 @@ public class Book implements Serializable {
         this.imageUrl = imageUrl;
         this.categoryId = categoryId;
         this.description = description;
+        this.publisher = publisher; // <--- Gán giá trị
     }
 
     // --- GETTER & SETTER ---
-    
+
     public int getId() {
         return id;
     }
@@ -93,5 +96,13 @@ public class Book implements Serializable {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getPublisher() {
+        return publisher;
+    }
+
+    public void setPublisher(String publisher) {
+        this.publisher = publisher;
     }
 }
