@@ -10,7 +10,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
-// Map đường dẫn /search
 @WebServlet(name = "SearchServlet", urlPatterns = {"/search"})
 public class SearchServlet extends HttpServlet {
 
@@ -18,32 +17,24 @@ public class SearchServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        // 1. Lấy từ khóa (keyword)
         request.setCharacterEncoding("UTF-8");
-        String txt = request.getParameter("txt"); // lấy từ input name="txt" bên JSP
         
-        // 2. Gọi DAO
-        BookDAO dao = new BookDAO();
-        List<Book> list;
-        
-        // Nếu từ khóa rỗng thì hiện tất cả, ngược lại thì tìm kiếm
-        if (txt == null || txt.trim().isEmpty()) {
-             list = dao.getAllBooks();
-        } else {
-             list = dao.searchBooks(txt);
+        // 1. Lấy từ khóa (nếu không có thì để rỗng để load all)
+        String txtSearch = request.getParameter("txt");
+        if (txtSearch == null) {
+            txtSearch = "";
         }
 
-        // 3. Đẩy dữ liệu về JSP
+        // 2. Gọi hàm getBooks đa năng trong DAO
+        BookDAO dao = new BookDAO();
+        // keyword = txtSearch, cid = 0 (lấy tất cả danh mục), onlyLowStock = false
+        List<Book> list = dao.getBooks(txtSearch, 0, false);
+
+        // 3. Đẩy dữ liệu sang JSP
         request.setAttribute("listBooks", list);
-        request.setAttribute("txtS", txt); // Lưu lại từ khóa để hiển thị lại trên ô input
+        request.setAttribute("txtS", txtSearch); // Lưu lại từ khóa để hiện ở ô input
 
-        // 4. Forward về trang Home
+        // 4. Về trang Home
         request.getRequestDispatcher("view/Home.jsp").forward(request, response);
-    }
-
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        doGet(request, response); // POST cũng xử lý như GET
     }
 }
