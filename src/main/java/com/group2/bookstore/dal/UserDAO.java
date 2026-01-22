@@ -88,8 +88,6 @@ public class UserDAO extends DBContext{
 
 // Hàm thêm mới người dùng vào Database
     public void createUser(User user) {
-        // 1. Câu lệnh SQL: Chỉ liệt kê các cột bạn thực sự muốn thêm dữ liệu
-        // Lưu ý: Các cột khác như fullname, phone, address phải được để chế độ "Allow Nulls" trong SQL Server
         String sql = "INSERT INTO Users (username, password, email, role) VALUES (?, ?, ?, ?)";
 
         try {

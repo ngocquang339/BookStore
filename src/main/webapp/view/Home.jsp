@@ -35,19 +35,24 @@
                     <span>Giỏ hàng</span>
                 </div>
                 <div class="icon-item user-account">
-                    <i class="fa-regular fa-user"></i>
-                    <div class="account-info">
-                        <c:if test="${sessionScope.user == null}">
-                           <a href="${pageContext.request.contextPath}/login" class="account-link">
-                               <span>Đăng nhập</span>
-                           </a>
-                        </c:if>
-                        <c:if test="${sessionScope.user != null}">
-                            <span style="color: #C92127; font-weight: bold;">${sessionScope.user.username}</span>
-                            <small><a href="${pageContext.request.contextPath}/update-profile">Hồ sơ</a></small>
-                        </c:if>
-                    </div>
-                </div>
+    <i class="fa-regular fa-user"></i>
+    <div class="account-info">
+        <span class="account-label">Tài khoản</span>
+    </div>
+
+    <div class="dropdown-content">
+        <c:if test="${sessionScope.user == null}">
+            <a href="${pageContext.request.contextPath}/login" class="btn-login">Đăng nhập</a>
+            <a href="${pageContext.request.contextPath}/register" class="btn-register">Đăng ký</a>
+        </c:if>
+        <c:if test="${sessionScope.user != null}">
+            <span class="user-name">${sessionScope.user.username}</span>
+            <hr>
+            <a href="${pageContext.request.contextPath}/update-profile">Hồ sơ của tôi</a>
+            <a href="${pageContext.request.contextPath}/logout">Đăng xuất</a>
+        </c:if>
+    </div>
+</div>
             </div>
         </div>
     </header>
