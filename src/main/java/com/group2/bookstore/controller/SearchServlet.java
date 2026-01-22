@@ -18,23 +18,26 @@ public class SearchServlet extends HttpServlet {
             throws ServletException, IOException {
         
         request.setCharacterEncoding("UTF-8");
-        
-        // 1. Lấy từ khóa (nếu không có thì để rỗng để load all)
         String txtSearch = request.getParameter("txt");
         if (txtSearch == null) {
             txtSearch = "";
         }
 
-        // 2. Gọi hàm getBooks đa năng trong DAO
+        // Gọi hàm DAO lấy sách
         BookDAO dao = new BookDAO();
-        // keyword = txtSearch, cid = 0 (lấy tất cả danh mục), onlyLowStock = false
         List<Book> list = dao.getBooks(txtSearch, 0, false);
 
-        // 3. Đẩy dữ liệu sang JSP
         request.setAttribute("listBooks", list);
-        request.setAttribute("txtS", txtSearch); // Lưu lại từ khóa để hiện ở ô input
+        request.setAttribute("txtS", txtSearch);
 
-        // 4. Về trang Home
-        request.getRequestDispatcher("view/Home.jsp").forward(request, response);
+        // --- SỬA DÒNG NÀY ---
+        // Chuyển hướng sang trang Search.jsp riêng biệt
+        request.getRequestDispatcher("view/Search.jsp").forward(request, response);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        doGet(request, response);
     }
 }
