@@ -15,7 +15,7 @@ public class DBContext {
         
         // Tài khoản sa mà bạn đã tạo mật khẩu 123456 lúc cài đặt
         String userID = "sa";
-        String password = "123456"; // Điền pass bạn đã cài
+        String password = "123"; // Điền pass bạn đã cài
 
         // 2. Cấu trúc Connection String chuẩn cho SQL Server 2022
         // encrypt=true;trustServerCertificate=true; là BẮT BUỘC để tránh lỗi SSL
