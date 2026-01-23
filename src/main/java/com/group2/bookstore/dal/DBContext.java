@@ -7,6 +7,11 @@ import java.sql.SQLException;
 public class DBContext {
 
     public Connection getConnection() throws ClassNotFoundException, SQLException {
+    // Note the double backslash \\ for the instance name
+    String serverName = "DESKTOP-V0CJE41\\SQLEXPRESS01"; 
+    String dbName = "BookShop";
+    String userID = "sa";
+    String password = "1";
         // 1. Thông tin cấu hình
         String serverName = "localhost";
         String dbName = "BookShop"; // Thay tên DB của bạn vào đây
@@ -16,12 +21,14 @@ public class DBContext {
         String userID = "sa";
         String password = "123"; // Điền pass bạn đã cài
 
-        // 2. Cấu trúc Connection String chuẩn cho SQL Server 2022
-        // encrypt=true;trustServerCertificate=true; là BẮT BUỘC để tránh lỗi SSL
-        String url = "jdbc:sqlserver://" + serverName + ":" + portNumber + "\\" + instance 
-                   + ";databaseName=" + dbName 
-                   + ";encrypt=true;trustServerCertificate=true;";
+    // REMOVE the port number from the URL string
+    String url = "jdbc:sqlserver://" + serverName
+               + ";databaseName=" + dbName
+               + ";encrypt=true;trustServerCertificate=true;";
 
+    Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+    return DriverManager.getConnection(url, userID, password);
+}
         if (instance == null || instance.trim().isEmpty()) {
              url = "jdbc:sqlserver://" + serverName + ":" + portNumber   
                    + ";databaseName=" + dbName 
