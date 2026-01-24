@@ -272,9 +272,8 @@ body.admin-active .main-header {
 .product-card.hidden-item img {
     opacity: 0.6;
     filter: grayscale(80%);
-   3. CSS CHO KHU VỰC BANNER (STYLE FAHASA)
-   ========================================= */
-
+  
+}
 .banner-section {
     margin-top: 20px; /* Cách header một đoạn */
 }
