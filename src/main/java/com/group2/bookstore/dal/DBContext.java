@@ -13,7 +13,6 @@ public class DBContext {
         String portNumber = "1433";
         String instance = ""; // Bản 2022 mặc định để trống
         
-        // Tài khoản sa mà bạn đã tạo mật khẩu 123456 lúc cài đặt
         String userID = "sa";
         String password = "123"; // Điền pass bạn đã cài
 
@@ -24,7 +23,7 @@ public class DBContext {
                    + ";encrypt=true;trustServerCertificate=true;";
 
         if (instance == null || instance.trim().isEmpty()) {
-             url = "jdbc:sqlserver://" + serverName + ":" + portNumber 
+             url = "jdbc:sqlserver://" + serverName + ":" + portNumber   
                    + ";databaseName=" + dbName 
                    + ";encrypt=true;trustServerCertificate=true;";
         }

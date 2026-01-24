@@ -38,6 +38,6 @@ public class CartServlet extends HttpServlet {
 
         // 4. Chuyển hướng về trang giao diện
         // Sửa "cart.jsp" thành "/cart.jsp"
-request.getRequestDispatcher("/cart.jsp").forward(request, response);
+request.getRequestDispatcher("/view/cart.jsp").forward(request, response);
     }
 }
