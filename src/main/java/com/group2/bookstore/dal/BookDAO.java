@@ -1,12 +1,13 @@
 package com.group2.bookstore.dal;
 
-import com.group2.bookstore.model.Book;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.group2.bookstore.model.Book;
 
 public class BookDAO {
 
@@ -34,15 +35,23 @@ public class BookDAO {
     }
 
     // 2. Get Random Books (Fixed Teammate's Code)
-    public List<Book> getRandomBook() {
+    // 2. Get Random Books (Updated with Role-Based Logic)
+    // ADD PARAMETER: int roleId
+    public List<Book> getRandomBook(int roleId) {
         List<Book> list = new ArrayList<>();
-        String sql = "SELECT TOP 10 * FROM Books ORDER BY NEWID()";
+        String sql;
+
+        // LOGIC: If Admin (1), show all. If Guest/User, only show Active (1)
+        if (roleId == 1) {
+            sql = "SELECT TOP 10 * FROM Books ORDER BY NEWID()";
+        } else {
+            sql = "SELECT TOP 10 * FROM Books WHERE is_active = 1 ORDER BY NEWID()";
+        }
         
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                // Use helper method to avoid "setImageUrl" vs "setImage" errors
                 list.add(mapResultSetToBook(rs));
             }
         } catch (Exception e) {
