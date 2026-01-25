@@ -1,5 +1,6 @@
 package com.group2.bookstore.dal;
 
+import com.group2.bookstore.model.Book;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -7,20 +8,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.group2.bookstore.model.Book;
-
-public class BookDAO {
+public class BookDAO extends DBContext { // Đảm bảo extends DBContext nếu class cha có getConnection
 
     // 1. Get Top 4 Newest Books (For Homepage)
     public List<Book> getNewArrivals(int roleId) {
         List<Book> list = new ArrayList<>();
-        String sql;
-
-        if (roleId == 1) {
-            sql = "SELECT TOP 4 * FROM Books ORDER BY book_id DESC";
-        } else {
-            sql = "SELECT TOP 4 * FROM Books WHERE is_active = 1 ORDER BY book_id DESC";
-        }
+        String sql = "SELECT TOP 4 * FROM Books ORDER BY book_id DESC";
+        
 
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -34,19 +28,12 @@ public class BookDAO {
         return list;
     }
 
-    // 2. Get Random Books (Fixed Teammate's Code)
-    // 2. Get Random Books (Updated with Role-Based Logic)
-    // ADD PARAMETER: int roleId
-    public List<Book> getRandomBook(int roleId) {
+    // 2. Get Random Books (ĐÃ SỬA: Thay NEWID() bằng book_id DESC để không bị nhảy vị trí)
+    public List<Book> getRandomBook() {
         List<Book> list = new ArrayList<>();
-        String sql;
-
-        // LOGIC: If Admin (1), show all. If Guest/User, only show Active (1)
-        if (roleId == 1) {
-            sql = "SELECT TOP 10 * FROM Books ORDER BY NEWID()";
-        } else {
-            sql = "SELECT TOP 10 * FROM Books WHERE is_active = 1 ORDER BY NEWID()";
-        }
+        
+        // SỬA Ở ĐÂY: Dùng ORDER BY book_id DESC để danh sách cố định
+        String sql = "SELECT TOP 10 * FROM Books ORDER BY book_id DESC"; 
         
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -63,7 +50,7 @@ public class BookDAO {
     // 3. Get Top 4 Best Sellers
     public List<Book> getBestSellers() {
         List<Book> list = new ArrayList<>();
-        String sql = "SELECT TOP 4 * FROM Books WHERE is_active = 1 ORDER BY sold_quantity DESC";
+        String sql = "SELECT TOP 4 * FROM Books ORDER BY sold_quantity DESC";
 
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -96,7 +83,7 @@ public class BookDAO {
     // 5. Get Related Books
     public List<Book> getRelatedBooks(int categoryId, int currentBookId) {
         List<Book> list = new ArrayList<>();
-        String sql = "SELECT TOP 4 * FROM Books WHERE category_id = ? AND book_id != ? AND is_active = 1";
+       String sql = "SELECT TOP 4 * FROM Books WHERE category_id = ? AND book_id != ?";
 
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -115,13 +102,7 @@ public class BookDAO {
     // 6. Search Books (Admin Scope Logic)
     public List<Book> searchBooks(String keyword, int roleId) {
         List<Book> list = new ArrayList<>();
-        String sql;
-
-        if (roleId == 1) {
-            sql = "SELECT * FROM Books WHERE title LIKE ?";
-        } else {
-            sql = "SELECT * FROM Books WHERE title LIKE ? AND is_active = 1";
-        }
+        String sql = "SELECT * FROM Books WHERE title LIKE ?";
 
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -183,7 +164,7 @@ public class BookDAO {
         }
     }
 
-    // HELPER: Map ResultSet to Book Object
+    // HELPER: Map ResultSet to Book Object (Giữ nguyên hàm này cho gọn code)
     private Book mapResultSetToBook(ResultSet rs) throws SQLException {
         Book b = new Book();
         b.setId(rs.getInt("book_id"));
@@ -191,12 +172,13 @@ public class BookDAO {
         b.setAuthor(rs.getString("author"));
         b.setPrice(rs.getDouble("price"));
         b.setDescription(rs.getString("description"));
-        b.setImage(rs.getString("image"));
+        b.setImage(rs.getString("image")); // Đảm bảo tên cột trong DB là 'image'
         b.setStockQuantity(rs.getInt("stock_quantity"));
-        b.setSoldQuantity(rs.getInt("sold_quantity"));
+        
+        // Kiểm tra xem cột có tồn tại không trước khi lấy (tránh lỗi nếu query thiếu cột)
+        try { b.setSoldQuantity(rs.getInt("sold_quantity")); } catch (SQLException e) {}
         b.setCategoryId(rs.getInt("category_id"));
         
-        // Try-Catch blocks for optional columns (in case older queries don't select them)
         try { b.setActive(rs.getBoolean("is_active")); } catch (SQLException e) {}
         try { b.setImportPrice(rs.getDouble("import_price")); } catch (SQLException e) {}
         
