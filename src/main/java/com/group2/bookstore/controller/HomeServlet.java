@@ -50,9 +50,11 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response) t
     else {
         List<Book> newArrivals = dao.getNewArrivals(roleId); 
         List<Book> bestSellers = dao.getBestSellers(); 
+        List<Book> randomBooks = dao.getRandomBook(roleId);
 
         request.setAttribute("newBooks", newArrivals);
         request.setAttribute("bestBooks", bestSellers);
+        request.setAttribute("randomBooks", randomBooks);
         
        
         request.getRequestDispatcher("view/Home.jsp").forward(request, response);
