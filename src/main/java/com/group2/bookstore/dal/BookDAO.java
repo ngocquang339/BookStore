@@ -13,13 +13,8 @@ public class BookDAO extends DBContext { // Đảm bảo extends DBContext nếu
     // 1. Get Top 4 Newest Books (For Homepage)
     public List<Book> getNewArrivals(int roleId) {
         List<Book> list = new ArrayList<>();
-        String sql;
-
-        if (roleId == 1) {
-            sql = "SELECT TOP 4 * FROM Books ORDER BY book_id DESC";
-        } else {
-            sql = "SELECT TOP 4 * FROM Books WHERE is_active = 1 ORDER BY book_id DESC";
-        }
+        String sql = "SELECT TOP 4 * FROM Books ORDER BY book_id DESC";
+        
 
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -55,7 +50,7 @@ public class BookDAO extends DBContext { // Đảm bảo extends DBContext nếu
     // 3. Get Top 4 Best Sellers
     public List<Book> getBestSellers() {
         List<Book> list = new ArrayList<>();
-        String sql = "SELECT TOP 4 * FROM Books WHERE is_active = 1 ORDER BY sold_quantity DESC";
+        String sql = "SELECT TOP 4 * FROM Books ORDER BY sold_quantity DESC";
 
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -88,7 +83,7 @@ public class BookDAO extends DBContext { // Đảm bảo extends DBContext nếu
     // 5. Get Related Books
     public List<Book> getRelatedBooks(int categoryId, int currentBookId) {
         List<Book> list = new ArrayList<>();
-        String sql = "SELECT TOP 4 * FROM Books WHERE category_id = ? AND book_id != ? AND is_active = 1";
+       String sql = "SELECT TOP 4 * FROM Books WHERE category_id = ? AND book_id != ?";
 
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -107,13 +102,7 @@ public class BookDAO extends DBContext { // Đảm bảo extends DBContext nếu
     // 6. Search Books (Admin Scope Logic)
     public List<Book> searchBooks(String keyword, int roleId) {
         List<Book> list = new ArrayList<>();
-        String sql;
-
-        if (roleId == 1) {
-            sql = "SELECT * FROM Books WHERE title LIKE ?";
-        } else {
-            sql = "SELECT * FROM Books WHERE title LIKE ? AND is_active = 1";
-        }
+        String sql = "SELECT * FROM Books WHERE title LIKE ?";
 
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {

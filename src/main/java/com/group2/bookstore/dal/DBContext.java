@@ -12,21 +12,21 @@ public class DBContext {
         // OPTION 1: Connection using Named Instance (YOUR ACTIVE SERVER)
         // Use this if your server name is like "DESKTOP-XXX\SQLEXPRESS"
         // =============================================================
-        String serverName = "DESKTOP-V0CJE41\\SQLEXPRESS01"; 
-        String dbName = "BookShop";
-        String userID = "sa";
-        String password = "1";
+        // String serverName = "DESKTOP-V0CJE41\\SQLEXPRESS01"; 
+        // String dbName = "BookShop";
+        // String userID = "sa";
+        // String password = "1";
         
-        // Connection String for Named Instance (Note: No port number needed here)
-        String url = "jdbc:sqlserver://" + serverName + ";databaseName=" + dbName 
-                   + ";encrypt=true;trustServerCertificate=true;";
+        // // Connection String for Named Instance (Note: No port number needed here)
+        // String url = "jdbc:sqlserver://" + serverName + ";databaseName=" + dbName 
+        //            + ";encrypt=true;trustServerCertificate=true;";
 
         
         // =============================================================
         // OPTION 2: Connection using TCP/IP Port (COMMENTED OUT)
         // Use this for standard "localhost" setup on port 1433
         // =============================================================
-        /*
+        
         String serverName = "localhost";
         String dbName = "BookShop";
         String portNumber = "1433";
@@ -45,7 +45,7 @@ public class DBContext {
                    + ";databaseName=" + dbName
                    + ";encrypt=true;trustServerCertificate=true;";
         }
-        */
+        
 
         // 3. Load Driver and Return Connection
         Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");

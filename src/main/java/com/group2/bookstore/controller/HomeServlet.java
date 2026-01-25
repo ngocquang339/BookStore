@@ -14,7 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-@WebServlet(name = "HomeController", urlPatterns = {"/home", "/search"})
+@WebServlet(name = "HomeController", urlPatterns = {"/home"})
 // FIX BELOW: Add "extends HttpServlet"
 public class HomeServlet extends HttpServlet { 
     
