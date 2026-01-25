@@ -144,7 +144,7 @@
             
             <div class="book-list">
                 <%-- QUAN TRỌNG: Sửa 'newBooks' thành 'randomBooks' để khớp với Servlet --%>
-                <c:forEach items="${newBooks}" var="b">
+                <c:forEach items="${randomBooks}" var="b">
                     <div class="book-card">
                         <div class="book-image">
                             <img src="${pageContext.request.contextPath}/assets/image/books/${b.imageUrl}" 

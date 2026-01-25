@@ -48,7 +48,7 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response) t
     
     // CASE B: HOMEPAGE
     else {
-        List<Book> newArrivals = dao.getNewArrivals(roleId); 
+        List<Book> newArrivals = dao.getNewArrivals(); 
         List<Book> bestSellers = dao.getBestSellers(); 
         List<Book> randomBooks = dao.getRandomBook(roleId);
 
