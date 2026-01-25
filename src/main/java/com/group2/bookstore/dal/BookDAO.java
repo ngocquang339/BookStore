@@ -1,6 +1,5 @@
 package com.group2.bookstore.dal;
 
-import com.group2.bookstore.model.Book;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -8,13 +7,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BookDAO extends DBContext { // Đảm bảo extends DBContext nếu class cha có getConnection
+import com.group2.bookstore.model.Book;
+
+public class BookDAO {
 
     // 1. Get Top 4 Newest Books (For Homepage)
-    public List<Book> getNewArrivals(int roleId) {
+    public List<Book> getNewArrivals() {
         List<Book> list = new ArrayList<>();
         String sql = "SELECT TOP 4 * FROM Books ORDER BY book_id DESC";
-        
 
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -28,12 +28,19 @@ public class BookDAO extends DBContext { // Đảm bảo extends DBContext nếu
         return list;
     }
 
-    // 2. Get Random Books (ĐÃ SỬA: Thay NEWID() bằng book_id DESC để không bị nhảy vị trí)
-    public List<Book> getRandomBook() {
+    // 2. Get Random Books (Fixed Teammate's Code)
+    // 2. Get Random Books (Updated with Role-Based Logic)
+    // ADD PARAMETER: int roleId
+    public List<Book> getRandomBook(int roleId) {
         List<Book> list = new ArrayList<>();
-        
-        // SỬA Ở ĐÂY: Dùng ORDER BY book_id DESC để danh sách cố định
-        String sql = "SELECT TOP 10 * FROM Books ORDER BY book_id DESC"; 
+        String sql;
+
+        // LOGIC: If Admin (1), show all. If Guest/User, only show Active (1)
+        if (roleId == 1) {
+            sql = "SELECT TOP 10 * FROM Books ORDER BY NEWID()";
+        } else {
+            sql = "SELECT TOP 10 * FROM Books ORDER BY book_id DESC"; 
+        }
         
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -83,7 +90,7 @@ public class BookDAO extends DBContext { // Đảm bảo extends DBContext nếu
     // 5. Get Related Books
     public List<Book> getRelatedBooks(int categoryId, int currentBookId) {
         List<Book> list = new ArrayList<>();
-       String sql = "SELECT TOP 4 * FROM Books WHERE category_id = ? AND book_id != ?";
+        String sql = "SELECT TOP 4 * FROM Books WHERE category_id = ? AND book_id != ?";
 
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -156,7 +163,7 @@ public class BookDAO extends DBContext { // Đảm bảo extends DBContext nếu
         String sql = "UPDATE Books SET stock_quantity = ? WHERE book_id = ?";
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement st = conn.prepareStatement(sql)) {
-            st.setInt(1, newQuantity);
+                st.setInt(1, newQuantity);
             st.setInt(2, bookId);
             st.executeUpdate();
         } catch (Exception e) {
@@ -164,7 +171,7 @@ public class BookDAO extends DBContext { // Đảm bảo extends DBContext nếu
         }
     }
 
-    // HELPER: Map ResultSet to Book Object (Giữ nguyên hàm này cho gọn code)
+    // HELPER: Map ResultSet to Book Object
     private Book mapResultSetToBook(ResultSet rs) throws SQLException {
         Book b = new Book();
         b.setId(rs.getInt("book_id"));
@@ -172,13 +179,12 @@ public class BookDAO extends DBContext { // Đảm bảo extends DBContext nếu
         b.setAuthor(rs.getString("author"));
         b.setPrice(rs.getDouble("price"));
         b.setDescription(rs.getString("description"));
-        b.setImage(rs.getString("image")); // Đảm bảo tên cột trong DB là 'image'
+        b.setImage(rs.getString("image"));
         b.setStockQuantity(rs.getInt("stock_quantity"));
-        
-        // Kiểm tra xem cột có tồn tại không trước khi lấy (tránh lỗi nếu query thiếu cột)
-        try { b.setSoldQuantity(rs.getInt("sold_quantity")); } catch (SQLException e) {}
+        b.setSoldQuantity(rs.getInt("sold_quantity"));
         b.setCategoryId(rs.getInt("category_id"));
         
+        // Try-Catch blocks for optional columns (in case older queries don't select them)
         try { b.setActive(rs.getBoolean("is_active")); } catch (SQLException e) {}
         try { b.setImportPrice(rs.getDouble("import_price")); } catch (SQLException e) {}
         
