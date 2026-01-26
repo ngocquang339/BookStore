@@ -54,7 +54,7 @@
             <c:forEach items="${listBooks}" var="b">
                 <div class="product-card">
                     <a href="detail?pid=${b.id}" style="text-decoration: none; color: inherit;">
-                        <img src="${empty b.imageUrl ? 'https://via.placeholder.com/200x300' : b.imageUrl}" alt="${b.title}">
+                        <img src="${pageContext.request.contextPath}/assets/image/books/${b.imageUrl}" alt="${b.title}">
                         <h4>${b.title}</h4>
                         <p style="color: #666; font-size: 14px;">${b.author}</p>
                         <p style="color: #C92127; font-weight: bold; font-size: 18px;">

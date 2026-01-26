@@ -19,7 +19,7 @@ public class ProducDetailServlet extends HttpServlet{
             throws ServletException, IOException {
         
         // 1. Get the Book ID from the URL (e.g., detail?id=5)
-        String idRaw = request.getParameter("id");
+        String idRaw = request.getParameter("pid");
         
         if (idRaw == null || idRaw.isEmpty()) {
             response.sendRedirect("home"); // Invalid ID -> Go Home
