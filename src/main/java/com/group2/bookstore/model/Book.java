@@ -55,8 +55,8 @@ public class Book implements Serializable {
     public void setDescription(String description) { this.description = description; }
 
     // Unified Image Getter/Setter
-    public String getImage() { return image; }
-    public void setImage(String image) { this.image = image; }
+    // public String getImage() { return image; }
+    // public void setImage(String image) { this.image = image; }
     
     // Compatibility: If teammate's code calls getImageUrl, redirect it to getImage
     public String getImageUrl() { return image; }

@@ -179,7 +179,7 @@ public class BookDAO {
         b.setAuthor(rs.getString("author"));
         b.setPrice(rs.getDouble("price"));
         b.setDescription(rs.getString("description"));
-        b.setImage(rs.getString("image"));
+        b.setImageUrl(rs.getString("image"));
         b.setStockQuantity(rs.getInt("stock_quantity"));
         b.setSoldQuantity(rs.getInt("sold_quantity"));
         b.setCategoryId(rs.getInt("category_id"));
