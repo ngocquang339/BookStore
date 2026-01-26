@@ -1,15 +1,15 @@
 package com.group2.bookstore.model;
 
-import java.io.Serializable; // <--- Thêm dòng này
+import java.io.Serializable; 
 public class User implements Serializable{
-    private static final long serialVersionUID = 1L; // <--- Thêm dòng này (tuỳ chọn, nhưng nên có)
+    private static final long serialVersionUID = 1L; 
     private int id;
     private String phone_number;
     private String username;
     private String password;
     private String email;
     private String fullname;
-    private int role; // 1: Admin, 2: User
+    private int role; 
     private String address;
 
     public User() {
@@ -26,7 +26,6 @@ public class User implements Serializable{
         this.address = address;
     }
 
-    // --- Getter và Setter (Bắt buộc phải có để JSP đọc được) ---
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 

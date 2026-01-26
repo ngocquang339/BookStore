@@ -19,47 +19,47 @@ import jakarta.servlet.http.HttpSession;
 public class HomeServlet extends HttpServlet { 
     
     @Override
-protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    String path = request.getServletPath();
-    BookDAO dao = new BookDAO();
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String path = request.getServletPath();
+        BookDAO dao = new BookDAO();
 
-    // 1. GET USER & ROLE
-    HttpSession session = request.getSession();
-    User currentUser = (User) session.getAttribute("user");
-    
-    int roleId = 0; 
-    if (currentUser != null) {
-        roleId = currentUser.getRole(); 
+        // 1. GET USER & ROLE
+        HttpSession session = request.getSession();
+        User currentUser = (User) session.getAttribute("user");
+        
+        int roleId = 0; 
+        if (currentUser != null) {
+            roleId = currentUser.getRole(); 
+        }
+
+        // 2. HANDLE REQUESTS
+        
+        // CASE A: SEARCH
+        if (path.equals("/search")) {
+            String keyword = request.getParameter("txt");
+            List<Book> searchResults = dao.searchBooks(keyword, roleId);
+            
+            request.setAttribute("listBooks", searchResults);
+            request.setAttribute("searchKeyword", keyword);
+            
+            // FIX: Must use FORWARD to keep the data visible
+            request.getRequestDispatcher("view/Home.jsp").forward(request, response);
+        } 
+        
+        // CASE B: HOMEPAGE
+        else {
+            List<Book> newArrivals = dao.getNewArrivals(); 
+            List<Book> bestSellers = dao.getBestSellers(); 
+            List<Book> randomBooks = dao.getRandomBook(roleId);
+
+            request.setAttribute("newBooks", newArrivals);
+            request.setAttribute("bestBooks", bestSellers);
+            request.setAttribute("randomBooks", randomBooks);
+            
+        
+            request.getRequestDispatcher("view/Home.jsp").forward(request, response);
+        }
     }
-
-    // 2. HANDLE REQUESTS
-    
-    // CASE A: SEARCH
-    if (path.equals("/search")) {
-        String keyword = request.getParameter("txt");
-        List<Book> searchResults = dao.searchBooks(keyword, roleId);
-        
-        request.setAttribute("listBooks", searchResults);
-        request.setAttribute("searchKeyword", keyword);
-        
-        // FIX: Must use FORWARD to keep the data visible
-        request.getRequestDispatcher("view/Home.jsp").forward(request, response);
-    } 
-    
-    // CASE B: HOMEPAGE
-    else {
-        List<Book> newArrivals = dao.getNewArrivals(); 
-        List<Book> bestSellers = dao.getBestSellers(); 
-        List<Book> randomBooks = dao.getRandomBook(roleId);
-
-        request.setAttribute("newBooks", newArrivals);
-        request.setAttribute("bestBooks", bestSellers);
-        request.setAttribute("randomBooks", randomBooks);
-        
-       
-        request.getRequestDispatcher("view/Home.jsp").forward(request, response);
-    }
-}
 }
 
 

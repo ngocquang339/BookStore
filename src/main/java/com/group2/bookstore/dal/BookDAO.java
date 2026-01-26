@@ -1,5 +1,7 @@
 package com.group2.bookstore.dal;
 
+import com.group2.bookstore.model.Book;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -7,9 +9,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.group2.bookstore.model.Book;
-
-public class BookDAO {
+public class BookDAO extends DBContext{
 
     // 1. Get Top 4 Newest Books (For Homepage)
     public List<Book> getNewArrivals() {
@@ -28,9 +28,6 @@ public class BookDAO {
         return list;
     }
 
-    // 2. Get Random Books (Fixed Teammate's Code)
-    // 2. Get Random Books (Updated with Role-Based Logic)
-    // ADD PARAMETER: int roleId
     public List<Book> getRandomBook(int roleId) {
         List<Book> list = new ArrayList<>();
         String sql;
@@ -190,4 +187,29 @@ public class BookDAO {
         
         return b;
     }
+
+    public List<Book> getRandomBook(){
+        List<Book> list = new ArrayList<>();
+        String sql = "Select TOP 10 * from Books ORDER BY NEWID()";
+        try {
+        Connection conn = getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery();
+        
+        while (rs.next()) {
+            Book b = new Book();
+            b.setId(rs.getInt("book_id"));
+            b.setTitle(rs.getString("title"));
+            b.setPrice(rs.getDouble("price"));
+            b.setImageUrl(rs.getString("image")); // Tên cột ảnh trong DB
+            b.setAuthor(rs.getString("author"));
+            list.add(b);
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return list;
+    }
 }
+
+

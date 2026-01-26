@@ -10,7 +10,7 @@ public class Book implements Serializable {
     private String author;
     private double price;
     private String description;
-    private String image;       // Standardized to 'image' (was conflicting with imageUrl)
+    private String imageUrl;       // Standardized to 'image' (was conflicting with imageUrl)
     private int stockQuantity;
     private int soldQuantity;
     private String publisher;
@@ -25,14 +25,15 @@ public class Book implements Serializable {
     public Book() {
     }
 
-    // 2. Full Constructor (Updated to match fields)
-    public Book(int id, String title, String author, double price, int stockQuantity, String image, int categoryId, String description) {
+    // Constructor đầy đủ (Dùng cho DAO khi load dữ liệu từ DB lên)
+    public Book(int id, String title, String author, double price, int stockQuantity, String imageUrl, int categoryId, String description) {
         this.id = id;
         this.title = title;
         this.author = author;
         this.price = price;
         this.stockQuantity = stockQuantity;
-        this.image = image;
+        this.imageUrl = imageUrl;
+        this.imageUrl = imageUrl;
         this.categoryId = categoryId;
         this.description = description;
     }
@@ -54,13 +55,8 @@ public class Book implements Serializable {
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
 
-    // Unified Image Getter/Setter
-    // public String getImage() { return image; }
-    // public void setImage(String image) { this.image = image; }
-    
-    // Compatibility: If teammate's code calls getImageUrl, redirect it to getImage
-    public String getImageUrl() { return image; }
-    public void setImageUrl(String image) { this.image = image; }
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String image) { this.imageUrl = image; }
 
     public int getStockQuantity() { return stockQuantity; }
     public void setStockQuantity(int stockQuantity) { this.stockQuantity = stockQuantity; }
@@ -83,4 +79,5 @@ public class Book implements Serializable {
 
     public double getImportPrice() { return importPrice; }
     public void setImportPrice(double importPrice) { this.importPrice = importPrice; }
+    
 }

@@ -32,8 +32,7 @@ public class LoginServlet extends HttpServlet {
             request.getRequestDispatcher("view/Login.jsp").forward(request, response);
             return; // STOP execution here
         }
-
-        // 2. Check Database
+        // 2. Gọi DAO để kiểm tra trong Database
         UserDAO dao = new UserDAO();
         User account = dao.checkLogin(u, p);
 
@@ -60,10 +59,11 @@ public class LoginServlet extends HttpServlet {
                 return; // <--- IMPORTANT
             } 
             else {
-                // Customer / Guest / Others -> Go to Home
                 response.sendRedirect("home");
                 return; // <--- IMPORTANT
             }
+            
+            // Chuyển hướng về trang chủ (hoặc trang admin tùy role)
         }
     }
 }

@@ -185,6 +185,7 @@ body {
 }
 
 /* =========================================
+<<<<<<< HEAD
    EPIC 4: ADMIN TOOLBAR STYLES (US-01)
    ========================================= */
 
@@ -274,6 +275,11 @@ body.admin-active .main-header {
     filter: grayscale(80%);
   
 }
+=======
+   3. CSS CHO KHU VỰC BANNER (STYLE FAHASA)
+   ========================================= */
+
+>>>>>>> Quang
 .banner-section {
     margin-top: 20px; /* Cách header một đoạn */
 }
