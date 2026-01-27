@@ -31,8 +31,8 @@ public class SearchServlet extends HttpServlet {
 
         // Gọi hàm DAO lấy sách
         BookDAO dao = new BookDAO();
-        List<Book> list = dao.getBooks(txtSearch, 0, false);
-
+        // Truyền đủ 8 tham số để khớp với BookDAO mới //SỬA MỚI
+        List<Book> list = dao.getBooks(txtSearch, 0, null, null, 0, 0, null, null); //sửa  
         request.setAttribute("listBooks", list);
         request.setAttribute("txtS", txtSearch);
 
