@@ -122,32 +122,103 @@ public class BookDAO extends DBContext{
     }
 
     // 7. Filter Books (Advanced Search for Warehouse/Admin)
-    public List<Book> getBooks(String keyword, int cid, boolean onlyLowStock) {
-        List<Book> list = new ArrayList<>();
-        String sql = "SELECT * FROM Books WHERE 1=1 ";
-
-        if (keyword != null && !keyword.isEmpty()) {
-            sql += " AND title LIKE ? ";
-        }
-        if (cid > 0) {
-            sql += " AND category_id = ? ";
-        }
-        if (onlyLowStock) {
-            sql += " AND stock_quantity < 5 ";
-        }
-
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement st = conn.prepareStatement(sql)) {
-            int index = 1;
-            if (keyword != null && !keyword.isEmpty()) {
-                st.setString(index++, "%" + keyword + "%");
-            }
-            if (cid > 0) {
-                st.setInt(index++, cid);
-            }
-            ResultSet rs = st.executeQuery();
+    public List<String> getAllAuthors() {
+        List<String> list = new ArrayList<>();
+        String sql = "SELECT DISTINCT author FROM Books WHERE author IS NOT NULL AND author <> '' ORDER BY author";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
-                list.add(mapResultSetToBook(rs));
+                list.add(rs.getString("author"));
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return list;
+    }
+
+    // 2. Lấy danh sách tất cả NXB (không trùng lặp)
+    public List<String> getAllPublishers() {
+        List<String> list = new ArrayList<>();
+        String sql = "SELECT DISTINCT publisher FROM Books WHERE publisher IS NOT NULL AND publisher <> '' ORDER BY publisher";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                list.add(rs.getString("publisher"));
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return list;
+    }
+    // 3. Cập nhật hàm getBooks (Thêm tham số author, publisher, minPrice, maxPrice)
+    public List<Book> getBooks(String keyword, int cid, String author, String publisher, double minPrice, double maxPrice, String sortBy, String sortOrder) {
+        List<Book> list = new ArrayList<>();
+        
+        // Tạo câu SQL động dựa trên việc người dùng có nhập dữ liệu hay không
+        StringBuilder sql = new StringBuilder("SELECT * FROM Books WHERE 1=1 ");
+        List<Object> params = new ArrayList<>(); // Danh sách chứa các tham số ?
+
+        // Filter: Từ khóa
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append(" AND title LIKE ? ");
+            params.add("%" + keyword + "%");
+        }
+        // Filter: Category
+        if (cid > 0) {
+            sql.append(" AND category_id = ? ");
+            params.add(cid);
+        }
+        // Filter: Author
+        if (author != null && !author.trim().isEmpty()) {
+            sql.append(" AND author = ? ");
+            params.add(author);
+        }
+        // Filter: Publisher
+        if (publisher != null && !publisher.trim().isEmpty()) {
+            sql.append(" AND publisher = ? ");
+            params.add(publisher);
+        }
+        // Filter: Price Range (Nếu maxPrice > 0 thì mới lọc)
+        if (maxPrice > 0) {
+            sql.append(" AND price BETWEEN ? AND ? ");
+            params.add(minPrice);
+            params.add(maxPrice);
+        }
+
+        // Sorting (Sắp xếp)
+        if (sortBy != null && !sortBy.isEmpty()) {
+            // Chỉ chấp nhận các cột hợp lệ để tránh SQL Injection
+            if (sortBy.equals("price") || sortBy.equals("title") || sortBy.equals("stock_quantity")) {
+                sql.append(" ORDER BY ").append(sortBy);
+                if ("DESC".equalsIgnoreCase(sortOrder)) {
+                    sql.append(" DESC");
+                } else {
+                    sql.append(" ASC");
+                }
+            }
+        } else {
+            sql.append(" ORDER BY book_id DESC"); // Mặc định sắp xếp mới nhất
+        }
+
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            
+            // Gán giá trị cho các dấu ?
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                // mapResultSetToBook là hàm helper (nếu bạn chưa có thì dùng code set bình thường)
+                Book b = new Book();
+                b.setId(rs.getInt("book_id"));
+                b.setTitle(rs.getString("title"));
+                b.setAuthor(rs.getString("author"));
+                b.setPublisher(rs.getString("publisher"));
+                b.setPrice(rs.getDouble("price"));
+                b.setStockQuantity(rs.getInt("stock_quantity"));
+                b.setImageUrl(rs.getString("image"));
+                b.setCategoryId(rs.getInt("category_id"));
+                list.add(b);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -167,6 +238,9 @@ public class BookDAO extends DBContext{
             e.printStackTrace();
         }
     }
+
+// 2. Thêm hàm lấy danh sách Publisher duy nhất
+
 
     // HELPER: Map ResultSet to Book Object
     private Book mapResultSetToBook(ResultSet rs) throws SQLException {
