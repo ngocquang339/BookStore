@@ -26,10 +26,15 @@ public class RegisterServlet extends HttpServlet{
         String e = request.getParameter("email");
         String re_p = request.getParameter("re_pass");
 
-        if (u == null || u.trim().isEmpty() || p == null || p.trim().isEmpty()) {
-            // Xử lý lỗi: Chuyển hướng lại trang login và báo lỗi
-            request.setAttribute("mess", "Không được để trống thông tin!");
+        if (u == null || u.trim().isEmpty() || p == null || p.trim().isEmpty() || e.length() > 100){
+            request.setAttribute("mess", "Thông tin không hợp lệ!");
             request.getRequestDispatcher("Register.jsp").forward(request, response);
+            return;
+        }
+
+        if (!e.contains("@")) {
+            request.setAttribute("mess", "Email không hợp lệ (phải chứa ký tự @)!");
+            request.getRequestDispatcher("view/Register.jsp").forward(request, response);
             return;
         }
 
