@@ -43,7 +43,7 @@
         </div>
 
         <div class="card-grid">
-            <a href="#" class="admin-card">
+            <a href="${pageContext.request.contextPath}/admin/product/list" class="admin-card">
                 <i class="fa-solid fa-book"></i>
                 <h3>Product Manager</h3>
                 <p>Add, Edit, or Hide books</p>

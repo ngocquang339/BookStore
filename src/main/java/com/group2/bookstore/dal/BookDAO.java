@@ -1,13 +1,13 @@
 package com.group2.bookstore.dal;
 
-import com.group2.bookstore.model.Book;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.group2.bookstore.model.Book;
 
 public class BookDAO extends DBContext{
 
@@ -198,6 +198,8 @@ public class BookDAO extends DBContext{
             sql.append(" ORDER BY book_id DESC"); // Mặc định sắp xếp mới nhất
         }
 
+        
+
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql.toString())) {
             
@@ -226,6 +228,8 @@ public class BookDAO extends DBContext{
         return list;
     }
 
+
+
     // 8. Update Stock (For Warehouse)
     public void updateStock(int bookId, int newQuantity) {
         String sql = "UPDATE Books SET stock_quantity = ? WHERE book_id = ?";
@@ -239,7 +243,73 @@ public class BookDAO extends DBContext{
         }
     }
 
-// 2. Thêm hàm lấy danh sách Publisher duy nhất
+    // --- CRUD OPERATIONS ---
+
+    // 9. INSERT (Create)
+    public void insertBook(Book b) {
+        String sql = "INSERT INTO Books (title, author, price, description, image, stock_quantity, category_id, is_active, import_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, b.getTitle());
+            ps.setString(2, b.getAuthor());
+            ps.setDouble(3, b.getPrice());
+            ps.setString(4, b.getDescription());
+            ps.setString(5, b.getImageUrl());
+            ps.setInt(6, b.getStockQuantity());
+            ps.setInt(7, b.getCategoryId());
+            ps.setBoolean(8, b.isActive());
+            ps.setDouble(9, b.getImportPrice());
+            ps.executeUpdate();
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+
+    // 10. UPDATE (Edit)
+    public void updateBook(Book b) {
+        String sql = "UPDATE Books SET title=?, author=?, price=?, description=?, image=?, stock_quantity=?, category_id=?, is_active=?, import_price=? WHERE book_id=?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, b.getTitle());
+            ps.setString(2, b.getAuthor());
+            ps.setDouble(3, b.getPrice());
+            ps.setString(4, b.getDescription());
+            ps.setString(5, b.getImageUrl()); // Handles the image filename
+            ps.setInt(6, b.getStockQuantity());
+            ps.setInt(7, b.getCategoryId());
+            ps.setBoolean(8, b.isActive());
+            ps.setDouble(9, b.getImportPrice());
+            ps.setInt(10, b.getId());
+            ps.executeUpdate();
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+
+    // 11. SOFT DELETE (Hide instead of remove)
+    public void softDeleteBook(int id) {
+        String sql = "UPDATE Books SET is_active = 0 WHERE book_id = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+
+    // 12. GET ALL BOOKS (For Admin Management)
+    public List<Book> getAllBooksForAdmin() {
+        List<Book> list = new ArrayList<>();
+        // Note: No "WHERE is_active=1" because Admin needs to see hidden/draft books
+        String sql = "SELECT * FROM Books ORDER BY book_id DESC"; 
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                list.add(mapResultSetToBook(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+
 
 
     // HELPER: Map ResultSet to Book Object
