@@ -1,5 +1,7 @@
 package com.group2.bookstore.controller;
 
+import com.group2.bookstore.dal.BookDAO;
+import com.group2.bookstore.model.Book;
 import com.group2.bookstore.model.CartItem;
 import java.io.IOException;
 import java.util.List;
@@ -17,8 +19,9 @@ public class UpdateCartServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        String action = request.getParameter("action"); // inc (tăng), dec (giảm), remove (xóa)
-        String idStr = request.getParameter("id");      // ID sách cần xử lý
+        String action = request.getParameter("action");
+        String idStr = request.getParameter("id");
+        String qtyStr = request.getParameter("quantity"); // Nhận số lượng từ ô nhập
 
         HttpSession session = request.getSession();
         List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
@@ -26,41 +29,65 @@ public class UpdateCartServlet extends HttpServlet {
         if (cart != null && idStr != null) {
             try {
                 int id = Integer.parseInt(idStr);
+                
+                // Lấy thông tin sách để check tồn kho
+                BookDAO dao = new BookDAO();
+                Book bookInDb = dao.getBookById(id);
+                int stock = (bookInDb != null) ? bookInDb.getStockQuantity() : 0;
 
-                // Duyệt qua giỏ hàng để tìm sản phẩm cần sửa
                 for (int i = 0; i < cart.size(); i++) {
                     CartItem item = cart.get(i);
-                    
                     if (item.getBook().getId() == id) {
-                        // 1. Xử lý TĂNG số lượng
+                        
+                        // 1. TĂNG SỐ LƯỢNG (Nút +)
                         if ("inc".equals(action)) {
-                            item.setQuantity(item.getQuantity() + 1);
+                            if (item.getQuantity() < stock) {
+                                item.setQuantity(item.getQuantity() + 1);
+                            } else {
+                                session.setAttribute("message", "Kho chỉ còn " + stock + " sản phẩm!");
+                                session.setAttribute("messageType", "danger");
+                            }
                         } 
-                        // 2. Xử lý GIẢM số lượng
+                        // 2. GIẢM SỐ LƯỢNG (Nút -)
                         else if ("dec".equals(action)) {
                             if (item.getQuantity() > 1) {
                                 item.setQuantity(item.getQuantity() - 1);
                             } else {
-                                // Nếu còn 1 mà bấm giảm -> Xóa luôn
                                 cart.remove(i);
                             }
                         } 
-                        // 3. Xử lý XÓA hẳn
+                        // 3. XÓA SẢN PHẨM (Nút thùng rác)
                         else if ("remove".equals(action)) {
                             cart.remove(i);
                         }
-                        break; // Tìm thấy và xử lý xong thì thoát vòng lặp
+                        // 4. NHẬP SỐ LƯỢNG TRỰC TIẾP (MỚI)
+                        else if ("update".equals(action) && qtyStr != null) {
+                            try {
+                                int newQty = Integer.parseInt(qtyStr);
+                                if (newQty <= 0) {
+                                    session.setAttribute("message", "Số lượng phải lớn hơn 0!");
+                                    session.setAttribute("messageType", "danger");
+                                } else if (newQty > stock) {
+                                    session.setAttribute("message", "Số lượng vượt quá tồn kho (Còn: " + stock + ")!");
+                                    session.setAttribute("messageType", "danger");
+                                    // Có thể set lại số lượng bằng max kho nếu muốn: item.setQuantity(stock);
+                                } else {
+                                    item.setQuantity(newQty); // Cập nhật số lượng mới -> Giá tự động đổi
+                                }
+                            } catch (NumberFormatException e) {
+                                // Người dùng nhập chữ -> Bỏ qua
+                            }
+                        }
+                        break;
                     }
                 }
-            } catch (NumberFormatException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
-        // Cập nhật lại giỏ hàng vào Session
+        // Lưu lại giỏ hàng và reload trang
         session.setAttribute("cart", cart);
-
-        // Quay trở lại trang giỏ hàng
         response.sendRedirect(request.getContextPath() + "/cart");
     }
 }
