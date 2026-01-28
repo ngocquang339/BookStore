@@ -23,9 +23,23 @@
         .product-title { font-weight: 600; color: #333; margin-bottom: 5px; }
         .price-text { font-weight: bold; color: #C92127; }
         
-        .qty-input { width: 40px; text-align: center; border: 1px solid #ddd; border-left: none; border-right: none; height: 30px; }
+        /* CSS Tùy chỉnh cho ô nhập số lượng */
+        .qty-input { 
+            width: 50px; 
+            text-align: center; 
+            border: 1px solid #ddd; 
+            border-left: none; 
+            border-right: none; 
+            height: 30px; 
+            outline: none; /* Bỏ viền xanh khi click */
+        }
+        /* Ẩn mũi tên tăng giảm mặc định của trình duyệt cho input number */
+        .qty-input::-webkit-inner-spin-button, 
+        .qty-input::-webkit-outer-spin-button { 
+            -webkit-appearance: none; margin: 0; 
+        }
         
-        /* Sửa nút +/- thành thẻ a để bấm được */
+        /* Nút +/- */
         .btn-qty { 
             border: 1px solid #ddd; background: white; height: 30px; width: 30px; 
             display: flex; align-items: center; justify-content: center; 
@@ -39,10 +53,32 @@
         .empty-content { text-align: center; padding: 50px 0; }
         .btn-shopping { background-color: #C92127; color: white; padding: 12px 50px; font-weight: 700; border-radius: 4px; text-decoration: none; }
         .total-section { text-align: right; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; }
+        
+        /* CSS cho Overlay thông báo lỗi */
+        .alert-fixed {
+            position: fixed; top: 20px; right: 20px; z-index: 9999; 
+            min-width: 350px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 
 <body>
+
+    <%-- ========================================== --%>
+    <%-- KHỐI HIỂN THỊ THÔNG BÁO (FLASH MESSAGE)    --%>
+    <%-- ========================================== --%>
+    <c:if test="${not empty sessionScope.message}">
+        <div class="alert alert-${sessionScope.messageType} alert-dismissible fade show alert-fixed" role="alert">
+            <i class="fa-solid ${sessionScope.messageType == 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation'}"></i> 
+            <strong>Thông báo:</strong> ${sessionScope.message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <%-- Xóa session ngay để không hiện lại khi F5 --%>
+        <c:remove var="message" scope="session" />
+        <c:remove var="messageType" scope="session" />
+    </c:if>
+
 
     <header class="main-header">
         <div class="container d-flex justify-content-between align-items-center">
@@ -51,6 +87,15 @@
                     <span style="color: #C92127; font-weight: 900; font-size: 28px;">BOOK</span><span style="color: #333; font-weight: 900; font-size: 28px;">STORE</span>
                 </a>
             </div>
+            
+            <div class="search-box" style="flex-grow: 0.5;"> <form action="search" method="get" style="display: flex; width: 100%; position: relative;">
+                    <input type="text" name="txt" placeholder="Tìm kiếm sách, tác giả..." style="width: 100%; padding: 8px 15px; border: 1px solid #ddd; border-radius: 4px;">
+                    <button type="submit" style="position: absolute; right: 0; top: 0; bottom: 0; background: #C92127; border: none; color: white; padding: 0 15px; border-radius: 0 4px 4px 0;">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </form>
+            </div>
+
             <div class="header-icons d-flex gap-4 align-items-center">
                  <a href="${pageContext.request.contextPath}/home" class="text-decoration-none text-dark"><i class="fa-solid fa-arrow-left"></i> Tiếp tục mua sắm</a>
             </div>
@@ -77,7 +122,7 @@
                         <thead>
                             <tr style="border-bottom: 1px solid #eee;">
                                 <th style="width: 50%">Sản phẩm</th>
-                                <th style="width: 15%">Số lượng</th>
+                                <th style="width: 15%" class="text-center">Số lượng</th>
                                 <th style="width: 15%">Thành tiền</th>
                                 <th style="width: 5%"></th>
                             </tr>
@@ -89,6 +134,7 @@
                                         <div class="d-flex align-items-center">
                                             <img src="${pageContext.request.contextPath}/assets/image/books/${item.book.imageUrl}" 
                                                  class="product-img me-3" 
+                                                 alt="${item.book.title}"
                                                  onerror="this.src='https://placehold.co/80x100'">
                                             
                                             <div>
@@ -101,12 +147,13 @@
                                     </td>
                                     
                                     <td>
-                                        <div class="d-flex">
-                                            <a href="${pageContext.request.contextPath}/update-cart?id=${item.book.id}&action=dec" class="btn-qty">-</a>
+                                        <div class="d-flex justify-content-center">
+                                            <a href="${pageContext.request.contextPath}/update-cart?id=${item.book.id}&action=dec" class="btn-qty text-decoration-none">-</a>
                                             
-                                            <input type="text" class="qty-input" value="${item.quantity}" readonly>
+                                            <input type="number" class="qty-input" value="${item.quantity}" min="1"
+                                                   onchange="window.location.href='${pageContext.request.contextPath}/update-cart?id=${item.book.id}&action=update&quantity=' + this.value">
                                             
-                                            <a href="${pageContext.request.contextPath}/update-cart?id=${item.book.id}&action=inc" class="btn-qty">+</a>
+                                            <a href="${pageContext.request.contextPath}/update-cart?id=${item.book.id}&action=inc" class="btn-qty text-decoration-none">+</a>
                                         </div>
                                     </td>
                                     
@@ -117,7 +164,9 @@
                                     </td>
                                     
                                     <td>
-                                        <a href="${pageContext.request.contextPath}/update-cart?id=${item.book.id}&action=remove" class="btn-delete" title="Xóa sản phẩm">
+                                        <a href="${pageContext.request.contextPath}/update-cart?id=${item.book.id}&action=remove" 
+                                           class="btn-delete" title="Xóa sản phẩm"
+                                           onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này không?');">
                                             <i class="fa-solid fa-trash-can"></i>
                                         </a>
                                     </td>
@@ -141,5 +190,7 @@
             </c:choose>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
