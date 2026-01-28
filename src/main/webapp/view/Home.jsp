@@ -153,15 +153,15 @@
                         <img src="${pageContext.request.contextPath}/assets/image/Banner/Screenshot 2026-01-19 150229.png" alt="Banner Chính">
                     </div>
                     <div class="banner-right">
-                        <img src="https://cdn0.fahasa.com/media/wysiwyg/Thang-01-2024/VPP_T124_392x156.jpg" alt="Banner Phụ 1">
-                        <img src="https://cdn0.fahasa.com/media/wysiwyg/Thang-01-2024/Manga_T124_392x156.jpg" alt="Banner Phụ 2">
+                        <img src="${pageContext.request.contextPath}/assets/image/Banner/BannerRight1.jpg" alt="Banner Phụ 1">
+                        <img src="${pageContext.request.contextPath}/assets/image/Banner/BannerRight2.jpg" alt="Banner Phụ 2">
                     </div>
                 </div>
                 <div class="banner-bottom">
-                    <img src="https://cdn0.fahasa.com/media/wysiwyg/Thang-01-2024/TanViet_T124_Banner_Small_310x210.jpg" alt="Small 1">
-                    <img src="https://cdn0.fahasa.com/media/wysiwyg/Thang-01-2024/DinhTi_T124_Banner_Small_310x210.jpg" alt="Small 2">
-                    <img src="https://cdn0.fahasa.com/media/wysiwyg/Thang-01-2024/ZenBooks_T124_Banner_Small_310x210.jpg" alt="Small 3">
-                    <img src="https://cdn0.fahasa.com/media/wysiwyg/Thang-01-2024/McBooks_T124_Banner_Small_310x210.jpg" alt="Small 4">
+                    <img src="${pageContext.request.contextPath}/assets/image/Banner/BannerBottom1.jpg" alt="Small 1">
+                    <img src="${pageContext.request.contextPath}/assets/image/Banner/BannerBottom2.jpg" alt="Small 2">
+                    <img src="${pageContext.request.contextPath}/assets/image/Banner/BannerBottom3.jpg" alt="Small 3">
+                    <img src="${pageContext.request.contextPath}/assets/image/Banner/BannerBottom4.jpg" alt="Small 4">
                 </div>
             </section>
 
