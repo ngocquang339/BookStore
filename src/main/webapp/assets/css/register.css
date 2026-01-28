@@ -1,0 +1,144 @@
+/* assets/css/register.css */
+
+/* 1. CẤU HÌNH CHUNG */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f4f6f9; /* Màu nền xám xanh nhạt */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* 2. CARD CONTAINER */
+.register-container {
+    background: #ffffff;
+    width: 100%;
+    max-width: 420px;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    text-align: center;
+}
+
+/* 3. HEADER */
+.register-header h2 {
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+.register-header p {
+    color: #888;
+    font-size: 14px;
+    margin-bottom: 30px;
+}
+.brand-text { color: #C92127; font-weight: 700; }
+
+/* 4. ERROR MESSAGE */
+.alert-error {
+    background-color: #ffe5e5;
+    color: #d63031;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-left: 4px solid #d63031;
+    text-align: left;
+}
+
+/* 5. FORM INPUTS */
+.input-group {
+    position: relative;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.input-group label {
+    display: block;
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+.input-wrapper {
+    position: relative;
+}
+
+.input-wrapper i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #aaa;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+.input-wrapper input {
+    width: 100%;
+    padding: 12px 15px 12px 45px; /* Padding trái cho icon */
+    border: 1px solid #e1e1e1;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #333;
+    transition: all 0.3s ease;
+    background: #fafafa;
+}
+
+/* Hiệu ứng Focus */
+.input-wrapper input:focus {
+    background: #fff;
+    border-color: #C92127;
+    box-shadow: 0 0 0 4px rgba(201, 33, 39, 0.1);
+    outline: none;
+}
+
+.input-wrapper input:focus + i {
+    color: #C92127;
+}
+
+/* 6. BUTTON */
+.btn-submit {
+    width: 100%;
+    padding: 14px;
+    background: #C92127;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(201, 33, 39, 0.2);
+}
+
+.btn-submit:hover {
+    background: #a81a1f;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(201, 33, 39, 0.3);
+}
+
+/* 7. FOOTER LINKS */
+.form-footer {
+    margin-top: 25px;
+    font-size: 14px;
+    color: #666;
+}
+.form-footer a {
+    color: #C92127;
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.2s;
+}
+.form-footer a:hover {
+    text-decoration: underline;
+}

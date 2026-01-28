@@ -53,7 +53,7 @@
         <div class="product-detail-container" style="display: flex; gap: 40px;">
             
             <div class="product-image" style="flex: 1;">
-                <img src="${pageContext.request.contextPath}/assets/image/${book.image}" 
+                <img src="${pageContext.request.contextPath}/assets/image/${book.imageUrl}" 
                      alt="${book.title}" style="width: 100%; max-width: 400px; border: 1px solid #ddd;">
             </div>
 
@@ -89,14 +89,12 @@
                 <div class="actions" style="margin-top: 30px;">
                     <c:choose>
                         
-                        <%-- Case 1: Out of Stock (Guest) --%>
                         <c:when test="${book.stockQuantity <= 0 && (sessionScope.user == null || sessionScope.user.role != 1)}">
                             <button disabled style="background: #ccc; cursor: not-allowed; padding: 15px 30px; border: none; font-size: 16px;">
                                 Tạm hết hàng (Out of Stock)
                             </button>
                         </c:when>
 
-                        <%-- Case 2: Out of Stock but user is ADMIN (Happy Case 2) --%>
                         <c:when test="${book.stockQuantity <= 0 && sessionScope.user.role == 1}">
                             <button style="background: #007bff; color: white; padding: 15px 30px; border: none; cursor: pointer;">
                                 Test Add to Cart (Admin Mode)
@@ -106,7 +104,6 @@
                             </span>
                         </c:when>
 
-                        <%-- Case 3: In Stock (Normal) --%>
                         <c:otherwise>
                             <form action="cart" method="post">
                                 <input type="hidden" name="action" value="add">

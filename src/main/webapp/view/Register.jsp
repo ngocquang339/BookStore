@@ -1,19 +1,75 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Đăng kí Bookstore</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký tài khoản - BookStore</title>
     
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/register.css">
 </head>
 <body>
-    <form action="${pageContext.request.contextPath}/register" method="post">
-    <input type="text" name="username" placeholder="Nhập user name: " required>
-    <input type="text" name="email" placeholder="Nhập email: " required>
-    <input type="password" name="password" placeholder="Nhập mật khẩu: " required>
-    <input type="password" name="re_pass" placeholder="Nhập lại mật khẩu: " required>
-    <input type="submit" value="Đăng kí" class="btn-submit">
-    </form>
+
+    <div class="register-container">
+        <div class="register-header">
+            <h2>Đăng Ký Thành Viên</h2>
+            <p>Chào mừng bạn đến với <span class="brand-text">BOOKSTORE</span></p>
+        </div>
+
+        <c:if test="${not empty mess}">
+            <div class="alert-error">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span>${mess}</span>
+            </div>
+        </c:if>
+
+        <form action="${pageContext.request.contextPath}/register" method="post">
+            
+            <div class="input-group">
+                <label>Tên đăng nhập</label>
+                <div class="input-wrapper">
+                    <input type="text" name="username" placeholder="Ví dụ: nguyenvanan" required autocomplete="off">
+                    <i class="fa-regular fa-user"></i>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Địa chỉ Email</label>
+                <div class="input-wrapper">
+                    <input type="email" name="email" placeholder="example@gmail.com" required autocomplete="off">
+                    <i class="fa-regular fa-envelope"></i>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Mật khẩu</label>
+                <div class="input-wrapper">
+                    <input type="password" name="password" placeholder="Nhập mật khẩu..." required>
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Nhập lại mật khẩu</label>
+                <div class="input-wrapper">
+                    <input type="password" name="re_pass" placeholder="Xác nhận lại mật khẩu..." required>
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit">
+                Đăng Ký Ngay
+            </button>
+
+            <div class="form-footer">
+                Bạn đã có tài khoản? <a href="${pageContext.request.contextPath}/login">Đăng nhập tại đây</a>
+            </div>
+        </form>
+    </div>
+
 </body>
+</html>
