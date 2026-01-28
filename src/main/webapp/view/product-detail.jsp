@@ -53,7 +53,7 @@
         <div class="product-detail-container" style="display: flex; gap: 40px;">
             
             <div class="product-image" style="flex: 1;">
-                <img src="${pageContext.request.contextPath}/assets/image/${book.imageUrl}" 
+                <img src="${pageContext.request.contextPath}/assets/image/books/${book.imageUrl}" 
                      alt="${book.title}" style="width: 100%; max-width: 400px; border: 1px solid #ddd;">
             </div>
 
