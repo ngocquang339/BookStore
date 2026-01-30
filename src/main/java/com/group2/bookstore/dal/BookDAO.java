@@ -149,14 +149,24 @@ public class BookDAO extends DBContext{
         return list;
     }
     // 3. Cập nhật hàm getBooks (Thêm tham số author, publisher, minPrice, maxPrice)
-    public List<Book> getBooks(String keyword, int cid, String author, String publisher, double minPrice, double maxPrice, String sortBy, String sortOrder) {
+    // Updated Method: Added 'boolean isAdmin' as the last parameter
+    public List<Book> getBooks(String keyword, int cid, String author, String publisher, double minPrice, double maxPrice, String sortBy, String sortOrder, boolean isAdmin) {
+        
         List<Book> list = new ArrayList<>();
         
-        // Tạo câu SQL động dựa trên việc người dùng có nhập dữ liệu hay không
+        // Start Query
         StringBuilder sql = new StringBuilder("SELECT * FROM Books WHERE 1=1 ");
-        List<Object> params = new ArrayList<>(); // Danh sách chứa các tham số ?
+        List<Object> params = new ArrayList<>(); 
 
-        // Filter: Từ khóa
+        // --- NEW LOGIC START ---
+        // If NOT Admin, only show Active books.
+        // If Admin, show everything (don't add this filter).
+        if (!isAdmin) {
+            sql.append(" AND is_active = 1 ");
+        }
+        // --- NEW LOGIC END ---
+
+        // Filter: Keyword
         if (keyword != null && !keyword.trim().isEmpty()) {
             sql.append(" AND title LIKE ? ");
             params.add("%" + keyword + "%");
@@ -176,16 +186,15 @@ public class BookDAO extends DBContext{
             sql.append(" AND publisher = ? ");
             params.add(publisher);
         }
-        // Filter: Price Range (Nếu maxPrice > 0 thì mới lọc)
+        // Filter: Price Range
         if (maxPrice > 0) {
             sql.append(" AND price BETWEEN ? AND ? ");
             params.add(minPrice);
             params.add(maxPrice);
         }
 
-        // Sorting (Sắp xếp)
+        // Sorting
         if (sortBy != null && !sortBy.isEmpty()) {
-            // Chỉ chấp nhận các cột hợp lệ để tránh SQL Injection
             if (sortBy.equals("price") || sortBy.equals("title") || sortBy.equals("stock_quantity")) {
                 sql.append(" ORDER BY ").append(sortBy);
                 if ("DESC".equalsIgnoreCase(sortOrder)) {
@@ -195,22 +204,19 @@ public class BookDAO extends DBContext{
                 }
             }
         } else {
-            sql.append(" ORDER BY book_id DESC"); // Mặc định sắp xếp mới nhất
+            sql.append(" ORDER BY book_id DESC");
         }
-
-        
 
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql.toString())) {
             
-            // Gán giá trị cho các dấu ?
+            // Set Parameters
             for (int i = 0; i < params.size(); i++) {
                 ps.setObject(i + 1, params.get(i));
             }
 
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                // mapResultSetToBook là hàm helper (nếu bạn chưa có thì dùng code set bình thường)
                 Book b = new Book();
                 b.setId(rs.getInt("book_id"));
                 b.setTitle(rs.getString("title"));
@@ -218,8 +224,14 @@ public class BookDAO extends DBContext{
                 b.setPublisher(rs.getString("publisher"));
                 b.setPrice(rs.getDouble("price"));
                 b.setStockQuantity(rs.getInt("stock_quantity"));
-                b.setImageUrl(rs.getString("image"));
                 b.setCategoryId(rs.getInt("category_id"));
+                
+                // Keep your correct image mapping
+                b.setImageUrl(rs.getString("image")); 
+                
+                // Add Admin fields (Optional but good for debugging)
+                try { b.setActive(rs.getBoolean("is_active")); } catch (Exception e) {}
+
                 list.add(b);
             }
         } catch (Exception e) {

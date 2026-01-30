@@ -57,7 +57,7 @@
                                     </td>
                                     <td>
                                         <strong style="color: #C92127;">
-                                            <fmt:formatNumber value="${b.price}" type="currency" currencySymbol="$" />
+                                            <fmt:formatNumber value="${b.price}" type="currency" currencySymbol="đ" />
                                         </strong>
                                     </td>
                                     <td>

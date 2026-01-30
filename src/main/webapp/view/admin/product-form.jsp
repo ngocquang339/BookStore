@@ -49,11 +49,11 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label>Selling Price ($) <span style="color:red">*</span></label>
+                    <label>Selling Price (đ) <span style="color:red">*</span></label>
                     <input type="number" class="form-control" step="0.01" min="0.01" name="price" value="${book.price}" required>
                 </div>
                 <div class="form-group">
-                    <label>Import Price ($) [Admin Only] <span style="color:red">*</span></label>
+                    <label>Import Price (đ) [Admin Only] <span style="color:red">*</span></label>
                     <input type="number" class="form-control" step="0.01" min="0.01" name="importPrice" value="${book.importPrice}" required>
                 </div>
                 <div class="form-group">

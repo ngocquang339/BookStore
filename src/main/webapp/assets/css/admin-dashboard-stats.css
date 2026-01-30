@@ -1,0 +1,51 @@
+/* Flex container for the statistics cards */
+.stats-grid {
+    display: flex;
+    justify-content: space-between; /* Distribute space evenly */
+    gap: 20px; /* Space between cards */
+    margin-bottom: 30px;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+}
+
+/* Individual statistic card styling */
+.stat-card {
+    background: white;
+    padding: 20px 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    border-left: 5px solid #ddd; /* Default border color */
+    flex: 1; /* Make all cards take up equal width */
+    min-width: 220px; /* Minimum width before wrapping */
+    transition: transform 0.2s ease-in-out;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px); /* Subtle lift effect on hover */
+}
+
+/* Icon styling */
+.stat-icon {
+    font-size: 2.5rem;
+    opacity: 0.85;
+}
+
+/* Text info styling */
+.stat-info h3 {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 700;
+    color: #333;
+    line-height: 1.2;
+}
+
+.stat-info p {
+    margin: 5px 0 0 0;
+    color: #6c757d;
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
