@@ -28,7 +28,37 @@
         </c:if>
 
         <form action="${pageContext.request.contextPath}/register" method="post">
-            
+            <div class="input-group">
+                <label>Họ và tên</label>
+                <div class="input-wrapper">
+                    <input type="text" name="fullname" placeholder="Ví dụ: Nguyễn Văn An" required autocomplete="off">
+                    <i class="fa-regular fa-id-card"></i>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Số điện thoại</label>
+                <div class="input-wrapper">
+                    <input
+                        type="tel"
+                        name="phone_number"
+                        placeholder="Ví dụ: 0912345678"
+                        pattern="[0-9]{10}"
+                        maxlength="10"
+                        required
+                        autocomplete="off"
+                        title="Số điện thoại phải gồm đúng 10 chữ số"
+                        oninput="
+                                this.value = this.value.replace(/[^0-9]/g, '');
+                                if (this.value.length > 10) {
+                                    this.value = this.value.slice(0, 10);
+                                }
+                            ">
+                    <i class="fa-solid fa-phone"></i>
+                </div>
+            </div>
+
+
             <div class="input-group">
                 <label>Tên đăng nhập</label>
                 <div class="input-wrapper">

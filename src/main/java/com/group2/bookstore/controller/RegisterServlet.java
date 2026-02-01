@@ -21,12 +21,14 @@ public class RegisterServlet extends HttpServlet{
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String fn = request.getParameter("fullname");
         String u = request.getParameter("username");
         String p = request.getParameter("password");
         String e = request.getParameter("email");
+        String phone = request.getParameter("phone_number");
         String re_p = request.getParameter("re_pass");
 
-        if (u == null || u.trim().isEmpty() || p == null || p.trim().isEmpty() || e.length() > 100){
+        if (u == null || u.trim().isEmpty() || p == null || p.trim().isEmpty() || e.length() > 100 || phone == null || phone.trim().isEmpty() || fn == null || fn.trim().isEmpty()){
             request.setAttribute("mess", "Thông tin không hợp lệ!");
             request.getRequestDispatcher("Register.jsp").forward(request, response);
             return;
@@ -52,6 +54,8 @@ public class RegisterServlet extends HttpServlet{
             newuser.setUsername(u);
             newuser.setEmail(e);
             newuser.setPassword(p);
+            newuser.setFullname(fn);
+            newuser.setPhone_number(phone);
             userdao.createUser(newuser);
             response.sendRedirect("login");
             return;
