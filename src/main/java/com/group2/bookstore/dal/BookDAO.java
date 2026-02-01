@@ -1,13 +1,13 @@
 package com.group2.bookstore.dal;
 
-import com.group2.bookstore.model.Book;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.group2.bookstore.model.Book;
 
 public class BookDAO extends DBContext{
 
@@ -149,14 +149,24 @@ public class BookDAO extends DBContext{
         return list;
     }
     // 3. Cập nhật hàm getBooks (Thêm tham số author, publisher, minPrice, maxPrice)
-    public List<Book> getBooks(String keyword, int cid, String author, String publisher, double minPrice, double maxPrice, String sortBy, String sortOrder) {
+    // Updated Method: Added 'boolean isAdmin' as the last parameter
+    public List<Book> getBooks(String keyword, int cid, String author, String publisher, double minPrice, double maxPrice, String sortBy, String sortOrder, boolean isAdmin) {
+        
         List<Book> list = new ArrayList<>();
         
-        // Tạo câu SQL động dựa trên việc người dùng có nhập dữ liệu hay không
+        // Start Query
         StringBuilder sql = new StringBuilder("SELECT * FROM Books WHERE 1=1 ");
-        List<Object> params = new ArrayList<>(); // Danh sách chứa các tham số ?
+        List<Object> params = new ArrayList<>(); 
 
-        // Filter: Từ khóa
+        // --- NEW LOGIC START ---
+        // If NOT Admin, only show Active books.
+        // If Admin, show everything (don't add this filter).
+        if (!isAdmin) {
+            sql.append(" AND is_active = 1 ");
+        }
+        // --- NEW LOGIC END ---
+
+        // Filter: Keyword
         if (keyword != null && !keyword.trim().isEmpty()) {
             sql.append(" AND title LIKE ? ");
             params.add("%" + keyword + "%");
@@ -176,16 +186,15 @@ public class BookDAO extends DBContext{
             sql.append(" AND publisher = ? ");
             params.add(publisher);
         }
-        // Filter: Price Range (Nếu maxPrice > 0 thì mới lọc)
+        // Filter: Price Range
         if (maxPrice > 0) {
             sql.append(" AND price BETWEEN ? AND ? ");
             params.add(minPrice);
             params.add(maxPrice);
         }
 
-        // Sorting (Sắp xếp)
+        // Sorting
         if (sortBy != null && !sortBy.isEmpty()) {
-            // Chỉ chấp nhận các cột hợp lệ để tránh SQL Injection
             if (sortBy.equals("price") || sortBy.equals("title") || sortBy.equals("stock_quantity")) {
                 sql.append(" ORDER BY ").append(sortBy);
                 if ("DESC".equalsIgnoreCase(sortOrder)) {
@@ -195,20 +204,19 @@ public class BookDAO extends DBContext{
                 }
             }
         } else {
-            sql.append(" ORDER BY book_id DESC"); // Mặc định sắp xếp mới nhất
+            sql.append(" ORDER BY book_id DESC");
         }
 
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql.toString())) {
             
-            // Gán giá trị cho các dấu ?
+            // Set Parameters
             for (int i = 0; i < params.size(); i++) {
                 ps.setObject(i + 1, params.get(i));
             }
 
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                // mapResultSetToBook là hàm helper (nếu bạn chưa có thì dùng code set bình thường)
                 Book b = new Book();
                 b.setId(rs.getInt("book_id"));
                 b.setTitle(rs.getString("title"));
@@ -216,8 +224,14 @@ public class BookDAO extends DBContext{
                 b.setPublisher(rs.getString("publisher"));
                 b.setPrice(rs.getDouble("price"));
                 b.setStockQuantity(rs.getInt("stock_quantity"));
-                b.setImageUrl(rs.getString("image"));
                 b.setCategoryId(rs.getInt("category_id"));
+                
+                // Keep your correct image mapping
+                b.setImageUrl(rs.getString("image")); 
+                
+                // Add Admin fields (Optional but good for debugging)
+                try { b.setActive(rs.getBoolean("is_active")); } catch (Exception e) {}
+
                 list.add(b);
             }
         } catch (Exception e) {
@@ -225,6 +239,8 @@ public class BookDAO extends DBContext{
         }
         return list;
     }
+
+
 
     // 8. Update Stock (For Warehouse)
     public void updateStock(int bookId, int newQuantity) {
@@ -239,7 +255,73 @@ public class BookDAO extends DBContext{
         }
     }
 
-// 2. Thêm hàm lấy danh sách Publisher duy nhất
+    // --- CRUD OPERATIONS ---
+
+    // 9. INSERT (Create)
+    public void insertBook(Book b) {
+        String sql = "INSERT INTO Books (title, author, price, description, image, stock_quantity, category_id, is_active, import_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, b.getTitle());
+            ps.setString(2, b.getAuthor());
+            ps.setDouble(3, b.getPrice());
+            ps.setString(4, b.getDescription());
+            ps.setString(5, b.getImageUrl());
+            ps.setInt(6, b.getStockQuantity());
+            ps.setInt(7, b.getCategoryId());
+            ps.setBoolean(8, b.isActive());
+            ps.setDouble(9, b.getImportPrice());
+            ps.executeUpdate();
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+
+    // 10. UPDATE (Edit)
+    public void updateBook(Book b) {
+        String sql = "UPDATE Books SET title=?, author=?, price=?, description=?, image=?, stock_quantity=?, category_id=?, is_active=?, import_price=? WHERE book_id=?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, b.getTitle());
+            ps.setString(2, b.getAuthor());
+            ps.setDouble(3, b.getPrice());
+            ps.setString(4, b.getDescription());
+            ps.setString(5, b.getImageUrl()); // Handles the image filename
+            ps.setInt(6, b.getStockQuantity());
+            ps.setInt(7, b.getCategoryId());
+            ps.setBoolean(8, b.isActive());
+            ps.setDouble(9, b.getImportPrice());
+            ps.setInt(10, b.getId());
+            ps.executeUpdate();
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+
+    // 11. SOFT DELETE (Hide instead of remove)
+    public void softDeleteBook(int id) {
+        String sql = "UPDATE Books SET is_active = 0 WHERE book_id = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+
+    // 12. GET ALL BOOKS (For Admin Management)
+    public List<Book> getAllBooksForAdmin() {
+        List<Book> list = new ArrayList<>();
+        // Note: No "WHERE is_active=1" because Admin needs to see hidden/draft books
+        String sql = "SELECT * FROM Books ORDER BY book_id DESC"; 
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                list.add(mapResultSetToBook(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+
 
 
     // HELPER: Map ResultSet to Book Object

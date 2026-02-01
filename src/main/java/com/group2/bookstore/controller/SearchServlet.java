@@ -1,15 +1,18 @@
 package com.group2.bookstore.controller;
 
-import com.group2.bookstore.dal.BookDAO;
+import java.io.IOException;
+import java.util.List;
+
+import com.group2.bookstore.dal.BookDAO; // Import User model
 import com.group2.bookstore.model.Book;
+import com.group2.bookstore.model.User;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.List;
+import jakarta.servlet.http.HttpSession;
 
 @WebServlet(name = "SearchServlet", urlPatterns = {"/search"})
 public class SearchServlet extends HttpServlet {
@@ -18,26 +21,28 @@ public class SearchServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        try {
-            request.setCharacterEncoding("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            // UTF-8 should always be supported, but handle if it's not
-            e.printStackTrace();
-        }
+        request.setCharacterEncoding("UTF-8");
         String txtSearch = request.getParameter("txt");
-        if (txtSearch == null) {
-            txtSearch = "";
+        if (txtSearch == null) txtSearch = "";
+
+        // 1. Check if user is Admin
+        HttpSession session = request.getSession();
+        User user = (User) session.getAttribute("user");
+        
+        boolean isAdmin = false;
+        if (user != null && user.getRole() == 1) { // Assuming Role 1 is Admin
+            isAdmin = true;
         }
 
-        // Gọi hàm DAO lấy sách
+        // 2. Call DAO with the new 'isAdmin' parameter
         BookDAO dao = new BookDAO();
-        // Truyền đủ 8 tham số để khớp với BookDAO mới //SỬA MỚI
-        List<Book> list = dao.getBooks(txtSearch, 0, null, null, 0, 0, null, null); //sửa  
+        
+        // Notice the 'isAdmin' (true/false) added at the very end
+        List<Book> list = dao.getBooks(txtSearch, 0, null, null, 0, 0, null, null, isAdmin);
+        
         request.setAttribute("listBooks", list);
         request.setAttribute("txtS", txtSearch);
 
-        // --- SỬA DÒNG NÀY ---
-        // Chuyển hướng sang trang Search.jsp riêng biệt
         request.getRequestDispatcher("view/Search.jsp").forward(request, response);
     }
 
