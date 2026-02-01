@@ -92,8 +92,8 @@ public class UserDAO extends DBContext{
 }
 
 // Hàm thêm mới người dùng vào Database
-    public void createUser(User user) {
-        String sql = "INSERT INTO Users (username, password, email, role) VALUES (?, ?, ?, ?)";
+    public void createUser(User user){
+        String sql = "INSERT INTO Users (fullname, phone_number, username, password, email, role) VALUES (?, ?, ?, ?, ?, ?)";
 
         try {
             // 2. Mở kết nối
@@ -101,12 +101,14 @@ public class UserDAO extends DBContext{
             PreparedStatement st = conn.prepareStatement(sql);
 
             // 3. Truyền tham số (Thứ tự dấu ? phải khớp với danh sách cột ở trên)
-            st.setString(1, user.getUsername()); 
-            st.setString(2, user.getPassword()); 
-            st.setString(3, user.getEmail());    
+            st.setString(1, user.getFullname()); 
+            st.setString(2, user.getPhone_number()); 
+            st.setString(3, user.getUsername()); 
+            st.setString(4, user.getPassword()); 
+            st.setString(5, user.getEmail());    
             
             // 4. Set Role mặc định (Ví dụ: 2 là Customer. Bạn sửa số này theo quy ước DB của bạn)
-            st.setInt(4, 2); 
+            st.setInt(6, 2); 
 
             // 5. Thực thi câu lệnh (QUAN TRỌNG)
             int rowsAffected = st.executeUpdate();
