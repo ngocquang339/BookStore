@@ -87,7 +87,7 @@ public class UserDAO extends DBContext{
 }
 
 // Hàm thêm mới người dùng vào Database
-    public void createUser(User user) {
+    public void createUser(User user){
         String sql = "INSERT INTO Users (username, password, email, role) VALUES (?, ?, ?, ?)";
 
         try {

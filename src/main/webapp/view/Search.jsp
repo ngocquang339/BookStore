@@ -30,41 +30,98 @@
         </div>
     </header>
 
-    <main class="container">
+<main class="container" style="margin-top: 20px;">
         
-        <div class="search-container">
+        <div class="search-container" style="margin-bottom: 20px;">
             <form action="search" method="get">
                 <input type="text" name="txt" value="${txtS}" placeholder="Nhập tên sách, tác giả bạn muốn tìm...">
                 <button type="submit">Tìm kiếm</button>
             </form>
         </div>
 
-        <h3 style="border-bottom: 2px solid #C92127; padding-bottom: 10px; display: inline-block;">
-            Kết quả cho từ khóa: <span style="color: #C92127">"${txtS}"</span>
-        </h3>
+        <div class="content-wrapper" style="display: flex; gap: 30px; align-items: flex-start;">
+            
+            <div class="sidebar" style="width: 280px; padding: 20px; background: #fff; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                <h3 style="margin-top: 0; color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+                    <i class="fa-solid fa-filter"></i> Bộ lọc tìm kiếm
+                </h3>
+                
+                <form action="${pageContext.request.contextPath}/search" method="get">
+                    
+                    <input type="hidden" name="txt" value="${txtS}">
+                    
+                    <div class="filter-group" style="margin-bottom: 15px;">
+                        <label style="font-weight: bold; display: block; margin-bottom: 5px;">Danh mục:</label>
+                        <select name="cid" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                            <option value="0">Tất cả danh mục</option>
+                            <c:forEach items="${listCategories}" var="c">
+                                <option value="${c.id}" ${cid == c.id ? 'selected' : ''}>${c.name}</option>
+                            </c:forEach>
+                        </select>
+                    </div>
 
-        <c:if test="${empty listBooks}">
-            <div class="empty-message">
-                <i class="fa-regular fa-face-frown-open" style="font-size: 60px; color: #ccc; margin-bottom: 20px;"></i>
-                <p>Rất tiếc, chúng tôi không tìm thấy cuốn sách nào khớp với yêu cầu của bạn.</p>
-            </div>
-        </c:if>
+                    <div class="filter-group" style="margin-bottom: 15px;">
+                        <label style="font-weight: bold; display: block; margin-bottom: 5px;">Khoảng giá (VNĐ):</label>
+                        <div style="display: flex; gap: 5px;">
+                            <input type="number" name="priceFrom" value="${priceFrom > 0 ? priceFrom : ''}" placeholder="Từ..." style="width: 50%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                            <input type="number" name="priceTo" value="${priceTo > 0 ? priceTo : ''}" placeholder="Đến..." style="width: 50%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                        </div>
+                    </div>
 
-        <div class="product-list">
-            <c:forEach items="${listBooks}" var="b">
-                <div class="product-card">
-                    <a href="detail?pid=${b.id}" style="text-decoration: none; color: inherit;">
-                        <img src="${pageContext.request.contextPath}/assets/image/books/${b.imageUrl}" alt="${b.title}">
-                        <h4>${b.title}</h4>
-                        <p style="color: #666; font-size: 14px;">${b.author}</p>
-                        <p style="color: #C92127; font-weight: bold; font-size: 18px;">
-                            <fmt:formatNumber value="${b.price}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
-                        </p>
+                    <div class="filter-group" style="margin-bottom: 15px;">
+                        <label style="font-weight: bold; display: block; margin-bottom: 5px;">Tác giả:</label>
+                        <input type="text" name="author" value="${author}" placeholder="Nhập tên tác giả..." style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                    </div>
+
+                    <div class="filter-group" style="margin-bottom: 20px;">
+                        <label style="font-weight: bold; display: block; margin-bottom: 5px;">Sắp xếp theo:</label>
+                        <select name="sort" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                            <option value="">Mặc định</option>
+                            <option value="price" ${sort == 'price' ? 'selected' : ''}>Giá tiền (Tăng dần)</option>
+                            <option value="title" ${sort == 'title' ? 'selected' : ''}>Tên sách (A-Z)</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" style="width: 100%; padding: 10px; background: #C92127; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.3s;">
+                        Áp dụng bộ lọc
+                    </button>
+                    
+                    <a href="search?txt=${txtS}" style="display: block; text-align: center; margin-top: 10px; color: #666; font-size: 13px; text-decoration: underline;">
+                        Xóa bộ lọc
                     </a>
-                </div>
-            </c:forEach>
-        </div>
+                </form>
+            </div>
 
+            <div class="results-column" style="flex: 1;">
+                
+                <h3 style="border-bottom: 2px solid #C92127; padding-bottom: 10px; display: inline-block; margin-top: 0;">
+                    Kết quả cho từ khóa: <span style="color: #C92127">"${txtS}"</span>
+                </h3>
+
+                <c:if test="${empty listBooks}">
+                    <div class="empty-message" style="text-align: center; margin-top: 50px;">
+                        <i class="fa-regular fa-face-frown-open" style="font-size: 60px; color: #ccc; margin-bottom: 20px;"></i>
+                        <p>Rất tiếc, không tìm thấy cuốn sách nào phù hợp với bộ lọc này.</p>
+                    </div>
+                </c:if>
+
+                <div class="product-list">
+                    <c:forEach items="${listBooks}" var="b">
+                        <div class="product-card">
+                            <a href="detail?pid=${b.id}" style="text-decoration: none; color: inherit;">
+                                <img src="${pageContext.request.contextPath}/assets/image/books/${b.imageUrl}" alt="${b.title}">
+                                <h4>${b.title}</h4>
+                                <p style="color: #666; font-size: 14px;">${b.author}</p>
+                                <p style="color: #C92127; font-weight: bold; font-size: 18px;">
+                                    <fmt:formatNumber value="${b.price}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
+                                </p>
+                            </a>
+                        </div>
+                    </c:forEach>
+                </div>
+            </div>
+            
+        </div>
     </main>
 
 </body>
