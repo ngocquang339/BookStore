@@ -47,7 +47,13 @@
                         maxlength="10"
                         required
                         autocomplete="off"
-                        title="Số điện thoại phải gồm đúng 10 chữ số">
+                        title="Số điện thoại phải gồm đúng 10 chữ số"
+                        oninput="
+                                this.value = this.value.replace(/[^0-9]/g, '');
+                                if (this.value.length > 10) {
+                                    this.value = this.value.slice(0, 10);
+                                }
+                            ">
                     <i class="fa-solid fa-phone"></i>
                 </div>
             </div>

@@ -54,6 +54,8 @@ public class RegisterServlet extends HttpServlet{
             newuser.setUsername(u);
             newuser.setEmail(e);
             newuser.setPassword(p);
+            newuser.setFullname(fn);
+            newuser.setPhone_number(phone);
             userdao.createUser(newuser);
             response.sendRedirect("login");
             return;

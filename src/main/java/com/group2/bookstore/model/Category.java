@@ -3,7 +3,7 @@ package com.group2.bookstore.model;
 public class Category {
     private int id;
     private String name;
-    private String description;
+    private String description; // Thêm cho khớp DB
 
     public Category() {
     }
