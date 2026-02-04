@@ -1,12 +1,13 @@
 package com.group2.bookstore.dal;
 
+import com.group2.bookstore.model.User;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.group2.bookstore.model.User;
 
 public class UserDAO extends DBContext{
     public User checkLogin(String username, String password) {
@@ -32,8 +33,7 @@ public class UserDAO extends DBContext{
                     rs.getInt("role"),
                     rs.getString("phone_number"),
                     rs.getString("address"),
-                    rs.getInt("status"), // 1 or 0
-                    rs.getTimestamp("createAt")
+                     rs.getInt("status")
                 );
                 return u; 
             }
@@ -81,8 +81,7 @@ public class UserDAO extends DBContext{
                 rs.getInt("role"),
                 rs.getString("phone_number"),
                 rs.getString("address"),
-                rs.getInt("status"), // 1 or 0
-                rs.getTimestamp("createAt")
+                rs.getInt("status")
             );
         }
     } catch (Exception e) {
@@ -93,22 +92,20 @@ public class UserDAO extends DBContext{
 
 // Hàm thêm mới người dùng vào Database
     public void createUser(User user){
-        String sql = "INSERT INTO Users (fullname, phone_number, username, password, email, role) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Users (fullname, phone_number, username, password, email, role, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try {
             // 2. Mở kết nối
             Connection conn = getConnection();
             PreparedStatement st = conn.prepareStatement(sql);
 
-            // 3. Truyền tham số (Thứ tự dấu ? phải khớp với danh sách cột ở trên)
             st.setString(1, user.getFullname()); 
             st.setString(2, user.getPhone_number()); 
             st.setString(3, user.getUsername()); 
             st.setString(4, user.getPassword()); 
             st.setString(5, user.getEmail());    
-            
-            // 4. Set Role mặc định (Ví dụ: 2 là Customer. Bạn sửa số này theo quy ước DB của bạn)
-            st.setInt(6, 2); 
+            st.setInt(6,  user.getStatus());
+            st.setInt(7, 2); 
 
             // 5. Thực thi câu lệnh (QUAN TRỌNG)
             int rowsAffected = st.executeUpdate();

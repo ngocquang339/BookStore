@@ -22,7 +22,7 @@ public class User implements Serializable {
     public User() {
     }
 
-    public User(int id, String username, String password, String email, String fullname, int role, String phone_number, String address, int status, Timestamp createAt) {
+    public User(int id, String username, String password, String email, String fullname, int role, String phone_number, String address, int status) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -32,7 +32,6 @@ public class User implements Serializable {
         this.phone_number = phone_number;
         this.address = address;
         this.status = status;
-        this.createAt = createAt;
     }
 
     // --- GETTERS AND SETTERS ---
