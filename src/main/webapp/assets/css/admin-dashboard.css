@@ -109,3 +109,23 @@
     color: #666;
     font-size: 14px;
 }
+
+.main-header {
+    background-color: #343a40; /* Dark Grey Background */
+    /* OR use this for Dark Blue: background-color: #003366; */
+    
+    color: white; /* Forces all text inside to be white */
+    padding: 15px 0; /* Adds some spacing */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Adds a subtle shadow */
+}
+
+/* Ensure links inside the header (like Logout) are visible */
+.main-header a {
+    color: #f8f9fa; /* Off-white text */
+    text-decoration: none;
+}
+
+.main-header a:hover {
+    color: #ffc107; /* Yellow on hover */
+    text-decoration: underline;
+}
