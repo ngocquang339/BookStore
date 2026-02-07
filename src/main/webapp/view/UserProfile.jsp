@@ -82,7 +82,7 @@
                 <c:remove var="message" scope="session"/>
             </c:if>
 
-            <form action="${pageContext.request.contextPath}/profile" method="post">
+            <form action="${pageContext.request.contextPath}/update-profile" method="post">
                 <div class="form-grid">
                     
                     <%-- Username (Thường không cho sửa, nên để readonly) --%>

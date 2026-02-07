@@ -69,6 +69,10 @@
                 </a>
             </div>
 
+            <div class="filter-icon">
+                
+            </div>
+
             <div class="search-box">
                 <form action="search" method="get" style="display: flex; width: 100%; position: relative;">
                     <input type="text" name="txt" placeholder="Tìm kiếm sách, tác giả..." value="${searchKeyword}">
@@ -92,26 +96,38 @@
                 <%-- Đã xóa đoạn div icon-item thừa ở đây --%>
 
                 <div class="icon-item user-account">
-                    <i class="fa-regular fa-user"></i>
-                    <div class="account-info">
-                        <span class="account-label">Tài khoản</span>
-                    </div>
+    <i class="fa-regular fa-user"></i>
+    <div class="account-info">
+        <span class="account-label">Tài khoản</span>
+    </div>
 
-                    <div class="dropdown-content">
-                        <c:if test="${sessionScope.user == null}">
-                            <a href="${pageContext.request.contextPath}/login" class="btn-login">Đăng nhập</a>
-                            <a href="${pageContext.request.contextPath}/register" class="btn-register">Đăng ký</a>
-                        </c:if>
-                        <c:if test="${sessionScope.user != null}">
-                            <span class="user-name" style="font-weight: bold; color: #C92127; padding: 0 10px;">
-                                ${sessionScope.user.username}
-                            </span>
-                            <hr>
-                            <a href="${pageContext.request.contextPath}/update-profile">Hồ sơ của tôi</a>
-                            <a href="${pageContext.request.contextPath}/logout">Đăng xuất</a>
-                        </c:if>
-                    </div>
-                </div>
+    <div class="dropdown-content">
+        <%-- TRƯỜNG HỢP CHƯA ĐĂNG NHẬP --%>
+        <c:if test="${sessionScope.user == null}">
+            <div class="auth-buttons">
+            </div>
+            <a href="${pageContext.request.contextPath}/login" class="btn-auth-login"> Đăng nhập
+            </a>
+            <a href="${pageContext.request.contextPath}/register" class="btn-auth-register"> Đăng ký
+            </a>
+        </c:if>
+
+        <%-- TRƯỜNG HỢP ĐÃ ĐĂNG NHẬP --%>
+        <c:if test="${sessionScope.user != null}">
+            <div class="dropdown-header">
+                <span class="welcome-text">Xin chào,</span>
+                <span class="user-name">${sessionScope.user.username}</span>
+            </div>
+            
+            <a href="${pageContext.request.contextPath}/update-profile" class="dropdown-link">
+                <i class="fa-regular fa-id-card"></i> Hồ sơ của tôi
+            </a>
+            <a href="${pageContext.request.contextPath}/logout" class="dropdown-link logout-link">
+                <i class="fa-solid fa-power-off"></i> Đăng xuất
+            </a>
+        </c:if>
+    </div>
+</div>
             </div>
         </div>
     </header>

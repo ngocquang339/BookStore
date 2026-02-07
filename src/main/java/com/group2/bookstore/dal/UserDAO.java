@@ -44,14 +44,15 @@ public class UserDAO extends DBContext{
     }
 
     public boolean updateUser(User user){
-        String sql = "UPDATE Users SET username = ?, email = ?, phone_number = ? WHERE id = ?";
+        String sql = "UPDATE Users SET fullname = ?, email = ?, phone_number = ?, address = ? WHERE user_id = ?";
         try {
             // 2. Chuẩn bị câu lệnh
             PreparedStatement st = getConnection().prepareStatement(sql);
-            st.setString(1, user.getUsername()); 
+            st.setString(1, user.getFullname()); 
             st.setString(2, user.getEmail()); 
             st.setString(3, user.getPhone_number());
-            st.setInt(4, user.getId());
+            st.setString(4, user.getAddress());
+            st.setInt(5, user.getId());
             
             int rowsUpdated = st.executeUpdate();
 
