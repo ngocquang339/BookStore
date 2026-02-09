@@ -28,10 +28,15 @@ public class RegisterServlet extends HttpServlet{
         String phone = request.getParameter("phone_number");
         String re_p = request.getParameter("re_pass");
 
-        if (u == null || u.trim().isEmpty() || p == null || p.trim().isEmpty() || e.length() > 100 || phone == null || phone.trim().isEmpty() || fn == null || fn.trim().isEmpty()){
+        if (u == null || u.trim().isEmpty() || p == null || p.trim().isEmpty() || e.length() > 100 ||e.trim().isEmpty() || e == null || phone == null || phone.trim().isEmpty() || fn == null || fn.trim().isEmpty()){
             request.setAttribute("mess", "Thông tin không hợp lệ!");
             request.getRequestDispatcher("Register.jsp").forward(request, response);
             return;
+        }
+
+        if((fn != null && fn.length() > 255) || (u != null && u.length() > 255)){
+            request.setAttribute("mess", "Tên quá dài");
+            request.getRequestDispatcher("view/Register.jsp").forward(request, response);
         }
 
         if (!e.contains("@")) {

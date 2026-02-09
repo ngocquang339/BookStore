@@ -31,7 +31,7 @@
             <div class="input-group">
                 <label>Họ và tên</label>
                 <div class="input-wrapper">
-                    <input type="text" name="fullname" placeholder="Ví dụ: Nguyễn Văn An" required autocomplete="off">
+                    <input type="text" name="fullname" placeholder="Ví dụ: Nguyễn Văn An" required autocomplete="off" maxlength="255">
                     <i class="fa-regular fa-id-card"></i>
                 </div>
             </div>
@@ -62,7 +62,7 @@
             <div class="input-group">
                 <label>Tên đăng nhập</label>
                 <div class="input-wrapper">
-                    <input type="text" name="username" placeholder="Ví dụ: nguyenvanan" required autocomplete="off">
+                    <input type="text" name="username" placeholder="Ví dụ: nguyenvanan" required autocomplete="off" maxlength="255">
                     <i class="fa-regular fa-user"></i>
                 </div>
             </div>
@@ -70,7 +70,7 @@
             <div class="input-group">
                 <label>Địa chỉ Email</label>
                 <div class="input-wrapper">
-                    <input type="email" name="email" placeholder="example@gmail.com" required autocomplete="off">
+                    <input type="email" name="email" placeholder="example@gmail.com" required autocomplete="off" maxlength="100">
                     <i class="fa-regular fa-envelope"></i>
                 </div>
             </div>

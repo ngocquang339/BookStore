@@ -23,6 +23,7 @@ public class CategoryDAO extends DBContext {
                 Category c = new Category(
                     rs.getInt("category_id"),   // Tên cột chính xác trong DB
                     rs.getString("category_name"), // Tên cột chính xác trong DB
+                    rs.getString("category_image"),
                     rs.getString("description")
                 );
                 list.add(c);

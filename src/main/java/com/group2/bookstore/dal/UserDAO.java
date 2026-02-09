@@ -170,4 +170,21 @@ public class UserDAO extends DBContext{
             ps.executeUpdate();
         } catch (Exception e) { e.printStackTrace(); }
     }
+
+    //Change passWord
+    public boolean changePassword(String newPass, User user){
+        String sql = "UPDATE Users SET password = ? where user_id = ?";
+        try{
+            Connection conn = getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, newPass);
+            ps.setInt(2, user.getId());
+            ps.executeUpdate();
+            return true;
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            return false;
+        }
+    }
 }
