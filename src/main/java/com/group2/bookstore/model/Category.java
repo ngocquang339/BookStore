@@ -3,14 +3,16 @@ package com.group2.bookstore.model;
 public class Category {
     private int id;
     private String name;
+    private String imageUrl;
     private String description; // Thêm cho khớp DB
 
     public Category() {
     }
 
-    public Category(int id, String name, String description) {
+    public Category(int id, String name, String imageUrl, String description) {
         this.id = id;
         this.name = name;
+        this.imageUrl = imageUrl;
         this.description = description;
     }
 
@@ -30,6 +32,13 @@ public class Category {
         this.name = name;
     }
 
+    public String getImageUrl(){
+        return imageUrl;
+    }
+
+    public void setImageUrl(String url){
+        this.imageUrl = url;
+    }
     public String getDescription() {
         return description;
     }

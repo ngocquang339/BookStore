@@ -17,7 +17,7 @@
     <div class="register-container">
         <div class="register-header">
             <h2>Đăng Ký Thành Viên</h2>
-            <p>Chào mừng bạn đến với <span class="brand-text">BOOKSTORE</span></p>
+            <p>Chào mừng bạn đến với <span class="brand-text">MINDBOOK</span></p>
         </div>
 
         <c:if test="${not empty mess}">
@@ -31,7 +31,7 @@
             <div class="input-group">
                 <label>Họ và tên</label>
                 <div class="input-wrapper">
-                    <input type="text" name="fullname" placeholder="Ví dụ: Nguyễn Văn An" required autocomplete="off">
+                    <input type="text" name="fullname" value="${fullname}" placeholder="Ví dụ: Nguyễn Văn An" required autocomplete="off" maxlength="50">
                     <i class="fa-regular fa-id-card"></i>
                 </div>
             </div>
@@ -42,6 +42,7 @@
                     <input
                         type="tel"
                         name="phone_number"
+                        value="${phone_number}"
                         placeholder="Ví dụ: 0912345678"
                         pattern="[0-9]{10}"
                         maxlength="10"
@@ -62,7 +63,7 @@
             <div class="input-group">
                 <label>Tên đăng nhập</label>
                 <div class="input-wrapper">
-                    <input type="text" name="username" placeholder="Ví dụ: nguyenvanan" required autocomplete="off">
+                    <input type="text" name="username" value="${username}" placeholder="Ví dụ: nguyenvanan" required autocomplete="off" maxlength="50">
                     <i class="fa-regular fa-user"></i>
                 </div>
             </div>
@@ -70,7 +71,7 @@
             <div class="input-group">
                 <label>Địa chỉ Email</label>
                 <div class="input-wrapper">
-                    <input type="email" name="email" placeholder="example@gmail.com" required autocomplete="off">
+                    <input type="email" name="email" value="${email}" placeholder="example@gmail.com" required autocomplete="off" maxlength="100">
                     <i class="fa-regular fa-envelope"></i>
                 </div>
             </div>
@@ -78,7 +79,7 @@
             <div class="input-group">
                 <label>Mật khẩu</label>
                 <div class="input-wrapper">
-                    <input type="password" name="password" placeholder="Nhập mật khẩu..." required>
+                    <input type="password" name="password" placeholder="Nhập mật khẩu..." required autocomplete="off" maxlength="100">
                     <i class="fa-solid fa-lock"></i>
                 </div>
             </div>
@@ -86,7 +87,7 @@
             <div class="input-group">
                 <label>Nhập lại mật khẩu</label>
                 <div class="input-wrapper">
-                    <input type="password" name="re_pass" placeholder="Xác nhận lại mật khẩu..." required>
+                    <input type="password" name="re_pass" placeholder="Xác nhận lại mật khẩu..." required autocomplete="off" maxlength="100">
                     <i class="fa-solid fa-shield-halved"></i>
                 </div>
             </div>

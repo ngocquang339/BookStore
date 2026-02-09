@@ -11,85 +11,81 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-    font-family: 'Poppins', sans-serif;
-    background-color: var(--bg-color);
+    font-family: 'Poppins', sans-serif; /* Dùng font Poppins đẹp hơn Roboto */
+    background-color: var(--bg-color);  /* Dùng biến màu xám đã khai báo ở trên */
     color: var(--text-color);
+    margin: 0;
 }
 
-/* CONTAINER CHÍNH */
-.profile-wrapper {
-    max-width: 1000px;
-    margin: 40px auto;
-    padding: 0 20px;
+/* 2. SIDEBAR (CỘT TRÁI) - Cố định độ rộng và style */
+.sidebar-wrapper {
+    background-color: #FFFFFF;
+    border-radius: 8px;
+    padding: 15px; /* Giảm padding một chút cho gọn */
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    /* Không đặt width 100% ở đây nữa, để cột col-md-3 quyết định */
+}
+
+/* 3. USER INFO (AVATAR) */
+.user-info-box {
     display: flex;
-    gap: 30px;
-}
-
-/* --- CỘT TRÁI: SIDEBAR --- */
-.profile-sidebar {
-    flex: 1;
-    background: var(--card-bg);
-    border-radius: 12px;
-    padding: 30px 20px;
-    text-align: center;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    height: fit-content;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #f0f0f0;
 }
 
 .avatar-container {
-    position: relative;
-    width: 120px;
-    height: 120px;
-    margin: 0 auto 15px;
-}
-
-.avatar-img {
-    width: 100%;
-    height: 100%;
+    width: 65px; /* Avatar nhỏ lại một chút cho cân đối cột trái */
+    height: 65px;
     border-radius: 50%;
-    object-fit: cover;
-    border: 4px solid #fff;
-    box-shadow: 0 0 0 3px var(--primary-color);
+    overflow: hidden;
+    border: 3px solid #E6E6E6;
+    margin-bottom: 8px;
 }
 
 .user-display-name {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
 }
 
-.user-role {
-    font-size: 13px;
+/* Badge & Note */
+.membership-badge {
+    background: #c0c0c0; /* Màu bạc */
+    color: #fff;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin: 5px 0;
+}
+
+.f-point, .upgrade-note {
+    font-size: 12px;
     color: #888;
-    background: #f0f0f0;
-    padding: 4px 12px;
-    border-radius: 20px;
-    display: inline-block;
+    text-align: center;
 }
 
-/* Menu bên trái (nếu muốn mở rộng sau này) */
+/* 4. MENU LINKS */
 .sidebar-menu {
-    margin-top: 30px;
-    text-align: left;
-    border-top: 1px solid #eee;
-    padding-top: 20px;
+    background-color: #ffffff; /* QUAN TRỌNG: Đổi transparent thành màu trắng */
+    border-radius: 6px;        /* Bo góc cho giống khối bên phải */
+    padding: 15px 0;           /* Căn chỉnh khoảng cách bên trong */
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05); /* Thêm bóng mờ nhẹ cho nổi */
+    height: 100%;              /* Để nó cao bằng hoặc đẹp hơn */
 }
-.menu-item {
-    display: block;
-    padding: 12px 15px;
-    color: #555;
-    text-decoration: none;
-    border-radius: 8px;
-    transition: 0.3s;
-    margin-bottom: 5px;
-    font-size: 14px;
+
+
+.menu-item.active i {
+    color: #C92127;
 }
-.menu-item:hover, .menu-item.active {
-    background-color: #fff0f0;
-    color: var(--primary-color);
-    font-weight: 500;
+
+/* Style riêng cho các mục con thụt vào (như Hồ sơ, Sổ địa chỉ) */
+.sub-menu-item span {
+    padding-left: 25px; /* Thụt đầu dòng */
 }
-.menu-item i { width: 25px; }
 
 /* --- CỘT PHẢI: FORM --- */
 .profile-content {
@@ -184,3 +180,167 @@ body {
     .profile-wrapper { flex-direction: column; }
     .form-grid { grid-template-columns: 1fr; }
 }
+
+/* ====================================================
+   CSS RIÊNG CHO TRANG ĐỔI MẬT KHẨU (Giao diện mới)
+   ==================================================== */
+
+
+/* Container chính căn chỉnh khoảng cách */
+.profile-container {
+    margin-top: 30px !important;
+    margin-bottom: 50px;
+}
+
+/* User Brief (Phần avatar nhỏ bên trái) */
+.user-brief {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+    padding: 0 15px 15px 15px; /* Thêm padding 2 bên để không dính sát mép */
+    border-bottom: 1px solid #f0f0f0; /* Đổi màu đường kẻ cho nhẹ hơn */
+}
+
+.user-avatar-placeholder {
+    width: 48px;
+    height: 48px;
+    background: #f1f1f1;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-size: 20px;
+    border: 1px solid #e0e0e0;
+}
+
+.menu-item {
+    display: block;
+    padding: 10px 15px;
+    color: #555;
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.2s;
+    border-radius: 4px;
+    margin-bottom: 5px;
+}
+
+.menu-item:hover {
+    background-color: #ffebee;
+    color: #C92127;
+}
+
+.menu-item.active {
+    color: #C92127;
+    font-weight: 600;
+    background-color: #fff0f1;
+}
+
+.menu-item i {
+    width: 24px;
+    text-align: center;
+    margin-right: 8px;
+}
+
+/* --- KHỐI NỘI DUNG CHÍNH (CỘT PHẢI - QUAN TRỌNG) --- */
+.main-profile-content {
+    background: #ffffff;
+    border-radius: 6px;
+    padding: 30px 40px; /* Padding rộng rãi như ảnh */
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    min-height: 400px; /* Đảm bảo chiều cao tối thiểu cho đẹp */
+}
+
+.page-header {
+    border-bottom: 1px solid #eaeaea;
+    padding-bottom: 20px;
+    margin-bottom: 30px;
+}
+
+.page-header h5 {
+    margin: 0 0 5px 0;
+    font-size: 20px;
+    font-weight: 500;
+    color: #333;
+}
+
+/* --- FORM STYLE (Giống ảnh mẫu) --- */
+.form-row {
+    display: flex;
+    align-items: center; /* Căn giữa theo chiều dọc */
+    margin-bottom: 25px; /* Khoảng cách giữa các dòng input */
+}
+
+/* Label bên trái */
+.form-label-custom {
+    width: 25%; /* Chiếm 25% chiều rộng */
+    color: #555;
+    font-size: 14px;
+    text-align: right; /* Căn lề phải sát vào ô input */
+    padding-right: 30px; /* Khoảng cách giữa chữ và ô input */
+    font-weight: 400;
+}
+
+.text-danger {
+    color: #C92127;
+    margin-left: 3px;
+}
+
+/* Input bên phải */
+.form-input-custom {
+    width: 75%; /* Chiếm 75% còn lại */
+    max-width: 500px; /* Không cho input dài quá */
+}
+
+.form-control {
+    height: 44px; /* Input cao hơn một chút cho hiện đại */
+    font-size: 14px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    padding: 0 15px;
+    transition: border-color 0.2s;
+    width: 100%;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #C92127; /* Viền đỏ khi focus */
+    box-shadow: 0 0 0 2px rgba(201, 33, 39, 0.1);
+}
+
+.form-control::placeholder {
+    color: #aaa;
+}
+
+/* --- NÚT BẤM (Căn giữa hoặc lệch phải như ảnh) --- */
+/* Trong ảnh, nút nằm thẳng hàng với input, nên ta dùng layout grid cũ */
+.btn-save-pass {
+    background-color: #C92127;
+    color: white;
+    border: none;
+    height: 44px;
+    padding: 0 35px;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.2s;
+    box-shadow: 0 2px 6px rgba(201, 33, 39, 0.2);
+}
+
+.btn-save-pass:hover {
+    background-color: #a81016;
+}
+
+/* Toast Message (Giữ nguyên nếu đã đẹp) */
+.toast-message {
+    position: fixed; top: 90px; right: 20px; z-index: 9999;
+    background: #fff; border-left: 5px solid; padding: 15px 25px;
+    border-radius: 4px; box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    display: flex; align-items: center; gap: 15px; min-width: 300px;
+    animation: slideIn 0.5s ease forwards;
+}
+.toast-success { border-color: #28a745; color: #155724; }
+.toast-error { border-color: #dc3545; color: #721c24; }
+@keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
