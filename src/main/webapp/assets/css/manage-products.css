@@ -167,3 +167,50 @@ body, .page-container, .admin-table, h1, a, button, .btn-sm {
     color: #dc3545;
     font-weight: 800;
 }
+
+/* Search Bar Styling */
+.filter-bar {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.search-input {
+    flex: 1; /* Takes available space */
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+}
+.filter-select {
+    width: 200px;
+    padding: 8px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+}
+.btn-search {
+    background-color: #0d6efd;
+    color: white;
+    border: none;
+    padding: 9px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.btn-search:hover { background-color: #0b5ed7; }
+
+/* Add pointer cursor to sortable headers */
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+        }
+        th.sortable:hover {
+            background-color: #f1f1f1;
+        }
+        th.sortable i {
+            margin-left: 5px;
+            font-size: 0.8em;
+            color: #999;
+        }
