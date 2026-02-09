@@ -31,20 +31,7 @@
 </head>
 
 <body>
-    <header class="main-header">
-        <div class="container" style="display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 15px;">
-            <div class="logo">
-                <a href="${pageContext.request.contextPath}/home" style="text-decoration: none;">
-                    <span style="color: #C92127; font-weight: 900; font-size: 28px;">BOOK</span><span style="color: #333; font-weight: 900; font-size: 28px;">STORE</span>
-                </a>
-            </div>
-            <div>
-                <a href="${pageContext.request.contextPath}/home" style="text-decoration: none; color: #333; font-weight: bold;">
-                    <i class="fa-solid fa-arrow-left"></i> Quay lại trang chủ
-                </a>
-            </div>
-        </div>
-    </header>
+    <jsp:include page="component/header.jsp" />
 
     <main class="container" style="max-width: 1200px; margin: 0 auto; padding: 0 15px;">
         

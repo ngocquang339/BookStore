@@ -37,18 +37,7 @@
 </head>
 <body>
 
-    <header class="main-header">
-        <div class="container">
-            <div class="logo">
-                <a href="${pageContext.request.contextPath}/home" style="text-decoration: none;">
-                    <span style="color: #C92127; font-weight: 900; font-size: 28px;">BOOK</span><span style="color: #333; font-weight: 900; font-size: 28px;">STORE</span>
-                </a>
-            </div>
-             <a href="${pageContext.request.contextPath}/home" style="color: #333; text-decoration: none;">
-                <i class="fa-solid fa-arrow-left"></i> Tiếp tục mua sắm
-            </a>
-        </div>
-    </header>
+    <jsp:include page="component/header.jsp" />
 
     <main class="container" style="margin-top: 20px; margin-bottom: 50px;">
         

@@ -5,7 +5,8 @@
     String currentPath = request.getServletPath(); 
 %>
 
-<div class="sidebar-wrapper"> <div class="user-info-box">
+<div class="sidebar-wrapper"> 
+    <div class="user-info-box">
         <div class="avatar-container">
             <img src="https://ui-avatars.com/api/?name=${sessionScope.user.username}&background=ddd&color=555&size=128&bold=true" 
                  alt="Avatar" class="avatar-img">

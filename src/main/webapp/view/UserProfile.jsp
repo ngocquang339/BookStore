@@ -11,8 +11,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/profile.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/home.css">
+    
+    <!-- <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/home.css"> -->
 
     <style>
         /* Style cho thông báo thành công */
@@ -67,18 +68,7 @@
 
 <body>
     
-    <header class="main-header">
-        <div class="container">
-            <div class="logo">
-                <a href="${pageContext.request.contextPath}/home" style="text-decoration: none;">
-                    <span style="color: #C92127; font-weight: 900; font-size: 28px;">MIND</span><span style="color: #333; font-weight: 900; font-size: 28px;">BOOK</span>
-                </a>
-            </div>
-            <a href="${pageContext.request.contextPath}/home" style="color: #333; text-decoration: none; font-weight: 500;">
-                <i class="fa-solid fa-arrow-left"></i> Quay lại trang chủ
-            </a>
-        </div>
-    </header>
+    <jsp:include page="component/header.jsp" />
 
     <c:if test="${empty sessionScope.user}">
         <c:redirect url="/login"/>

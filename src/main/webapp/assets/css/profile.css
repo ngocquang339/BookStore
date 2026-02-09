@@ -188,7 +188,7 @@ body {
 
 /* Container chính căn chỉnh khoảng cách */
 .profile-container {
-    margin-top: 20px;
+    margin-top: 30px !important;
     margin-bottom: 50px;
 }
 

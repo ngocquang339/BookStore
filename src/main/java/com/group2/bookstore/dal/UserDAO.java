@@ -66,30 +66,56 @@ public class UserDAO extends DBContext{
         }
     }
     public User checkUserExist(String username){
-    // SỬA LẠI TÊN BẢNG THÀNH "Users"
-    String sql = "SELECT * FROM Users WHERE username = ?"; 
-    try {
-        PreparedStatement st = getConnection().prepareStatement(sql);
-        st.setString(1, username);
-        ResultSet rs = st.executeQuery();
-        if (rs.next()) {
-            return new User(
-                rs.getInt("user_id"),
-                rs.getString("username"),
-                rs.getString("password"),
-                rs.getString("email"),
-                rs.getString("fullname"),
-                rs.getInt("role"),
-                rs.getString("phone_number"),
-                rs.getString("address"),
-                rs.getInt("status")
-            );
+        // SỬA LẠI TÊN BẢNG THÀNH "Users"
+        String sql = "SELECT * FROM Users WHERE username = ?"; 
+        try {
+            PreparedStatement st = getConnection().prepareStatement(sql);
+            st.setString(1, username);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                return new User(
+                    rs.getInt("user_id"),
+                    rs.getString("username"),
+                    rs.getString("password"),
+                    rs.getString("email"),
+                    rs.getString("fullname"),
+                    rs.getInt("role"),
+                    rs.getString("phone_number"),
+                    rs.getString("address"),
+                    rs.getInt("status")
+                );
+            }
+        } catch (Exception e) {
+            System.out.println(e);
         }
-    } catch (Exception e) {
-        System.out.println(e);
+        return null;
     }
-    return null;
-}
+
+    public User checkEmailExist(String email){
+        // SỬA LẠI TÊN BẢNG THÀNH "Users"
+        String sql = "SELECT * FROM Users WHERE email = ?"; 
+        try {
+            PreparedStatement st = getConnection().prepareStatement(sql);
+            st.setString(1, email);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                return new User(
+                    rs.getInt("user_id"),
+                    rs.getString("username"),
+                    rs.getString("password"),
+                    rs.getString("email"),
+                    rs.getString("fullname"),
+                    rs.getInt("role"),
+                    rs.getString("phone_number"),
+                    rs.getString("address"),
+                    rs.getInt("status")
+                );
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return null;
+    }
 
 // Hàm thêm mới người dùng vào Database
     public void createUser(User user){
