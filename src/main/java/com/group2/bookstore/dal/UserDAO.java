@@ -1,12 +1,13 @@
 package com.group2.bookstore.dal;
 
+import com.group2.bookstore.model.User;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.group2.bookstore.model.User;
 
 public class UserDAO extends DBContext {
     public User checkLogin(String username, String password) {
@@ -43,14 +44,15 @@ public class UserDAO extends DBContext {
     }
 
     public boolean updateUser(User user) {
-        String sql = "UPDATE Users SET username = ?, email = ?, phone_number = ? WHERE id = ?";
+        String sql = "UPDATE Users SET fullname = ?, email = ?, phone_number = ?, address = ? WHERE user_id = ?";
         try {
             // 2. Chuẩn bị câu lệnh
             PreparedStatement st = getConnection().prepareStatement(sql);
-            st.setString(1, user.getUsername());
+            st.setString(1, user.getFullname());
             st.setString(2, user.getEmail());
             st.setString(3, user.getPhone_number());
-            st.setInt(4, user.getId());
+            st.setString(4, user.getAddress());
+            st.setInt(5, user.getId());
 
             int rowsUpdated = st.executeUpdate();
 
@@ -81,7 +83,33 @@ public class UserDAO extends DBContext {
                         rs.getInt("role"),
                         rs.getString("phone_number"),
                         rs.getString("address"),
-                        rs.getInt("status"), // 1 or 0
+                        rs.getInt("status"),
+                        rs.getTimestamp("createAt"));
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return null;
+    }
+
+    public User checkEmailExist(String email) {
+        // SỬA LẠI TÊN BẢNG THÀNH "Users"
+        String sql = "SELECT * FROM Users WHERE email = ?";
+        try {
+            PreparedStatement st = getConnection().prepareStatement(sql);
+            st.setString(1, email);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                return new User(
+                        rs.getInt("user_id"),
+                        rs.getString("username"),
+                        rs.getString("password"),
+                        rs.getString("email"),
+                        rs.getString("fullname"),
+                        rs.getInt("role"),
+                        rs.getString("phone_number"),
+                        rs.getString("address"),
+                        rs.getInt("status"),
                         rs.getTimestamp("createAt"));
             }
         } catch (Exception e) {
@@ -92,23 +120,20 @@ public class UserDAO extends DBContext {
 
     // Hàm thêm mới người dùng vào Database
     public void createUser(User user) {
-        String sql = "INSERT INTO Users (fullname, phone_number, username, password, email, role) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Users (fullname, phone_number, username, password, email, role, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try {
             // 2. Mở kết nối
             Connection conn = getConnection();
             PreparedStatement st = conn.prepareStatement(sql);
 
-            // 3. Truyền tham số (Thứ tự dấu ? phải khớp với danh sách cột ở trên)
             st.setString(1, user.getFullname());
             st.setString(2, user.getPhone_number());
             st.setString(3, user.getUsername());
             st.setString(4, user.getPassword());
             st.setString(5, user.getEmail());
-
-            // 4. Set Role mặc định (Ví dụ: 2 là Customer. Bạn sửa số này theo quy ước DB
-            // của bạn)
-            st.setInt(6, 2);
+            st.setInt(6, user.getStatus());
+            st.setInt(7, 2);
 
             // 5. Thực thi câu lệnh (QUAN TRỌNG)
             int rowsAffected = st.executeUpdate();
@@ -175,26 +200,46 @@ public class UserDAO extends DBContext {
         }
     }
 
+    // Lấy danh sách khách hàng (Role = 2) dành cho Staff
     public List<User> getAllCustomers() {
         List<User> list = new ArrayList<>();
-        // Giả sử Role 2 là Khách hàng
+        // Role 2 là khách hàng (dựa trên dữ liệu mẫu của bạn)
         String sql = "SELECT * FROM Users WHERE role = 2";
+
         try (Connection conn = getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql);
                 ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
-                // Map dữ liệu vào User object (tương tự như bạn làm login)
                 User u = new User();
                 u.setId(rs.getInt("user_id"));
+                u.setFullname(rs.getString("fullname")); // Cần hiển thị tên thật
                 u.setUsername(rs.getString("username"));
                 u.setEmail(rs.getString("email"));
                 u.setPhone_number(rs.getString("phone_number")); // Quan trọng để liên hệ
                 u.setAddress(rs.getString("address")); // Quan trọng để ship
+                u.setRole(rs.getInt("role"));
+                u.setStatus(rs.getInt("status")); // Để biết khách có bị khóa không
                 list.add(u);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return list;
+    }
+
+    // Change passWord
+    public boolean changePassword(String newPass, User user) {
+        String sql = "UPDATE Users SET password = ? where user_id = ?";
+        try {
+            Connection conn = getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, newPass);
+            ps.setInt(2, user.getId());
+            ps.executeUpdate();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }
