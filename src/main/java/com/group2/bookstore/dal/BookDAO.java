@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.group2.bookstore.model.Book;
+import com.group2.bookstore.model.Category;
+import com.group2.bookstore.model.BookImage;
 
 public class BookDAO extends DBContext{
 
@@ -28,19 +30,19 @@ public class BookDAO extends DBContext{
         return list;
     }
 
-    public List<Book> getRandomBook(int roleId) {
+    public List<Book> getRandomBook(int roleId, int quantity) {
         List<Book> list = new ArrayList<>();
         String sql;
 
         // LOGIC: If Admin (1), show all. If Guest/User, only show Active (1)
         if (roleId == 1) {
-            sql = "SELECT TOP 10 * FROM Books ORDER BY NEWID()";
+            sql = "SELECT TOP " + quantity + " * FROM Books ORDER BY NEWID()";
         } else {
-            sql = "SELECT TOP 10 * FROM Books ORDER BY book_id DESC";
+            sql = "SELECT TOP " + quantity + " * FROM Books ORDER BY NEWID()";
         }
 
         try (Connection conn = new DBContext().getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+        PreparedStatement ps = conn.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(mapResultSetToBook(rs));
@@ -50,6 +52,51 @@ public class BookDAO extends DBContext{
         }
         return list;
     }
+
+    public List<BookImage> getBookImage(int bookId){
+        List<BookImage> list = new ArrayList<>();
+        String sql = "Select * from BookImages where book_id = ?";
+         try (Connection conn = new DBContext().getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)){
+                    ps.setInt(1, bookId);
+                    ResultSet rs = ps.executeQuery();
+                    while (rs.next()) {
+                        list.add(new BookImage(
+                            rs.getInt("image_id"),
+                            rs.getInt("book_id"),
+                            rs.getString("image_url")
+                        ));
+                    }
+                }
+                catch(Exception e){
+                    e.printStackTrace();
+                }
+        return list;
+    }
+
+    public List<Category> getCategories() {
+    List<Category> list = new ArrayList<>();
+    // Giả sử bảng Categories có các cột: category_id, category_name, category_image
+    // Nếu bảng bạn chưa có cột ảnh, bạn có thể hardcode ảnh trong Java hoặc thêm cột vào DB sau.
+    String sql = "SELECT * FROM Categories"; 
+    
+    try (Connection conn = new DBContext().getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+         
+        while (rs.next()) {
+            list.add(new Category(
+                rs.getInt(1), // ID
+                rs.getString(2), // Name
+                rs.getString(3),// Image (Nếu DB chưa có cột này thì để null hoặc string rỗng)
+                rs.getString(4)  
+            ));
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return list;
+}
 
     // 3. Get Top 4 Best Sellers
     public List<Book> getBestSellers() {

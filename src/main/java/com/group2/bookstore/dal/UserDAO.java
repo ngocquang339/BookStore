@@ -33,8 +33,7 @@ public class UserDAO extends DBContext {
                         rs.getInt("role"),
                         rs.getString("phone_number"),
                         rs.getString("address"),
-                        rs.getInt("status"), // 1 or 0
-                        rs.getTimestamp("createAt"));
+                        rs.getInt("status"));
                 return u;
             }
         } catch (Exception e) {
@@ -83,8 +82,7 @@ public class UserDAO extends DBContext {
                         rs.getInt("role"),
                         rs.getString("phone_number"),
                         rs.getString("address"),
-                        rs.getInt("status"),
-                        rs.getTimestamp("createAt"));
+                        rs.getInt("status"));
             }
         } catch (Exception e) {
             System.out.println(e);
@@ -109,8 +107,7 @@ public class UserDAO extends DBContext {
                         rs.getInt("role"),
                         rs.getString("phone_number"),
                         rs.getString("address"),
-                        rs.getInt("status"),
-                        rs.getTimestamp("createAt"));
+                        rs.getInt("status"));
             }
         } catch (Exception e) {
             System.out.println(e);
@@ -175,10 +172,6 @@ public class UserDAO extends DBContext {
                 u.setPhone_number(rs.getString("phone_number"));
                 u.setAddress(rs.getString("address"));
                 u.setRole(rs.getInt("role"));
-                u.setStatus(rs.getInt("status")); // 1 or 0
-                u.setCreateAt(rs.getTimestamp("createAt"));
-
-                list.add(u);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -191,7 +184,6 @@ public class UserDAO extends DBContext {
         String sql = "UPDATE Users SET status = ?, role = ? WHERE user_id = ?";
         try (Connection conn = getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, newStatus);
             ps.setInt(2, newRole);
             ps.setInt(3, userId);
             ps.executeUpdate();

@@ -43,7 +43,7 @@ public class AddToCartServlet extends HttpServlet {
                     if (user != null) {
                         // 1. Nếu ĐÃ ĐĂNG NHẬP -> Lưu thẳng vào Database
                         CartDAO cartDao = new CartDAO();
-                        cartDao.addToCart(user.getId(), newItem); // User.getId() tùy model của bạn
+                        cartDao.addToCart(user.getId(), newItem); 
                         
                         // Cập nhật lại session để hiển thị ngay
                         session.setAttribute("cart", cartDao.getCartByUserId(user.getId()));

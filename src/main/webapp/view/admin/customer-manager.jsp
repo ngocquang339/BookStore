@@ -52,7 +52,6 @@
                         <td>
                             <div class="contact-info">
                                 <i class="fa-solid fa-envelope"></i> ${u.email} <br>
-                                
                                 <c:if test="${not empty u.phone_number}">
                                     <i class="fa-solid fa-phone"></i> 
                                     <span style="color: #C92127; font-weight: bold;">${u.phone_number}</span>
