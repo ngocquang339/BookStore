@@ -192,32 +192,32 @@ public class UserDAO extends DBContext {
         }
     }
 
-    // Lấy danh sách khách hàng (Role = 2) dành cho Staff
-    public List<User> getAllCustomers() {
-        List<User> list = new ArrayList<>();
-        // Role 2 là khách hàng (dựa trên dữ liệu mẫu của bạn)
-        String sql = "SELECT * FROM Users WHERE role = 2";
+    // // Lấy danh sách khách hàng (Role = 2) dành cho Staff
+    // public List<User> getAllCustomers() {
+    //     List<User> list = new ArrayList<>();
+    //     // Role 2 là khách hàng (dựa trên dữ liệu mẫu của bạn)
+    //     String sql = "SELECT * FROM Users WHERE role = 2";
 
-        try (Connection conn = getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                User u = new User();
-                u.setId(rs.getInt("user_id"));
-                u.setFullname(rs.getString("fullname")); // Cần hiển thị tên thật
-                u.setUsername(rs.getString("username"));
-                u.setEmail(rs.getString("email"));
-                u.setPhone_number(rs.getString("phone_number")); // Quan trọng để liên hệ
-                u.setAddress(rs.getString("address")); // Quan trọng để ship
-                u.setRole(rs.getInt("role"));
-                u.setStatus(rs.getInt("status")); // Để biết khách có bị khóa không
-                list.add(u);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return list;
-    }
+    //     try (Connection conn = getConnection();
+    //             PreparedStatement ps = conn.prepareStatement(sql);
+    //             ResultSet rs = ps.executeQuery()) {
+    //         while (rs.next()) {
+    //             User u = new User();
+    //             u.setId(rs.getInt("user_id"));
+    //             u.setFullname(rs.getString("fullname")); // Cần hiển thị tên thật
+    //             u.setUsername(rs.getString("username"));
+    //             u.setEmail(rs.getString("email"));
+    //             u.setPhone_number(rs.getString("phone_number")); // Quan trọng để liên hệ
+    //             u.setAddress(rs.getString("address")); // Quan trọng để ship
+    //             u.setRole(rs.getInt("role"));
+    //             u.setStatus(rs.getInt("status")); // Để biết khách có bị khóa không
+    //             list.add(u);
+    //         }
+    //     } catch (Exception e) {
+    //         e.printStackTrace();
+    //     }
+    //     return list;
+    // }
 
     // Change passWord
     public boolean changePassword(String newPass, User user) {
