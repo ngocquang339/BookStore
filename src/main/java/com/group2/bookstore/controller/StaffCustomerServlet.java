@@ -26,7 +26,7 @@ public class StaffCustomerServlet extends HttpServlet {
         request.setAttribute("listCustomers", listCustomers);
         
         // Chuyển hướng sang trang giao diện hiển thị
-        request.getRequestDispatcher("/view/admin/customer-manage.jsp").forward(request, response);
+        request.getRequestDispatcher("/view/admin/customer-manager.jsp").forward(request, response);
     }
 
     @Override
