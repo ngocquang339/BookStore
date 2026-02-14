@@ -9,15 +9,14 @@ import java.util.List;
 
 import com.group2.bookstore.model.Book;
 
-public class BookDAO extends DBContext{
+public class BookDAO extends DBContext {
 
     // 1. Get Top 4 Newest Books (For Homepage)
     public List<Book> getNewArrivals() {
         List<Book> list = new ArrayList<>();
         String sql = "SELECT TOP 4 * FROM Books ORDER BY book_id DESC";
 
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(mapResultSetToBook(rs));
@@ -36,11 +35,10 @@ public class BookDAO extends DBContext{
         if (roleId == 1) {
             sql = "SELECT TOP 10 * FROM Books ORDER BY NEWID()";
         } else {
-            sql = "SELECT TOP 10 * FROM Books ORDER BY book_id DESC"; 
+            sql = "SELECT TOP 10 * FROM Books ORDER BY book_id DESC";
         }
-        
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(mapResultSetToBook(rs));
@@ -56,8 +54,7 @@ public class BookDAO extends DBContext{
         List<Book> list = new ArrayList<>();
         String sql = "SELECT TOP 4 * FROM Books ORDER BY sold_quantity DESC";
 
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(mapResultSetToBook(rs));
@@ -71,8 +68,7 @@ public class BookDAO extends DBContext{
     // 4. Get Book by ID
     public Book getBookById(int id) {
         String sql = "SELECT * FROM Books WHERE book_id = ?";
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -89,8 +85,7 @@ public class BookDAO extends DBContext{
         List<Book> list = new ArrayList<>();
         String sql = "SELECT TOP 4 * FROM Books WHERE category_id = ? AND book_id != ?";
 
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, categoryId);
             ps.setInt(2, currentBookId);
             ResultSet rs = ps.executeQuery();
@@ -108,8 +103,7 @@ public class BookDAO extends DBContext{
         List<Book> list = new ArrayList<>();
         String sql = "SELECT * FROM Books WHERE title LIKE ?";
 
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, "%" + keyword + "%");
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -125,13 +119,13 @@ public class BookDAO extends DBContext{
     public List<String> getAllAuthors() {
         List<String> list = new ArrayList<>();
         String sql = "SELECT DISTINCT author FROM Books WHERE author IS NOT NULL AND author <> '' ORDER BY author";
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 list.add(rs.getString("author"));
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return list;
     }
 
@@ -139,64 +133,69 @@ public class BookDAO extends DBContext{
     public List<String> getAllPublishers() {
         List<String> list = new ArrayList<>();
         String sql = "SELECT DISTINCT publisher FROM Books WHERE publisher IS NOT NULL AND publisher <> '' ORDER BY publisher";
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 list.add(rs.getString("publisher"));
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return list;
     }
+
     // 3. Cập nhật hàm getBooks (Thêm tham số author, publisher, minPrice, maxPrice)
     // Updated Method: Added 'boolean isAdmin' as the last parameter
     public List<Book> getBooks(String keyword, int cid, String author, String publisher, double minPrice, double maxPrice, String sortBy, String sortOrder, boolean isAdmin) {
-        
+
         List<Book> list = new ArrayList<>();
-        
-        // Start Query
-        StringBuilder sql = new StringBuilder("SELECT * FROM Books WHERE 1=1 ");
-        List<Object> params = new ArrayList<>(); 
+
+        // CHANGE 1: Update SQL to JOIN with Categories
+        // We alias Books as 'b' and Categories as 'c'
+        StringBuilder sql = new StringBuilder("SELECT b.*, c.category_name as cat_name ");
+        sql.append("FROM Books b ");
+        sql.append("LEFT JOIN Categories c ON b.category_id = c.category_id ");
+        sql.append("WHERE 1=1 ");
+
+        List<Object> params = new ArrayList<>();
 
         // --- NEW LOGIC START ---
-        // If NOT Admin, only show Active books.
-        // If Admin, show everything (don't add this filter).
         if (!isAdmin) {
-            sql.append(" AND is_active = 1 ");
+            sql.append(" AND b.is_active = 1 "); // Use 'b.' prefix to be safe
         }
         // --- NEW LOGIC END ---
 
         // Filter: Keyword
         if (keyword != null && !keyword.trim().isEmpty()) {
-            sql.append(" AND title LIKE ? ");
+            sql.append(" AND b.title LIKE ? "); // Use 'b.' prefix
             params.add("%" + keyword + "%");
         }
         // Filter: Category
         if (cid > 0) {
-            sql.append(" AND category_id = ? ");
+            sql.append(" AND b.category_id = ? "); // Use 'b.' prefix
             params.add(cid);
         }
         // Filter: Author
         if (author != null && !author.trim().isEmpty()) {
-            sql.append(" AND author = ? ");
+            sql.append(" AND b.author = ? ");
             params.add(author);
         }
         // Filter: Publisher
         if (publisher != null && !publisher.trim().isEmpty()) {
-            sql.append(" AND publisher = ? ");
+            sql.append(" AND b.publisher = ? ");
             params.add(publisher);
         }
         // Filter: Price Range
         if (maxPrice > 0) {
-            sql.append(" AND price BETWEEN ? AND ? ");
+            sql.append(" AND b.price BETWEEN ? AND ? ");
             params.add(minPrice);
             params.add(maxPrice);
         }
 
         // Sorting
         if (sortBy != null && !sortBy.isEmpty()) {
+            // Validating column names to prevent SQL injection
             if (sortBy.equals("price") || sortBy.equals("title") || sortBy.equals("stock_quantity")) {
-                sql.append(" ORDER BY ").append(sortBy);
+                sql.append(" ORDER BY b.").append(sortBy); // Use 'b.' prefix
                 if ("DESC".equalsIgnoreCase(sortOrder)) {
                     sql.append(" DESC");
                 } else {
@@ -204,13 +203,11 @@ public class BookDAO extends DBContext{
                 }
             }
         } else {
-            sql.append(" ORDER BY book_id DESC");
+            sql.append(" ORDER BY b.book_id DESC");
         }
 
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
-            
-            // Set Parameters
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+
             for (int i = 0; i < params.size(); i++) {
                 ps.setObject(i + 1, params.get(i));
             }
@@ -225,12 +222,16 @@ public class BookDAO extends DBContext{
                 b.setPrice(rs.getDouble("price"));
                 b.setStockQuantity(rs.getInt("stock_quantity"));
                 b.setCategoryId(rs.getInt("category_id"));
-                
-                // Keep your correct image mapping
-                b.setImageUrl(rs.getString("image")); 
-                
-                // Add Admin fields (Optional but good for debugging)
-                try { b.setActive(rs.getBoolean("is_active")); } catch (Exception e) {}
+                b.setImageUrl(rs.getString("image"));
+
+                // CHANGE 2: Set the Category Name
+                // Make sure your Book.java has: private String categoryName;
+                b.setCategoryName(rs.getString("cat_name"));
+
+                try {
+                    b.setActive(rs.getBoolean("is_active"));
+                } catch (Exception e) {
+                }
 
                 list.add(b);
             }
@@ -240,14 +241,11 @@ public class BookDAO extends DBContext{
         return list;
     }
 
-
-
     // 8. Update Stock (For Warehouse)
     public void updateStock(int bookId, int newQuantity) {
         String sql = "UPDATE Books SET stock_quantity = ? WHERE book_id = ?";
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement st = conn.prepareStatement(sql)) {
-                st.setInt(1, newQuantity);
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement st = conn.prepareStatement(sql)) {
+            st.setInt(1, newQuantity);
             st.setInt(2, bookId);
             st.executeUpdate();
         } catch (Exception e) {
@@ -256,12 +254,10 @@ public class BookDAO extends DBContext{
     }
 
     // --- CRUD OPERATIONS ---
-
     // 9. INSERT (Create)
     public void insertBook(Book b) {
         String sql = "INSERT INTO Books (title, author, price, description, image, stock_quantity, category_id, is_active, import_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, b.getTitle());
             ps.setString(2, b.getAuthor());
             ps.setDouble(3, b.getPrice());
@@ -272,14 +268,15 @@ public class BookDAO extends DBContext{
             ps.setBoolean(8, b.isActive());
             ps.setDouble(9, b.getImportPrice());
             ps.executeUpdate();
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     // 10. UPDATE (Edit)
     public void updateBook(Book b) {
         String sql = "UPDATE Books SET title=?, author=?, price=?, description=?, image=?, stock_quantity=?, category_id=?, is_active=?, import_price=? WHERE book_id=?";
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, b.getTitle());
             ps.setString(2, b.getAuthor());
             ps.setDouble(3, b.getPrice());
@@ -291,27 +288,28 @@ public class BookDAO extends DBContext{
             ps.setDouble(9, b.getImportPrice());
             ps.setInt(10, b.getId());
             ps.executeUpdate();
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     // 11. SOFT DELETE (Hide instead of remove)
     public void softDeleteBook(int id) {
         String sql = "UPDATE Books SET is_active = 0 WHERE book_id = ?";
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
             ps.executeUpdate();
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     // 12. GET ALL BOOKS (For Admin Management)
     public List<Book> getAllBooksForAdmin() {
         List<Book> list = new ArrayList<>();
         // Note: No "WHERE is_active=1" because Admin needs to see hidden/draft books
-        String sql = "SELECT * FROM Books ORDER BY book_id DESC"; 
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        String sql = "SELECT * FROM Books ORDER BY book_id DESC";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 list.add(mapResultSetToBook(rs));
             }
@@ -320,9 +318,6 @@ public class BookDAO extends DBContext{
         }
         return list;
     }
-
-
-
 
     // HELPER: Map ResultSet to Book Object
     private Book mapResultSetToBook(ResultSet rs) throws SQLException {
@@ -336,36 +331,40 @@ public class BookDAO extends DBContext{
         b.setStockQuantity(rs.getInt("stock_quantity"));
         b.setSoldQuantity(rs.getInt("sold_quantity"));
         b.setCategoryId(rs.getInt("category_id"));
-        
+
         // Try-Catch blocks for optional columns (in case older queries don't select them)
-        try { b.setActive(rs.getBoolean("is_active")); } catch (SQLException e) {}
-        try { b.setImportPrice(rs.getDouble("import_price")); } catch (SQLException e) {}
-        
+        try {
+            b.setActive(rs.getBoolean("is_active"));
+        } catch (SQLException e) {
+        }
+        try {
+            b.setImportPrice(rs.getDouble("import_price"));
+        } catch (SQLException e) {
+        }
+
         return b;
     }
 
-    public List<Book> getRandomBook(){
+    public List<Book> getRandomBook() {
         List<Book> list = new ArrayList<>();
         String sql = "Select TOP 10 * from Books ORDER BY NEWID()";
         try {
-        Connection conn = getConnection();
-        PreparedStatement ps = conn.prepareStatement(sql);
-        ResultSet rs = ps.executeQuery();
-        
-        while (rs.next()) {
-            Book b = new Book();
-            b.setId(rs.getInt("book_id"));
-            b.setTitle(rs.getString("title"));
-            b.setPrice(rs.getDouble("price"));
-            b.setImageUrl(rs.getString("image")); // Tên cột ảnh trong DB
-            b.setAuthor(rs.getString("author"));
-            list.add(b);
+            Connection conn = getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Book b = new Book();
+                b.setId(rs.getInt("book_id"));
+                b.setTitle(rs.getString("title"));
+                b.setPrice(rs.getDouble("price"));
+                b.setImageUrl(rs.getString("image")); // Tên cột ảnh trong DB
+                b.setAuthor(rs.getString("author"));
+                list.add(b);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-    return list;
+        return list;
     }
 }
-
-

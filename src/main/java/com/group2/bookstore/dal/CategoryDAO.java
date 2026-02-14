@@ -30,4 +30,21 @@ public class CategoryDAO {
         }
         return list;
     }
+
+    // Updated method to include description
+    public void insertCategory(String name, String description) {
+        String sql = "INSERT INTO Categories (category_name, description) VALUES (?, ?)"; 
+        
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setString(1, name);
+            ps.setString(2, description); // New Field
+            
+            ps.executeUpdate();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
