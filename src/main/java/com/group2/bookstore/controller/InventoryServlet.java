@@ -18,7 +18,7 @@ public class InventoryServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         request.setCharacterEncoding("UTF-8"); // Đảm bảo tiếng Việt
         BookDAO dao = new BookDAO();
 
@@ -30,17 +30,23 @@ public class InventoryServlet extends HttpServlet {
 
         // 2. Nhận tham số từ Filter Form
         String search = request.getParameter("search");
-        
+
         String cate = request.getParameter("cid");
         int cid = (cate == null || cate.isEmpty()) ? 0 : Integer.parseInt(cate);
-        
+
         String author = request.getParameter("author");
         String publisher = request.getParameter("publisher");
-        
+
         // 3. Xử lý khoảng giá
         String priceRange = request.getParameter("priceRange");
         double minPrice = 0;
         double maxPrice = 0;
+
+        String indexPage = request.getParameter("index");
+        if (indexPage == null) {
+            indexPage = "1";
+        }
+        int index = Integer.parseInt(indexPage);
 
         if (priceRange != null && !priceRange.isEmpty()) {
             switch (priceRange) {
@@ -68,11 +74,11 @@ public class InventoryServlet extends HttpServlet {
         String order = request.getParameter("order"); // ASC hay DESC
 
         // 5. Gọi hàm DAO
-        List<Book> list = dao.getBooks(search, cid, author, publisher, minPrice, maxPrice, sort, order, false);
+        List<Book> list = dao.getBooks(search, cid, author, publisher, minPrice, maxPrice, sort, order, false, index);
 
         // 6. Gửi dữ liệu về JSP
         request.setAttribute("listB", list);
-        
+
         // Giữ lại các giá trị đã chọn để hiển thị lại trên Form
         request.setAttribute("paramSearch", search);
         request.setAttribute("paramCid", cid);

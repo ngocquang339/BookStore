@@ -145,101 +145,103 @@ public class BookDAO extends DBContext {
 
     // 3. Cập nhật hàm getBooks (Thêm tham số author, publisher, minPrice, maxPrice)
     // Updated Method: Added 'boolean isAdmin' as the last parameter
-    public List<Book> getBooks(String keyword, int cid, String author, String publisher, double minPrice, double maxPrice, String sortBy, String sortOrder, boolean isAdmin) {
+    // ADD 'int index' to the parameters list
+    // Updated getBooks method in BookDAO.java
+public List<Book> getBooks(String keyword, int cid, String author, String publisher, double minPrice, double maxPrice, String sortBy, String sortOrder, boolean isAdmin, int index) {
 
-        List<Book> list = new ArrayList<>();
+    List<Book> list = new ArrayList<>();
 
-        // CHANGE 1: Update SQL to JOIN with Categories
-        // We alias Books as 'b' and Categories as 'c'
-        StringBuilder sql = new StringBuilder("SELECT b.*, c.category_name as cat_name ");
-        sql.append("FROM Books b ");
-        sql.append("LEFT JOIN Categories c ON b.category_id = c.category_id ");
-        sql.append("WHERE 1=1 ");
+    // Base SQL
+    StringBuilder sql = new StringBuilder("SELECT b.*, c.category_name as cat_name ");
+    sql.append("FROM Books b ");
+    sql.append("LEFT JOIN Categories c ON b.category_id = c.category_id ");
+    sql.append("WHERE 1=1 ");
 
-        List<Object> params = new ArrayList<>();
+    List<Object> params = new ArrayList<>();
 
-        // --- NEW LOGIC START ---
-        if (!isAdmin) {
-            sql.append(" AND b.is_active = 1 "); // Use 'b.' prefix to be safe
-        }
-        // --- NEW LOGIC END ---
-
-        // Filter: Keyword
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            sql.append(" AND b.title LIKE ? "); // Use 'b.' prefix
-            params.add("%" + keyword + "%");
-        }
-        // Filter: Category
-        if (cid > 0) {
-            sql.append(" AND b.category_id = ? "); // Use 'b.' prefix
-            params.add(cid);
-        }
-        // Filter: Author
-        if (author != null && !author.trim().isEmpty()) {
-            sql.append(" AND b.author = ? ");
-            params.add(author);
-        }
-        // Filter: Publisher
-        if (publisher != null && !publisher.trim().isEmpty()) {
-            sql.append(" AND b.publisher = ? ");
-            params.add(publisher);
-        }
-        // Filter: Price Range
-        if (maxPrice > 0) {
-            sql.append(" AND b.price BETWEEN ? AND ? ");
-            params.add(minPrice);
-            params.add(maxPrice);
-        }
-
-        // Sorting
-        if (sortBy != null && !sortBy.isEmpty()) {
-            // Validating column names to prevent SQL injection
-            if (sortBy.equals("price") || sortBy.equals("title") || sortBy.equals("stock_quantity")) {
-                sql.append(" ORDER BY b.").append(sortBy); // Use 'b.' prefix
-                if ("DESC".equalsIgnoreCase(sortOrder)) {
-                    sql.append(" DESC");
-                } else {
-                    sql.append(" ASC");
-                }
-            }
-        } else {
-            sql.append(" ORDER BY b.book_id DESC");
-        }
-
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql.toString())) {
-
-            for (int i = 0; i < params.size(); i++) {
-                ps.setObject(i + 1, params.get(i));
-            }
-
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                Book b = new Book();
-                b.setId(rs.getInt("book_id"));
-                b.setTitle(rs.getString("title"));
-                b.setAuthor(rs.getString("author"));
-                b.setPublisher(rs.getString("publisher"));
-                b.setPrice(rs.getDouble("price"));
-                b.setStockQuantity(rs.getInt("stock_quantity"));
-                b.setCategoryId(rs.getInt("category_id"));
-                b.setImageUrl(rs.getString("image"));
-
-                // CHANGE 2: Set the Category Name
-                // Make sure your Book.java has: private String categoryName;
-                b.setCategoryName(rs.getString("cat_name"));
-
-                try {
-                    b.setActive(rs.getBoolean("is_active"));
-                } catch (Exception e) {
-                }
-
-                list.add(b);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return list;
+    // --- FILTERS ---
+    if (!isAdmin) {
+        sql.append(" AND b.is_active = 1 ");
     }
+    if (keyword != null && !keyword.trim().isEmpty()) {
+        sql.append(" AND b.title LIKE ? ");
+        params.add("%" + keyword + "%");
+    }
+    if (cid > 0) {
+        sql.append(" AND b.category_id = ? ");
+        params.add(cid);
+    }
+    if (author != null && !author.trim().isEmpty()) {
+        sql.append(" AND b.author = ? ");
+        params.add(author);
+    }
+    if (publisher != null && !publisher.trim().isEmpty()) {
+        sql.append(" AND b.publisher = ? ");
+        params.add(publisher);
+    }
+    if (maxPrice > 0) {
+        sql.append(" AND b.price BETWEEN ? AND ? ");
+        params.add(minPrice);
+        params.add(maxPrice);
+    }
+
+    // --- SORTING (FIXED LOGIC) ---
+    if (sortBy != null && !sortBy.isEmpty()) {
+        
+        // Case A: Sort by Category Name (Use 'c' alias)
+        if (sortBy.equals("category_name")) {
+            sql.append(" ORDER BY c.category_name");
+        }
+        // Case B: Sort by Book Columns (Use 'b' alias)
+        else if (sortBy.equals("price") || sortBy.equals("title") || 
+                 sortBy.equals("stock_quantity") || sortBy.equals("book_id") || 
+                 sortBy.equals("is_active")) {
+            sql.append(" ORDER BY b.").append(sortBy);
+        } 
+        // Case C: Fallback
+        else {
+            sql.append(" ORDER BY b.book_id");
+        }
+
+        // Apply ASC or DESC
+        if ("ASC".equalsIgnoreCase(sortOrder)) {
+            sql.append(" ASC");
+        } else {
+            sql.append(" DESC");
+        }
+    } else {
+        sql.append(" ORDER BY b.book_id DESC"); // Default sort
+    }
+
+    // --- PAGINATION ---
+    sql.append(" OFFSET ? ROWS FETCH NEXT 5 ROWS ONLY");
+    int offset = (index - 1) * 5;
+    params.add(offset);
+
+    try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+        for (int i = 0; i < params.size(); i++) {
+            ps.setObject(i + 1, params.get(i));
+        }
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            Book b = new Book();
+            b.setId(rs.getInt("book_id"));
+            b.setTitle(rs.getString("title"));
+            b.setAuthor(rs.getString("author"));
+            b.setPublisher(rs.getString("publisher"));
+            b.setPrice(rs.getDouble("price"));
+            b.setStockQuantity(rs.getInt("stock_quantity"));
+            b.setCategoryId(rs.getInt("category_id"));
+            b.setImageUrl(rs.getString("image"));
+            b.setCategoryName(rs.getString("cat_name"));
+            try { b.setActive(rs.getBoolean("is_active")); } catch (Exception e) {}
+            list.add(b);
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return list;
+}
 
     // 8. Update Stock (For Warehouse)
     public void updateStock(int bookId, int newQuantity) {
@@ -317,6 +319,58 @@ public class BookDAO extends DBContext {
             e.printStackTrace();
         }
         return list;
+    }
+
+    public int countBooks(String keyword, int cid, String author, String publisher, double minPrice, double maxPrice, boolean isAdmin) {
+        // 1. Start SQL with COUNT(*)
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM Books b ");
+        // Keeping the JOIN ensures the count matches exactly, even if filters involve category logic later
+        sql.append("LEFT JOIN Categories c ON b.category_id = c.category_id ");
+        sql.append("WHERE 1=1 ");
+
+        List<Object> params = new ArrayList<>();
+
+        // 2. Apply EXACT SAME Filters as getBooks
+        if (!isAdmin) {
+            sql.append(" AND b.is_active = 1 ");
+        }
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append(" AND b.title LIKE ? ");
+            params.add("%" + keyword + "%");
+        }
+        if (cid > 0) {
+            sql.append(" AND b.category_id = ? ");
+            params.add(cid);
+        }
+        if (author != null && !author.trim().isEmpty()) {
+            sql.append(" AND b.author = ? ");
+            params.add(author);
+        }
+        if (publisher != null && !publisher.trim().isEmpty()) {
+            sql.append(" AND b.publisher = ? ");
+            params.add(publisher);
+        }
+        if (maxPrice > 0) {
+            sql.append(" AND b.price BETWEEN ? AND ? ");
+            params.add(minPrice);
+            params.add(maxPrice);
+        }
+
+        // 3. Execute and Return Count
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 
     // HELPER: Map ResultSet to Book Object

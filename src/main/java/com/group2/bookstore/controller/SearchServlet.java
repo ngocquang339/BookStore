@@ -25,6 +25,12 @@ public class SearchServlet extends HttpServlet {
         String txtSearch = request.getParameter("txt");
         if (txtSearch == null) txtSearch = "";
 
+        String indexPage = request.getParameter("index");
+        if (indexPage == null) {
+            indexPage = "1";
+        }
+        int index = Integer.parseInt(indexPage);
+
         // 1. Check if user is Admin
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
@@ -38,7 +44,7 @@ public class SearchServlet extends HttpServlet {
         BookDAO dao = new BookDAO();
         
         // Notice the 'isAdmin' (true/false) added at the very end
-        List<Book> list = dao.getBooks(txtSearch, 0, null, null, 0, 0, null, null, isAdmin);
+        List<Book> list = dao.getBooks(txtSearch, 0, null, null, 0, 0, null, null, isAdmin, index);
         
         request.setAttribute("listBooks", list);
         request.setAttribute("txtS", txtSearch);

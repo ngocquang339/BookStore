@@ -8,7 +8,7 @@
             <head>
                 <title>Product Manager</title>
                 <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-dashboard.css">
-                <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/manage-products.css?v=2">
+                <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/manage-products.css?v=6">
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
                 <style>
@@ -63,15 +63,52 @@
                         <table class="admin-table" id="productTable">
                             <thead>
                                 <tr>
-                                    <th onclick="sortTable(0)">ID</th>
-                                    <th onclick="sortTable(1)">Image</th>
-                                    <th onclick="sortTable(2)">Book Details</th>
+                                    <th>
+                                        <a
+                                            href="list?sortBy=book_id&sortOrder=${sortOrder == 'ASC' ? 'DESC' : 'ASC'}&index=${tag}&keyword=${param.keyword}&cid=${param.cid}">
+                                            ID <i class="fa-solid fa-sort${sortBy == 'book_id' ? (sortOrder == 'ASC' ? '-up' : '-down') : ''}"></i>
+                                        </a>
+                                    </th>
 
-                                    <th onclick="sortTable(3)">Category</th>
+                                    <th>Image</th>
 
-                                    <th onclick="sortTable(4)">Price</th>
-                                    <th onclick="sortTable(5)">Stock</th>
-                                    <th onclick="sortTable(6)">Status</th>
+                                    <th>
+                                        <a
+                                            href="list?sortBy=title&sortOrder=${sortOrder == 'ASC' ? 'DESC' : 'ASC'}&index=${tag}&keyword=${param.keyword}&cid=${param.cid}">
+                                            Book Details <i class="fa-solid fa-sort${sortBy == 'title' ? (sortOrder == 'ASC' ? '-up' : '-down') : ''}"></i>
+                                        </a>
+                                    </th>
+
+                                    <th>
+                                        <a
+                                            href="list?sortBy=category_name&sortOrder=${sortOrder == 'ASC' ? 'DESC' : 'ASC'}&index=${tag}&keyword=${param.keyword}&cid=${param.cid}">
+                                            Category <i
+                                                class="fa-solid fa-sort${sortBy == 'category_name' ? (sortOrder == 'ASC' ? '-up' : '-down') : ''}"></i>
+                                        </a>
+                                    </th>
+
+                                    <th>
+                                        <a
+                                            href="list?sortBy=price&sortOrder=${sortOrder == 'ASC' ? 'DESC' : 'ASC'}&index=${tag}&keyword=${param.keyword}&cid=${param.cid}">
+                                            Price <i class="fa-solid fa-sort${sortBy == 'price' ? (sortOrder == 'ASC' ? '-up' : '-down') : ''}"></i>
+                                        </a>
+                                    </th>
+
+                                    <th>
+                                        <a
+                                            href="list?sortBy=stock_quantity&sortOrder=${sortOrder == 'ASC' ? 'DESC' : 'ASC'}&index=${tag}&keyword=${param.keyword}&cid=${param.cid}">
+                                            Stock <i class="fa-solid fa-sort${sortBy == 'stock_quantity' ? (sortOrder == 'ASC' ? '-up' : '-down') : ''}"></i>
+                                        </a>
+                                    </th>
+
+                                    <th>
+                                        <a
+                                            href="list?sortBy=is_active&sortOrder=${sortOrder == 'ASC' ? 'DESC' : 'ASC'}&index=${tag}&keyword=${param.keyword}&cid=${param.cid}">
+                                            Status <i
+                                                class="fa-solid fa-sort${sortBy == 'is_active' ? (sortOrder == 'ASC' ? '-up' : '-down') : ''}"></i>
+                                        </a>
+                                    </th>
+
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -135,68 +172,33 @@
                                 </c:forEach>
                             </tbody>
                         </table>
+                        <div class="pagination"
+                            style="display: flex; justify-content: center; margin-top: 20px; gap: 5px;">
+
+                            <c:if test="${tag > 1}">
+                                <a href="list?index=${tag-1}&keyword=${param.keyword}&cid=${param.cid}&sortBy=${sortBy}&sortOrder=${sortOrder}"
+                                    class="page-btn">&laquo;</a>
+                            </c:if>
+
+                            <c:forEach begin="1" end="${endPage}" var="i">
+                                <a href="list?index=${i}&keyword=${param.keyword}&cid=${param.cid}&sortBy=${sortBy}&sortOrder=${sortOrder}"
+                                    class="page-btn ${tag == i ? 'active' : ''}">
+                                    ${i}
+                                </a>
+                            </c:forEach>
+
+                            <c:if test="${tag < endPage}">
+                                <a href="list?index=${tag+1}&keyword=${param.keyword}&cid=${param.cid}&sortBy=${sortBy}&sortOrder=${sortOrder}"
+                                    class="page-btn">&raquo;</a>
+                            </c:if>
+
+                        </div>
+
+
                     </div>
                 </div>
 
-                <script>
-                    function sortTable(n, type) {
-                        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
-                        table = document.getElementById("productTable");
-                        switching = true;
-                        dir = "asc"; // Set the sorting direction to ascending:
 
-                        while (switching) {
-                            switching = false;
-                            rows = table.rows;
-
-                            // Loop through all table rows (except the first, which contains table headers):
-                            for (i = 1; i < (rows.length - 1); i++) {
-                                shouldSwitch = false;
-
-                                // Get the two elements you want to compare
-                                x = rows[i].getElementsByTagName("TD")[n];
-                                y = rows[i + 1].getElementsByTagName("TD")[n];
-
-                                var xContent = x.innerText.toLowerCase();
-                                var yContent = y.innerText.toLowerCase();
-
-                                // CLEANUP DATA BASED ON TYPE
-                                if (type === 'number') {
-                                    xContent = parseFloat(xContent) || 0;
-                                    yContent = parseFloat(yContent) || 0;
-                                } else if (type === 'price') {
-                                    // Remove "đ", dots, commas
-                                    xContent = parseFloat(xContent.replace(/[^0-9.-]+/g, "")) || 0;
-                                    yContent = parseFloat(yContent.replace(/[^0-9.-]+/g, "")) || 0;
-                                }
-
-                                // COMPARE
-                                if (dir == "asc") {
-                                    if (xContent > yContent) {
-                                        shouldSwitch = true;
-                                        break;
-                                    }
-                                } else if (dir == "desc") {
-                                    if (xContent < yContent) {
-                                        shouldSwitch = true;
-                                        break;
-                                    }
-                                }
-                            }
-
-                            if (shouldSwitch) {
-                                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-                                switching = true;
-                                switchcount++;
-                            } else {
-                                if (switchcount == 0 && dir == "asc") {
-                                    dir = "desc";
-                                    switching = true;
-                                }
-                            }
-                        }
-                    }
-                </script>
 
             </body>
 
