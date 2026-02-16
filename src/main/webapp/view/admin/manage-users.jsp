@@ -194,7 +194,8 @@
                                                         Banned</span>
 
                                                     <a href="${pageContext.request.contextPath}/admin/users/ban?id=${u.id}&status=0"
-                                                        class="btn-action btn-activate" title="Activate User">
+                                                        class="btn-action btn-activate" title="Activate User"
+                                                        onclick="return confirm('Are you sure you want to ACTIVATE this user?');">
                                                         <i class="fa-solid fa-lock-open"></i>
                                                     </a>
                                                 </c:otherwise>
