@@ -7,8 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.group2.bookstore.model.Book;
+import com.group2.bookstore.model.CartItem;
 import com.group2.bookstore.model.Order;
 import com.group2.bookstore.model.OrderDetail;
+import com.group2.bookstore.model.User;
 
 public class OrderDAO extends DBContext {
 
@@ -122,4 +124,103 @@ public class OrderDAO extends DBContext {
             e.printStackTrace();
         }
     }
+
+    // Thêm vào OrderDAO.java
+// File: OrderDAO.java (Đã sửa lỗi)
+public void createOrder(User user, List<CartItem> cart, String address, String phone, double total, String paymentMethod) {
+    String sqlOrder = "INSERT INTO Orders(user_id, order_date, total_amount, status, shipping_address, phone_number, payment_method) VALUES (?, GETDATE(), ?, 1, ?, ?, ?)";
+    Connection cn = null; // Khai báo Connection ở ngoài để kiểm soát Transaction
+    
+    try {
+        cn = getConnection();
+        cn.setAutoCommit(false); // Bắt đầu Transaction
+
+        // 1. Lưu Order
+        PreparedStatement ps = cn.prepareStatement(sqlOrder, PreparedStatement.RETURN_GENERATED_KEYS);
+        ps.setInt(1, user.getId());
+        ps.setDouble(2, total);
+        ps.setString(3, address);
+        ps.setString(4, phone);
+        ps.setString(5, paymentMethod);
+        ps.executeUpdate();
+
+        ResultSet rs = ps.getGeneratedKeys();
+        int orderID = rs.next() ? rs.getInt(1) : 0;
+
+        // 2. Lưu OrderDetails
+        String sqlDetail = "INSERT INTO OrderDetails(order_id, book_id, quantity, price) VALUES (?, ?, ?, ?)";
+        PreparedStatement psDetail = cn.prepareStatement(sqlDetail);
+        for (CartItem item : cart) {
+            psDetail.setInt(1, orderID);
+            psDetail.setInt(2, item.getBook().getId());
+            psDetail.setInt(3, item.getQuantity());
+            psDetail.setDouble(4, item.getBook().getPrice());
+            psDetail.addBatch();
+        }
+        psDetail.executeBatch();
+
+        // 3. Xóa giỏ hàng (Sửa lỗi thiếu dấu đóng ngoặc)
+        String sqlDeleteItems = "DELETE FROM CartItems WHERE cart_id = (SELECT cart_id FROM Cart WHERE user_id = ?)";
+        PreparedStatement psDelItems = cn.prepareStatement(sqlDeleteItems);
+        psDelItems.setInt(1, user.getId());
+        psDelItems.executeUpdate();
+
+        // 4. Xóa bảng Cart
+        String sqlDeleteCart = "DELETE FROM Cart WHERE user_id = ?";
+        PreparedStatement psDelCart = cn.prepareStatement(sqlDeleteCart);
+        psDelCart.setInt(1, user.getId());
+        psDelCart.executeUpdate();
+
+        cn.commit(); // Xác nhận Transaction thành công
+    } catch (Exception e) {
+        if (cn != null) {
+            try { cn.rollback(); } catch (Exception ex) { ex.printStackTrace(); }
+        }
+        e.printStackTrace();
+    } finally {
+        // Đóng Connection thủ công nếu không dùng try-with-resources cho Connection
+        if (cn != null) {
+            try { cn.close(); } catch (Exception ex) { ex.printStackTrace(); }
+        }
+    }
+}
+
+// Sửa lỗi SQL dính liền trong hàm getOrdersByStatus
+public List<Order> getOrdersByStatus(int status) {
+    List<Order> list = new ArrayList<>();
+    // Thêm dấu cách ở cuối mỗi dòng để tránh lỗi cú pháp SQL
+    String sql = "SELECT o.*, u.fullname, u.phone_number FROM Orders o " +
+                 "JOIN Users u ON o.user_id = u.user_id " +
+                 "WHERE o.status = ? ORDER BY o.order_date DESC";
+    try (Connection cn = getConnection();
+         PreparedStatement ps = cn.prepareStatement(sql)) {
+        
+        ps.setInt(1, status);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            Order o = new Order();
+            o.setId(rs.getInt("order_id"));
+            o.setUserId(rs.getInt("user_id"));
+            o.setOrderDate(rs.getTimestamp("order_date"));
+            o.setTotalAmount(rs.getDouble("total_amount"));
+            o.setStatus(rs.getInt("status"));
+            o.setShippingAddress(rs.getString("shipping_address"));
+            o.setUserName(rs.getString("fullname"));
+            o.setPhoneNumber(rs.getString("phone_number"));
+            list.add(o);
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return list;
+}
+    public void updateOrderStatus(int orderId, int newStatus) {
+    String sql = "UPDATE Orders SET status = ? WHERE order_id = ?";
+    try (Connection conn = getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setInt(1, newStatus);
+        ps.setInt(2, orderId);
+        ps.executeUpdate();
+    } catch (Exception e) { e.printStackTrace(); }
+}
 }
