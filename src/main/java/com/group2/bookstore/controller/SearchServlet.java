@@ -68,7 +68,7 @@ public class SearchServlet extends HttpServlet {
         List<Book> listBooks = bookDAO.getBooks(txtSearch, cid, author, publisher, priceFrom, priceTo, sort, "ASC", isAdmin);
 
         // Lấy dữ liệu cho Dropdown bộ lọc
-        List<Category> listCategories = catDAO.getAllCategories();
+        List<Category> listCategories = catDAO.getCategories();
         List<String> listPublishers = bookDAO.getAllPublishers();
 
         // 6. Đẩy dữ liệu sang JSP

@@ -45,27 +45,27 @@
             
             <div class="product-image-box white-box">
                 <div class="main-image-container">
-                    <img id="mainImage" src="${pageContext.request.contextPath}/assets/image/books/${book.imageUrl}" 
+                    <img id="mainImage" src="${pageContext.request.contextPath}/${book.imageUrl}" 
                         alt="${book.title}" class="main-img">
                 </div>
                 
                 <div class="thumbnail-list" style="display:flex; gap:10px; justify-content:center; margin-top:10px;">
                     
                     <div class="thumb-item active" onclick="changeImage(this, '${pageContext.request.contextPath}/assets/image/books/${book.imageUrl}')">
-                        <img src="${pageContext.request.contextPath}/assets/image/books/${book.imageUrl}" width="60" height="60">
+                        <img src="${pageContext.request.contextPath}/${book.imageUrl}" width="60" height="60">
                     </div>
 
                     <c:forEach items="${listImg}" var="img" varStatus="status">
                         
                         <c:if test="${status.index < 3}">
                             <div class="thumb-item" onclick="changeImage(this, '${pageContext.request.contextPath}/assets/image/books/${img.imageUrl}')">
-                                <img src="${pageContext.request.contextPath}/assets/image/books/${img.imageUrl}" width="60" height="60">
+                                <img src="${pageContext.request.contextPath}/${img.imageUrl}" width="60" height="60">
                             </div>
                         </c:if>
 
                         <c:if test="${status.index == 3}">
                             <div class="thumb-item plus-item" style="position:relative; width:60px; height:60px; overflow:hidden;">
-                                <img src="${pageContext.request.contextPath}/assets/image/books/${img.imageUrl}" width="60" height="60" style="opacity:0.5;">
+                                <img src="${pageContext.request.contextPath}/${img.imageUrl}" width="60" height="60" style="opacity:0.5;">
                                 <div style="position:absolute; top:0; left:0; right:0; bottom:0; display:flex; align-items:center; justify-content:center; font-weight:bold; color:#333;">
                                     +${listImg.size() - 3}
                                 </div>

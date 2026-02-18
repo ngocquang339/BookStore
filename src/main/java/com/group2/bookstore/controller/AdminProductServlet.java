@@ -38,7 +38,7 @@ public class AdminProductServlet extends HttpServlet {
             return; // Stop here
         }
         CategoryDAO catDao = new CategoryDAO();
-        request.setAttribute("listCategories", catDao.getAllCategories());
+        request.setAttribute("listCategories", catDao.getCategories());
 
         if (path.equals("/admin/product/add")) {
             request.getRequestDispatcher("/view/admin/product-form.jsp").forward(request, response);

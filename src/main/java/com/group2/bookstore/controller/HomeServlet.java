@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import com.group2.bookstore.dal.BookDAO;
+import com.group2.bookstore.dal.CategoryDAO;
 import com.group2.bookstore.model.Book;
 import com.group2.bookstore.model.BookImage;
 import com.group2.bookstore.model.User;
@@ -24,6 +25,7 @@ public class HomeServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String path = request.getServletPath();
         BookDAO dao = new BookDAO();
+        CategoryDAO cateDAO = new CategoryDAO();
         // 1. GET USER & ROLE
         HttpSession session = request.getSession();
         User currentUser = (User) session.getAttribute("user");
@@ -53,7 +55,7 @@ public class HomeServlet extends HttpServlet {
             List<Book> bestSellers = dao.getBestSellers(); 
             List<Book> randomBooks = dao.getRandomBook(roleId, 10);
             List<Book> flashSaleBooks = dao.getRandomBook(roleId, 10);
-            List<Category> listCategories = dao.getCategories();
+            List<Category> listCategories = cateDAO.getCategories();
             
             request.setAttribute("listCategories", listCategories);
             request.setAttribute("newBooks", newArrivals);

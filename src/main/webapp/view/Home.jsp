@@ -166,40 +166,43 @@
                 <%-- Đã xóa đoạn div icon-item thừa ở đây --%>
 
                 <div class="icon-item user-account">
-    <i class="fa-regular fa-user"></i>
-    <div class="account-info">
-        <a href="${pageContext.request.contextPath}/update-profile">
-            <span class="account-label">Tài khoản</span>
-        </a>
-    </div>
+                    <a href="${pageContext.request.contextPath}/${sessionScope.user != null ? 'update-profile' : 'login'}" 
+                    style="text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center; gap: 2px; margin-top: 9px;">
+                        
+                        <i class="fa-regular fa-user"></i>
+                        
+                        <div class="account-info">
+                            <span class="account-label">Tài khoản</span>
+                        </div>
+                    </a>
 
-    <div class="dropdown-content">
-        <%-- TRƯỜNG HỢP CHƯA ĐĂNG NHẬP --%>
-        <c:if test="${sessionScope.user == null}">
-            <div class="auth-buttons">
-            </div>
-            <a href="${pageContext.request.contextPath}/login" class="btn-auth-login"> Đăng nhập
-            </a>
-            <a href="${pageContext.request.contextPath}/register" class="btn-auth-register"> Đăng ký
-            </a>
-        </c:if>
+                    <div class="dropdown-content">
+                        <%-- TRƯỜNG HỢP CHƯA ĐĂNG NHẬP --%>
+                        <c:if test="${sessionScope.user == null}">
+                            <div class="auth-buttons">
+                            </div>
+                            <a href="${pageContext.request.contextPath}/login" class="btn-auth-login"> Đăng nhập
+                            </a>
+                            <a href="${pageContext.request.contextPath}/register" class="btn-auth-register"> Đăng ký
+                            </a>
+                        </c:if>
 
-        <%-- TRƯỜNG HỢP ĐÃ ĐĂNG NHẬP --%>
-        <c:if test="${sessionScope.user != null}">
-            <div class="dropdown-header">
-                <span class="welcome-text">Xin chào,</span>
-                <span class="user-name">${sessionScope.user.username}</span>
-            </div>
-            
-            <a href="${pageContext.request.contextPath}/update-profile" class="dropdown-link">
-                <i class="fa-regular fa-id-card"></i> Hồ sơ của tôi
-            </a>
-            <a href="${pageContext.request.contextPath}/logout" class="dropdown-link logout-link">
-                <i class="fa-solid fa-power-off"></i> Đăng xuất
-            </a>
-        </c:if>
-    </div>
-</div>
+                        <%-- TRƯỜNG HỢP ĐÃ ĐĂNG NHẬP --%>
+                        <c:if test="${sessionScope.user != null}">
+                            <div class="dropdown-header">
+                                <span class="welcome-text">Xin chào,</span>
+                                <span class="user-name">${sessionScope.user.username}</span>
+                            </div>
+                            
+                            <a href="${pageContext.request.contextPath}/update-profile" class="dropdown-link">
+                                <i class="fa-regular fa-id-card"></i> Hồ sơ của tôi
+                            </a>
+                            <a href="${pageContext.request.contextPath}/logout" class="dropdown-link logout-link">
+                                <i class="fa-solid fa-power-off"></i> Đăng xuất
+                            </a>
+                        </c:if>
+                    </div>
+                </div>
             </div>
         </div>
     </header>
@@ -288,7 +291,7 @@
                                             <div class="fs-card-content">
                                                 <div class="fs-image">
                                                     <a href="${pageContext.request.contextPath}/detail?pid=${b.id}">
-                                                        <img src="${pageContext.request.contextPath}/assets/image/books/${b.imageUrl}" 
+                                                        <img src="${pageContext.request.contextPath}/${b.imageUrl}" 
                                                             alt="${b.title}" onerror="this.src='https://placehold.co/200x300?text=No+Image'">
                                                     </a>
                                                     <div class="fs-discount-badge">-50%</div>
@@ -350,7 +353,7 @@
                             <a href="${pageContext.request.contextPath}/search?cid=${c.id}" class="cat-item">
                                 <div class="cat-image">
                                     <c:if test="${not empty c.imageUrl}">
-                                        <img src="${pageContext.request.contextPath}/assets/image/Categories/${c.imageUrl}" alt="${c.name}">
+                                        <img src="${pageContext.request.contextPath}/${c.imageUrl}" alt="${c.name}">
                                     </c:if>
                                     
                                     <c:if test="${empty c.imageUrl}">
@@ -371,7 +374,7 @@
                     <div class="book-card">
                         <div class="book-image">
                             <a href="${pageContext.request.contextPath}/detail?pid=${b.id}">
-                                <img src="${pageContext.request.contextPath}/assets/image/books/${b.imageUrl}" 
+                                <img src="${pageContext.request.contextPath}/${b.imageUrl}" 
                                      alt="${b.title}" onerror="this.src='https://placehold.co/200x300?text=No+Image'">
                             </a>
                         </div>
