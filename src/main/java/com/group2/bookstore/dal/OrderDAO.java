@@ -220,7 +220,8 @@ public List<Order> getOrdersByStatus(int status) {
          PreparedStatement ps = conn.prepareStatement(sql)) {
         ps.setInt(1, newStatus);
         ps.setInt(2, orderId);
-        ps.executeUpdate();
+        int rows = ps.executeUpdate();
+        System.out.println("Updated Order ID: " + orderId + " to Status: " + newStatus + " (Rows: " + rows + ")");
     } catch (Exception e) { e.printStackTrace(); }
 }
 }
