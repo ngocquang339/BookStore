@@ -35,7 +35,6 @@
 </head>
 
 <body class="${sessionScope.user != null && sessionScope.user.role == 1 ? 'admin-active' : ''}">
-
     <%-- 1. ADMIN OVERLAY --%>
     <c:if test="${sessionScope.user != null && sessionScope.user.role == 1}">
         <div class="admin-overlay">
