@@ -35,18 +35,42 @@
 </head>
 
 <body class="${sessionScope.user != null && sessionScope.user.role == 1 ? 'admin-active' : ''}">
-    <%-- 1. ADMIN OVERLAY --%>
-    <c:if test="${sessionScope.user != null && sessionScope.user.role == 1}">
-        <div class="admin-overlay">
-            <div class="admin-welcome">
-                <i class="fa-solid fa-screwdriver-wrench"></i> &nbsp;
-                <strong>Chế độ Quản trị viên</strong> &nbsp;|&nbsp;
-                Xin chào, ${sessionScope.user.username} </div>
-            <a href="${pageContext.request.contextPath}/admin/dashboard" class="admin-btn">
-                Vào trang quản lý <i class="fa-solid fa-arrow-right"></i>
-            </a>
+    <%-- KIỂM TRA QUYỀN VÀ HIỂN THỊ TOP BAR CHO ADMIN/SALE --%>
+<%-- KIỂM TRA QUYỀN VÀ HIỂN THỊ TOP BAR CHO ADMIN/SALE --%>
+<c:if test="${sessionScope.user != null and (sessionScope.user.role == 1 or sessionScope.user.role == 3)}">
+    <div style="background-color: #343a40; color: white; font-size: 13px; display: flex; justify-content: space-between; align-items: stretch; z-index: 1000; position: relative;">
+        <div style="padding: 10px 15px; display: flex; align-items: center;">
+            <span style="color: #ffc107; font-weight: bold; margin-right: 8px;">
+                <c:choose>
+                    <c:when test="${sessionScope.user.role == 1}">CHẾ ĐỘ QUẢN TRỊ VIÊN:</c:when>
+                    <c:when test="${sessionScope.user.role == 3}">CHẾ ĐỘ NHÂN VIÊN:</c:when>
+                </c:choose>
+            </span>
+            
+            <span>Xin chào, ${sessionScope.user.username} 
+                <c:choose>
+                    <c:when test="${sessionScope.user.role == 1}"></c:when>
+                    <c:when test="${sessionScope.user.role == 3}"></c:when>
+                </c:choose>
+            </span>
         </div>
-    </c:if>
+        
+        <div style="display: flex;">
+            <c:choose>
+                <c:when test="${sessionScope.user.role == 1}">
+                    <a href="${pageContext.request.contextPath}/admin/dashboard" style="background-color: #C92127; color: white; padding: 10px 20px; text-decoration: none; font-weight: bold; display: flex; align-items: center; transition: background-color 0.2s;">
+                        VÀO TRANG QUẢN LÝ <i class="fa-solid fa-arrow-right ms-2"></i>
+                    </a>
+                </c:when>
+                <c:when test="${sessionScope.user.role == 3}">
+                    <a href="${pageContext.request.contextPath}/dashboard" style="background-color: #C92127; color: white; padding: 10px 20px; text-decoration: none; font-weight: bold; display: flex; align-items: center; transition: background-color 0.2s;">
+                        VÀO TRANG QUẢN LÝ SALE <i class="fa-solid fa-arrow-right ms-2"></i>
+                    </a>
+                </c:when>
+            </c:choose>
+        </div>
+    </div>
+</c:if>
 
     <%-- 2. THÔNG BÁO --%>
     <c:if test="${not empty sessionScope.message}">

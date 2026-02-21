@@ -183,7 +183,9 @@
                             </span>
                         </div>
                         <div class="d-flex justify-content-end mt-3">
-                            <button class="btn-shopping" style="border: none; width: 250px;">THANH TOÁN</button>
+                            <a href="${pageContext.request.contextPath}/checkout">
+                                <button class="btn-shopping" style="border: none; width: 250px;">THANH TOÁN</button>
+</a>
                         </div>
                     </div>
                 </c:otherwise>
