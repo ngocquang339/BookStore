@@ -21,7 +21,8 @@
                 <i class="fa-solid fa-house"></i> Back to Shop
             </a>
             <h2 class="text-primary m-0 fw-bold">BẢNG QUẢN LÝ ĐƠN HÀNG (SALE STAFF)</h2>
-            <div style="width: 140px;"></div> </div>
+            <div style="width: 140px;"></div> 
+        </div>
         
         <div class="row mb-3">
             <div class="col-md-4">
@@ -65,29 +66,32 @@
                                 <fmt:formatNumber value="${o.totalAmount}" type="currency" currencySymbol="đ"/>
                             </td>
                             
-                            <td>
-                                <form action="${pageContext.request.contextPath}/dashboard" method="post" class="d-flex align-items-center justify-content-center gap-2 mb-0">
-                                    <input type="hidden" name="orderId" value="${o.id}">
-                                    
-                                    <input type="hidden" name="currentTab" value="${currentStatus}">
-                                    
-                                    <select name="newStatus" class="form-select form-select-sm" style="width: 140px; font-weight: 500;">
-                                        <option value="1" class="text-warning fw-bold" ${o.status == 1 ? 'selected' : ''}>Chờ xử lý</option>
-                                        <option value="2" class="text-primary fw-bold" ${o.status == 2 ? 'selected' : ''}>Đang giao</option>
-                                        <option value="3" class="text-success fw-bold" ${o.status == 3 ? 'selected' : ''}>Hoàn thành</option>
-                                        <option value="4" class="text-danger fw-bold" ${o.status == 4 ? 'selected' : ''}>Đã hủy</option>
-                                    </select>
-                                    
-                                    <button type="submit" class="btn btn-primary btn-sm" title="Lưu thay đổi">
-                                        <i class="fa-solid fa-floppy-disk"></i> Lưu
-                                    </button>
-                                </form>
+                            <td class="text-center">
+                                <c:choose>
+                                    <c:when test="${o.status == 1}">
+                                        <span class="badge bg-warning text-dark px-2 py-2" style="width: 90px;">Chờ xử lý</span>
+                                    </c:when>
+                                    <c:when test="${o.status == 2}">
+                                        <span class="badge bg-primary px-2 py-2" style="width: 90px;">Đang giao</span>
+                                    </c:when>
+                                    <c:when test="${o.status == 3}">
+                                        <span class="badge bg-success px-2 py-2" style="width: 90px;">Hoàn thành</span>
+                                    </c:when>
+                                    <c:when test="${o.status == 4}">
+                                        <span class="badge bg-danger px-2 py-2" style="width: 90px;">Đã hủy</span>
+                                    </c:when>
+                                </c:choose>
                             </td>
 
                             <td class="text-center">
-                                <a href="order-detail?id=${o.id}" class="btn btn-sm btn-outline-secondary">
-                                    <i class="fa-solid fa-circle-info"></i> Chi tiết
-                                </a>
+                                <div class="d-flex justify-content-center gap-2">
+                                    <a href="${pageContext.request.contextPath}/edit-status?id=${o.id}&status=${o.status}" class="btn btn-sm btn-outline-primary" title="Cập nhật trạng thái">
+    <i class="fa-solid fa-pen"></i> Sửa
+</a>
+                                    <a href="order-detail?id=${o.id}" class="btn btn-sm btn-outline-secondary" title="Xem chi tiết">
+                                        <i class="fa-solid fa-circle-info"></i> Chi tiết
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     </c:forEach>

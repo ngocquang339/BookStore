@@ -45,32 +45,32 @@ public class SaleController extends HttpServlet {
     }
 
     // Xử lý cập nhật trạng thái đơn hàng
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    try {
-        // 1. Lấy dữ liệu từ Form gửi lên
-        int orderId = Integer.parseInt(req.getParameter("orderId"));
-        int newStatus = Integer.parseInt(req.getParameter("newStatus"));
+    // @Override
+//     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+//     try {
+//         // 1. Lấy dữ liệu từ Form gửi lên
+//         int orderId = Integer.parseInt(req.getParameter("orderId"));
+//         int newStatus = Integer.parseInt(req.getParameter("newStatus"));
         
-        // 2. LẤY TRẠNG THÁI TAB HIỆN TẠI TỪ THẺ HIDDEN TRONG JSP
-        String currentTab = req.getParameter("currentTab");
+//         // 2. LẤY TRẠNG THÁI TAB HIỆN TẠI TỪ THẺ HIDDEN TRONG JSP
+//         String currentTab = req.getParameter("currentTab");
         
-        // 3. Gọi DAO để cập nhật Database
-        OrderDAO dao = new OrderDAO();
-        dao.updateOrderStatus(orderId, newStatus);
+//         // 3. Gọi DAO để cập nhật Database
+//         OrderDAO dao = new OrderDAO();
+//         dao.updateOrderStatus(orderId, newStatus);
         
-        // 4. CHUYỂN HƯỚNG VỀ ĐÚNG TAB CŨ
-        // Nếu currentTab rỗng (trường hợp load trang đầu tiên), trả về dashboard gốc
-        if (currentTab == null || currentTab.trim().isEmpty()) {
-            resp.sendRedirect("dashboard");
-        } else {
-            // Trả về đúng tab đang xem (ví dụ: ?status=all hoặc ?status=1)
-            resp.sendRedirect("dashboard?status=" + currentTab);
-        }
+//         // 4. CHUYỂN HƯỚNG VỀ ĐÚNG TAB CŨ
+//         // Nếu currentTab rỗng (trường hợp load trang đầu tiên), trả về dashboard gốc
+//         if (currentTab == null || currentTab.trim().isEmpty()) {
+//             resp.sendRedirect("dashboard");
+//         } else {
+//             // Trả về đúng tab đang xem (ví dụ: ?status=all hoặc ?status=1)
+//             resp.sendRedirect("dashboard?status=" + currentTab);
+//         }
         
-    } catch (Exception e) {
-        e.printStackTrace();
-        resp.sendRedirect("dashboard");
-    }
-}
+//     } catch (Exception e) {
+//         e.printStackTrace();
+//         resp.sendRedirect("dashboard");
+//     }
+// }
 }
