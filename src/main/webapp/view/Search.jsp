@@ -10,8 +10,36 @@
     
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/home.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/search.css">
+
+    <style>
+        .product-card {
+            position: relative; /* Needed to position the badge */
+            transition: transform 0.2s;
+        }
+        
+        /* Style for the Hidden Badge */
+        .badge-hidden {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #dc3545; /* Red color */
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 4px;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* Dim the card slightly if it is hidden */
+        .card-inactive {
+            opacity: 0.75;
+            border: 1px dashed #999 !important; /* Dashed border to indicate 'draft/hidden' status */
+            background-color: #f8f9fa;
+        }
+    </style>
 </head>
 
 <body>
@@ -52,7 +80,14 @@
 
         <div class="product-list">
             <c:forEach items="${listBooks}" var="b">
-                <div class="product-card">
+                <div class="product-card ${!b.active ? 'card-inactive' : ''}">
+                    
+                    <c:if test="${!b.active}">
+                        <div class="badge-hidden">
+                            <i class="fa-solid fa-eye-slash"></i> Hidden
+                        </div>
+                    </c:if>
+
                     <a href="detail?pid=${b.id}" style="text-decoration: none; color: inherit;">
                         <img src="${pageContext.request.contextPath}/assets/image/books/${b.imageUrl}" alt="${b.title}">
                         <h4>${b.title}</h4>

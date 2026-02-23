@@ -68,7 +68,7 @@
                             </a>
                         </h4>
                         <ul>
-                            <li><strong>Import Price:</strong> $${book.importPrice}</li>
+                            <li><strong>Import Price:</strong> <fmt:formatNumber value="${book.importPrice}" type="currency" currencySymbol="đ" maxFractionDigits="0"/></li>
                             <li><strong>Publisher:</strong> ${book.publisher} (Proxy for Supplier)</li>
                             <li><strong>Stock Status:</strong> ${book.stockQuantity} units left</li>
                             <li><strong>Visibility:</strong> ${book.active ? 'Public' : 'Hidden'}</li>
@@ -79,7 +79,7 @@
                 <p style="color: #666;">Tác giả: <strong>${book.author}</strong></p>
                 
                 <h2 style="color: #C92127; font-size: 32px; margin: 20px 0;">
-                    $${book.price}
+                    <fmt:formatNumber value="${book.price}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
                 </h2>
 
                 <p class="description" style="line-height: 1.6; color: #555;">
