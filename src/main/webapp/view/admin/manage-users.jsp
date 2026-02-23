@@ -12,61 +12,82 @@
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
                 <style>
-                    /* Specific styles for User Table inputs */
-                    .role-select,
-                    .status-select {
-                        padding: 5px;
-                        border-radius: 4px;
-                        border: 1px solid #ced4da;
-                        font-size: 13px;
-                    }
-
-                    .btn-save-row {
-                        background-color: #28a745;
-                        color: white;
-                        border: none;
-                        padding: 6px 10px;
-                        border-radius: 4px;
-                        cursor: pointer;
-                        margin-left: 5px;
-                    }
-
-                    .btn-save-row:hover {
-                        background-color: #218838;
-                    }
-
+                    /* Badges for displaying Roles nicely */
                     .role-badge {
-                        padding: 4px 8px;
-                        border-radius: 12px;
-                        font-size: 11px;
+                        padding: 5px 10px;
+                        border-radius: 15px;
+                        font-size: 12px;
                         font-weight: bold;
-                        text-transform: uppercase;
+                        color: white;
+                        display: inline-block;
                     }
 
                     .role-1 {
-                        background: #dc3545;
-                        color: white;
+                        background-color: #dc3545;
                     }
 
                     /* Admin - Red */
-                    .role-2 {
-                        background: #0d6efd;
-                        color: white;
-                    }
-
-                    /* Customer - Blue */
                     .role-4 {
-                        background: #ffc107;
+                        background-color: #ffc107;
                         color: black;
                     }
 
                     /* Warehouse - Yellow */
+                    .role-2 {
+                        background-color: #0d6efd;
+                    }
 
-                    /* Add this inside the <style> block */
+                    /* Customer - Blue */
+
+                    .status-active {
+                        color: #198754;
+                        font-weight: bold;
+                    }
+
                     .status-banned {
-                        background-color: #f8d7da;
-                        color: #721c24;
-                        border-color: #f5c6cb;
+                        color: #dc3545;
+                        font-weight: bold;
+                    }
+
+                    .btn-add-user {
+                        background-color: #28a745;
+                        color: white;
+                        padding: 10px 15px;
+                        text-decoration: none;
+                        border-radius: 4px;
+                        font-weight: bold;
+                    }
+
+                    .btn-add-user:hover {
+                        background-color: #218838;
+                    }
+
+                    .btn-action {
+                        display: inline-block;
+                        padding: 5px 10px;
+                        border-radius: 4px;
+                        color: white;
+                        text-decoration: none;
+                        margin-left: 10px;
+                        font-size: 12px;
+                    }
+
+                    .btn-ban {
+                        background-color: #dc3545;
+                    }
+
+                    /* Red Lock Button */
+                    .btn-ban:hover {
+                        background-color: #bb2d3b;
+                    }
+
+                    .btn-activate {
+                        background-color: #28a745;
+                    }
+
+                    /* Green Unlock Button */
+                    .btn-activate:hover {
+                        background-color: #218838;
                     }
                 </style>
             </head>
@@ -80,6 +101,9 @@
 
                     <div class="header-actions">
                         <h1><i class="fa-solid fa-users"></i> User Management</h1>
+                        <a href="${pageContext.request.contextPath}/admin/users/add" class="btn-add-user">
+                            <i class="fa-solid fa-plus"></i> Create New User
+                        </a>
                     </div>
 
                     <div class="table-responsive">
@@ -89,9 +113,9 @@
                                     <th>ID</th>
                                     <th>User Info</th>
                                     <th>Contact</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
                                     <th>Joined Date</th>
-                                    <th>Role & Status</th>
-                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -106,33 +130,54 @@
                                             ${u.email}<br>
                                             <small>${u.phone_number}</small>
                                         </td>
+
+                                        <td>
+                                            <c:choose>
+                                                <c:when test="${u.role == 1}"><span
+                                                        class="role-badge role-1">Admin</span></c:when>
+                                                <c:when test="${u.role == 4}"><span
+                                                        class="role-badge role-4">Warehouse</span></c:when>
+                                                <c:otherwise><span class="role-badge role-2">Customer</span>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </td>
+
+                                        <td>
+                                            <c:choose>
+                                                <c:when test="${u.status == 1}">
+                                                    <span class="status-active"><i class="fa-solid fa-check-circle"></i>
+                                                        Active</span>
+
+                                                    <c:if test="${u.id != sessionScope.user.id}">
+                                                        <a href="${pageContext.request.contextPath}/admin/users/ban?id=${u.id}&status=1"
+                                                            class="btn-action btn-ban" title="Ban User"
+                                                            onclick="return confirm('Are you sure you want to BAN this user?');">
+                                                            <i class="fa-solid fa-lock"></i>
+                                                        </a>
+                                                    </c:if>
+
+                                                    <c:if test="${u.id == sessionScope.user.id}">
+                                                        <span
+                                                            style="color:#ccc; font-size:11px; margin-left:5px;">(You)</span>
+                                                    </c:if>
+
+                                                </c:when>
+
+                                                <c:otherwise>
+                                                    <span class="status-banned"><i class="fa-solid fa-ban"></i>
+                                                        Banned</span>
+
+                                                    <a href="${pageContext.request.contextPath}/admin/users/ban?id=${u.id}&status=0"
+                                                        class="btn-action btn-activate" title="Activate User">
+                                                        <i class="fa-solid fa-lock-open"></i>
+                                                    </a>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </td>
+
                                         <td>
                                             <fmt:formatDate value="${u.createAt}" pattern="MMM dd, yyyy" />
                                         </td>
-
-                                        <form action="${pageContext.request.contextPath}/admin/users" method="post">
-                                            <input type="hidden" name="userId" value="${u.id}">
-
-                                            <td>
-                                                <select name="role" class="role-select">
-                                                    <option value="1" ${u.role==1 ? 'selected' : '' }>Admin</option>
-                                                    <option value="4" ${u.role==4 ? 'selected' : '' }>Warehouse</option>
-                                                    <option value="2" ${u.role==2 ? 'selected' : '' }>Customer</option>
-                                                </select>
-
-                                                <select name="status"
-                                                    class="status-select ${u.status == 0 ? 'status-banned' : ''}">
-                                                    <option value="1" ${u.status==1 ? 'selected' : '' }>Active</option>
-                                                    <option value="0" ${u.status==0 ? 'selected' : '' }>Banned</option>
-                                                </select>
-                                            </td>
-
-                                            <td>
-                                                <button type="submit" class="btn-save-row" title="Save Changes">
-                                                    <i class="fa-solid fa-check"></i>
-                                                </button>
-                                            </td>
-                                        </form>
                                     </tr>
                                 </c:forEach>
                             </tbody>
