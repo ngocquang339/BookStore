@@ -219,6 +219,35 @@ public class UserDAO extends DBContext {
         return list;
     }
 
+    // --- NÂNG CẤP: TÌM KIẾM KHÁCH HÀNG ---
+    public List<User> searchCustomers(String keyword) {
+        List<User> list = new ArrayList<>();
+        // Tìm theo tên hoặc SĐT, chỉ lấy khách hàng (role = 2)
+        String sql = "SELECT * FROM Users WHERE role = 2 AND (fullname LIKE ? OR phone_number LIKE ?)";
+
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, "%" + keyword + "%");
+            ps.setString(2, "%" + keyword + "%");
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                User u = new User();
+                u.setId(rs.getInt("user_id"));
+                u.setUsername(rs.getString("username"));
+                u.setFullname(rs.getString("fullname"));
+                u.setEmail(rs.getString("email"));
+                u.setPhone_number(rs.getString("phone_number"));
+                u.setAddress(rs.getString("address"));
+                u.setRole(rs.getInt("role"));
+                u.setStatus(rs.getInt("status"));
+                list.add(u);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
     // Change passWord
     public boolean changePassword(String newPass, User user) {
         String sql = "UPDATE Users SET password = ? where user_id = ?";

@@ -10,7 +10,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
-// URL: /staff/reviews (Xem) và /staff/delete-review (Xóa)
 @WebServlet(name = "StaffReviewServlet", urlPatterns = {"/staff/reviews", "/staff/delete-review"})
 public class StaffReviewServlet extends HttpServlet {
 
@@ -21,23 +20,37 @@ public class StaffReviewServlet extends HttpServlet {
         String path = request.getServletPath();
         ReviewDAO dao = new ReviewDAO();
 
-        // Nếu là hành động xóa
+        // 1. XỬ LÝ XÓA
         if (path.equals("/staff/delete-review")) {
             String idRaw = request.getParameter("id");
             if (idRaw != null) {
                 try {
                     int id = Integer.parseInt(idRaw);
-                    dao.deleteReview(id); // Gọi hàm xóa
+                    dao.deleteReview(id);
                 } catch (NumberFormatException e) { e.printStackTrace(); }
             }
-            // Xóa xong quay lại trang danh sách
-            response.sendRedirect("reviews");
+            // KHẮC PHỤC LỖI ĐƯỜNG DẪN Ở ĐÂY: Dùng đường dẫn tuyệt đối để redirect
+            response.sendRedirect(request.getContextPath() + "/staff/reviews");
             return;
         }
 
-        // Mặc định: Lấy danh sách hiển thị
-        List<Review> list = dao.getAllReviews();
+        // 2. XỬ LÝ LỌC THEO SAO
+        String starRaw = request.getParameter("star");
+        List<Review> list;
+        
+        if (starRaw != null && !starRaw.isEmpty()) {
+            try {
+                int star = Integer.parseInt(starRaw);
+                list = dao.getReviewsByStar(star);
+                request.setAttribute("selectedStar", star);
+            } catch (Exception e) {
+                list = dao.getAllReviews();
+            }
+        } else {
+            list = dao.getAllReviews();
+        }
+
         request.setAttribute("listReviews", list);
-        request.getRequestDispatcher("/view/admin/review-manage.jsp").forward(request, response);
+        request.getRequestDispatcher("/view/staff/review-manage.jsp").forward(request, response);
     }
 }

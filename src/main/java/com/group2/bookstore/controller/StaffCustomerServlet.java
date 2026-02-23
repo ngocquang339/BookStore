@@ -17,11 +17,22 @@ public class StaffCustomerServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
+        String keyword = request.getParameter("keyword"); 
         UserDAO userDAO = new UserDAO();
-        List<User> listCustomers = userDAO.getAllCustomers();
+        List<User> listCustomers;
+        
+        // Logic tìm kiếm an toàn
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            listCustomers = userDAO.searchCustomers(keyword);
+            request.setAttribute("keyword", keyword); 
+        } else {
+            listCustomers = userDAO.getAllCustomers();
+        }
         
         request.setAttribute("listCustomers", listCustomers);
-        request.getRequestDispatcher("/view/admin/customer-manage.jsp").forward(request, response);
+        
+        // Đường dẫn Forward tuyệt đối từ gốc webapp
+        request.getRequestDispatcher("/view/staff/customer-manage.jsp").forward(request, response);
     }
 
     @Override
