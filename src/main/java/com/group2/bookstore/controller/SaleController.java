@@ -20,26 +20,36 @@ public class SaleController extends HttpServlet {
         HttpSession session = req.getSession();
         User user = (User) session.getAttribute("user");
 
-        // 1. Phân quyền: Kiểm tra xem có phải là Sale Staff không (Ví dụ Role 2 là Sale)
-        if (user == null || user.getRole() !=3) { 
-            resp.sendRedirect(req.getContextPath() + "/login"); // Đá về trang login nếu không phải Sale
+        if (user == null || user.getRole() != 3) { 
+            resp.sendRedirect(req.getContextPath() + "/login"); 
             return;
         }
 
         OrderDAO dao = new OrderDAO();
         List<Order> listOrders;
         
-        // 2. Lấy tham số trạng thái từ URL (mặc định là 1 - Chờ xử lý)
+        // 1. Nhận tham số sắp xếp từ URL
+        String sortBy = req.getParameter("sortBy");
+        String sortOrder = req.getParameter("sortOrder");
+        
+        // Gán giá trị mặc định lúc mới vào trang (Sắp xếp theo ngày, mới nhất lên đầu)
+        if (sortBy == null) sortBy = "date";
+        if (sortOrder == null) sortOrder = "desc";
+
+        // 2. Lấy dữ liệu theo Tab trạng thái và Tham số sắp xếp
         String statusRaw = req.getParameter("status");
-        if(statusRaw ==null || statusRaw.equals("all")){
-            listOrders=dao.getAllOrders();
+        if(statusRaw == null || statusRaw.equals("all")){
+            listOrders = dao.getAllOrdersBySale(sortBy, sortOrder); // Gọi hàm MỚI
             req.setAttribute("currentStatus", "all");
-        }
-        else {
-            int status=Integer.parseInt(statusRaw);
-            listOrders=dao.getOrdersByStatus(status);
+        } else {
+            int status = Integer.parseInt(statusRaw);
+            listOrders = dao.getOrdersByStatus(status, sortBy, sortOrder); // Gọi hàm MỚI
             req.setAttribute("currentStatus", status);
         }
+        
+        // 3. Gửi ngược trạng thái sắp xếp hiện tại sang JSP để hiển thị icon Mũi tên
+        req.setAttribute("currentSortBy", sortBy);
+        req.setAttribute("currentSortOrder", sortOrder);
         req.setAttribute("orders", listOrders);
         req.getRequestDispatcher("/view/dashboard.jsp").forward(req, resp);
     }
