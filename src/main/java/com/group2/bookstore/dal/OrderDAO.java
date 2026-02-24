@@ -185,35 +185,40 @@ public void createOrder(User user, List<CartItem> cart, String address, String p
     }
 }
 
-// Sửa lỗi SQL dính liền trong hàm getOrdersByStatus
-public List<Order> getOrdersByStatus(int status) {
-    List<Order> list = new ArrayList<>();
-    // Thêm dấu cách ở cuối mỗi dòng để tránh lỗi cú pháp SQL
-    String sql = "SELECT o.*, u.fullname, u.phone_number FROM Orders o " +
-                 "JOIN Users u ON o.user_id = u.user_id " +
-                 "WHERE o.status = ? ORDER BY o.order_date DESC";
-    try (Connection cn = getConnection();
-         PreparedStatement ps = cn.prepareStatement(sql)) {
-        
-        ps.setInt(1, status);
-        ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-            Order o = new Order();
-            o.setId(rs.getInt("order_id"));
-            o.setUserId(rs.getInt("user_id"));
-            o.setOrderDate(rs.getTimestamp("order_date"));
-            o.setTotalAmount(rs.getDouble("total_amount"));
-            o.setStatus(rs.getInt("status"));
-            o.setShippingAddress(rs.getString("shipping_address"));
-            o.setUserName(rs.getString("fullname"));
-            o.setPhoneNumber(rs.getString("phone_number"));
-            list.add(o);
+public List<Order> getOrdersByStatus(int status, String sortBy, String sortOrder) {
+        List<Order> list = new ArrayList<>();
+        String sql = "SELECT o.*, u.fullname, u.phone_number FROM Orders o " +
+                     "JOIN Users u ON o.user_id = u.user_id " +
+                     "WHERE o.status = ? ";
+                     
+        if ("total".equals(sortBy)) {
+            sql += "ORDER BY o.total_amount " + ("asc".equals(sortOrder) ? "ASC" : "DESC");
+        } else {
+            sql += "ORDER BY o.order_date " + ("asc".equals(sortOrder) ? "ASC" : "DESC");
         }
-    } catch (Exception e) {
-        e.printStackTrace();
+        
+        try (Connection cn = getConnection();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
+            
+            ps.setInt(1, status);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Order o = new Order();
+                o.setId(rs.getInt("order_id"));
+                o.setUserId(rs.getInt("user_id"));
+                o.setOrderDate(rs.getTimestamp("order_date"));
+                o.setTotalAmount(rs.getDouble("total_amount"));
+                o.setStatus(rs.getInt("status"));
+                o.setShippingAddress(rs.getString("shipping_address"));
+                o.setUserName(rs.getString("fullname"));
+                o.setPhoneNumber(rs.getString("phone_number"));
+                list.add(o);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
     }
-    return list;
-}
     public void updateOrderStatus(int orderId, int newStatus) {
     String sql = "UPDATE Orders SET status = ? WHERE order_id = ?";
     try (Connection conn = getConnection();
@@ -224,4 +229,39 @@ public List<Order> getOrdersByStatus(int status) {
         System.out.println("Updated Order ID: " + orderId + " to Status: " + newStatus + " (Rows: " + rows + ")");
     } catch (Exception e) { e.printStackTrace(); }
 }
+
+public List<Order> getAllOrdersBySale(String sortBy, String sortOrder) {
+        List<Order> list = new ArrayList<>();
+        // Join with Users table to get the Username
+        String sql = "SELECT o.*, u.username FROM Orders o " +
+                     "JOIN Users u ON o.user_id = u.user_id ";
+        
+        // Logic sắp xếp (Lọc theo cột và chiều mũi tên)
+        if ("total".equals(sortBy)) {
+            sql += "ORDER BY o.total_amount " + ("asc".equals(sortOrder) ? "ASC" : "DESC");
+        } else {
+            sql += "ORDER BY o.order_date " + ("asc".equals(sortOrder) ? "ASC" : "DESC");
+        }
+
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Order o = new Order();
+                o.setId(rs.getInt("order_id"));
+                o.setUserId(rs.getInt("user_id"));
+                o.setUserName(rs.getString("username")); 
+                o.setOrderDate(rs.getTimestamp("order_date"));
+                o.setTotalAmount(rs.getDouble("total_amount"));
+                o.setStatus(rs.getInt("status"));
+                o.setShippingAddress(rs.getString("shipping_address"));
+                o.setPhoneNumber(rs.getString("phone_number"));
+                list.add(o);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 }
