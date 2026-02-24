@@ -16,10 +16,10 @@ public class InventoryServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         request.setCharacterEncoding("UTF-8");
         BookDAO dao = new BookDAO();
-        com.group2.bookstore.dal.CategoryDAO cDao = new com.group2.bookstore.dal.CategoryDAO();
+        com.group2.bookstore.dal.CategoryDAO cDao = new com.group2.bookstore.dal.CategoryDAO(); // Khởi tạo CategoryDAO
         
         String keyword = request.getParameter("keyword");
         String author = request.getParameter("author");
@@ -43,11 +43,6 @@ public class InventoryServlet extends HttpServlet {
         request.setAttribute("listB", list);
         
         request.getRequestDispatcher("/view/warehouse/inventory_list.jsp").forward(request, response);
-    }
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        doGet(request, response);
     }
 }
