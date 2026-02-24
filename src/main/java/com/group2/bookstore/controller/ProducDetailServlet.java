@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.group2.bookstore.dal.BookDAO;
 import com.group2.bookstore.model.Book;
+import com.group2.bookstore.model.BookImage;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -38,11 +39,13 @@ public class ProducDetailServlet extends HttpServlet{
                 return;
             }
 
+            List<BookImage> bookImage = dao.getBookImage(id);
             // 3. Get Related Books (Same Category)
             List<Book> relatedBooks = dao.getRelatedBooks(book.getCategoryId(), id);
 
             // 4. Send data to JSP
             request.setAttribute("book", book);
+            request.setAttribute("bookImages", bookImage);
             request.setAttribute("relatedBooks", relatedBooks);
             
             request.getRequestDispatcher("view/product-detail.jsp").forward(request, response);

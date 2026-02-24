@@ -16,6 +16,7 @@ public class Book implements Serializable {
     private String publisher;
     private String isbn;
     private int categoryId;
+    private String categoryName; // thêm vào để load data cho View 
     
     // NEW FIELDS for Admin Features
     private boolean active;       // Maps to [is_active]
@@ -26,7 +27,7 @@ public class Book implements Serializable {
     }
 
     // Constructor đầy đủ (Dùng cho DAO khi load dữ liệu từ DB lên)
-    public Book(int id, String title, String author, double price, int stockQuantity, String imageUrl, int categoryId, String description) {
+    public Book(int id, String title, String author, double price, int stockQuantity, String imageUrl, int categoryId,String categoryName, String description) {
         this.id = id;
         this.title = title;
         this.author = author;
@@ -35,6 +36,7 @@ public class Book implements Serializable {
         this.imageUrl = imageUrl;
         this.imageUrl = imageUrl;
         this.categoryId = categoryId;
+        this.categoryName = categoryName;
         this.description = description;
     }
 
@@ -79,5 +81,8 @@ public class Book implements Serializable {
 
     public double getImportPrice() { return importPrice; }
     public void setImportPrice(double importPrice) { this.importPrice = importPrice; }
+
+    public String getCategoryName() { return categoryName; }
+    public void setCategoryName(String categoryName) { this.categoryName = categoryName; }
     
 }

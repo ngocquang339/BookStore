@@ -28,9 +28,10 @@ public class UpdateProfileServlet extends HttpServlet{
         request.setCharacterEncoding("UTF-8");
 
         // 3. Lấy dữ liệu người dùng nhập từ Form
-        String newUsername = request.getParameter("username");
+        String newFullname = request.getParameter("fullname");
         String newEmail = request.getParameter("email");
         String newPhone = request.getParameter("phone_number");
+        String newAddress = request.getParameter("address");
 
         // 4. Lấy User hiện tại từ Session ra để biết đang sửa ai
         HttpSession session = request.getSession();
@@ -43,9 +44,10 @@ public class UpdateProfileServlet extends HttpServlet{
         }
 
         // 5. Cập nhật thông tin mới vào đối tượng User
-        currentUser.setUsername(newUsername);
+        currentUser.setFullname(newFullname);
         currentUser.setEmail(newEmail);
         currentUser.setPhone_number(newPhone);
+        currentUser.setAddress(newAddress);
 
         // 6. GỌI DAO ĐỂ LƯU VÀO DATABASE (QUAN TRỌNG)
         UserDAO userDAO = new UserDAO();
@@ -64,6 +66,6 @@ public class UpdateProfileServlet extends HttpServlet{
         }
 
         // 8. Quay trở lại trang Profile
-        response.sendRedirect("profile.jsp"); // Hoặc đường dẫn map tới profile
+        response.sendRedirect("view/UserProfile.jsp"); // Hoặc đường dẫn map tới profile
     }
 }

@@ -1,8 +1,10 @@
 package com.group2.bookstore.controller;
 
-import com.group2.bookstore.dal.BookDAO; // Đã mở comment dòng này
+import com.group2.bookstore.dal.BookDAO;
+import com.group2.bookstore.dal.CartDAO; // Import mới
 import com.group2.bookstore.model.Book;
 import com.group2.bookstore.model.CartItem;
+import com.group2.bookstore.model.User; // Import User
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,67 +17,43 @@ import jakarta.servlet.http.HttpSession;
 
 @WebServlet("/add-to-cart")
 public class AddToCartServlet extends HttpServlet {
-
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        
-        // 1. Lấy Session hiện tại
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
+        User user = (User) session.getAttribute("user");
 
         try {
-            String idStr = request.getParameter("id");
-            
-            // Chỉ xử lý khi có ID hợp lệ
-            if (idStr != null && !idStr.isEmpty()) {
-                int bookId = Integer.parseInt(idStr);
+            int bookId = Integer.parseInt(request.getParameter("id"));
+            BookDAO bookDAO = new BookDAO();
+            Book book = bookDAO.getBookById(bookId);
 
-                // 2. Lấy giỏ hàng từ Session (nếu chưa có thì tạo mới)
-                List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
-                if (cart == null) {
-                    cart = new ArrayList<>();
-                }
+            if (book != null) {
+                CartItem newItem = new CartItem(book, 1);
 
-                // 3. Kiểm tra sản phẩm đã có trong giỏ chưa
-                boolean found = false;
-                for (CartItem item : cart) {
-                    if (item.getBook().getId() == bookId) {
-                        item.setQuantity(item.getQuantity() + 1); // Tăng số lượng
-                        found = true;
-                        break;
+                if (user != null) {
+                    // 1. Thêm vào DB
+                    CartDAO cartDao = new CartDAO();
+                    cartDao.addToCart(user.getId(), newItem);
+                    
+                    // 2. CẬP NHẬT LẠI SESSION TỪ DB (Đảm bảo dữ liệu mới nhất)
+                    List<CartItem> updatedCart = cartDao.getCartByUserId(user.getId());
+                    session.setAttribute("cart", updatedCart);
+                } else {
+                    // Logic cho khách vãng lai (Guest)
+                    List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
+                    if (cart == null) cart = new ArrayList<>();
+                    boolean found = false;
+                    for (CartItem item : cart) {
+                        if (item.getBook().getId() == bookId) {
+                            item.setQuantity(item.getQuantity() + 1);
+                            found = true; break;
+                        }
                     }
+                    if (!found) cart.add(newItem);
+                    session.setAttribute("cart", cart);
                 }
-
-                // 4. Nếu chưa có, gọi DB lấy sách thật và thêm vào giỏ
-                if (!found) {
-                    BookDAO bookDAO = new BookDAO();
-                    Book book = bookDAO.getBookById(bookId); // Gọi hàm vừa viết trong DAO
-
-                    if (book != null) {
-                        cart.add(new CartItem(book, 1));
-                    } else {
-                        System.out.println("Lỗi: Không tìm thấy sách có ID = " + bookId);
-                    }
-                }
-
-                // 5. Cập nhật lại giỏ hàng vào Session
-                session.setAttribute("cart", cart);
-
-                // 6. Thông báo thành công
-                session.setAttribute("message", "Đã thêm sản phẩm vào giỏ hàng thành công!");
-                session.setAttribute("messageType", "success");
+                session.setAttribute("message", "Đã thêm vào giỏ hàng!");
             }
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-            session.setAttribute("message", "Lỗi: ID sản phẩm không hợp lệ!");
-            session.setAttribute("messageType", "danger");
-        } catch (Exception e) {
-            e.printStackTrace();
-            session.setAttribute("message", "Đã xảy ra lỗi hệ thống!");
-            session.setAttribute("messageType", "danger");
-        }
-
-        // 7. Chuyển hướng về trang chủ
-        response.sendRedirect(request.getContextPath() + "/home");
+        } catch (Exception e) { e.printStackTrace(); }
+        response.sendRedirect("home");
     }
 }
