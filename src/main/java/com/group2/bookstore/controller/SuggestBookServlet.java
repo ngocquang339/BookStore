@@ -7,12 +7,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
-import com.group2.bookstore.util.EmailUtility;
 import com.group2.bookstore.dal.BookDAO;
-import com.group2.bookstore.dal.UserDAO;
-import com.group2.bookstore.model.User;
 @WebServlet(name = "SuggestBookServlet", urlPatterns = { "/suggest-book" })
 public class SuggestBookServlet extends HttpServlet {
     @Override

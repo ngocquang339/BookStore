@@ -1,13 +1,12 @@
 package com.group2.bookstore.dal;
 
-import com.group2.bookstore.model.User;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.group2.bookstore.model.User;
 
 public class UserDAO extends DBContext {
     public User checkLogin(String username, String password) {
@@ -155,29 +154,36 @@ public class UserDAO extends DBContext {
 
     // 1. GET ALL USERS (For Admin List)
     public List<User> getAllUsers() {
-        List<User> list = new ArrayList<>();
-        // Order by newest accounts first
-        String sql = "SELECT * FROM Users ORDER BY createAt DESC";
+    List<User> list = new ArrayList<>();
+    // Order by newest accounts first
+    String sql = "SELECT * FROM Users ORDER BY createAt DESC";
 
-        try (Connection conn = getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
+    try (Connection conn = getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery()) {
 
-            while (rs.next()) {
-                User u = new User();
-                u.setId(rs.getInt("user_id"));
-                u.setUsername(rs.getString("username"));
-                u.setFullname(rs.getString("fullname"));
-                u.setEmail(rs.getString("email"));
-                u.setPhone_number(rs.getString("phone_number"));
-                u.setAddress(rs.getString("address"));
-                u.setRole(rs.getInt("role"));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        while (rs.next()) {
+            User u = new User();
+            u.setId(rs.getInt("user_id"));
+            u.setUsername(rs.getString("username"));
+            u.setFullname(rs.getString("fullname"));
+            u.setEmail(rs.getString("email"));
+            u.setPhone_number(rs.getString("phone_number"));
+            u.setAddress(rs.getString("address"));
+            u.setRole(rs.getInt("role"));
+            
+            // --- YOU MUST ADD THESE TWO LINES ---
+            u.setStatus(rs.getInt("status")); 
+            u.setCreateAt(rs.getTimestamp("createAt")); // Use getTimestamp for datetime
+            // ------------------------------------
+            
+            list.add(u);
         }
-        return list;
+    } catch (Exception e) {
+        e.printStackTrace();
     }
+    return list;
+}
 
     // 2. UPDATE USER STATUS/ROLE
     public void updateUser(int userId, int newStatus, int newRole) {
@@ -219,6 +225,35 @@ public class UserDAO extends DBContext {
         return list;
     }
 
+    // --- NÂNG CẤP: TÌM KIẾM KHÁCH HÀNG ---
+    public List<User> searchCustomers(String keyword) {
+        List<User> list = new ArrayList<>();
+        // Tìm theo tên hoặc SĐT, chỉ lấy khách hàng (role = 2)
+        String sql = "SELECT * FROM Users WHERE role = 2 AND (fullname LIKE ? OR phone_number LIKE ?)";
+
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, "%" + keyword + "%");
+            ps.setString(2, "%" + keyword + "%");
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                User u = new User();
+                u.setId(rs.getInt("user_id"));
+                u.setUsername(rs.getString("username"));
+                u.setFullname(rs.getString("fullname"));
+                u.setEmail(rs.getString("email"));
+                u.setPhone_number(rs.getString("phone_number"));
+                u.setAddress(rs.getString("address"));
+                u.setRole(rs.getInt("role"));
+                u.setStatus(rs.getInt("status"));
+                list.add(u);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
     // Change passWord
     public boolean changePassword(String newPass, User user) {
         String sql = "UPDATE Users SET password = ? where user_id = ?";
@@ -232,6 +267,63 @@ public class UserDAO extends DBContext {
         } catch (Exception e) {
             e.printStackTrace();
             return false;
+        }
+    }
+
+    // 3. CHECK IF USERNAME EXISTS (Prevent duplicates)
+    public boolean checkUsernameExists(String username) {
+        String sql = "SELECT user_id FROM Users WHERE username = ?";
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+            return rs.next(); // Returns true if found
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // 4. ADD NEW USER
+    public void addUser(User u) {
+        String sql = "INSERT INTO Users (username, password, fullname, email, phone_number, address, role, status, createAt) "
+                +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, 1, GETDATE())"; // Default Status=1 (Active)
+
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, u.getUsername());
+            ps.setString(2, u.getPassword()); // In real app, hash this!
+            ps.setString(3, u.getFullname());
+            ps.setString(4, u.getEmail());
+            ps.setString(5, u.getPhone_number());
+            ps.setString(6, u.getAddress());
+            ps.setInt(7, u.getRole());
+
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // --- V.I.P 1: CẬP NHẬT TRẠNG THÁI TÀI KHOẢN (KHÓA/MỞ) ---
+    public void updateUserStatus(int userId, int newStatus) {
+        // Lưu ý: Kiểm tra xem tên bảng của bạn là 'Users' hay 'User' và cột ID là
+        // 'user_id' hay 'id' nhé.
+        // Dựa theo form mẫu của bạn thì thường là thế này:
+        String sql = "UPDATE Users SET status = ? WHERE user_id = ?";
+
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, newStatus); // Truyền trạng thái mới (0 hoặc 1)
+            ps.setInt(2, userId); // Truyền ID của khách hàng cần khóa
+
+            ps.executeUpdate();
+        } catch (Exception e) {
+            System.out.println("Lỗi khi cập nhật trạng thái user: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }

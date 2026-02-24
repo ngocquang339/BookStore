@@ -10,10 +10,11 @@
                 <title>Admin Dashboard - BookStore</title>
 
                 <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/home.css">
-                <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-dashboard.css">
+                <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-dashboard.css?v=2">
                 <link rel="stylesheet"
-                    href="${pageContext.request.contextPath}/assets/css/admin-dashboard-stats.css?v=1">
+                    href="${pageContext.request.contextPath}/assets/css/admin-dashboard-stats.css?v=2">
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+                
 
             </head>
 
@@ -103,10 +104,10 @@
                             <p>Manage accounts and roles</p>
                         </a>
 
-                        <a href="#" class="admin-card">
-                            <i class="fa-solid fa-chart-line"></i>
+                        <a href="${pageContext.request.contextPath}/admin/reports" class="admin-card">
+                            <i class="fa-solid fa-chart-simple"></i>
                             <h3>Reports</h3>
-                            <p>Sales statistics and revenue</p>
+                            <p>Sales statistics</p>
                         </a>
                     </div>
                 </main>

@@ -255,6 +255,7 @@ INSERT [dbo].[Books] ([book_id], [title], [author], [price], [description], [ima
 INSERT [dbo].[Books] ([book_id], [title], [author], [price], [description], [image], [stock_quantity], [sold_quantity], [publisher], [ISBN], [category_id], [is_active], [import_price]) VALUES (29, N'Tư Duy Tích Cực', N'Norman Vincent Peale', CAST(135000.00 AS Decimal(18, 2)), N'Sức mạnh của niềm tin', N'positive.jpg', 170, 130, N'NXB Trẻ', N'978100000028', 3, 1, CAST(0.00 AS Decimal(18, 2)))
 INSERT [dbo].[Books] ([book_id], [title], [author], [price], [description], [image], [stock_quantity], [sold_quantity], [publisher], [ISBN], [category_id], [is_active], [import_price]) VALUES (30, N'Bình Tĩnh Khi Ế', N'Rando Kim', CAST(95000.00 AS Decimal(18, 2)), N'Thấu hiểu cảm xúc bản thân', N'binh_tinh.jpg', 200, 160, N'NXB Trẻ', N'978100000029', 5, 1, CAST(0.00 AS Decimal(18, 2)))
 INSERT [dbo].[Books] ([book_id], [title], [author], [price], [description], [image], [stock_quantity], [sold_quantity], [publisher], [ISBN], [category_id], [is_active], [import_price]) VALUES (31, N'Đừng Lựa Chọn An Nhàn Khi Còn Trẻ', N'Cảnh Thiên', CAST(125000.00 AS Decimal(18, 2)), N'Nỗ lực tuổi trẻ', N'an_nhan.jpg', 190, 150, N'NXB Trẻ', N'978100000030', 3, 1, CAST(0.00 AS Decimal(18, 2)))
+
 SET IDENTITY_INSERT [dbo].[Books] OFF
 GO
 SET IDENTITY_INSERT [dbo].[Categories] ON 
@@ -283,6 +284,9 @@ INSERT [dbo].[Users] ([user_id], [fullname], [username], [email], [phone_number]
 INSERT [dbo].[Users] ([user_id], [fullname], [username], [email], [phone_number], [address], [password], [role], [status], [failed_login_attempts], [createAt]) VALUES (9, NULL, N'hello', N'Lee@gmail.com', NULL, NULL, N'123', 2, 1, 0, CAST(N'2026-01-26T13:55:48.693' AS DateTime))
 INSERT [dbo].[Users] ([user_id], [fullname], [username], [email], [phone_number], [address], [password], [role], [status], [failed_login_attempts], [createAt]) VALUES (10, NULL, N'hi', N'cscscscs@gdvdfvfd', NULL, NULL, N'123', 2, 1, 0, CAST(N'2026-01-26T13:59:18.000' AS DateTime))
 INSERT [dbo].[Users] ([user_id], [fullname], [username], [email], [phone_number], [address], [password], [role], [status], [failed_login_attempts], [createAt]) VALUES (11, N'Trần Quản Trị', N'admin', N'admin@bookstore.com', N'0901000001', N'Ba Đình, Hà Nội', N'123', 1, 1, 0, CAST(N'2026-01-26T22:14:39.290' AS DateTime))
+INSERT [dbo].[Users] ([user_id], [fullname], [username], [email], [phone_number], [address], [password], [role], [status], [failed_login_attempts], [createAt]) VALUES (12, N'Nhân viên Bán Hàng', N'sale', N'sale01@bookstore.com', N'0988666888', N'Hà Nội', N'123', 3, 1, 0, CAST(N'2026-02-14T09:00:00.000' AS DateTime))
+SET IDENTITY_INSERT [dbo].[Users] OFF
+GO
 SET IDENTITY_INSERT [dbo].[Users] OFF
 GO
 SET ANSI_PADDING ON

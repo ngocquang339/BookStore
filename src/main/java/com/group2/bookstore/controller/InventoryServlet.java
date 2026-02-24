@@ -1,16 +1,14 @@
 package com.group2.bookstore.controller;
 
-import java.io.IOException;
-import java.util.List;
-
 import com.group2.bookstore.dal.BookDAO;
 import com.group2.bookstore.model.Book;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
 
 @WebServlet(name = "InventoryServlet", urlPatterns = {"/warehouse/inventory"})
 public class InventoryServlet extends HttpServlet {
@@ -18,7 +16,7 @@ public class InventoryServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         request.setCharacterEncoding("UTF-8"); // Đảm bảo tiếng Việt
         BookDAO dao = new BookDAO();
 
@@ -30,17 +28,23 @@ public class InventoryServlet extends HttpServlet {
 
         // 2. Nhận tham số từ Filter Form
         String search = request.getParameter("search");
-        
+
         String cate = request.getParameter("cid");
         int cid = (cate == null || cate.isEmpty()) ? 0 : Integer.parseInt(cate);
-        
+
         String author = request.getParameter("author");
         String publisher = request.getParameter("publisher");
-        
+
         // 3. Xử lý khoảng giá
         String priceRange = request.getParameter("priceRange");
         double minPrice = 0;
         double maxPrice = 0;
+
+        String indexPage = request.getParameter("index");
+        if (indexPage == null) {
+            indexPage = "1";
+        }
+        int index = Integer.parseInt(indexPage);
 
         if (priceRange != null && !priceRange.isEmpty()) {
             switch (priceRange) {
@@ -63,16 +67,15 @@ public class InventoryServlet extends HttpServlet {
             }
         }
 
-        // 4. Xử lý sắp xếp (Sort)
-        String sort = request.getParameter("sort"); // Cột cần sort
-        String order = request.getParameter("order"); // ASC hay DESC
+        // // ĐÃ SỬA: Truyền biến cid vào hàm thay vì số 0
+        // List<Book> list = dao.getBooks(keyword, cid, author, publisher, 0, 999999999, "book_id", "DESC", true);
 
         // 5. Gọi hàm DAO
-        List<Book> list = dao.getBooks(search, cid, author, publisher, minPrice, maxPrice, sort, order, false);
+        // List<Book> list = dao.getBooks(search, cid, author, publisher, minPrice, maxPrice, sort, order, false, index);
 
         // 6. Gửi dữ liệu về JSP
-        request.setAttribute("listB", list);
-        
+        // request.setAttribute("listB", list);
+
         // Giữ lại các giá trị đã chọn để hiển thị lại trên Form
         request.setAttribute("paramSearch", search);
         request.setAttribute("paramCid", cid);
