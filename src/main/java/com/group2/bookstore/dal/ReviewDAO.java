@@ -50,4 +50,32 @@ public class ReviewDAO extends DBContext {
             ps.executeUpdate();
         } catch (Exception e) { e.printStackTrace(); }
     }
+    // --- NÂNG CẤP: LỌC REVIEW THEO SỐ SAO ---
+    public List<Review> getReviewsByStar(int star) {
+        List<Review> list = new ArrayList<>();
+        String sql = "SELECT r.*, u.username, b.title " +
+                     "FROM Review r " +
+                     "JOIN Users u ON r.user_id = u.user_id " +
+                     "JOIN Books b ON r.book_id = b.book_id " +
+                     "WHERE r.rating = ? " +
+                     "ORDER BY r.create_at DESC";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, star);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Review r = new Review();
+                r.setReviewId(rs.getInt("review_id"));
+                r.setUserId(rs.getInt("user_id"));
+                r.setBookId(rs.getInt("book_id"));
+                r.setRating(rs.getInt("rating"));
+                r.setComment(rs.getString("comment"));
+                r.setCreateAt(rs.getDate("create_at"));
+                r.setUsername(rs.getString("username"));
+                r.setBookTitle(rs.getString("title"));
+                list.add(r);
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return list;
+    }
 }
