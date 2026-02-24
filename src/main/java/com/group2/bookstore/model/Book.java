@@ -7,6 +7,7 @@ public class Book implements Serializable {
     // Core Fields (Matches Database Columns)
     private int id;
     private String title;
+    private String supplier;
     private String author;
     private double price;
     private String description;
@@ -16,6 +17,8 @@ public class Book implements Serializable {
     private String publisher;
     private String isbn;
     private int categoryId;
+    private int yearOfPublish;
+    private int number_page;     // Mapped from [number_of_pages]
     
     // NEW FIELDS for Admin Features
     private boolean active;       // Maps to [is_active]
@@ -26,7 +29,7 @@ public class Book implements Serializable {
     }
 
     // Constructor đầy đủ (Dùng cho DAO khi load dữ liệu từ DB lên)
-    public Book(int id, String title, String author, double price, int stockQuantity, String imageUrl, int categoryId, String description) {
+    public Book(int id, String title, String author, double price, int stockQuantity, String imageUrl, int categoryId, String description, String publisher, String supplier, int yearOfPublish, int number_page) {
         this.id = id;
         this.title = title;
         this.author = author;
@@ -36,6 +39,10 @@ public class Book implements Serializable {
         this.imageUrl = imageUrl;
         this.categoryId = categoryId;
         this.description = description;
+        this.publisher = publisher;
+        this.yearOfPublish = yearOfPublish;
+        this.number_page = number_page;
+        this.supplier = supplier;
     }
 
     // --- GETTERS & SETTERS ---
@@ -80,4 +87,12 @@ public class Book implements Serializable {
     public double getImportPrice() { return importPrice; }
     public void setImportPrice(double importPrice) { this.importPrice = importPrice; }
     
+    public int getYearOfPublish() { return yearOfPublish; }
+    public void setYearOfPublish(int yearOfPublish) { this.yearOfPublish = yearOfPublish; }
+
+    public int getNumberPage() { return number_page; }
+    public void setNumberPage(int number_page) { this.number_page = number_page; }
+
+    public String getSupplier() { return supplier; }
+    public void setSupplier(String supplier) { this.supplier = supplier; }
 }

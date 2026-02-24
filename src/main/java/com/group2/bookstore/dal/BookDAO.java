@@ -131,6 +131,22 @@ public class BookDAO extends DBContext{
         return null;
     }
 
+    public List<Book> getBookByAuthor(String author) {
+        List<Book> list = new ArrayList<>();
+        String sql = "SELECT * FROM Books WHERE author = ?";
+        try (Connection conn = new DBContext().getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, author);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapResultSetToBook(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
     // 5. Get Related Books
     public List<Book> getRelatedBooks(int categoryId, int currentBookId) {
         List<Book> list = new ArrayList<>();
@@ -295,13 +311,13 @@ public class BookDAO extends DBContext{
                 b.setTitle(rs.getString("title"));
                 b.setAuthor(rs.getString("author"));
                 b.setPrice(rs.getDouble("price"));
-                b.setImageUrl(rs.getString("image")); // Khớp với cột [image] trong DB
-                b.setDescription(rs.getString("description"));
                 b.setStockQuantity(rs.getInt("stock_quantity"));
+                b.setImageUrl(rs.getString("image")); // Khớp với cột [image] trong DB
                 b.setCategoryId(rs.getInt("category_id"));
-                
-                // Keep your correct image mapping
-                b.setImageUrl(rs.getString("image")); 
+                b.setDescription(rs.getString("description"));
+                b.setPublisher(rs.getString("publisher"));
+                b.setYearOfPublish(rs.getInt("year_of_publish"));
+                b.setNumberPage(rs.getInt("number_page"));
                 
                 // Add Admin fields (Optional but good for debugging)
                 try { b.setActive(rs.getBoolean("is_active")); } catch (Exception e) {}
@@ -333,7 +349,7 @@ public class BookDAO extends DBContext{
 
     // 9. INSERT (Create)
     public void insertBook(Book b) {
-        String sql = "INSERT INTO Books (title, author, price, description, image, stock_quantity, category_id, is_active, import_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Books (title, author, price, description, image, stock_quantity, category_id, is_active, import_price, publisher, supplier, yearOfPublish, number_page) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, b.getTitle());
@@ -345,13 +361,17 @@ public class BookDAO extends DBContext{
             ps.setInt(7, b.getCategoryId());
             ps.setBoolean(8, b.isActive());
             ps.setDouble(9, b.getImportPrice());
+            ps.setString(10, b.getPublisher());
+            ps.setString(11, b.getSupplier());
+            ps.setInt(12, b.getYearOfPublish());
+            ps.setInt(13, b.getNumberPage());
             ps.executeUpdate();
         } catch (Exception e) { e.printStackTrace(); }
     }
 
     // 10. UPDATE (Edit)
     public void updateBook(Book b) {
-        String sql = "UPDATE Books SET title=?, author=?, price=?, description=?, image=?, stock_quantity=?, category_id=?, is_active=?, import_price=? WHERE book_id=?";
+        String sql = "UPDATE Books SET title=?, author=?, price=?, description=?, image=?, stock_quantity=?, category_id=?, is_active=?, import_price=?, publisher=?, supplier=?, yearOfPublish=?, number_page=? WHERE book_id=?";
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, b.getTitle());
@@ -363,7 +383,11 @@ public class BookDAO extends DBContext{
             ps.setInt(7, b.getCategoryId());
             ps.setBoolean(8, b.isActive());
             ps.setDouble(9, b.getImportPrice());
-            ps.setInt(10, b.getId());
+            ps.setString(10, b.getPublisher());
+            ps.setString(11, b.getSupplier());
+            ps.setInt(12, b.getYearOfPublish());
+            ps.setInt(13, b.getNumberPage());
+            ps.setInt(14, b.getId());
             ps.executeUpdate();
         } catch (Exception e) { e.printStackTrace(); }
     }
@@ -410,6 +434,9 @@ public class BookDAO extends DBContext{
         b.setStockQuantity(rs.getInt("stock_quantity"));
         b.setSoldQuantity(rs.getInt("sold_quantity"));
         b.setCategoryId(rs.getInt("category_id"));
+        b.setPublisher(rs.getString("publisher"));
+        b.setYearOfPublish(rs.getInt("yearOfPublish"));
+        b.setNumberPage(rs.getInt("number_page"));
 
         // Try-Catch blocks for optional columns (in case older queries don't select
         // them)
@@ -439,7 +466,6 @@ public class BookDAO extends DBContext{
                 b.setTitle(rs.getString("title"));
                 b.setPrice(rs.getDouble("price"));
                 b.setImageUrl(rs.getString("image")); // Tên cột ảnh trong DB
-                b.setAuthor(rs.getString("author"));
                 list.add(b);
             }
         } catch (Exception e) {

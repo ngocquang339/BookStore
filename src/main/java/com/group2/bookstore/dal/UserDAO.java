@@ -129,8 +129,8 @@ public class UserDAO extends DBContext {
             st.setString(3, user.getUsername());
             st.setString(4, user.getPassword());
             st.setString(5, user.getEmail());
-            st.setInt(6, user.getStatus());
-            st.setInt(7, 2);
+            st.setInt(6, 2);
+            st.setInt(7, user.getStatus());
 
             // 5. Thực thi câu lệnh (QUAN TRỌNG)
             int rowsAffected = st.executeUpdate();

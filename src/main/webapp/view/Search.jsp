@@ -68,8 +68,8 @@
                     <div class="filter-group">
                         <label>Khoảng giá (VNĐ):</label>
                         <div style="display: flex; gap: 5px;">
-                            <input type="number" name="priceFrom" value="${priceFrom}" placeholder="Từ..." min="0">
-                            <input type="number" name="priceTo" value="${priceTo}" placeholder="Đến..." min="0">
+                            <input type="number" name="minPrice" value="${minPrice}" placeholder="Từ..." min="0">
+                            <input type="number" name="maxPrice" value="${maxPrice}" placeholder="Đến..." min="0">
                         </div>
                     </div>
 

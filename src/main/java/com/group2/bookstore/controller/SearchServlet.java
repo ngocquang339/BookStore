@@ -28,8 +28,8 @@ public class SearchServlet extends HttpServlet {
         // 2. Lấy dữ liệu từ Form (Sidebar + Header)
         String txtSearch = request.getParameter("txt");
         String cid_raw = request.getParameter("cid");
-        String priceFrom_raw = request.getParameter("priceFrom");
-        String priceTo_raw = request.getParameter("priceTo");
+        String priceFrom_raw = request.getParameter("minPrice");
+        String priceTo_raw = request.getParameter("maxPrice");
         String author = request.getParameter("author");
         String publisher = request.getParameter("publisher"); // Thêm Publisher
         String sort = request.getParameter("sort");
@@ -79,8 +79,8 @@ public class SearchServlet extends HttpServlet {
         // 7. Lưu lại trạng thái bộ lọc (để form không bị reset)
         request.setAttribute("txtS", txtSearch);
         request.setAttribute("cid", cid);
-        request.setAttribute("priceFrom", (priceFrom > 0 ? priceFrom_raw : "")); 
-        request.setAttribute("priceTo", (priceTo > 0 ? priceTo_raw : ""));
+        request.setAttribute("minPrice", (priceFrom > 0 ? priceFrom_raw : "")); 
+        request.setAttribute("maxPrice", (priceTo > 0 ? priceTo_raw : ""));
         request.setAttribute("author", author);
         request.setAttribute("publisher", publisher);
         request.setAttribute("sort", sort);
