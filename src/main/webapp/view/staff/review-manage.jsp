@@ -63,6 +63,11 @@
 
         <body>
             <div class="container">
+                <div style="margin-bottom: 20px;">
+    <a href="${pageContext.request.contextPath}/home" style="color: #4da6ff; text-decoration: none; font-size: 16px; font-weight: bold;">
+        <i class="fa-solid fa-arrow-left"></i> Quay lại Trang chủ
+    </a>
+</div>
                 <h2>Quản lý Đánh giá (Review Management)</h2>
                 <div
                     style="margin-bottom: 20px; background: #fff3cd; padding: 15px; border-radius: 5px; border: 1px solid #ffeeba;">
