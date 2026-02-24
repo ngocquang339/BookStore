@@ -268,22 +268,25 @@ public class UserDAO extends DBContext {
     public boolean checkUsernameExists(String username) {
         String sql = "SELECT user_id FROM Users WHERE username = ?";
         try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, username);
             ResultSet rs = ps.executeQuery();
             return rs.next(); // Returns true if found
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return false;
     }
 
     // 4. ADD NEW USER
     public void addUser(User u) {
-        String sql = "INSERT INTO Users (username, password, fullname, email, phone_number, address, role, status, createAt) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?, 1, GETDATE())"; // Default Status=1 (Active)
-        
+        String sql = "INSERT INTO Users (username, password, fullname, email, phone_number, address, role, status, createAt) "
+                +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, 1, GETDATE())"; // Default Status=1 (Active)
+
         try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setString(1, u.getUsername());
             ps.setString(2, u.getPassword()); // In real app, hash this!
             ps.setString(3, u.getFullname());
@@ -291,21 +294,30 @@ public class UserDAO extends DBContext {
             ps.setString(5, u.getPhone_number());
             ps.setString(6, u.getAddress());
             ps.setInt(7, u.getRole());
-            
+
             ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    // 5. QUICK BAN/UNBAN
+    // --- V.I.P 1: CẬP NHẬT TRẠNG THÁI TÀI KHOẢN (KHÓA/MỞ) ---
     public void updateUserStatus(int userId, int newStatus) {
+        // Lưu ý: Kiểm tra xem tên bảng của bạn là 'Users' hay 'User' và cột ID là
+        // 'user_id' hay 'id' nhé.
+        // Dựa theo form mẫu của bạn thì thường là thế này:
         String sql = "UPDATE Users SET status = ? WHERE user_id = ?";
+
         try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, newStatus);
-            ps.setInt(2, userId);
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, newStatus); // Truyền trạng thái mới (0 hoặc 1)
+            ps.setInt(2, userId); // Truyền ID của khách hàng cần khóa
+
             ps.executeUpdate();
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            System.out.println("Lỗi khi cập nhật trạng thái user: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

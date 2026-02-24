@@ -45,6 +45,11 @@ public class LoginServlet extends HttpServlet {
             request.setAttribute("mess", "Thông tin đăng nhập không chính xác!");
             request.getRequestDispatcher("view/Login.jsp").forward(request, response);
         } else {
+            if (account.getStatus() == 0) { // Giả sử 0 là trạng thái bị khóa
+                request.setAttribute("mess", "Tài khoản của bạn đã bị khóa! Vui lòng liên hệ Admin để được hỗ trợ.");
+                request.getRequestDispatcher("view/Login.jsp").forward(request, response);
+                return; // Lập tức dừng hàm, đuổi ra ngoài không cho chạy tiếp xuống dưới
+            }
             // Đăng nhập thành công
             HttpSession session = request.getSession();
             session.setAttribute("user", account);
