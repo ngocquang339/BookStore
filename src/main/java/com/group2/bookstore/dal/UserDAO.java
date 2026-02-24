@@ -303,9 +303,6 @@ public class UserDAO extends DBContext {
 
     // --- V.I.P 1: CẬP NHẬT TRẠNG THÁI TÀI KHOẢN (KHÓA/MỞ) ---
     public void updateUserStatus(int userId, int newStatus) {
-        // Lưu ý: Kiểm tra xem tên bảng của bạn là 'Users' hay 'User' và cột ID là
-        // 'user_id' hay 'id' nhé.
-        // Dựa theo form mẫu của bạn thì thường là thế này:
         String sql = "UPDATE Users SET status = ? WHERE user_id = ?";
 
         try (Connection conn = getConnection();
