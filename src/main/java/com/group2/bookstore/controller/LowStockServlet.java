@@ -21,7 +21,7 @@ public class LowStockServlet extends HttpServlet {
         BookDAO dao = new BookDAO();
         
         // Cài đặt mức cảnh báo hết hàng là 10 (có thể đổi thành 5 hoặc 20 tùy nhóm)
-        int threshold = 5; 
+        int threshold = 15; 
         
         List<Book> list = dao.getLowStockBooks(threshold);
 
