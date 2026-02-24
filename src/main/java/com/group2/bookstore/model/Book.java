@@ -17,6 +17,7 @@ public class Book implements Serializable {
     private String isbn;
     private int categoryId;
     private String categoryName; // thêm vào để load data cho View 
+    private String locationCode; // Thêm biến lưu mã vị trí (VD: A-01-01)
     
     // NEW FIELDS for Admin Features
     private boolean active;       // Maps to [is_active]
@@ -27,7 +28,7 @@ public class Book implements Serializable {
     }
 
     // Constructor đầy đủ (Dùng cho DAO khi load dữ liệu từ DB lên)
-    public Book(int id, String title, String author, double price, int stockQuantity, String imageUrl, int categoryId,String categoryName, String description) {
+    public Book(int id, String title, String author, double price, int stockQuantity, String imageUrl, int categoryId,String categoryName, String description, String locationCode) {
         this.id = id;
         this.title = title;
         this.author = author;
@@ -37,6 +38,7 @@ public class Book implements Serializable {
         this.imageUrl = imageUrl;
         this.categoryId = categoryId;
         this.categoryName = categoryName;
+        this.locationCode = locationCode;
         this.description = description;
     }
 
@@ -84,5 +86,8 @@ public class Book implements Serializable {
 
     public String getCategoryName() { return categoryName; }
     public void setCategoryName(String categoryName) { this.categoryName = categoryName; }
+
+    public String getLocationCode() { return locationCode; }
+    public void setLocationCode(String locationCode) { this.locationCode = locationCode; }
     
 }

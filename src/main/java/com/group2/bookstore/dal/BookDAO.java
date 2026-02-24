@@ -216,8 +216,11 @@ public class BookDAO extends DBContext{
     public List<Book> getBooks(String keyword, int cid, String author, String publisher, double minPrice, double maxPrice, String sortBy, String sortOrder, boolean isAdmin) {
         List<Book> list = new ArrayList<>();
         
-        // ĐÃ SỬA: Thêm JOIN để lấy category_name
-        StringBuilder sql = new StringBuilder("SELECT b.*, c.category_name FROM Books b LEFT JOIN Categories c ON b.category_id = c.category_id WHERE 1=1 ");
+        // ĐÃ SỬA: Thêm LEFT JOIN thứ 2 để lấy location_code
+        StringBuilder sql = new StringBuilder("SELECT b.*, c.category_name, l.location_code FROM Books b "
+                + "LEFT JOIN Categories c ON b.category_id = c.category_id "
+                + "LEFT JOIN Warehouse_Locations l ON b.location_id = l.location_id "
+                + "WHERE 1=1 ");
         List<Object> params = new ArrayList<>(); 
 
         if (!isAdmin) {
@@ -279,6 +282,7 @@ public class BookDAO extends DBContext{
                 
                 // ĐÃ SỬA: Lấy thêm tên category từ DB
                 try { b.setCategoryName(rs.getString("category_name")); } catch (Exception e) {}
+                try { b.setLocationCode(rs.getString("location_code")); } catch (Exception e) {}
                 try { b.setActive(rs.getBoolean("is_active")); } catch (Exception e) {}
 
                 list.add(b);
