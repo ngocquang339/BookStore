@@ -8,7 +8,7 @@
             <head>
                 <title>User Management</title>
                 <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-dashboard.css">
-                <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/manage-orders.css">
+                <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/manage-orders.css?v=2.0">
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
                 <style>
@@ -107,15 +107,41 @@
                     </div>
 
                     <div class="table-responsive">
+                        <div class="filter-bar"
+                            style="display:flex; gap:10px; margin-bottom: 20px; align-items:center;">
+                            <div style="position: relative;">
+                                <i class="fa-solid fa-magnifying-glass"
+                                    style="position: absolute; left: 10px; top: 12px; color: #aaa;"></i>
+                                <input type="text" id="userSearch" class="search-input"
+                                    placeholder="Search name or email..." onkeyup="filterUsers()"
+                                    style="padding-left: 30px; width: 250px; height: 40px; border: 1px solid #ddd; border-radius: 4px;">
+                            </div>
+
+                            <select id="roleFilter" class="filter-select" onchange="filterUsers()"
+                                style="height: 40px; border: 1px solid #ddd; border-radius: 4px; padding: 0 10px;">
+                                <option value="all">All Roles</option>
+                                <option value="admin">Admin</option>
+                                <option value="customer">Customer</option>
+                                <option value="employee">Employee</option>
+                                <option value="warehouse">Warehouse</option>
+                            </select>
+                        </div>
                         <table class="admin-table">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
-                                    <th>User Info</th>
-                                    <th>Contact</th>
-                                    <th>Role</th>
-                                    <th>Status</th>
-                                    <th>Joined Date</th>
+                                    <th onclick="sortTable(0)" style="width: 5%;">ID</th>
+
+                                    <th onclick="sortTable(1)" style="width: 20%;">User Info</th>
+
+                                    <th onclick="sortTable(2)" style="width: 25%;">Contact</th>
+
+                                    <th onclick="sortTable(3)" style="width: 10%;">Role</th>
+
+                                    <th onclick="sortTable(4)" style="width: 15%;">Status</th>
+
+                                    <th onclick="sortTable(5)" style="width: 15%;">Joined Date</th>
+
+
                                 </tr>
                             </thead>
                             <tbody>
@@ -133,12 +159,26 @@
 
                                         <td>
                                             <c:choose>
-                                                <c:when test="${u.role == 1}"><span
-                                                        class="role-badge role-1">Admin</span></c:when>
-                                                <c:when test="${u.role == 4}"><span
-                                                        class="role-badge role-4">Warehouse</span></c:when>
-                                                <c:otherwise><span class="role-badge role-2">Customer</span>
-                                                </c:otherwise>
+                                                <%-- 1 is Admin --%>
+                                                    <c:when test="${u.role == 1}">
+                                                        <span class="role-badge role-1">Admin</span>
+                                                    </c:when>
+
+                                                    <%-- 2 is Staff/Sale (Adding a new color for them) --%>
+                                                        <c:when test="${u.role == 2}">
+                                                            <span class="role-badge"
+                                                                style="background-color: #17a2b8; color: white;">Staff</span>
+                                                        </c:when>
+
+                                                        <%-- 3 is Warehouse --%>
+                                                            <c:when test="${u.role == 3}">
+                                                                <span class="role-badge role-4">Warehouse</span>
+                                                            </c:when>
+
+                                                            <%-- 0 is Customer --%>
+                                                                <c:otherwise>
+                                                                    <span class="role-badge role-2">Customer</span>
+                                                                </c:otherwise>
                                             </c:choose>
                                         </td>
 
@@ -168,7 +208,8 @@
                                                         Banned</span>
 
                                                     <a href="${pageContext.request.contextPath}/admin/users/ban?id=${u.id}&status=0"
-                                                        class="btn-action btn-activate" title="Activate User">
+                                                        class="btn-action btn-activate" title="Activate User"
+                                                        onclick="return confirm('Are you sure you want to ACTIVATE this user?');">
                                                         <i class="fa-solid fa-lock-open"></i>
                                                     </a>
                                                 </c:otherwise>
@@ -184,6 +225,104 @@
                         </table>
                     </div>
                 </div>
+                <script>
+                    function filterUsers() {
+                        let input = document.getElementById("userSearch").value.toLowerCase();
+                        let roleFilter = document.getElementById("roleFilter").value.toLowerCase();
+
+                        let table = document.querySelector(".admin-table");
+                        let tr = table.getElementsByTagName("tr");
+
+                        for (let i = 1; i < tr.length; i++) {
+                            let showRow = true;
+
+                            // --- DEFINE COLUMNS (Check these numbers!) ---
+                            let nameCell = tr[i].getElementsByTagName("td")[1];  // Index 1 = Full Name
+                            let emailCell = tr[i].getElementsByTagName("td")[2]; // Index 2 = Email (New!)
+                            let roleCell = tr[i].getElementsByTagName("td")[3];  // Index 3 = Role
+
+                            if (nameCell && emailCell && roleCell) {
+                                let nameText = nameCell.innerText.toLowerCase();
+                                let emailText = emailCell.innerText.toLowerCase();
+                                let roleText = roleCell.innerText.toLowerCase();
+
+                                // A. Check Keyword (Match Name OR Email)
+                                // Logic: If input exists, but is NOT in Name AND NOT in Email, then hide.
+                                if (input && nameText.indexOf(input) === -1 && emailText.indexOf(input) === -1) {
+                                    showRow = false;
+                                }
+
+                                // B. Check Role
+                                if (roleFilter !== 'all' && roleText.indexOf(roleFilter) === -1) {
+                                    showRow = false;
+                                }
+                            }
+
+                            tr[i].style.display = showRow ? "" : "none";
+                        }
+                    }
+                    function sortTable(n) {
+                        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+                        table = document.querySelector(".admin-table");
+                        switching = true;
+                        dir = "asc";
+
+                        while (switching) {
+                            switching = false;
+                            rows = table.rows;
+
+                            // Loop through all table rows (start at 1 to skip header)
+                            for (i = 1; i < (rows.length - 1); i++) {
+                                shouldSwitch = false;
+
+                                x = rows[i].getElementsByTagName("TD")[n];
+                                y = rows[i + 1].getElementsByTagName("TD")[n];
+
+                                // 1. GET TEXT CONTENT
+                                var xContent = x.innerText.toLowerCase().trim();
+                                var yContent = y.innerText.toLowerCase().trim();
+
+                                // 2. DETECT DATA TYPE
+
+                                // A. Check if ID (Remove '#')
+                                var xNum = parseFloat(xContent.replace("#", "").replace(/[^0-9.-]+/g, ""));
+                                var yNum = parseFloat(yContent.replace("#", "").replace(/[^0-9.-]+/g, ""));
+
+                                // B. Check if Date (Vietnamese "thg" format)
+                                // Simple hack: If column index is 5 (Joined Date), treat as text for now 
+                                // OR use a specific parser if you need strict date sorting later.
+
+                                var isNumeric = !isNaN(xNum) && !isNaN(yNum) && xContent.length < 10; // Simple check for IDs
+
+                                // 3. COMPARE
+                                if (dir == "asc") {
+                                    if (isNumeric) {
+                                        if (xNum > yNum) { shouldSwitch = true; break; }
+                                    } else {
+                                        if (xContent > yContent) { shouldSwitch = true; break; }
+                                    }
+                                } else if (dir == "desc") {
+                                    if (isNumeric) {
+                                        if (xNum < yNum) { shouldSwitch = true; break; }
+                                    } else {
+                                        if (xContent < yContent) { shouldSwitch = true; break; }
+                                    }
+                                }
+                            }
+
+                            if (shouldSwitch) {
+                                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                                switching = true;
+                                switchcount++;
+                            } else {
+                                if (switchcount == 0 && dir == "asc") {
+                                    dir = "desc";
+                                    switching = true;
+                                }
+                            }
+                        }
+                    }
+                </script>
 
             </body>
 

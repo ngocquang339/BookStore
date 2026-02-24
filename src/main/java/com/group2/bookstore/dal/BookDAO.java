@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.group2.bookstore.model.Book;
-import com.group2.bookstore.model.Category;
 import com.group2.bookstore.model.BookImage;
+import com.group2.bookstore.model.Category;
 
 public class BookDAO extends DBContext{
 
@@ -213,81 +213,138 @@ public class BookDAO extends DBContext{
         return list;
     }
    
-    public List<Book> getBooks(String keyword, int cid, String author, String publisher, double minPrice, double maxPrice, String sortBy, String sortOrder, boolean isAdmin) {
-        List<Book> list = new ArrayList<>();
-        
-        // ĐÃ SỬA: Thêm JOIN để lấy category_name
-        StringBuilder sql = new StringBuilder("SELECT b.*, c.category_name FROM Books b LEFT JOIN Categories c ON b.category_id = c.category_id WHERE 1=1 ");
-        List<Object> params = new ArrayList<>(); 
+    // --- RESTORED GET BOOKS ---
+public List<Book> getBooks(String keyword, int cid, String author, String publisher, double minPrice, double maxPrice, String sortBy, String sortOrder, boolean isAdmin, int index, int pageSize) {
+    List<Book> list = new ArrayList<>();
+    
+    // Restored Image Subquery!
+    StringBuilder sql = new StringBuilder(
+        "SELECT b.*, c.category_name, " +
+        "(SELECT TOP 1 bi.image_url FROM BookImages bi WHERE bi.book_id = b.book_id) AS cover_image " +
+        "FROM Books b LEFT JOIN Categories c ON b.category_id = c.category_id WHERE 1=1 "
+    );
+    List<Object> params = new ArrayList<>(); 
 
-        if (!isAdmin) {
-            sql.append(" AND b.is_active = 1 ");
-        }
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            sql.append(" AND LOWER(b.title) LIKE LOWER(?) ");
-            params.add("%" + keyword.trim() + "%");
-        }
-        if (cid > 0) {
-            sql.append(" AND b.category_id = ? ");
-            params.add(cid);
-        }
-        if (author != null && !author.trim().isEmpty()) {
-            sql.append(" AND LOWER(b.author) LIKE LOWER(?) ");
-            params.add("%" + author.trim() + "%");
-        }
-        if (publisher != null && !publisher.trim().isEmpty()) {
-            sql.append(" AND LOWER(b.publisher) LIKE LOWER(?) ");
-            params.add("%" + publisher.trim() + "%");
-        }
-        if (maxPrice > 0) {
-            sql.append(" AND b.price BETWEEN ? AND ? ");
-            params.add(minPrice);
-            params.add(maxPrice);
-        } else if (minPrice > 0) {
-            sql.append(" AND b.price >= ? ");
-            params.add(minPrice);
-        }
-
-        if (sortBy != null && !sortBy.isEmpty()) {
-            if (sortBy.equals("price") || sortBy.equals("title") || sortBy.equals("stock_quantity") || sortBy.equals("book_id")) {
-                sql.append(" ORDER BY b.").append(sortBy);
-                sql.append("DESC".equalsIgnoreCase(sortOrder) ? " DESC" : " ASC");
-            }
-        } else {
-            sql.append(" ORDER BY b.book_id DESC");
-        }
-
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
-            
-            for (int i = 0; i < params.size(); i++) {
-                ps.setObject(i + 1, params.get(i));
-            }
-
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                Book b = new Book();
-                b.setId(rs.getInt("book_id"));
-                b.setTitle(rs.getString("title"));
-                b.setAuthor(rs.getString("author"));
-                b.setPrice(rs.getDouble("price"));
-                try { b.setPublisher(rs.getString("publisher")); } catch (Exception e) {}
-                b.setImageUrl(rs.getString("image")); 
-                b.setDescription(rs.getString("description"));
-                b.setStockQuantity(rs.getInt("stock_quantity"));
-                b.setCategoryId(rs.getInt("category_id"));
-                
-                // ĐÃ SỬA: Lấy thêm tên category từ DB
-                try { b.setCategoryName(rs.getString("category_name")); } catch (Exception e) {}
-                try { b.setActive(rs.getBoolean("is_active")); } catch (Exception e) {}
-
-                list.add(b);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return list;
+    if (!isAdmin) {
+        sql.append(" AND b.is_active = 1 ");
     }
+    if (keyword != null && !keyword.trim().isEmpty()) {
+        sql.append(" AND LOWER(b.title) LIKE LOWER(?) ");
+        params.add("%" + keyword.trim() + "%");
+    }
+    if (cid > 0) {
+        sql.append(" AND b.category_id = ? ");
+        params.add(cid);
+    }
+    if (author != null && !author.trim().isEmpty()) {
+        sql.append(" AND LOWER(b.author) LIKE LOWER(?) ");
+        params.add("%" + author.trim() + "%");
+    }
+    if (publisher != null && !publisher.trim().isEmpty()) {
+        sql.append(" AND LOWER(b.publisher) LIKE LOWER(?) ");
+        params.add("%" + publisher.trim() + "%");
+    }
+    if (maxPrice > 0) {
+        sql.append(" AND b.price BETWEEN ? AND ? ");
+        params.add(minPrice);
+        params.add(maxPrice);
+    } else if (minPrice > 0) {
+        sql.append(" AND b.price >= ? ");
+        params.add(minPrice);
+    }
+
+    // Sorting
+    if (sortBy != null && !sortBy.isEmpty()) {
+        if (sortBy.equals("price") || sortBy.equals("title") || sortBy.equals("stock_quantity") || sortBy.equals("book_id")) {
+            sql.append(" ORDER BY b.").append(sortBy);
+            sql.append("DESC".equalsIgnoreCase(sortOrder) ? " DESC" : " ASC");
+        }
+    } else {
+        sql.append(" ORDER BY b.book_id DESC");
+    }
+
+    // Restored Pagination Logic!
+    sql.append(" OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+
+    try (Connection conn = getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+        
+        int paramIndex = 1;
+        for (Object param : params) {
+            ps.setObject(paramIndex++, param);
+        }
+        
+        // Set OFFSET and FETCH values
+        ps.setInt(paramIndex++, (index - 1) * pageSize);
+        ps.setInt(paramIndex, pageSize);
+
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            Book b = new Book();
+            b.setId(rs.getInt("book_id"));
+            b.setTitle(rs.getString("title"));
+            b.setAuthor(rs.getString("author"));
+            b.setPrice(rs.getDouble("price"));
+            try { b.setPublisher(rs.getString("publisher")); } catch (Exception e) {}
+            b.setImageUrl(rs.getString("image")); 
+            b.setDescription(rs.getString("description"));
+            b.setStockQuantity(rs.getInt("stock_quantity"));
+            b.setCategoryId(rs.getInt("category_id"));
+            try { b.setCategoryName(rs.getString("category_name")); } catch (Exception e) {}
+            try { b.setActive(rs.getBoolean("is_active")); } catch (Exception e) {}
+            
+            // Restored mapping!
+            b.setCoverImage(rs.getString("cover_image"));
+
+            list.add(b);
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return list;
+}
+
+// OVERLOADED METHOD: Fixes crashes in SearchServlet and InventoryServlet
+    // This allows older servlets to call getBooks without needing to know about pagination.
+    public List<Book> getBooks(String keyword, int cid, String author, String publisher, double minPrice, double maxPrice, String sortBy, String sortOrder, boolean isAdmin) {
+        
+        // We simply forward the request to the new method.
+        // We ask for Page 1, and a massive page size (1,000,000) to simulate "get all books".
+        return getBooks(keyword, cid, author, publisher, minPrice, maxPrice, sortBy, sortOrder, isAdmin, 1, 1000000);
+        
+    }
+
+// --- NEW METHOD REQUIRED FOR PAGINATION ---
+public int countBooks(String keyword, int cid, boolean isAdmin) {
+    StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM Books b WHERE 1=1 ");
+    List<Object> params = new ArrayList<>();
+    
+    if (!isAdmin) {
+        sql.append(" AND b.is_active = 1 ");
+    }
+    if (keyword != null && !keyword.trim().isEmpty()) {
+        sql.append(" AND LOWER(b.title) LIKE LOWER(?) ");
+        params.add("%" + keyword.trim() + "%");
+    }
+    if (cid > 0) {
+        sql.append(" AND b.category_id = ? ");
+        params.add(cid);
+    }
+    
+    try (Connection conn = getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+        for (int i = 0; i < params.size(); i++) {
+            ps.setObject(i + 1, params.get(i));
+        }
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            return rs.getInt(1);
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return 0;
+}
 
 
     // 8. Update Stock (For Warehouse)
