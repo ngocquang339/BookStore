@@ -1,16 +1,14 @@
 package com.group2.bookstore.controller;
 
-import java.io.IOException;
-import java.util.List;
-
 import com.group2.bookstore.dal.BookDAO;
 import com.group2.bookstore.model.Book;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
 
 @WebServlet(name = "InventoryServlet", urlPatterns = {"/warehouse/inventory"})
 public class InventoryServlet extends HttpServlet {
@@ -19,67 +17,37 @@ public class InventoryServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        request.setCharacterEncoding("UTF-8"); // Đảm bảo tiếng Việt
+        request.setCharacterEncoding("UTF-8");
         BookDAO dao = new BookDAO();
-
-        // 1. Lấy dữ liệu cho các ô Select (Dropdown)
-        List<String> authors = dao.getAllAuthors();
-        List<String> publishers = dao.getAllPublishers();
-        request.setAttribute("listAuthors", authors);
-        request.setAttribute("listPublishers", publishers);
-
-        // 2. Nhận tham số từ Filter Form
-        String search = request.getParameter("search");
+        com.group2.bookstore.dal.CategoryDAO cDao = new com.group2.bookstore.dal.CategoryDAO();
         
-        String cate = request.getParameter("cid");
-        int cid = (cate == null || cate.isEmpty()) ? 0 : Integer.parseInt(cate);
-        
+        String keyword = request.getParameter("keyword");
         String author = request.getParameter("author");
         String publisher = request.getParameter("publisher");
-        
-        // 3. Xử lý khoảng giá
-        String priceRange = request.getParameter("priceRange");
-        double minPrice = 0;
-        double maxPrice = 0;
+        String categoryIdStr = request.getParameter("categoryId"); // Lấy cid từ form
 
-        if (priceRange != null && !priceRange.isEmpty()) {
-            switch (priceRange) {
-                case "under100":
-                    minPrice = 0;
-                    maxPrice = 100000;
-                    break;
-                case "100-200":
-                    minPrice = 100000;
-                    maxPrice = 200000;
-                    break;
-                case "200-500":
-                    minPrice = 200000;
-                    maxPrice = 500000;
-                    break;
-                case "over500":
-                    minPrice = 500000;
-                    maxPrice = 999999999;
-                    break;
-            }
+        if (keyword == null) keyword = "";
+        
+        int cid = 0;
+        if (categoryIdStr != null && !categoryIdStr.isEmpty()) {
+            try { cid = Integer.parseInt(categoryIdStr); } catch (Exception e) {}
         }
 
-        // 4. Xử lý sắp xếp (Sort)
-        String sort = request.getParameter("sort"); // Cột cần sort
-        String order = request.getParameter("order"); // ASC hay DESC
+        // ĐÃ SỬA: Truyền biến cid vào hàm thay vì số 0
+        List<Book> list = dao.getBooks(keyword, cid, author, publisher, 0, 999999999, "book_id", "DESC", true);
 
-        // 5. Gọi hàm DAO
-        List<Book> list = dao.getBooks(search, cid, author, publisher, minPrice, maxPrice, sort, order, false);
-
-        // 6. Gửi dữ liệu về JSP
+        // Truyền data sang JSP
+        request.setAttribute("listC", cDao.getAllCategories()); // Thêm list Thể loại
+        request.setAttribute("listA", dao.getAllAuthors());
+        request.setAttribute("listP", dao.getAllPublishers());
         request.setAttribute("listB", list);
         
-        // Giữ lại các giá trị đã chọn để hiển thị lại trên Form
-        request.setAttribute("paramSearch", search);
-        request.setAttribute("paramCid", cid);
-        request.setAttribute("paramAuthor", author);
-        request.setAttribute("paramPublisher", publisher);
-        request.setAttribute("paramPrice", priceRange);
-
         request.getRequestDispatcher("/view/warehouse/inventory_list.jsp").forward(request, response);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        doGet(request, response);
     }
 }
