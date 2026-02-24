@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.group2.bookstore.model.Book;
+import com.group2.bookstore.model.BookImage;
+import com.group2.bookstore.model.Category;
 
 public class BookDAO extends DBContext {
 
@@ -16,7 +18,8 @@ public class BookDAO extends DBContext {
         List<Book> list = new ArrayList<>();
         String sql = "SELECT TOP 4 * FROM Books ORDER BY book_id DESC";
 
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = new DBContext().getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(mapResultSetToBook(rs));
@@ -27,34 +30,82 @@ public class BookDAO extends DBContext {
         return list;
     }
 
-    public List<Book> getRandomBook(int roleId) {
+    public List<Book> getRandomBook(int roleId, int quantity) {
         List<Book> list = new ArrayList<>();
         String sql;
 
         // LOGIC: If Admin (1), show all. If Guest/User, only show Active (1)
         if (roleId == 1) {
-            sql = "SELECT TOP 10 * FROM Books ORDER BY NEWID()";
+            sql = "SELECT TOP " + quantity + " * FROM Books ORDER BY NEWID()";
         } else {
+
             sql = "SELECT TOP 10 * FROM Books ORDER BY book_id DESC";
         }
 
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = new DBContext().getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(mapResultSetToBook(rs));
-            }
+            }   
         } catch (Exception e) {
             e.printStackTrace();
         }
         return list;
     }
+
+    public List<BookImage> getBookImage(int bookId){
+        List<BookImage> list = new ArrayList<>();
+        String sql = "Select * from BookImages where book_id = ?";
+         try (Connection conn = new DBContext().getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)){
+                    ps.setInt(1, bookId);
+                    ResultSet rs = ps.executeQuery();
+                    while (rs.next()) {
+                        list.add(new BookImage(
+                            rs.getInt("image_id"),
+                            rs.getInt("book_id"),
+                            rs.getString("image_url")
+                        ));
+                    }
+                }
+                catch(Exception e){
+                    e.printStackTrace();
+                }
+        return list;
+    }
+
+    public List<Category> getCategories() {
+    List<Category> list = new ArrayList<>();
+    // Giả sử bảng Categories có các cột: category_id, category_name, category_image
+    // Nếu bảng bạn chưa có cột ảnh, bạn có thể hardcode ảnh trong Java hoặc thêm cột vào DB sau.
+    String sql = "SELECT * FROM Categories"; 
+    
+    try (Connection conn = new DBContext().getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+         
+        while (rs.next()) {
+            list.add(new Category(
+                rs.getInt(1), // ID
+                rs.getString(2), // Name
+                rs.getString(3),// Image (Nếu DB chưa có cột này thì để null hoặc string rỗng)
+                rs.getString(4)  
+            ));
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return list;
+}
 
     // 3. Get Top 4 Best Sellers
     public List<Book> getBestSellers() {
         List<Book> list = new ArrayList<>();
         String sql = "SELECT TOP 4 * FROM Books ORDER BY sold_quantity DESC";
 
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = new DBContext().getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(mapResultSetToBook(rs));
@@ -68,7 +119,8 @@ public class BookDAO extends DBContext {
     // 4. Get Book by ID
     public Book getBookById(int id) {
         String sql = "SELECT * FROM Books WHERE book_id = ?";
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = new DBContext().getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -85,7 +137,8 @@ public class BookDAO extends DBContext {
         List<Book> list = new ArrayList<>();
         String sql = "SELECT TOP 4 * FROM Books WHERE category_id = ? AND book_id != ?";
 
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = new DBContext().getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, categoryId);
             ps.setInt(2, currentBookId);
             ResultSet rs = ps.executeQuery();
@@ -98,13 +151,27 @@ public class BookDAO extends DBContext {
         return list;
     }
 
-    // 6. Search Books (Admin Scope Logic)
+    // 6. Search Books (Đã sửa để dùng cho cả Admin lẫn User)
     public List<Book> searchBooks(String keyword, int roleId) {
         List<Book> list = new ArrayList<>();
-        String sql = "SELECT * FROM Books WHERE title LIKE ?";
+        String sql;
 
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+        // --- LOGIC MỚI ---
+        // 1. Dùng LOWER(...) để không phân biệt hoa thường.
+        // 2. Kiểm tra roleId: Admin (1) thấy hết, Khách chỉ thấy sách Active (1).
+        if (roleId == 1) {
+            // Admin: Tìm tất cả
+            sql = "SELECT * FROM Books WHERE LOWER(title) LIKE LOWER(?)";
+        } else {
+            // Khách/User: Chỉ tìm sách đang hiện (is_active = 1)
+            sql = "SELECT * FROM Books WHERE LOWER(title) LIKE LOWER(?) AND is_active = 1";
+        }
+
+        try (Connection conn = new DBContext().getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setString(1, "%" + keyword + "%");
+
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(mapResultSetToBook(rs));
@@ -119,9 +186,124 @@ public class BookDAO extends DBContext {
     public List<String> getAllAuthors() {
         List<String> list = new ArrayList<>();
         String sql = "SELECT DISTINCT author FROM Books WHERE author IS NOT NULL AND author <> '' ORDER BY author";
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 list.add(rs.getString("author"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // 2. Lấy danh sách tất cả NXB (không trùng lặp)
+    
+    // 3. Cập nhật hàm getBooks (Thêm tham số author, publisher, minPrice, maxPrice)
+    // Updated Method: Added 'boolean isAdmin' as the last parameter
+    public List<Book> getBooks(String keyword, int cid, String author, String publisher, double minPrice, double maxPrice, String sortBy, String sortOrder, boolean isAdmin) {
+        
+        List<Book> list = new ArrayList<>();
+        
+        // --- NEW SELECT WITH SUBQUERY START ---
+        // We use a subquery to grab the first image from BookImages to act as the cover.
+        StringBuilder sql = new StringBuilder(
+            "SELECT b.*, " +
+            "(SELECT TOP 1 bi.image_url FROM BookImages bi WHERE bi.book_id = b.book_id) AS cover_image " +
+            "FROM Books b WHERE 1=1 "
+        );
+        // --- NEW SELECT WITH SUBQUERY END ---
+        
+        List<Object> params = new ArrayList<>(); 
+
+        // If NOT Admin, only show Active books.
+        // If Admin, show everything (don't add this filter).
+        if (!isAdmin) {
+            sql.append(" AND b.is_active = 1 "); // Added 'b.' prefix to avoid ambiguity
+        }
+
+        // Filter: Keyword
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append(" AND LOWER(b.title) LIKE LOWER(?) "); // Added 'b.' prefix
+            params.add("%" + keyword.trim() + "%");
+        }
+
+        // 2. Tìm theo Danh mục (category_id)
+        if (cid > 0) {
+            sql.append(" AND b.category_id = ? "); // Added 'b.' prefix
+            params.add(cid);
+        }
+
+        // 3. Tìm theo Tác giả (Gần đúng)
+        if (author != null && !author.trim().isEmpty()) {
+            sql.append(" AND LOWER(b.author) LIKE LOWER(?) "); // Added 'b.' prefix
+            params.add("%" + author.trim() + "%");
+        }
+
+        // 4. Tìm theo Nhà xuất bản (Nếu có)
+        if (publisher != null && !publisher.trim().isEmpty()) {
+            sql.append(" AND LOWER(b.publisher) LIKE LOWER(?) "); // Added 'b.' prefix
+            params.add("%" + publisher.trim() + "%");
+        }
+        
+        // Filter: Price Range
+        if (maxPrice > 0) {
+            sql.append(" AND b.price BETWEEN ? AND ? "); // Added 'b.' prefix
+            params.add(minPrice);
+            params.add(maxPrice);
+        } else if (minPrice > 0) {
+            sql.append(" AND b.price >= ? "); // Added 'b.' prefix
+            params.add(minPrice);
+        } else if (maxPrice > 0) {
+            sql.append(" AND b.price <= ? "); // Added 'b.' prefix
+            params.add(maxPrice);
+        }
+
+        // Sorting
+        if (sortBy != null && !sortBy.isEmpty()) {
+            if (sortBy.equals("price") || sortBy.equals("title") || sortBy.equals("stock_quantity")) {
+                sql.append(" ORDER BY b.").append(sortBy); // Added 'b.' prefix
+                if ("DESC".equalsIgnoreCase(sortOrder)) {
+                    sql.append(" DESC");
+                } else {
+                    sql.append(" ASC");
+                }
+            }
+        } else {
+            sql.append(" ORDER BY b.book_id DESC"); // Added 'b.' prefix
+        }
+
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            
+            // Set Parameters
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Book b = new Book();
+                b.setId(rs.getInt("book_id"));
+                b.setTitle(rs.getString("title"));
+                b.setAuthor(rs.getString("author"));
+                b.setPrice(rs.getDouble("price"));
+                b.setDescription(rs.getString("description"));
+                b.setStockQuantity(rs.getInt("stock_quantity"));
+                b.setCategoryId(rs.getInt("category_id"));
+                
+                // Keep your correct image mapping (if 'image' column still exists in Books)
+                b.setImageUrl(rs.getString("image")); 
+                
+                // --- ADDED THIS LINE ---
+                // Map the subquery result to the coverImage property
+                b.setCoverImage(rs.getString("cover_image"));
+                
+                // Add Admin fields
+                try { b.setActive(rs.getBoolean("is_active")); } catch (Exception e) {}
+
+                list.add(b);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -246,7 +428,8 @@ public List<Book> getBooks(String keyword, int cid, String author, String publis
     // 8. Update Stock (For Warehouse)
     public void updateStock(int bookId, int newQuantity) {
         String sql = "UPDATE Books SET stock_quantity = ? WHERE book_id = ?";
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement st = conn.prepareStatement(sql)) {
+        try (Connection conn = new DBContext().getConnection();
+                PreparedStatement st = conn.prepareStatement(sql)) {
             st.setInt(1, newQuantity);
             st.setInt(2, bookId);
             st.executeUpdate();
@@ -386,7 +569,8 @@ public List<Book> getBooks(String keyword, int cid, String author, String publis
         b.setSoldQuantity(rs.getInt("sold_quantity"));
         b.setCategoryId(rs.getInt("category_id"));
 
-        // Try-Catch blocks for optional columns (in case older queries don't select them)
+        // Try-Catch blocks for optional columns (in case older queries don't select
+        // them)
         try {
             b.setActive(rs.getBoolean("is_active"));
         } catch (SQLException e) {

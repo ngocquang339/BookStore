@@ -1,415 +1,814 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
 
-/* BAN MOI NHAT 1234 */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Roboto', sans-serif;
-}
+    /* BAN MOI NHAT 1234 */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Roboto', sans-serif;
+    }
 
-body {
-    background-color: #f0f0f0; /* Màu nền xám nhẹ cho toàn trang */
-}
+    body {
+        background-color: #f0f0f0; /* Màu nền xám nhẹ cho toàn trang */
+    }
 
-/* Container chung để căn giữa nội dung */
-.container {
-    width: 1200px;
-    margin: 0 auto;
-    max-width: 100%;
-}
+    /* Container chung để căn giữa nội dung */
+    .container {
+        width: 1200px;
+        margin: 0 auto;
+        max-width: 100%;
+    }
 
-/* 1. CSS CHO BANNER */
-.top-banner img {
-    width: 100%;
-    height: auto;
-    display: block;
-    object-fit: cover;
-}
+    /* 1. CSS CHO BANNER */
+    .top-banner img {
+        width: 100%;
+        height: auto;
+        display: block;
+        object-fit: cover;
+    }
 
-/* 2. CSS CHO HEADER */
-.main-header {
-    background-color: #fff;
-    padding: 15px 0;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-}
+    /* 2. CSS CHO HEADER */
+    .main-header {
+        background-color: #fff;
+        padding: 15px 0;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
 
-.main-header .container {
-    display: flex; /* Dàn hàng ngang */
-    align-items: center;
-    justify-content: space-between;
-}
+    .main-header .container {
+        display: flex; /* Dàn hàng ngang */
+        align-items: center;
+        justify-content: space-between;
+    }
 
-/* Logo */
-.logo a {
-    text-decoration: none;
-    color: #333;
-    font-size: 24px;
-}
+    /* Logo */
+    .logo a {
+        text-decoration: none;
+        color: #333;
+        font-size: 24px;
+    }
 
-/* Ô tìm kiếm */
-.search-box {
-    flex: 1;
-    margin: 0 40px;
-    display: flex;
+    /* --- FILTER SYSTEM STYLES --- */
+
+/* 1. Container chính */
+.filter-wrapper {
     position: relative;
+    display: inline-block;
+    margin-left: 20px; /* Cách ô tìm kiếm một chút */
 }
 
-.search-box input {
-    width: 100%;
-    padding: 10px 15px;
+/* 2. Nút kích hoạt (Trigger) */
+.filter-trigger {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
     border: 1px solid #ddd;
-    border-radius: 8px;
-    outline: none;
-    font-size: 14px;
-}
-
-.search-box button {
-    position: absolute;
-    right: 4px;
-    top: 4px;
-    background-color: #C92127;
-    color: white;
-    border: none;
-    padding: 6px 15px;
+    padding: 8px 15px;
     border-radius: 6px;
     cursor: pointer;
-    height: 34px;
-    font-size: 16px;
-}
-
-/* Các Icon bên phải */
-.header-icons {
-    display: flex;
-    gap: 25px;
-    align-items: center;
-}
-
-.icon-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    font-size: 14px;
     color: #555;
-    cursor: pointer;
-    font-size: 13px;
-    position: relative;
+    transition: all 0.3s ease;
+    height: 38px; /* Bằng chiều cao nút tìm kiếm */
 }
 
-.icon-item i {
-    font-size: 20px;
-    margin-bottom: 5px;
-    color: #777;
-}
-
-.icon-item:hover i, .icon-item:hover span {
+.filter-trigger:hover {
+    border-color: #C92127;
     color: #C92127;
+    background-color: #fff5f5;
 }
 
-/* Phần tài khoản */
-/* Thiết lập vị trí cho thẻ cha */
-.user-account {
-    position: relative; /* Để hộp con căn chỉnh theo thẻ này */
-    padding-bottom: 10px; /* Tạo khoảng đệm để di chuột không bị mất hover */
-}
-
-/* Hộp nội dung đổ xuống */
-.dropdown-content {
+/* 3. Dropdown Content (Bảng lọc) */
+.filter-dropdown {
     display: none; /* Mặc định ẩn */
     position: absolute;
-    top: 100%; /* Hiện ngay bên dưới thẻ cha */
-    right: 0;
-    background-color: #ffffff;
-    min-width: 200px;
-    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
-    padding: 15px;
-    z-index: 1000;
-    border-radius: 8px;
-    flex-direction: column;
-    gap: 10px;
-}
-
-/* Hiển thị khi di chuột vào .user-account */
-.user-account:hover .dropdown-content {
-    display: flex; /* Hiện ra dạng cột */
-}
-
-/* CSS cho các nút Đăng nhập / Đăng ký giống trong video */
-.btn-login, .btn-register {
-    text-decoration: none;
-    display: block;
-    width: 100%;
-    padding: 10px;
-    text-align: center;
-    border-radius: 5px;
-    font-weight: bold;
-    font-size: 14px;
-}
-
-.btn-login {
-    background-color: #C92127;
-    color: white !important;
-    border: 1px solid #C92127;
-}
-
-.btn-register {
-    background-color: white;
-    color: #C92127 !important;
-    border: 1px solid #C92127;
-    margin-top: 5px;
-}
-
-.btn-login:hover {
-    background-color: #a51b20;
-}
-
-.account-info {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-}
-
-.account-info a {
-    text-decoration: none;
-    color: inherit;
-}
-/* Nội dung chính */
-.main-content {
-    background: white;
-    min-height: 500px;
-    margin-top: 20px;
-    padding: 20px;
-    border-radius: 8px;
-}
-
-/* =========================================
-<<<<<<< HEAD
-   EPIC 4: ADMIN TOOLBAR STYLES (US-01)
-   ========================================= */
-
-/* The Toolbar Container */
-.admin-overlay {
-    position: fixed;
-    top: 0;
+    top: 110%; /* Cách nút trigger một chút */
     left: 0;
-    width: 100%;
-    height: 40px;
-    background-color: #222; /* Black/Dark Gray */
-    color: #fff;
+    width: 800px; /* Bảng to rộng */
+    background: #fff;
+    border: 1px solid #eee;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    border-radius: 8px;
+    padding: 20px;
+    z-index: 1000;
+}
+
+/* Hiệu ứng hiện khi Hover */
+.filter-wrapper:hover .filter-dropdown {
+    display: block;
+    animation: fadeInDown 0.3s ease;
+}
+
+/* 4. Grid Layout (Chia 4 cột bên trong bảng) */
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+}
+
+.filter-group h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 12px;
+    border-bottom: 2px solid #C92127; /* Gạch chân đỏ tiêu đề */
+    display: inline-block;
+    padding-bottom: 3px;
+}
+
+/* 5. Style cho các Inputs */
+/* Input giá */
+.price-inputs {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 0 40px; /* Align with your main container margins */
-    z-index: 9999; /* Ensure it stays on top of everything */
-    font-size: 14px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    gap: 5px;
 }
-
-/* The "Go to Dashboard" Button */
-.admin-overlay .admin-btn {
-    background-color: #C92127; /* Matches your brand red */
-    color: white;
-    text-decoration: none;
-    padding: 4px 12px;
-    border-radius: 4px;
-    font-weight: bold;
-    font-size: 12px;
-    text-transform: uppercase;
-    transition: background 0.3s;
-}
-
-.admin-overlay .admin-btn:hover {
-    background-color: #a01a1f;
-}
-
-/* LAYOUT ADJUSTMENTS WHEN ADMIN MODE IS ACTIVE 
-   These styles are triggered when <body class="admin-active">
-*/
-
-/* 1. Push the whole site down so the toolbar doesn't cover content */
-body.admin-active {
-    padding-top: 40px; 
-}
-
-/* 2. Fix the Sticky Header position 
-   Since the toolbar takes up the top 40px, the header must stick 
-   at 40px instead of 0px so it sits beautifully below the toolbar.
-*/
-body.admin-active .main-header {
-    top: 40px;
-}
-
-/* Add these at the bottom of your CSS file */
-
-/* Product Card Status Badges */
-.product-card {
-    position: relative; /* Needed to position badges absolutely inside the card */
-}
-
-.status-badge {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    padding: 5px 10px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: bold;
-    color: white;
-    z-index: 10;
-}
-
-.badge-hidden {
-    background-color: #555; /* Dark Grey */
-    opacity: 0.9;
-}
-
-.badge-out-of-stock {
-    background-color: #dc3545; /* Red */
-}
-
-/* Optional: Fade the image if hidden */
-.product-card.hidden-item img {
-    opacity: 0.6;
-    filter: grayscale(80%);
-  
-}
-=======
-   3. CSS CHO KHU VỰC BANNER (STYLE FAHASA)
-   ========================================= */
-
->>>>>>> Quang
-.banner-section {
-    margin-top: 20px; /* Cách header một đoạn */
-}
-
-/* --- Phần Trên (Banner to + 2 nhỏ) --- */
-.banner-top {
-    display: flex;       /* Dàn hàng ngang */
-    gap: 10px;           /* Khoảng cách giữa cột trái và phải */
-    height: 320px;       /* Chiều cao cố định để ảnh khớp nhau */
-    margin-bottom: 10px; /* Cách hàng dưới 10px */
-}
-
-/* Cột Trái (68% chiều rộng) */
-.banner-left {
-    flex: 2.1;           /* Chiếm phần lớn diện tích */
-    border-radius: 8px;
-    overflow: hidden;    /* Bo góc ảnh */
-}
-
-.banner-left img {
+.price-inputs input {
     width: 100%;
-    height: 100%;
-    object-fit: cover;   /* Ảnh tự co giãn không bị méo */
+    padding: 6px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+/* Checkbox & Radio đẹp hơn */
+.checkbox-item, .rating-option {
     display: block;
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 6px;
+    cursor: pointer;
+}
+.checkbox-item:hover, .rating-option:hover {
+    color: #C92127;
 }
 
-/* Cột Phải (32% chiều rộng) */
-.banner-right {
-    flex: 0.9;           /* Chiếm phần nhỏ hơn */
-    display: flex;
-    flex-direction: column; /* Xếp dọc 2 ảnh */
-    gap: 10px;           /* Khoảng cách giữa 2 ảnh dọc */
-}
-
-.banner-right img {
+/* Select Box */
+.filter-select {
     width: 100%;
-    height: calc(50% - 5px); /* Mỗi ảnh cao 50% trừ đi khoảng cách gap */
-    object-fit: cover;
-    border-radius: 8px;
-    display: block;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    outline: none;
+    font-size: 13px;
+}
+.filter-select:focus {
+    border-color: #C92127;
 }
 
-/* --- Phần Dưới (4 Banner nhỏ) --- */
-.banner-bottom {
+/* 6. Footer Buttons (Áp dụng / Reset) */
+.filter-actions {
     display: flex;
+    justify-content: flex-end;
     gap: 10px;
 }
 
-.banner-bottom img {
-    width: 25%;          /* Chia đều 4 ảnh (100% / 4) */
-    height: auto;
-    border-radius: 8px;
-    object-fit: cover;
-    display: block;
-    transition: transform 0.3s ease; /* Hiệu ứng khi di chuột */
-}
-
-/* Hiệu ứng hover nhẹ cho đẹp */
-.banner-left img:hover, 
-.banner-right img:hover, 
-.banner-bottom img:hover {
-    opacity: 0.9;
-    cursor: pointer;
-}
-
-/* Container chứa danh sách sách */
-.book-list {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr); /* 5 cột đều nhau */
-    gap: 20px; /* Khoảng cách giữa các ô */
-    margin-top: 20px;
-}
-
-/* Thẻ sách (Card) */
-.book-card {
-    background: #fff;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    overflow: hidden;
-    transition: transform 0.2s;
-    display: flex;
-    flex-direction: column;
-}
-
-.book-card:hover {
-    transform: translateY(-5px); /* Hiệu ứng bay lên khi di chuột */
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
-
-.book-image img {
-    width: 100%;
-    height: 180px;
-    object-fit: contain; /* Giữ tỷ lệ ảnh */
-    padding: 10px;
-}
-
-.book-info {
-    padding: 10px;
-    text-align: center;
-}
-
-.book-title {
-    font-size: 14px;
-    height: 38px; /* Giới hạn chiều cao tên sách (khoảng 2 dòng) */
-    overflow: hidden;
-    margin-bottom: 5px;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-}
-
-.book-price {
-    color: #C92127;
-    font-weight: bold;
-    font-size: 16px;
-    margin-bottom: 10px;
-}
-
-.btn-buy {
-    display: inline-block;
-    padding: 5px 15px;
-    color: #C92127;
-    border: 1px solid #C92127;
+.btn-reset {
+    background: #f0f0f0;
+    color: #333;
+    border: none;
+    padding: 8px 20px;
     border-radius: 4px;
-    text-decoration: none;
-    font-size: 13px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-apply {
+    background: #C92127;
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
     transition: 0.3s;
 }
 
-.btn-buy:hover {
+.btn-apply:hover {
+    background: #a01a1f;
+}
+
+/* Animation */
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+    /* Ô tìm kiếm */
+    .search-box {
+        flex: 1;
+        margin: 0 40px;
+        display: flex;
+        position: relative;
+    }
+
+    .search-box input {
+        width: 100%;
+        padding: 10px 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        outline: none;
+        font-size: 14px;
+    }
+
+    .search-box button {
+        position: absolute;
+        right: 4px;
+        top: 4px;
+        background-color: #C92127;
+        color: white;
+        border: none;
+        padding: 6px 15px;
+        border-radius: 6px;
+        cursor: pointer;
+        height: 34px;
+        font-size: 16px;
+    }
+
+    /* Các Icon bên phải */
+    .header-icons {
+        display: flex;
+        gap: 25px;
+        align-items: center;
+    }
+
+    .icon-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: #555;
+        cursor: pointer;
+        font-size: 13px;
+        position: relative;
+    }
+
+    .icon-item i {
+        font-size: 20px;
+        margin-bottom: 5px;
+        color: #777;
+    }
+
+    .icon-item:hover i, .icon-item:hover span {
+        color: #C92127;
+    }
+
+    /* Phần tài khoản */
+    /* Thiết lập vị trí cho thẻ cha */
+    .user-account {
+        position: relative; /* Để hộp con căn chỉnh theo thẻ này */
+        padding-bottom: 10px; /* Tạo khoảng đệm để di chuột không bị mất hover */
+    }
+
+    /* Hộp nội dung đổ xuống */
+    .dropdown-content {
+        display: none; /* Mặc định ẩn */
+        position: absolute;
+        top: 100%; /* Hiện ngay bên dưới thẻ cha */
+        right: 0;
+        background-color: #ffffff;
+        min-width: 200px;
+        box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+        padding: 15px;
+        z-index: 1000;
+        border-radius: 8px;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    /* Hiển thị khi di chuột vào .user-account */
+    .user-account:hover .dropdown-content {
+        display: flex; /* Hiện ra dạng cột */
+    }
+
+    /* --- STYLE CHO KHÁCH (CHƯA ĐĂNG NHẬP) --- */
+.auth-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Khoảng cách giữa 2 nút */
+    padding-top: 5px;
+}
+
+/* Nút Đăng nhập: Nền đỏ, chữ trắng */
+.btn-auth-login {
+    display: block;
     background-color: #C92127;
+    color: white !important;
+    text-align: center;
+    padding: 10px 0;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 15px;
+    border: 1px solid #C92127;
+    transition: background 0.2s;
+}
+
+.btn-auth-login:hover {
+    background-color: #a81a1f;
+    color: white !important;
+}
+
+/* Nút Đăng ký: Nền trắng, viền đỏ, chữ đỏ */
+.btn-auth-register {
+    display: block;
+    background-color: white;
+    color: #C92127 !important;
+    text-align: center;
+    padding: 10px 0;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 15px;
+    border: 1px solid #C92127;
+    transition: background 0.2s;
+}
+
+.btn-auth-register:hover {
+    background-color: #fff5f5;
+    color: #C92127 !important;
+}
+
+    .account-info {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .account-info a {
+        text-decoration: none;
+        color: inherit;
+    }
+    /* Nội dung chính */
+    .main-content {
+        background: white;
+        min-height: 500px;
+        margin-top: 20px;
+        padding: 20px;
+        border-radius: 8px;
+    }
+
+    /* =========================================
+    EPIC 4: ADMIN TOOLBAR STYLES (US-01)
+    ========================================= */
+
+    /* The Toolbar Container */
+    .admin-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 40px;
+        background-color: #222; /* Black/Dark Gray */
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 40px; /* Align with your main container margins */
+        z-index: 9999; /* Ensure it stays on top of everything */
+        font-size: 14px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    /* The "Go to Dashboard" Button */
+    .admin-overlay .admin-btn {
+        background-color: #C92127; /* Matches your brand red */
+        color: white;
+        text-decoration: none;
+        padding: 4px 12px;
+        border-radius: 4px;
+        font-weight: bold;
+        font-size: 12px;
+        text-transform: uppercase;
+        transition: background 0.3s;
+    }
+
+    .admin-overlay .admin-btn:hover {
+        background-color: #a01a1f;
+    }
+
+    /* LAYOUT ADJUSTMENTS WHEN ADMIN MODE IS ACTIVE 
+    These styles are triggered when <body class="admin-active">
+    */
+
+    /* 1. Push the whole site down so the toolbar doesn't cover content */
+    body.admin-active {
+        padding-top: 40px; 
+    }
+
+    /* 2. Fix the Sticky Header position 
+    Since the toolbar takes up the top 40px, the header must stick 
+    at 40px instead of 0px so it sits beautifully below the toolbar.
+    */
+    body.admin-active .main-header {
+        top: 40px;
+    }
+
+    /* Add these at the bottom of your CSS file */
+
+    /* Product Card Status Badges */
+    .product-card {
+        position: relative; /* Needed to position badges absolutely inside the card */
+    }
+
+    .status-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
+        color: white;
+        z-index: 10;
+    }
+
+    .badge-hidden {
+        background-color: #555; /* Dark Grey */
+        opacity: 0.9;
+    }
+
+    .badge-out-of-stock {
+        background-color: #dc3545; /* Red */
+    }
+
+    /* Optional: Fade the image if hidden */
+    .product-card.hidden-item img {
+        opacity: 0.6;
+        filter: grayscale(80%);
+    
+    }
+    /* --- STYLE CHO MENU USER (ĐÃ ĐĂNG NHẬP) --- */
+
+.dropdown-link {
+    display: flex;              /* Flexbox giúp icon và chữ nằm ngang hàng */
+    align-items: center;        /* Căn giữa icon và chữ theo chiều dọc */
+    gap: 10px;                  /* Tạo khoảng cách giữa Icon và Chữ */
+    
+    text-decoration: none;      /* QUAN TRỌNG: Lệnh này xóa gạch chân */
+    color: #555;                /* QUAN TRỌNG: Mã màu xám đậm */
+    
+    font-size: 15px;
+    padding: 10px 15px;         /* Khoảng cách đệm để dễ bấm */
+    transition: all 0.2s ease;  /* Hiệu ứng chuyển màu mượt mà */
+    border-radius: 4px;
+}
+
+/* Chỉnh màu cho Icon */
+.dropdown-link i {
+    width: 20px;                /* Cố định chiều rộng icon để các dòng thẳng hàng */
+    text-align: center;
+    color: #777;                /* Icon màu xám nhạt hơn chữ một chút */
+    font-size: 16px;
+}
+
+/* Hiệu ứng khi di chuột vào (Hover) */
+.dropdown-link:hover {
+    background-color: #f5f5f5;  /* Nền xám rất nhạt */
+    color: #C92127;             /* Chữ chuyển đỏ */
+}
+
+.dropdown-link:hover i {
+    color: #C92127;             /* Icon cũng chuyển đỏ theo */
+}
+
+/* Riêng nút Đăng xuất (nếu muốn có gạch ngăn cách ở trên) */
+.logout-link {
+    border-top: 1px solid #eee; /* Đường kẻ mờ ngăn cách */
+    margin-top: 5px;
+}
+    /*3. CSS CHO KHU VỰC BANNER (STYLE FAHASA)
+    ========================================= */
+
+    .banner-section {
+        margin-top: 20px; /* Cách header một đoạn */
+    }
+
+    /* --- Phần Trên (Banner to + 2 nhỏ) --- */
+    .banner-top {
+        display: flex;       /* Dàn hàng ngang */
+        gap: 10px;           /* Khoảng cách giữa cột trái và phải */
+        height: 320px;       /* Chiều cao cố định để ảnh khớp nhau */
+        margin-bottom: 10px; /* Cách hàng dưới 10px */
+    }
+
+    /* Cột Trái (68% chiều rộng) */
+    .banner-left {
+        flex: 2.1;           /* Chiếm phần lớn diện tích */
+        border-radius: 8px;
+        overflow: hidden;    /* Bo góc ảnh */
+    }
+
+    .banner-left img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;   /* Ảnh tự co giãn không bị méo */
+        display: block;
+    }
+
+    /* Cột Phải (32% chiều rộng) */
+    .banner-right {
+        flex: 0.9;           /* Chiếm phần nhỏ hơn */
+        display: flex;
+        flex-direction: column; /* Xếp dọc 2 ảnh */
+        gap: 10px;           /* Khoảng cách giữa 2 ảnh dọc */
+    }
+
+    .banner-right img {
+        width: 100%;
+        height: calc(50% - 5px); /* Mỗi ảnh cao 50% trừ đi khoảng cách gap */
+        object-fit: cover;
+        border-radius: 8px;
+        display: block;
+    }
+
+    /* --- Phần Dưới (4 Banner nhỏ) --- */
+    .banner-bottom {
+        display: flex;
+        gap: 10px;
+    }
+
+    .banner-bottom img {
+        width: 25%;          /* Chia đều 4 ảnh (100% / 4) */
+        height: auto;
+        border-radius: 8px;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.3s ease; /* Hiệu ứng khi di chuột */
+    }
+
+    /* Hiệu ứng hover nhẹ cho đẹp */
+    .banner-left img:hover, 
+    .banner-right img:hover, 
+    .banner-bottom img:hover {
+        opacity: 0.9;
+        cursor: pointer;
+    }
+
+    /* Container chứa danh sách sách */
+    .book-list {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr); /* 5 cột đều nhau */
+        gap: 20px; /* Khoảng cách giữa các ô */
+        margin-top: 20px;
+    }
+
+    /* Thẻ sách (Card) */
+    .book-card {
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        overflow: hidden;
+        transition: transform 0.2s;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .book-card:hover {
+        transform: translateY(-5px); /* Hiệu ứng bay lên khi di chuột */
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .book-image img {
+        width: 100%;
+        height: 180px;
+        object-fit: contain; /* Giữ tỷ lệ ảnh */
+        padding: 10px;
+    }
+
+    .book-info {
+        padding: 10px;
+        text-align: center;
+    }
+
+    .book-title {
+        font-size: 14px;
+        height: 38px; /* Giới hạn chiều cao tên sách (khoảng 2 dòng) */
+        overflow: hidden;
+        margin-bottom: 5px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    .book-price {
+        color: #C92127;
+        font-weight: bold;
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+
+    .btn-buy {
+        display: inline-block;
+        padding: 5px 15px;
+        color: #C92127;
+        border: 1px solid #C92127;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 13px;
+        transition: 0.3s;
+    }
+
+    .btn-buy:hover {
+        background-color: #C92127;
+        color: white;
+    }
+
+/* =========================================
+   FLASH SALE SLIDER STYLES
+   ========================================= */
+
+.flash-sale-section {
+    margin-top: 20px;
+    margin-bottom: 30px;
+}
+
+.flash-sale-section .container {
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+/* Header giống cũ */
+.fs-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: linear-gradient(90deg, #ff424e, #fd820a);
     color: white;
+}
+.fs-header-left { display: flex; align-items: center; gap: 30px; }
+.fs-title { font-size: 24px; font-weight: 800; font-style: italic; text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
+.fs-title i { font-size: 28px; color: #ffe100; }
+.fs-timer { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 500; }
+.timer-box span { background-color: #000; color: #fff; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 15px; }
+.fs-view-all { color: white; text-decoration: none; font-weight: bold; font-size: 14px; }
+
+/* --- CAROUSEL LAYOUT --- */
+.fs-body {
+    padding: 20px 10px; /* Padding ít hơn để nút bấm sát lề */
+}
+
+.fs-carousel-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* Nút bấm Next/Prev */
+.fs-nav-btn {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #555;
+    z-index: 10;
+    transition: all 0.3s;
+}
+.fs-nav-btn:hover { background-color: #C92127; color: white; border-color: #C92127; }
+
+/* Cửa sổ hiển thị (Chỉ hiện phần nhìn thấy) */
+.fs-carousel-window {
+    overflow: hidden;
+    width: 100%;
+    margin: 0 10px; /* Cách nút bấm 1 xíu */
+}
+
+/* Đường ray chứa tất cả sách */
+.fs-carousel-track {
+    display: flex;
+    transition: transform 0.5s ease-in-out; /* Hiệu ứng trượt mượt mà */
+    width: 100%;
+}
+
+/* Item sách: Chia chiều rộng là 20% để hiện 5 cuốn */
+.fs-card-item {
+    flex: 0 0 20%; /* 100% / 5 = 20% */
+    max-width: 20%;
+    padding: 0 8px; /* Khoảng cách giữa các sách */
+    box-sizing: border-box;
+}
+
+.fs-card-content {
+    background: #fff;
+    transition: transform 0.2s;
+    cursor: pointer;
+}
+.fs-card-content:hover { transform: translateY(-5px); }
+
+/* Nội dung bên trong Card (Giữ nguyên style đẹp cũ) */
+.fs-image { position: relative; margin-bottom: 10px; text-align: center; }
+.fs-image img { width: 100%; height: 180px; object-fit: contain; }
+.fs-discount-badge { position: absolute; top: 0; right: 0; background: #ffe97a; color: #C92127; padding: 2px 6px; font-size: 12px; font-weight: bold; border-radius: 2px; }
+.fs-info { padding: 0 5px; }
+.fs-name { display: block; font-size: 14px; color: #333; text-decoration: none; line-height: 1.4; height: 40px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; margin-bottom: 5px; }
+.fs-price { display: flex; flex-direction: column; margin-bottom: 8px; } /* Giá xếp dọc cho gọn */
+.price-new { color: #C92127; font-size: 18px; font-weight: bold; }
+.price-old { color: #999; font-size: 12px; text-decoration: line-through; }
+
+/* Thanh Progress */
+.fs-progress-bar { position: relative; width: 100%; height: 16px; background-color: #ffbda6; border-radius: 10px; overflow: hidden; display: flex; align-items: center; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #ec1e2d, #ff5722); border-radius: 10px 0 0 10px; }
+.progress-text { position: absolute; width: 100%; text-align: center; color: #fff; font-size: 10px; font-weight: bold; text-transform: uppercase; text-shadow: 0 0 2px rgba(0,0,0,0.3); z-index: 2; }
+.fire-icon { position: absolute; left: 5px; height: 12px; z-index: 3; }
+
+/* =========================================
+   CATEGORY SECTION STYLES
+   ========================================= */
+.category-section {
+    margin-bottom: 20px;
+}
+
+.category-section .container {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+/* Header: Icon đỏ + Chữ đậm */
+.cat-header {
+    font-size: 18px;
+    font-weight: 700;
+    color: #333; /* Màu chữ đen xám */
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cat-header i {
+    color: #C92127; /* Màu đỏ của icon 4 ô vuông */
+    font-size: 20px;
+}
+
+/* Danh sách Grid */
+.cat-list {
+    display: grid;
+    /* Tự động chia cột: Ít nhất 100px, tối đa 1fr */
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); 
+    gap: 15px;
+    justify-items: center; /* Căn giữa các item */
+}
+
+/* Từng Item Category */
+.cat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: #333;
+    width: 100%;
+    transition: transform 0.2s ease;
+}
+
+.cat-item:hover {
+    transform: translateY(-5px); /* Hiệu ứng bay lên khi di chuột */
+    color: #C92127;
+}
+
+/* Ảnh category */
+.cat-image {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 10px;
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: #f9f9f9; /* Nền xám nhẹ cho ảnh */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cat-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Đảm bảo ảnh luôn đẹp trong khung vuông */
+}
+
+/* Tên category */
+.cat-name {
+    font-size: 13px;
+    text-align: center;
+    line-height: 1.4;
+    font-weight: 500;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Giới hạn 2 dòng */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }

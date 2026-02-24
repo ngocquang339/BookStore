@@ -1,29 +1,32 @@
 package com.group2.bookstore.dal;
 
+import com.group2.bookstore.model.Category;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.group2.bookstore.model.Category;
+public class CategoryDAO extends DBContext {
 
-public class CategoryDAO {
-    
+    // Hàm lấy tất cả danh mục
     public List<Category> getAllCategories() {
         List<Category> list = new ArrayList<>();
-        // Make sure table name is correct (Categories or Category?)
+        // Tên bảng trong DB của bạn là Categories
         String sql = "SELECT * FROM Categories"; 
         
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try {
+            Connection conn = new DBContext().getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                // FIXED: Using exact column names from your image
-                int id = rs.getInt("category_id");
-                String name = rs.getString("category_name");
-                
-                list.add(new Category(id, name));
+                Category c = new Category(
+                    rs.getInt("category_id"),   // Tên cột chính xác trong DB
+                    rs.getString("category_name"), // Tên cột chính xác trong DB
+                    rs.getString("category_image"),
+                    rs.getString("description")
+                );
+                list.add(c);
             }
         } catch (Exception e) {
             e.printStackTrace();

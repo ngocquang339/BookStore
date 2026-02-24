@@ -1,0 +1,83 @@
+/* File: assets/css/checkout.css */
+body { 
+    background-color: #f4f4f4; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+}
+.checkout-section { 
+    background: white; 
+    border-radius: 4px; 
+    padding: 20px; 
+    margin-bottom: 20px; 
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
+}
+.section-title { 
+    font-size: 16px; 
+    font-weight: bold; 
+    text-transform: uppercase; 
+    border-bottom: 1px solid #eee; 
+    padding-bottom: 10px; 
+    margin-bottom: 20px; 
+    color: #333; 
+}
+.form-label { 
+    font-size: 14px; 
+    color: #555; 
+    width: 180px; 
+    font-weight: 500; 
+}
+.payment-option { 
+    display: flex; 
+    align-items: center; 
+    padding: 12px; 
+    border-bottom: 1px solid #f9f9f9; 
+    cursor: pointer; 
+}
+.payment-option img { 
+    width: 35px; 
+    margin-right: 15px; 
+}
+.book-item { 
+    display: flex; 
+    padding: 15px 0; 
+    border-bottom: 1px solid #eee; 
+}
+.book-img { 
+    width: 80px; 
+    height: 80px; 
+    object-fit: cover; 
+    border: 1px solid #eee; 
+    margin-right: 15px; 
+}
+.book-price { 
+    color: #F7941E; 
+    font-weight: bold; 
+}
+.btn-confirm { 
+    background-color: #C92127; 
+    color: white; 
+    border: none; 
+    padding: 15px; 
+    font-weight: bold; 
+    font-size: 18px; 
+    border-radius: 8px; 
+    width: 100%; 
+    margin-top: 10px; 
+}
+.btn-confirm:hover { 
+    background-color: #a51b20; 
+}
+
+/* CSS cho Logic hiển thị lỗi */
+.error-hint {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 4px;
+    display: none; /* Mặc định ẩn */
+}
+.show-error {
+    display: block !important;
+}
+.input-error {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25) !important;
+}

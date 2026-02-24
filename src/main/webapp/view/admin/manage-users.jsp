@@ -141,7 +141,7 @@
 
                                     <th onclick="sortTable(5)" style="width: 15%;">Joined Date</th>
 
-                                    
+
                                 </tr>
                             </thead>
                             <tbody>
@@ -159,12 +159,26 @@
 
                                         <td>
                                             <c:choose>
-                                                <c:when test="${u.role == 1}"><span
-                                                        class="role-badge role-1">Admin</span></c:when>
-                                                <c:when test="${u.role == 4}"><span
-                                                        class="role-badge role-4">Warehouse</span></c:when>
-                                                <c:otherwise><span class="role-badge role-2">Customer</span>
-                                                </c:otherwise>
+                                                <%-- 1 is Admin --%>
+                                                    <c:when test="${u.role == 1}">
+                                                        <span class="role-badge role-1">Admin</span>
+                                                    </c:when>
+
+                                                    <%-- 2 is Staff/Sale (Adding a new color for them) --%>
+                                                        <c:when test="${u.role == 2}">
+                                                            <span class="role-badge"
+                                                                style="background-color: #17a2b8; color: white;">Staff</span>
+                                                        </c:when>
+
+                                                        <%-- 3 is Warehouse --%>
+                                                            <c:when test="${u.role == 3}">
+                                                                <span class="role-badge role-4">Warehouse</span>
+                                                            </c:when>
+
+                                                            <%-- 0 is Customer --%>
+                                                                <c:otherwise>
+                                                                    <span class="role-badge role-2">Customer</span>
+                                                                </c:otherwise>
                                             </c:choose>
                                         </td>
 

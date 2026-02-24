@@ -17,61 +17,43 @@ import jakarta.servlet.http.HttpSession;
 
 @WebServlet("/add-to-cart")
 public class AddToCartServlet extends HttpServlet {
-
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
-        User user = (User) session.getAttribute("user"); // Kiểm tra đăng nhập
+        User user = (User) session.getAttribute("user");
 
         try {
-            String idStr = request.getParameter("id");
-            if (idStr != null && !idStr.isEmpty()) {
-                int bookId = Integer.parseInt(idStr);
-                
-                // Lấy thông tin sách
-                BookDAO bookDAO = new BookDAO();
-                Book book = bookDAO.getBookById(bookId);
+            int bookId = Integer.parseInt(request.getParameter("id"));
+            BookDAO bookDAO = new BookDAO();
+            Book book = bookDAO.getBookById(bookId);
 
-                if (book != null) {
-                    CartItem newItem = new CartItem(book, 1);
+            if (book != null) {
+                CartItem newItem = new CartItem(book, 1);
 
-                    // ==========================================
-                    // LOGIC QUAN TRỌNG: CHECK LOGIN
-                    // ==========================================
-                    if (user != null) {
-                        // 1. Nếu ĐÃ ĐĂNG NHẬP -> Lưu thẳng vào Database
-                        CartDAO cartDao = new CartDAO();
-                        cartDao.addToCart(user.getId(), newItem); // User.getId() tùy model của bạn
-                        
-                        // Cập nhật lại session để hiển thị ngay
-                        session.setAttribute("cart", cartDao.getCartByUserId(user.getId()));
-                        
-                    } else {
-                        // 2. Nếu CHƯA ĐĂNG NHẬP (GUEST) -> Lưu vào Session như cũ
-                        List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
-                        if (cart == null) cart = new ArrayList<>();
-                        
-                        boolean found = false;
-                        for (CartItem item : cart) {
-                            if (item.getBook().getId() == bookId) {
-                                item.setQuantity(item.getQuantity() + 1);
-                                found = true;
-                                break;
-                            }
+                if (user != null) {
+                    // 1. Thêm vào DB
+                    CartDAO cartDao = new CartDAO();
+                    cartDao.addToCart(user.getId(), newItem);
+                    
+                    // 2. CẬP NHẬT LẠI SESSION TỪ DB (Đảm bảo dữ liệu mới nhất)
+                    List<CartItem> updatedCart = cartDao.getCartByUserId(user.getId());
+                    session.setAttribute("cart", updatedCart);
+                } else {
+                    // Logic cho khách vãng lai (Guest)
+                    List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
+                    if (cart == null) cart = new ArrayList<>();
+                    boolean found = false;
+                    for (CartItem item : cart) {
+                        if (item.getBook().getId() == bookId) {
+                            item.setQuantity(item.getQuantity() + 1);
+                            found = true; break;
                         }
-                        if (!found) cart.add(newItem);
-                        session.setAttribute("cart", cart);
                     }
-
-                    session.setAttribute("message", "Đã thêm vào giỏ hàng!");
-                    session.setAttribute("messageType", "success");
+                    if (!found) cart.add(newItem);
+                    session.setAttribute("cart", cart);
                 }
+                session.setAttribute("message", "Đã thêm vào giỏ hàng!");
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        response.sendRedirect(request.getContextPath() + "/home");
+        } catch (Exception e) { e.printStackTrace(); }
+        response.sendRedirect("home");
     }
 }

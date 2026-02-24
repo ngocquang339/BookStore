@@ -20,7 +20,7 @@ public class Book implements Serializable {
     // NEW FIELDS for Admin Features
     private boolean active;       // Maps to [is_active]
     private double importPrice;   // Maps to [import_price]
-
+    private String coverImage;
     // 1. Empty Constructor (Required for JSP/Frameworks)
     public Book() {
     }
@@ -150,5 +150,13 @@ public class Book implements Serializable {
 
     public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
+    }
+
+    public String getCoverImage() {
+        return coverImage;
+    }
+
+    public void setCoverImage(String coverImage) {
+        this.coverImage = coverImage;
     }
 }

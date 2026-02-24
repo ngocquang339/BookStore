@@ -322,3 +322,58 @@ button,
 .admin-table th a {
     pointer-events: auto; /* Enables click on the text/icon */
 }
+
+.pagination {
+    display: flex;
+    flex-wrap: wrap;          /* THIS IS THE MAGIC LINE */
+    justify-content: center;  /* Centers the buttons */
+    gap: 8px;                 /* Space between buttons */
+    margin-top: 20px;
+    padding-bottom: 20px;
+}
+
+/* Ensure the links themselves look like clean buttons */
+.pagination a {
+    padding: 8px 12px;
+    border: 1px solid #dee2e6;
+    color: #0d6efd;
+    text-decoration: none;
+    border-radius: 4px;
+    background-color: white;
+}
+
+.pagination a.active {
+    background-color: #0d6efd;
+    color: white;
+    border-color: #0d6efd;
+}
+
+.page-link {
+    padding: 6px 12px;
+    border: 1px solid #dee2e6;
+    color: #0d6efd;
+    text-decoration: none;
+    border-radius: 4px;
+    background-color: white;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.page-link:hover {
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+}
+
+.page-link.active {
+    background-color: #0d6efd;
+    color: white;
+    border-color: #0d6efd;
+    pointer-events: none; /* Prevents clicking the current page again */
+}
+
+.page-ellipsis {
+    padding: 6px 4px;
+    color: #6c757d;
+    font-weight: bold;
+    letter-spacing: 2px;
+}

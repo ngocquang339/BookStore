@@ -23,24 +23,24 @@ public class DBContext {
         // OPTION 2: Connection using TCP/IP Port (COMMENTED OUT)
         // Use this for standard "localhost" setup on port 1433
         // =============================================================
-        /* String serverName = "localhost";
-        String dbName = "BookShop";
-        String portNumber = "1433";
-        String instance = ""; // 2022 default instance is empty
-        String userID = "sa";
-        String password = "123";
+        //  String serverName = "localhost";
+        // String dbName = "BookShop";
+        // String portNumber = "1433";
+        // String instance = ""; // 2022 default instance is empty
+        // String userID = "sa";
+        // String password = "123";
 
-        String url;
-        if (instance == null || instance.trim().isEmpty()) {
-            url = "jdbc:sqlserver://" + serverName + ":" + portNumber
-                    + ";databaseName=" + dbName
-                    + ";encrypt=true;trustServerCertificate=true;";
-        } else {
-            // If using instance name with port (rare)
-            url = "jdbc:sqlserver://" + serverName + "\\" + instance + ":" + portNumber
-                    + ";databaseName=" + dbName
-                    + ";encrypt=true;trustServerCertificate=true;";
-        } */
+        // String url;
+        // if (instance == null || instance.trim().isEmpty()) {
+        //     url = "jdbc:sqlserver://" + serverName + ":" + portNumber
+        //             + ";databaseName=" + dbName
+        //             + ";encrypt=true;trustServerCertificate=true;";
+        // } else {
+        //     // If using instance name with port (rare)
+        //     url = "jdbc:sqlserver://" + serverName + "\\" + instance + ":" + portNumber
+        //             + ";databaseName=" + dbName
+        //             + ";encrypt=true;trustServerCertificate=true;";
+        // } 
 
         // 3. Load Driver and Return Connection
         Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");

@@ -15,14 +15,10 @@ public class LogoutServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-        // 1. Lấy phiên làm việc hiện tại (Session)
-        // Tham số 'false' nghĩa là: Nếu chưa có session thì đừng tạo mới (vì sắp logout rồi tạo làm gì)
+
         HttpSession session = request.getSession(false);
         
         if (session != null) {
-            // 2. Hủy session (Quan trọng nhất)
-            // Lệnh này sẽ xóa sạch biến 'user' và mọi dữ liệu khác trong session
             session.invalidate();
         }
 
