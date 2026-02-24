@@ -25,6 +25,7 @@ public class AdminOrderServlet extends HttpServlet {
         OrderDAO dao = new OrderDAO();
 
         // CASE 1: View Order Details (/admin/order/detail?id=5)
+        // (Keep this exactly as you had it)
         if (path.equals("/admin/order/detail")) {
             try {
                 int orderId = Integer.parseInt(request.getParameter("id"));
@@ -45,10 +46,64 @@ public class AdminOrderServlet extends HttpServlet {
             }
         } 
         
-        // CASE 2: List All Orders (Default: /admin/order)
+        // CASE 2: List All Orders with Search, Sort & Page (/admin/order)
         else {
-            List<Order> list = dao.getAllOrders();
+            // 1. Get Filter Parameters from URL
+            String keyword = request.getParameter("keyword");
+            String fromDate = request.getParameter("fromDate");
+            String toDate = request.getParameter("toDate");
+            String status = request.getParameter("status");
+
+            // 2. Get Pagination Parameter
+            String indexPage = request.getParameter("index");
+            if (indexPage == null) {
+                indexPage = "1";
+            }
+            int index = Integer.parseInt(indexPage);
+
+            // 3. Get Sorting Parameters
+            String sortBy = request.getParameter("sortBy");
+            String sortOrder = request.getParameter("sortOrder");
+
+            // Set Defaults if parameters are missing
+            if (sortBy == null || sortBy.isEmpty()) {
+                sortBy = "order_id"; // Default sort by ID
+            }
+            if (sortOrder == null || sortOrder.isEmpty()) {
+                sortOrder = "DESC"; // Default newest first
+            }
+
+            // 4. Calculate Pagination (Count Total Pages)
+            int count = dao.countOrders(keyword, fromDate, toDate, status);
+            int endPage = count / 5; // Assuming 5 items per page
+            if (count % 5 != 0) {
+                endPage++;
+            }
+
+            // 5. Fetch Data for the Current Page
+            List<Order> list = dao.getOrders(
+                keyword, 
+                fromDate, 
+                toDate, 
+                status, 
+                sortBy, 
+                sortOrder, 
+                index
+            );
+
+            // 6. Send Data to JSP
             request.setAttribute("listOrders", list);
+            request.setAttribute("endPage", endPage);
+            request.setAttribute("tag", index); // "tag" is the active page number
+            
+            // 7. Send Back Filters & Sort (So they stick in the UI)
+            request.setAttribute("keyword", keyword);
+            request.setAttribute("fromDate", fromDate);
+            request.setAttribute("toDate", toDate);
+            request.setAttribute("status", status);
+            request.setAttribute("sortBy", sortBy);
+            request.setAttribute("sortOrder", sortOrder);
+
             request.getRequestDispatcher("/view/admin/manage-orders.jsp").forward(request, response);
         }
     }
