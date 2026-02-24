@@ -31,47 +31,46 @@ public class AdminProductServlet extends HttpServlet {
         String path = request.getServletPath();
         BookDAO bookDAO = new BookDAO();
         CategoryDAO catDAO = new CategoryDAO();
+        // ... inside doGet ...
         if (path.equals("/admin/product/list")) {
-            // 1. Get Params from URL
-            String keyword = request.getParameter("keyword");
-            String cidRaw = request.getParameter("cid");
+    String keyword = request.getParameter("keyword");
+    String cidRaw = request.getParameter("cid");
+    String sortBy = request.getParameter("sortBy");
+    if (sortBy == null || sortBy.isEmpty()) sortBy = "book_id";
+    String sortOrder = request.getParameter("sortOrder");
+    if (sortOrder == null || sortOrder.isEmpty()) sortOrder = "DESC";
 
-            // 2. Process Category ID (Handle "all" or null)
-            int cid = 0;
-            if (cidRaw != null && !cidRaw.equals("all") && !cidRaw.isEmpty()) {
-                try {
-                    cid = Integer.parseInt(cidRaw);
-                } catch (NumberFormatException e) {
-                    cid = 0; // Fallback if someone types garbage in URL
-                }
-            }
+    int cid = 0;
+    if (cidRaw != null && !cidRaw.equals("all") && !cidRaw.isEmpty()) {
+        try { cid = Integer.parseInt(cidRaw); } catch (NumberFormatException e) { cid = 0; }
+    }
 
-            // 3. CALL YOUR EXISTING METHOD
-            // Params: keyword, cid, author, publisher, minPrice, maxPrice, sortBy, sortOrder, isAdmin
-            List<Book> list = bookDAO.getBooks(
-                    keyword, // Keyword from search bar
-                    cid, // Category ID
-                    null, // Author (Unused)
-                    null, // Publisher (Unused)
-                    0, // Min Price (Unused)
-                    0, // Max Price (Unused)
-                    "book_id", // Sort By (Default to newest)
-                    "DESC", // Sort Order
-                    true // isAdmin = TRUE (So we see Hidden books!)
-            );
+    int index = 1; 
+    String indexParam = request.getParameter("index");
+    if (indexParam != null && !indexParam.isEmpty()) {
+        try { index = Integer.parseInt(indexParam); } catch (NumberFormatException e) {}
+    }
+    int pageSize = 10; 
 
-            List<Category> categories = catDAO.getAllCategories();
+    int totalBooks = bookDAO.countBooks(keyword, cid, true);
+    int endPage = totalBooks / pageSize;
+    if (totalBooks % pageSize != 0) endPage++;
 
-            // 4. Send data to JSP
-            request.setAttribute("listBooks", list);
-            request.setAttribute("listCategories", categories);
+    List<Book> list = bookDAO.getBooks(keyword, cid, null, null, 0, 0, sortBy, sortOrder, true, index, pageSize);
+    List<Category> categories = catDAO.getAllCategories();
 
-            // Send back inputs so they stick in the form
-            request.setAttribute("searchKeyword", keyword);
-            request.setAttribute("searchCid", cidRaw);
+    request.setAttribute("listBooks", list);
+    request.setAttribute("listCategories", categories);
+    request.setAttribute("searchKeyword", keyword);
+    request.setAttribute("searchCid", cidRaw);
+    request.setAttribute("sortBy", sortBy);
+    request.setAttribute("sortOrder", sortOrder);
+    request.setAttribute("tag", index); 
+    request.setAttribute("endPage", endPage); 
 
-            request.getRequestDispatcher("/view/admin/manage-products.jsp").forward(request, response);
-        }
+    request.getRequestDispatcher("/view/admin/manage-products.jsp").forward(request, response);
+}
+
 
         if (path.equals("/admin/product/add")) {
             CategoryDAO categoryDAO = new CategoryDAO();

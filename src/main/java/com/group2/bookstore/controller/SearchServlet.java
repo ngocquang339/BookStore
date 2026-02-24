@@ -1,18 +1,20 @@
 package com.group2.bookstore.controller;
 
+import java.io.IOException;
+import java.util.List;
+
 import com.group2.bookstore.dal.BookDAO;
 import com.group2.bookstore.dal.CategoryDAO;
 import com.group2.bookstore.model.Book;
 import com.group2.bookstore.model.Category;
 import com.group2.bookstore.model.User;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.io.IOException;
-import java.util.List;
 
 @WebServlet(name = "SearchServlet", urlPatterns = {"/search"})
 public class SearchServlet extends HttpServlet {

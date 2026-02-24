@@ -1,13 +1,11 @@
 package com.group2.bookstore.controller;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Map;
 
 import com.group2.bookstore.dal.ReportDAO;
-import com.group2.bookstore.model.Book;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -22,44 +20,83 @@ public class AdminReportServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
+        // 1. Handle Date Range (Default to Last 7 Days if null)
+        String fromDate = request.getParameter("fromDate");
+        String toDate = request.getParameter("toDate");
+        
+        if (fromDate == null || fromDate.isEmpty()) {
+            LocalDate today = LocalDate.now();
+            toDate = today.toString();
+            fromDate = today.minusDays(6).toString(); // Last 7 days
+        }
+
         ReportDAO dao = new ReportDAO();
 
-        // 1. PREPARE REVENUE DATA (Last 7 Days)
-        // Ensure your ReportDAO has the 'getLast7DaysRevenue' method!
-        Map<String, Double> revenueMap = dao.getLast7DaysRevenue();
-        
-        // Reverse so the graph goes Oldest -> Newest
-        List<String> dates = new ArrayList<>(revenueMap.keySet());
-        Collections.reverse(dates); 
-        
-        StringBuilder dateLabels = new StringBuilder();
-        StringBuilder revenueData = new StringBuilder();
+        // 2. Fetch Data from DAO
+        Map<String, Double> revenueMap = dao.getRevenueByDate(fromDate, toDate);
+        int[] statusCounts = dao.getOrderStatusCounts(fromDate, toDate);
+        Map<String, Integer> topSellers = dao.getTopSellers(fromDate, toDate);
 
-        for (String date : dates) {
-            dateLabels.append("'").append(date).append("',");
-            revenueData.append(revenueMap.get(date)).append(",");
+        // 3. Calculate Summary Cards (Totals)
+        double totalRevenue = 0;
+        for (double val : revenueMap.values()) {
+            totalRevenue += val;
         }
 
-        // 2. PREPARE TOP SELLING DATA
-        List<Book> topBooks = dao.getTopSellingBooks();
-        StringBuilder bookLabels = new StringBuilder();
-        StringBuilder bookData = new StringBuilder();
+        int totalOrders = 0;
+        for (int count : statusCounts) {
+            totalOrders += count;
+        }
+        
+        int completedOrders = statusCounts[2]; // Index 2 is Completed
 
-        for (Book b : topBooks) {
-            String cleanTitle = b.getTitle().replace("'", "\\'"); // Escape quotes
-            if (cleanTitle.length() > 20) cleanTitle = cleanTitle.substring(0, 20) + "..."; // Shorten title
+        // 4. Format Data for Chart.js (Build JSON-like strings)
+        
+        // A. REVENUE CHART
+        StringBuilder dateLabels = new StringBuilder("[");
+        StringBuilder revenueData = new StringBuilder("[");
+        for (Map.Entry<String, Double> entry : revenueMap.entrySet()) {
+            dateLabels.append("'").append(entry.getKey()).append("',");
+            revenueData.append(entry.getValue()).append(",");
+        }
+        // Remove trailing comma
+        if (dateLabels.length() > 1) dateLabels.setLength(dateLabels.length() - 1);
+        if (revenueData.length() > 1) revenueData.setLength(revenueData.length() - 1);
+        dateLabels.append("]");
+        revenueData.append("]");
+
+        // B. BEST SELLERS CHART
+        StringBuilder bookLabels = new StringBuilder("[");
+        StringBuilder bookData = new StringBuilder("[");
+        for (Map.Entry<String, Integer> entry : topSellers.entrySet()) {
+            String cleanTitle = entry.getKey().replace("'", "\\'"); // Escape quotes
+            if (cleanTitle.length() > 20) cleanTitle = cleanTitle.substring(0, 20) + "..."; // Truncate
             
             bookLabels.append("'").append(cleanTitle).append("',");
-            bookData.append(b.getSoldQuantity()).append(",");
+            bookData.append(entry.getValue()).append(",");
         }
+        if (bookLabels.length() > 1) bookLabels.setLength(bookLabels.length() - 1);
+        if (bookData.length() > 1) bookData.setLength(bookData.length() - 1);
+        bookLabels.append("]");
+        bookData.append("]");
 
-        // 3. SEND TO JSP
-        request.setAttribute("chartDates", dateLabels.toString());
-        request.setAttribute("chartRevenue", revenueData.toString());
+        // 5. Send Attributes to JSP
+        request.setAttribute("fromDate", fromDate);
+        request.setAttribute("toDate", toDate);
         
-        request.setAttribute("chartBooks", bookLabels.toString());
-        request.setAttribute("chartSold", bookData.toString());
+        // Summary Cards
+        request.setAttribute("totalRevenue", totalRevenue);
+        request.setAttribute("totalOrders", totalOrders);
+        request.setAttribute("completedOrders", completedOrders);
         
+        // Charts Data
+        request.setAttribute("dateLabels", dateLabels.toString());
+        request.setAttribute("revenueData", revenueData.toString());
+        request.setAttribute("statusCounts", Arrays.toString(statusCounts)); // "[1, 0, 5, 2]"
+        request.setAttribute("bookLabels", bookLabels.toString());
+        request.setAttribute("bookData", bookData.toString());
+
+        // Make sure this path matches your file structure
         request.getRequestDispatcher("/view/admin/report-dashboard.jsp").forward(request, response);
     }
 }

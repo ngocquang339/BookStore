@@ -73,6 +73,25 @@
                         </div>
                     </div>
 
+<<<<<<< HEAD
+        <div class="product-list">
+            <c:forEach items="${listBooks}" var="b">
+                <div class="product-card ${!b.active ? 'card-inactive' : ''}">
+                    
+                    <c:if test="${!b.active}">
+                        <div class="badge-hidden">
+                            <i class="fa-solid fa-eye-slash"></i> Hidden
+                        </div>
+                    </c:if>
+
+                    <a href="detail?pid=${b.id}" style="text-decoration: none; color: inherit;">
+                        <img src="${pageContext.request.contextPath}/assets/image/books/${b.imageUrl}" alt="${b.title}">
+                        <h4>${b.title}</h4>
+                        <p style="color: #666; font-size: 14px;">${b.author}</p>
+                        <p style="color: #C92127; font-weight: bold; font-size: 18px;">
+                            <fmt:formatNumber value="${b.price}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
+                        </p>
+=======
                     <div class="filter-group">
                         <label>Tác giả:</label>
                         <input type="text" name="author" value="${author}" placeholder="Nhập tên tác giả...">
@@ -104,6 +123,7 @@
                     
                     <a href="search?txt=${txtS}" style="display: block; text-align: center; margin-top: 15px; color: #666; font-size: 14px; text-decoration: underline;">
                         Xóa bộ lọc
+>>>>>>> 6b299b924d9a83492d744379809efbdc2bf5ed55
                     </a>
                 </form>
             </div>

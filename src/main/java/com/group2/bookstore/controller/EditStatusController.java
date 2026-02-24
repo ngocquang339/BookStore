@@ -26,22 +26,20 @@ protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws Se
     }
 
     try {
-        // 1. Lấy tham số trực tiếp từ URL (Không gọi DAO nữa)
         int orderId = Integer.parseInt(req.getParameter("id"));
-        int currentStatus = Integer.parseInt(req.getParameter("status")); // Lấy thêm cái này
+        OrderDAO dao = new OrderDAO();
         
-        // 2. Tạo một đối tượng Order tạm thời để chứa dữ liệu
-        Order order = new Order();
-        order.setId(orderId);
-        order.setStatus(currentStatus);
+        // Bắt buộc phải có dòng này để lấy toàn bộ thông tin (Tên khách, Ngày đặt, Tổng tiền...)
+        Order order = dao.getOrderById(orderId); 
         
-        // 3. Gửi sang trang JSP
+        if (order == null) {
+            resp.sendRedirect("dashboard");
+            return;
+        }
+        
         req.setAttribute("order", order);
         req.getRequestDispatcher("/view/edit-status.jsp").forward(req, resp);
-        
     } catch (Exception e) {
-        // Nếu lỗi tham số, quay về dashboard
-        e.printStackTrace();
         resp.sendRedirect("dashboard");
     }
 }

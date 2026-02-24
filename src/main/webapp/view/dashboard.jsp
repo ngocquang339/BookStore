@@ -35,21 +35,45 @@
 
         <div class="table-responsive bg-white shadow-sm rounded border">
             <table class="table table-bordered table-hover align-middle mb-0">
-                <thead class="table-dark text-center">
+                <thead class="table-dark text-center align-middle">
                     <tr>
-                        <th>ID</th>
-                        <th>Ngày đặt</th>
+                        <th>STT</th>
+                        
+                        <c:set var="nextDateOrder" value="${currentSortBy == 'date' && currentSortOrder == 'desc' ? 'asc' : 'desc'}" />
+                        <th style="cursor: pointer; width: 15%;">
+                            <a href="?status=${currentStatus}&sortBy=date&sortOrder=${nextDateOrder}" class="text-white text-decoration-none d-flex justify-content-center align-items-center gap-1">
+                                Ngày đặt
+                                <c:choose>
+                                    <c:when test="${currentSortBy == 'date' && currentSortOrder == 'asc'}"><i class="fa-solid fa-sort-up text-warning"></i></c:when>
+                                    <c:when test="${currentSortBy == 'date' && currentSortOrder == 'desc'}"><i class="fa-solid fa-sort-down text-warning"></i></c:when>
+                                    <c:otherwise><i class="fa-solid fa-sort text-secondary"></i></c:otherwise>
+                                </c:choose>
+                            </a>
+                        </th>
+                        
                         <th>Khách hàng</th>
                         <th>SĐT / Địa chỉ</th>
-                        <th>Tổng tiền</th>
+                        
+                        <c:set var="nextTotalOrder" value="${currentSortBy == 'total' && currentSortOrder == 'desc' ? 'asc' : 'desc'}" />
+                        <th style="cursor: pointer; width: 15%;">
+                            <a href="?status=${currentStatus}&sortBy=total&sortOrder=${nextTotalOrder}" class="text-white text-decoration-none d-flex justify-content-center align-items-center gap-1">
+                                Tổng tiền
+                                <c:choose>
+                                    <c:when test="${currentSortBy == 'total' && currentSortOrder == 'asc'}"><i class="fa-solid fa-sort-up text-warning"></i></c:when>
+                                    <c:when test="${currentSortBy == 'total' && currentSortOrder == 'desc'}"><i class="fa-solid fa-sort-down text-warning"></i></c:when>
+                                    <c:otherwise><i class="fa-solid fa-sort text-secondary"></i></c:otherwise>
+                                </c:choose>
+                            </a>
+                        </th>
+                        
                         <th>Trạng thái (Xử lý)</th>
                         <th>Hành động</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <c:forEach items="${orders}" var="o">
+                    <c:forEach items="${orders}" var="o" varStatus="loop">
                         <tr>
-                            <td class="text-center fw-bold">#${o.id}</td>
+                            <td class="text-center fw-bold">${loop.index + 1}</td>
 
                             <td class="text-center text-muted">
                                 <fmt:formatDate value="${o.orderDate}" pattern="dd/MM/yyyy HH:mm"/>
@@ -86,8 +110,8 @@
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-2">
                                     <a href="${pageContext.request.contextPath}/edit-status?id=${o.id}&status=${o.status}" class="btn btn-sm btn-outline-primary" title="Cập nhật trạng thái">
-    <i class="fa-solid fa-pen"></i> Sửa
-</a>
+                                        <i class="fa-solid fa-pen"></i> Sửa
+                                    </a>
                                     <a href="order-detail?id=${o.id}" class="btn btn-sm btn-outline-secondary" title="Xem chi tiết">
                                         <i class="fa-solid fa-circle-info"></i> Chi tiết
                                     </a>

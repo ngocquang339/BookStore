@@ -19,5 +19,5 @@ public class BookImage {
     public void setBookId(int bookId) { this.bookId= bookId; }
     
     public void setImageUrl(String bookImageUrl) { this.imageUrl = bookImageUrl; }
-    public String getImageUrrl() { return imageUrl; }
+    public String getImageUrl() { return imageUrl; }
 }

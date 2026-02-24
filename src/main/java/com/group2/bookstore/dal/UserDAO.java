@@ -1,13 +1,12 @@
 package com.group2.bookstore.dal;
 
-import com.group2.bookstore.model.User;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.group2.bookstore.model.User;
 
 public class UserDAO extends DBContext {
     public User checkLogin(String username, String password) {
@@ -155,29 +154,36 @@ public class UserDAO extends DBContext {
 
     // 1. GET ALL USERS (For Admin List)
     public List<User> getAllUsers() {
-        List<User> list = new ArrayList<>();
-        // Order by newest accounts first
-        String sql = "SELECT * FROM Users ORDER BY createAt DESC";
+    List<User> list = new ArrayList<>();
+    // Order by newest accounts first
+    String sql = "SELECT * FROM Users ORDER BY createAt DESC";
 
-        try (Connection conn = getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
+    try (Connection conn = getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery()) {
 
-            while (rs.next()) {
-                User u = new User();
-                u.setId(rs.getInt("user_id"));
-                u.setUsername(rs.getString("username"));
-                u.setFullname(rs.getString("fullname"));
-                u.setEmail(rs.getString("email"));
-                u.setPhone_number(rs.getString("phone_number"));
-                u.setAddress(rs.getString("address"));
-                u.setRole(rs.getInt("role"));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        while (rs.next()) {
+            User u = new User();
+            u.setId(rs.getInt("user_id"));
+            u.setUsername(rs.getString("username"));
+            u.setFullname(rs.getString("fullname"));
+            u.setEmail(rs.getString("email"));
+            u.setPhone_number(rs.getString("phone_number"));
+            u.setAddress(rs.getString("address"));
+            u.setRole(rs.getInt("role"));
+            
+            // --- YOU MUST ADD THESE TWO LINES ---
+            u.setStatus(rs.getInt("status")); 
+            u.setCreateAt(rs.getTimestamp("createAt")); // Use getTimestamp for datetime
+            // ------------------------------------
+            
+            list.add(u);
         }
-        return list;
+    } catch (Exception e) {
+        e.printStackTrace();
     }
+    return list;
+}
 
     // 2. UPDATE USER STATUS/ROLE
     public void updateUser(int userId, int newStatus, int newRole) {
