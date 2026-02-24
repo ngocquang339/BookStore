@@ -26,7 +26,7 @@ public class Book implements Serializable {
     }
 
     // Constructor đầy đủ (Dùng cho DAO khi load dữ liệu từ DB lên)
-    public Book(int id, String title, String author, double price, int stockQuantity, String imageUrl, int categoryId, String description) {
+    public Book(int id, String title, String author, double price, int stockQuantity, String imageUrl, int categoryId,String categoryName, String description) {
         this.id = id;
         this.title = title;
         this.author = author;
@@ -35,6 +35,7 @@ public class Book implements Serializable {
         this.imageUrl = imageUrl;
         this.imageUrl = imageUrl;
         this.categoryId = categoryId;
+        this.categoryName = categoryName;
         this.description = description;
     }
 

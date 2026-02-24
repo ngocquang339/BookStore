@@ -203,7 +203,6 @@ public class BookDAO extends DBContext {
     // 3. Cập nhật hàm getBooks (Thêm tham số author, publisher, minPrice, maxPrice)
     // Updated Method: Added 'boolean isAdmin' as the last parameter
     public List<Book> getBooks(String keyword, int cid, String author, String publisher, double minPrice, double maxPrice, String sortBy, String sortOrder, boolean isAdmin) {
-        
         List<Book> list = new ArrayList<>();
         
         // --- NEW SELECT WITH SUBQUERY START ---
@@ -228,20 +227,14 @@ public class BookDAO extends DBContext {
             sql.append(" AND LOWER(b.title) LIKE LOWER(?) "); // Added 'b.' prefix
             params.add("%" + keyword.trim() + "%");
         }
-
-        // 2. Tìm theo Danh mục (category_id)
         if (cid > 0) {
             sql.append(" AND b.category_id = ? "); // Added 'b.' prefix
             params.add(cid);
         }
-
-        // 3. Tìm theo Tác giả (Gần đúng)
         if (author != null && !author.trim().isEmpty()) {
             sql.append(" AND LOWER(b.author) LIKE LOWER(?) "); // Added 'b.' prefix
             params.add("%" + author.trim() + "%");
         }
-
-        // 4. Tìm theo Nhà xuất bản (Nếu có)
         if (publisher != null && !publisher.trim().isEmpty()) {
             sql.append(" AND LOWER(b.publisher) LIKE LOWER(?) "); // Added 'b.' prefix
             params.add("%" + publisher.trim() + "%");
@@ -260,7 +253,6 @@ public class BookDAO extends DBContext {
             params.add(maxPrice);
         }
 
-        // Sorting
         if (sortBy != null && !sortBy.isEmpty()) {
             if (sortBy.equals("price") || sortBy.equals("title") || sortBy.equals("stock_quantity")) {
                 sql.append(" ORDER BY b.").append(sortBy); // Added 'b.' prefix
@@ -277,7 +269,6 @@ public class BookDAO extends DBContext {
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql.toString())) {
             
-            // Set Parameters
             for (int i = 0; i < params.size(); i++) {
                 ps.setObject(i + 1, params.get(i));
             }
@@ -598,6 +589,39 @@ public List<Book> getBooks(String keyword, int cid, String author, String publis
                 b.setPrice(rs.getDouble("price"));
                 b.setImageUrl(rs.getString("image")); // Tên cột ảnh trong DB
                 b.setAuthor(rs.getString("author"));
+                list.add(b);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+    // Lấy danh sách sách sắp hết hàng (Low Stock)
+    public List<Book> getLowStockBooks(int threshold) {
+        List<Book> list = new ArrayList<>();
+        // JOIN với Categories để lấy được tên thể loại như hàm getBooks
+        String sql = "SELECT b.*, c.category_name FROM Books b "
+                   + "LEFT JOIN Categories c ON b.category_id = c.category_id "
+                   + "WHERE b.stock_quantity <= ? "
+                   + "ORDER BY b.stock_quantity ASC";
+                   
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setInt(1, threshold);
+            ResultSet rs = ps.executeQuery();
+            
+            while (rs.next()) {
+                Book b = new Book();
+                b.setId(rs.getInt("book_id"));
+                b.setTitle(rs.getString("title"));
+                b.setAuthor(rs.getString("author"));
+                b.setPrice(rs.getDouble("price"));
+                try { b.setPublisher(rs.getString("publisher")); } catch (Exception e) {}
+                b.setImageUrl(rs.getString("image")); 
+                b.setStockQuantity(rs.getInt("stock_quantity"));
+                b.setCategoryId(rs.getInt("category_id"));
+                try { b.setCategoryName(rs.getString("category_name")); } catch (Exception e) {}
                 list.add(b);
             }
         } catch (Exception e) {
