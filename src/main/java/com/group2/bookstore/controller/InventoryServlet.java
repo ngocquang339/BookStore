@@ -1,16 +1,14 @@
 package com.group2.bookstore.controller;
 
-import java.io.IOException;
-import java.util.List;
-
 import com.group2.bookstore.dal.BookDAO;
 import com.group2.bookstore.model.Book;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
 
 @WebServlet(name = "InventoryServlet", urlPatterns = {"/warehouse/inventory"})
 public class InventoryServlet extends HttpServlet {
@@ -69,9 +67,8 @@ public class InventoryServlet extends HttpServlet {
             }
         }
 
-        // 4. Xử lý sắp xếp (Sort)
-        String sort = request.getParameter("sort"); // Cột cần sort
-        String order = request.getParameter("order"); // ASC hay DESC
+        // ĐÃ SỬA: Truyền biến cid vào hàm thay vì số 0
+        List<Book> list = dao.getBooks(keyword, cid, author, publisher, 0, 999999999, "book_id", "DESC", true);
 
         // 5. Gọi hàm DAO
         List<Book> list = dao.getBooks(search, cid, author, publisher, minPrice, maxPrice, sort, order, false, index);
