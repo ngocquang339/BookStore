@@ -1,9 +1,11 @@
 package com.group2.bookstore.controller;
 
+import java.io.IOException;
+
 import com.group2.bookstore.dal.OrderDAO;
 import com.group2.bookstore.model.Order;
 import com.group2.bookstore.model.User;
-import java.io.IOException;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -54,7 +56,7 @@ protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws Se
             int newStatus = Integer.parseInt(req.getParameter("newStatus"));
 
             OrderDAO dao = new OrderDAO();
-            dao.updateOrderStatus(orderId, newStatus);
+            dao.updateStatus(orderId, newStatus);
 
             // Cập nhật xong thì đá về lại dashboard
             resp.sendRedirect("dashboard");
