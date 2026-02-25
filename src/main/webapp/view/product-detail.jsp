@@ -124,7 +124,7 @@
     <h1 class="product-title" style="font-size: 24px; color: #333; margin-bottom: 15px; line-height: 1.4;">${book.title}</h1>
     
     <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 14px; margin-bottom: 15px; color: #333;">
-        <div>Nhà cung cấp: <a href="#" style="color:#2489F4; text-decoration:none;">${book.publisher}</a></div>
+        <div>Nhà cung cấp: <a href="#" style="color:#2489F4; text-decoration:none;">${book.supplier}</a></div>
         <div>Tác giả: <strong>${book.author}</strong></div>
         <div>Nhà xuất bản: <strong>${book.publisher}</strong></div>
         <div>Hình thức bìa: <strong>Bìa Mềm</strong></div>

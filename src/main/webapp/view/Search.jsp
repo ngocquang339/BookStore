@@ -130,7 +130,7 @@
                             </c:if>
 
                             <a href="detail?pid=${b.id}" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; height: 100%;">
-                                <img src="${pageContext.request.contextPath}/assets/image/books/${b.imageUrl}" 
+                                <img src="${pageContext.request.contextPath}/${b.imageUrl}" 
                                      alt="${b.title}"
                                      onerror="this.src='https://via.placeholder.com/200x300?text=No+Image'">
                                 

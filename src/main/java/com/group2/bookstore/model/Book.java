@@ -37,9 +37,7 @@ public class Book implements Serializable {
         this.price = price;
         this.stockQuantity = stockQuantity;
         this.imageUrl = imageUrl;
-        this.imageUrl = imageUrl;
         this.categoryId = categoryId;
-        this.categoryName = categoryName;
         this.description = description;
         this.publisher = publisher;
         this.yearOfPublish = yearOfPublish;

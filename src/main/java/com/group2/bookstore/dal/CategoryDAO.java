@@ -13,7 +13,7 @@ public class CategoryDAO extends DBContext {
     public List<Category> getCategories() {
         List<Category> list = new ArrayList<>();
         // Tên bảng trong DB của bạn là Categories
-        String sql = "SELECT * FROM Categories where parent_id IS NULL"; 
+        String sql = "SELECT * FROM Categories where parent_id is null"; // Lấy danh mục cha (nếu có phân cấp)
         
         try {
             Connection conn = new DBContext().getConnection();

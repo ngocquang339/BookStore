@@ -287,15 +287,11 @@ public class BookDAO extends DBContext {
                 b.setImageUrl(rs.getString("image")); 
                 b.setDescription(rs.getString("description"));
                 b.setStockQuantity(rs.getInt("stock_quantity"));
-                b.setImageUrl(rs.getString("image")); // Khớp với cột [image] trong DB
                 b.setCategoryId(rs.getInt("category_id"));
                 b.setDescription(rs.getString("description"));
-                b.setPublisher(rs.getString("publisher"));
-                b.setYearOfPublish(rs.getInt("year_of_publish"));
+                b.setSupplier(rs.getString("supplier"));
+                b.setYearOfPublish(rs.getInt("yearOfPublish"));
                 b.setNumberPage(rs.getInt("number_page"));
-                
-                // Keep your correct image mapping (if 'image' column still exists in Books)
-                b.setImageUrl(rs.getString("image")); 
                 
                 // --- ADDED THIS LINE ---
                 // Map the subquery result to the coverImage property
@@ -304,7 +300,6 @@ public class BookDAO extends DBContext {
                 // Add Admin fields
                 try { b.setCategoryName(rs.getString("category_name")); } catch (Exception e) {}
                 try { b.setActive(rs.getBoolean("is_active")); } catch (Exception e) {}
-                b.setCoverImage(rs.getString("cover_image"));
                 list.add(b);
             }
         } catch (Exception e) { e.printStackTrace(); }

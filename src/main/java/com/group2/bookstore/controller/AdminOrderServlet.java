@@ -13,7 +13,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-// Map multiple URLs to this one Servlet
+// Map multiple URLs to this one Servletm
 @WebServlet(name = "AdminOrderServlet", urlPatterns = {"/admin/order", "/admin/order/detail", "/admin/order/update"})
 public class AdminOrderServlet extends HttpServlet {
 
