@@ -1,11 +1,12 @@
 package com.group2.bookstore.dal;
 
-import com.group2.bookstore.model.Category;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.group2.bookstore.model.Category;
 
 public class CategoryDAO extends DBContext {
 
@@ -32,5 +33,23 @@ public class CategoryDAO extends DBContext {
             e.printStackTrace();
         }
         return list;
+    }
+
+    // Add this inside CategoryDAO.java
+    public void insertCategory(Category c) {
+        // Adjust the column names if your database uses different ones!
+        String sql = "INSERT INTO Categories (category_name, description) VALUES (?, ?)"; 
+        
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setString(1, c.getName());
+            ps.setString(2, c.getDescription()); // If you don't have a description column, remove this
+            
+            ps.executeUpdate();
+        } catch (Exception e) {
+            System.out.println("Error inserting category: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

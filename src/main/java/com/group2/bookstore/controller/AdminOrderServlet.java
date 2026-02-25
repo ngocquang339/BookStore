@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+
 // Map multiple URLs to this one Servlet
 @WebServlet(name = "AdminOrderServlet", urlPatterns = {"/admin/order", "/admin/order/detail", "/admin/order/update"})
 public class AdminOrderServlet extends HttpServlet {
@@ -25,6 +26,7 @@ public class AdminOrderServlet extends HttpServlet {
         OrderDAO dao = new OrderDAO();
 
         // CASE 1: View Order Details (/admin/order/detail?id=5)
+        // (Keep this exactly as you had it)
         if (path.equals("/admin/order/detail")) {
             try {
                 int orderId = Integer.parseInt(request.getParameter("id"));
@@ -45,10 +47,64 @@ public class AdminOrderServlet extends HttpServlet {
             }
         } 
         
-        // CASE 2: List All Orders (Default: /admin/order)
+        // CASE 2: List All Orders with Search, Sort & Page (/admin/order)
         else {
-            List<Order> list = dao.getAllOrders();
+            // 1. Get Filter Parameters from URL
+            String keyword = request.getParameter("keyword");
+            String fromDate = request.getParameter("fromDate");
+            String toDate = request.getParameter("toDate");
+            String status = request.getParameter("status");
+
+            // 2. Get Pagination Parameter
+            String indexPage = request.getParameter("index");
+            if (indexPage == null) {
+                indexPage = "1";
+            }
+            int index = Integer.parseInt(indexPage);
+
+            // 3. Get Sorting Parameters
+            String sortBy = request.getParameter("sortBy");
+            String sortOrder = request.getParameter("sortOrder");
+
+            // Set Defaults if parameters are missing
+            if (sortBy == null || sortBy.isEmpty()) {
+                sortBy = "order_id"; // Default sort by ID
+            }
+            if (sortOrder == null || sortOrder.isEmpty()) {
+                sortOrder = "DESC"; // Default newest first
+            }
+
+            // 4. Calculate Pagination (Count Total Pages)
+            int count = dao.countOrders(keyword, fromDate, toDate, status);
+            int endPage = count / 5; // Assuming 5 items per page
+            if (count % 5 != 0) {
+                endPage++;
+            }
+
+            // 5. Fetch Data for the Current Page
+            List<Order> list = dao.getOrders(
+                keyword, 
+                fromDate, 
+                toDate, 
+                status, 
+                sortBy, 
+                sortOrder, 
+                index
+            );
+
+            // 6. Send Data to JSP
             request.setAttribute("listOrders", list);
+            request.setAttribute("endPage", endPage);
+            request.setAttribute("tag", index); // "tag" is the active page number
+            
+            // 7. Send Back Filters & Sort (So they stick in the UI)
+            request.setAttribute("keyword", keyword);
+            request.setAttribute("fromDate", fromDate);
+            request.setAttribute("toDate", toDate);
+            request.setAttribute("status", status);
+            request.setAttribute("sortBy", sortBy);
+            request.setAttribute("sortOrder", sortOrder);
+
             request.getRequestDispatcher("/view/admin/manage-orders.jsp").forward(request, response);
         }
     }
@@ -63,13 +119,29 @@ public class AdminOrderServlet extends HttpServlet {
         if (path.equals("/admin/order/update")) {
             try {
                 int orderId = Integer.parseInt(request.getParameter("orderId"));
-                int status = Integer.parseInt(request.getParameter("status"));
+                int newStatus = Integer.parseInt(request.getParameter("status"));
                 
                 OrderDAO dao = new OrderDAO();
-                dao.updateStatus(orderId, status);
+                
+                // --- BACKEND SECURITY CHECK START ---
+                // 1. Fetch the current, true status from the database
+                // (Make sure you import your Order model if it isn't already!)
+                com.group2.bookstore.model.Order currentOrder = dao.getOrderById(orderId); 
+                
+                // 2. Block the update if it's already Completed (3) or Cancelled (0 or 4)
+                if (currentOrder != null && (currentOrder.getStatus() == 3 || currentOrder.getStatus() == 0 || currentOrder.getStatus() == 4)) {
+                    // Send them back to the detail page with a warning flag
+                    response.sendRedirect(request.getContextPath() + "/admin/order/detail?id=" + orderId + "&error=locked");
+                    return; // CRITICAL: This stops the code from reaching dao.updateStatus() below!
+                }
+                // --- BACKEND SECURITY CHECK END ---
+
+                // 3. If the order is still Pending or Shipping, it's safe to update
+                dao.updateStatus(orderId, newStatus);
                 
                 // Redirect back to the Detail page so admin can see the change immediately
-                response.sendRedirect(request.getContextPath() + "/admin/order/detail?id=" + orderId);
+                response.sendRedirect(request.getContextPath() + "/admin/order/detail?id=" + orderId + "&msg=updated");
+                
             } catch (Exception e) {
                 e.printStackTrace();
                 response.sendRedirect(request.getContextPath() + "/admin/order");

@@ -126,3 +126,143 @@ body {
     color: #6c757d;
     font-size: 18px;
 }
+
+/* =========================================
+   Filter Bar & Search Forms
+   ========================================= */
+.filter-bar {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    align-items: flex-end;
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    flex-wrap: wrap;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    min-width: 140px;
+}
+
+.filter-group-search {
+    flex-grow: 1;
+    min-width: 250px;
+}
+
+.filter-group-status {
+    min-width: 150px;
+}
+
+.filter-label {
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+.search-input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.form-control {
+    height: 38px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    width: 100%;
+}
+
+.search-input {
+    padding-left: 35px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    top: 11px;
+    color: #999;
+}
+
+.filter-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-filter {
+    background: #0d6efd;
+    color: white;
+    border: none;
+    padding: 0 20px;
+    cursor: pointer;
+    height: 38px;
+    border-radius: 4px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color 0.2s;
+}
+
+.btn-filter:hover {
+    background: #0b5ed7;
+}
+
+.btn-reset {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 0 15px;
+    cursor: pointer;
+    height: 38px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.btn-reset:hover {
+    background: #5c636a;
+}
+
+/* =========================================
+   Table Text Formatting
+   ========================================= */
+.customer-phone {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.total-amount {
+    font-weight: bold;
+    color: #C92127;
+}
+
+/* =========================================
+   Status Badges & Pagination
+   ========================================= */
+.status-badge {
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-weight: bold;
+    font-size: 13px;
+    display: inline-block;
+}
+
+/* Make sure you have the other statuses defined! Here is the cancelled one: */
+.status-0 {
+    background-color: #fee2e2;
+    color: #ef4444;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    gap: 5px;
+}

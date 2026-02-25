@@ -9,7 +9,7 @@
                 <head>
                     <title>Product Manager</title>
                     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-dashboard.css">
-                    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/manage-products.css?v=7">
+                    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/manage-products.css?v=8">
                     <link rel="stylesheet"
                         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
