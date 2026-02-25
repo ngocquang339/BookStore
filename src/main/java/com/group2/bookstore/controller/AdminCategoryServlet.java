@@ -1,8 +1,8 @@
 package com.group2.bookstore.controller;
 
 import java.io.IOException;
-
 import com.group2.bookstore.dal.CategoryDAO;
+import com.group2.bookstore.model.Category;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -13,32 +13,31 @@ import jakarta.servlet.http.HttpServletResponse;
 @WebServlet(name = "AdminCategoryServlet", urlPatterns = {"/admin/category/add"})
 public class AdminCategoryServlet extends HttpServlet {
 
-    // 1. Show the Form
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
-        request.getRequestDispatcher("/view/admin/add-category.jsp").forward(request, response);
+        // Show the form when they click the "Add Category" button
+        request.getRequestDispatcher("/view/admin/category-form.jsp").forward(request, response);
     }
 
-    // 2. Handle the Form Submission
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
         
-        request.setCharacterEncoding("UTF-8"); // Important for Vietnamese text
-        
-        // A. Get Data
+        // 1. Get the data from the form
         String name = request.getParameter("name");
-        String description = request.getParameter("description"); // New Field
+        String description = request.getParameter("description"); 
+
+        // 2. Create object and save to database
+        Category c = new Category();
+        c.setName(name);
+        c.setDescription(description); // If your model/DB doesn't use description, just delete this line
         
-        // B. Validation & Save
-        if (name != null && !name.trim().isEmpty()) {
-            CategoryDAO dao = new CategoryDAO();
-            // Call the updated method
-            dao.insertCategory(name, description);
-        }
+        CategoryDAO dao = new CategoryDAO();
+        dao.insertCategory(c);
         
-        // C. Redirect back to Product Manager (so they can use the new category immediately)
-        response.sendRedirect(request.getContextPath() + "/admin/product/list");
+        // 3. Redirect back to the product list to see the new category in the dropdown
+        response.sendRedirect(request.getContextPath() + "/admin/product/list?msg=CategoryAdded");
     }
 }
