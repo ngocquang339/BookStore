@@ -9,7 +9,7 @@
                 <head>
                     <title>Product Manager</title>
                     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-dashboard.css">
-                    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/manage-products.css?v=7">
+                    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/manage-products.css?v=8">
                     <link rel="stylesheet"
                         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -126,7 +126,7 @@
                                             <td>
                                                 <span style="color:red; font-size: 10px;">Path: [${b.coverImage}]</span>
                                                 <c:choose>
-                                                    
+
                                                     <c:when test="${not empty b.coverImage}">
                                                         <img src="${pageContext.request.contextPath}/${b.coverImage}"
                                                             alt="Cover"
@@ -188,7 +188,7 @@
                                 </tbody>
                             </table>
                             <div class="pagination"
-                                style="display: flex; justify-content: center; margin-top: 20px; gap: 5px;">
+                                style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; margin-top: 20px; gap: 5px;">
 
                                 <c:if test="${tag > 1}">
                                     <a href="list?index=${tag-1}&keyword=${param.keyword}&cid=${param.cid}&sortBy=${sortBy}&sortOrder=${sortOrder}"
@@ -196,10 +196,23 @@
                                 </c:if>
 
                                 <c:forEach begin="1" end="${endPage}" var="i">
-                                    <a href="list?index=${i}&keyword=${param.keyword}&cid=${param.cid}&sortBy=${sortBy}&sortOrder=${sortOrder}"
-                                        class="page-btn ${tag == i ? 'active' : ''}">
-                                        ${i}
-                                    </a>
+                                    <c:choose>
+                                        <%-- 1. Always show Page 1, Last Page, and the +/- 2 neighbors of the current
+                                            page --%>
+                                            <c:when test="${i == 1 || i == endPage || (i >= tag - 2 && i <= tag + 2)}">
+                                                <a href="list?index=${i}&keyword=${param.keyword}&cid=${param.cid}&sortBy=${sortBy}&sortOrder=${sortOrder}"
+                                                    class="page-btn ${tag == i ? 'active' : ''}">
+                                                    ${i}
+                                                </a>
+                                            </c:when>
+
+                                            <%-- 2. Show the Ellipsis (...) exactly one step outside our viewing window
+                                                --%>
+                                                <c:when test="${i == tag - 3 || i == tag + 3}">
+                                                    <span
+                                                        style="padding: 5px 10px; color: #6c757d; font-weight: bold;">...</span>
+                                                </c:when>
+                                    </c:choose>
                                 </c:forEach>
 
                                 <c:if test="${tag < endPage}">
@@ -208,7 +221,6 @@
                                 </c:if>
 
                             </div>
-
 
                         </div>
                     </div>
