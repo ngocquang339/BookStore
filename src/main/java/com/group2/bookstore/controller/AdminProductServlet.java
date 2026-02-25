@@ -31,8 +31,8 @@ public class AdminProductServlet extends HttpServlet {
         String path = request.getServletPath();
         BookDAO bookDAO = new BookDAO();
         CategoryDAO catDAO = new CategoryDAO();
-        // ... inside doGet ...
         if (path.equals("/admin/product/list")) {
+    // 1. Get Search & Sort Params
     String keyword = request.getParameter("keyword");
     String cidRaw = request.getParameter("cid");
     String sortBy = request.getParameter("sortBy");
@@ -40,37 +40,45 @@ public class AdminProductServlet extends HttpServlet {
     String sortOrder = request.getParameter("sortOrder");
     if (sortOrder == null || sortOrder.isEmpty()) sortOrder = "DESC";
 
+    // 2. Process Category ID
     int cid = 0;
     if (cidRaw != null && !cidRaw.equals("all") && !cidRaw.isEmpty()) {
         try { cid = Integer.parseInt(cidRaw); } catch (NumberFormatException e) { cid = 0; }
     }
 
-    int index = 1; 
+    // 3. Pagination Logic
+    int index = 1; // Default to page 1
     String indexParam = request.getParameter("index");
     if (indexParam != null && !indexParam.isEmpty()) {
         try { index = Integer.parseInt(indexParam); } catch (NumberFormatException e) {}
     }
-    int pageSize = 10; 
+    int pageSize = 10; // Books per page
 
+    // Count total books to calculate endPage
     int totalBooks = bookDAO.countBooks(keyword, cid, true);
     int endPage = totalBooks / pageSize;
-    if (totalBooks % pageSize != 0) endPage++;
+    if (totalBooks % pageSize != 0) {
+        endPage++;
+    }
 
+    // 4. Fetch the Data
     List<Book> list = bookDAO.getBooks(keyword, cid, null, null, 0, 0, sortBy, sortOrder, true, index, pageSize);
     List<Category> categories = catDAO.getAllCategories();
 
+    // 5. Send data to JSP
     request.setAttribute("listBooks", list);
     request.setAttribute("listCategories", categories);
+    
+    // Send form and pagination states
     request.setAttribute("searchKeyword", keyword);
     request.setAttribute("searchCid", cidRaw);
     request.setAttribute("sortBy", sortBy);
     request.setAttribute("sortOrder", sortOrder);
-    request.setAttribute("tag", index); 
-    request.setAttribute("endPage", endPage); 
+    request.setAttribute("tag", index); // Current page
+    request.setAttribute("endPage", endPage); // Total pages
 
     request.getRequestDispatcher("/view/admin/manage-products.jsp").forward(request, response);
 }
-
 
         if (path.equals("/admin/product/add")) {
             CategoryDAO categoryDAO = new CategoryDAO();
