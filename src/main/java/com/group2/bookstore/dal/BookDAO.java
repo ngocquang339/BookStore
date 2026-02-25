@@ -218,76 +218,63 @@ public class BookDAO extends DBContext {
     
     // 3. Cập nhật hàm getBooks (Thêm tham số author, publisher, minPrice, maxPrice)
     // Updated Method: Added 'boolean isAdmin' as the last parameter
+    // 1. OVERLOADED METHOD (Protects other Servlets from crashing)
     public List<Book> getBooks(String keyword, int cid, String author, String publisher, double minPrice, double maxPrice, String sortBy, String sortOrder, boolean isAdmin) {
+        return getBooks(keyword, cid, author, publisher, minPrice, maxPrice, sortBy, sortOrder, isAdmin, 1, 1000000);
+    }
+
+    // 2. MAIN PAGINATED METHOD (With Cover Image Subquery)
+    public List<Book> getBooks(String keyword, int cid, String author, String publisher, double minPrice, double maxPrice, String sortBy, String sortOrder, boolean isAdmin, int index, int pageSize) {
         List<Book> list = new ArrayList<>();
-        
-        // --- NEW SELECT WITH SUBQUERY START ---
-        // We use a subquery to grab the first image from BookImages to act as the cover.
         StringBuilder sql = new StringBuilder(
-            "SELECT b.*, " +
+            "SELECT b.*, c.category_name, " +
             "(SELECT TOP 1 bi.image_url FROM BookImages bi WHERE bi.book_id = b.book_id) AS cover_image " +
-            "FROM Books b WHERE 1=1 "
+            "FROM Books b LEFT JOIN Categories c ON b.category_id = c.category_id WHERE 1=1 "
         );
-        // --- NEW SELECT WITH SUBQUERY END ---
-        
         List<Object> params = new ArrayList<>(); 
 
-        // If NOT Admin, only show Active books.
-        // If Admin, show everything (don't add this filter).
-        if (!isAdmin) {
-            sql.append(" AND b.is_active = 1 "); // Added 'b.' prefix to avoid ambiguity
-        }
-
-        // Filter: Keyword
+        if (!isAdmin) sql.append(" AND b.is_active = 1 ");
         if (keyword != null && !keyword.trim().isEmpty()) {
-            sql.append(" AND LOWER(b.title) LIKE LOWER(?) "); // Added 'b.' prefix
+            sql.append(" AND LOWER(b.title) LIKE LOWER(?) ");
             params.add("%" + keyword.trim() + "%");
         }
         if (cid > 0) {
-            sql.append(" AND b.category_id = ? "); // Added 'b.' prefix
+            sql.append(" AND b.category_id = ? ");
             params.add(cid);
         }
         if (author != null && !author.trim().isEmpty()) {
-            sql.append(" AND LOWER(b.author) LIKE LOWER(?) "); // Added 'b.' prefix
+            sql.append(" AND LOWER(b.author) LIKE LOWER(?) ");
             params.add("%" + author.trim() + "%");
         }
         if (publisher != null && !publisher.trim().isEmpty()) {
-            sql.append(" AND LOWER(b.publisher) LIKE LOWER(?) "); // Added 'b.' prefix
+            sql.append(" AND LOWER(b.publisher) LIKE LOWER(?) ");
             params.add("%" + publisher.trim() + "%");
         }
-        
-        // Filter: Price Range
         if (maxPrice > 0) {
-            sql.append(" AND b.price BETWEEN ? AND ? "); // Added 'b.' prefix
+            sql.append(" AND b.price BETWEEN ? AND ? ");
             params.add(minPrice);
             params.add(maxPrice);
         } else if (minPrice > 0) {
-            sql.append(" AND b.price >= ? "); // Added 'b.' prefix
+            sql.append(" AND b.price >= ? ");
             params.add(minPrice);
-        } else if (maxPrice > 0) {
-            sql.append(" AND b.price <= ? "); // Added 'b.' prefix
-            params.add(maxPrice);
         }
 
-        if (sortBy != null && !sortBy.isEmpty()) {
-            if (sortBy.equals("price") || sortBy.equals("title") || sortBy.equals("stock_quantity")) {
-                sql.append(" ORDER BY b.").append(sortBy); // Added 'b.' prefix
-                if ("DESC".equalsIgnoreCase(sortOrder)) {
-                    sql.append(" DESC");
-                } else {
-                    sql.append(" ASC");
-                }
-            }
+        if (sortBy != null && !sortBy.isEmpty() && (sortBy.equals("price") || sortBy.equals("title") || sortBy.equals("stock_quantity") || sortBy.equals("book_id"))) {
+            sql.append(" ORDER BY b.").append(sortBy).append("DESC".equalsIgnoreCase(sortOrder) ? " DESC" : " ASC");
         } else {
-            sql.append(" ORDER BY b.book_id DESC"); // Added 'b.' prefix
+            sql.append(" ORDER BY b.book_id DESC");
         }
+
+        sql.append(" OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
 
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql.toString())) {
             
-            for (int i = 0; i < params.size(); i++) {
-                ps.setObject(i + 1, params.get(i));
-            }
+            int paramIndex = 1;
+            for (Object param : params) ps.setObject(paramIndex++, param);
+            
+            ps.setInt(paramIndex++, (index - 1) * pageSize);
+            ps.setInt(paramIndex, pageSize);
 
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -296,6 +283,8 @@ public class BookDAO extends DBContext {
                 b.setTitle(rs.getString("title"));
                 b.setAuthor(rs.getString("author"));
                 b.setPrice(rs.getDouble("price"));
+                try { b.setPublisher(rs.getString("publisher")); } catch (Exception e) {}
+                b.setImageUrl(rs.getString("image")); 
                 b.setDescription(rs.getString("description"));
                 b.setStockQuantity(rs.getInt("stock_quantity"));
                 b.setImageUrl(rs.getString("image")); // Khớp với cột [image] trong DB
@@ -313,14 +302,35 @@ public class BookDAO extends DBContext {
                 b.setCoverImage(rs.getString("cover_image"));
                 
                 // Add Admin fields
+                try { b.setCategoryName(rs.getString("category_name")); } catch (Exception e) {}
                 try { b.setActive(rs.getBoolean("is_active")); } catch (Exception e) {}
-
+                b.setCoverImage(rs.getString("cover_image"));
                 list.add(b);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) { e.printStackTrace(); }
         return list;
+    }
+
+    // 3. COUNT METHOD (For Pagination Math)
+    public int countBooks(String keyword, int cid, boolean isAdmin) {
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM Books b WHERE 1=1 ");
+        List<Object> params = new ArrayList<>();
+        if (!isAdmin) sql.append(" AND b.is_active = 1 ");
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append(" AND LOWER(b.title) LIKE LOWER(?) ");
+            params.add("%" + keyword.trim() + "%");
+        }
+        if (cid > 0) {
+            sql.append(" AND b.category_id = ? ");
+            params.add(cid);
+        }
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) ps.setObject(i + 1, params.get(i));
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1);
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
     }
 
     // 2. Lấy danh sách tất cả NXB (không trùng lặp)

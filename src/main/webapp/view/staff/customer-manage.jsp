@@ -115,24 +115,7 @@
                         <td>
                             <a href="mailto:${u.email}" class="btn-call" style="background: #007bff;">
                                 <i class="fa-solid fa-paper-plane"></i> Gửi Mail
-                            </a><br>
-                           
-                            <c:choose>
-                                <c:when test="${u.status == 1}">
-                                    <a href="${pageContext.request.contextPath}/staff/customers?action=toggleStatus&id=${u.id}&status=${u.status}"
-                                       class="btn-call" style="background: #dc3545;"
-                                       onclick="return confirm('Khóa tài khoản khách hàng này?');">
-                                        <i class="fa-solid fa-lock"></i> Khóa
-                                    </a>
-                                </c:when>
-                                <c:otherwise>
-                                    <a href="${pageContext.request.contextPath}/staff/customers?action=toggleStatus&id=${u.id}&status=${u.status}"
-                                       class="btn-call" style="background: #28a745;"
-                                       onclick="return confirm('Mở khóa cho khách hàng này?');">
-                                        <i class="fa-solid fa-unlock"></i> Mở khóa
-                                    </a>
-                                </c:otherwise>
-                            </c:choose>
+                            </a>
                         </td>
                     </tr>
                 </c:forEach>

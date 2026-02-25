@@ -33,68 +33,43 @@ public class AdminProductServlet extends HttpServlet {
         CategoryDAO catDAO = new CategoryDAO();
         // ... inside doGet ...
         if (path.equals("/admin/product/list")) {
-            // 1. Get Params from URL
-            String keyword = request.getParameter("keyword");
-            String cidRaw = request.getParameter("cid");
-            String indexPage = request.getParameter("index");
-            
-            // 2. Parse Page Index
-            if (indexPage == null) {
-                indexPage = "1";
-            }
-            int index = Integer.parseInt(indexPage);
+    String keyword = request.getParameter("keyword");
+    String cidRaw = request.getParameter("cid");
+    String sortBy = request.getParameter("sortBy");
+    if (sortBy == null || sortBy.isEmpty()) sortBy = "book_id";
+    String sortOrder = request.getParameter("sortOrder");
+    if (sortOrder == null || sortOrder.isEmpty()) sortOrder = "DESC";
 
-            // 3. Process Category ID (Fix: Declare 'cid' BEFORE using it)
-            int cid = 0;
-            if (cidRaw != null && !cidRaw.equals("all") && !cidRaw.isEmpty()) {
-                try {
-                    cid = Integer.parseInt(cidRaw);
-                } catch (NumberFormatException e) {
-                    cid = 0; // Fallback to 0 if invalid
-                }
-            }
+    int cid = 0;
+    if (cidRaw != null && !cidRaw.equals("all") && !cidRaw.isEmpty()) {
+        try { cid = Integer.parseInt(cidRaw); } catch (NumberFormatException e) { cid = 0; }
+    }
 
-            // 4. Get Sort Parameters
-            String sortBy = request.getParameter("sortBy");
-            String sortOrder = request.getParameter("sortOrder");
+    int index = 1; 
+    String indexParam = request.getParameter("index");
+    if (indexParam != null && !indexParam.isEmpty()) {
+        try { index = Integer.parseInt(indexParam); } catch (NumberFormatException e) {}
+    }
+    int pageSize = 10; 
 
-            // Defaults: If no sort is clicked, show Newest First
-            if (sortBy == null || sortBy.isEmpty()) {
-                sortBy = "book_id";
-            }
-            if (sortOrder == null || sortOrder.isEmpty()) {
-                sortOrder = "DESC";
-            }
+    int totalBooks = bookDAO.countBooks(keyword, cid, true);
+    int endPage = totalBooks / pageSize;
+    if (totalBooks % pageSize != 0) endPage++;
 
-            // 5. Count total books (NOW 'cid' exists, so this works)
-            int count = bookDAO.countBooks(
-                    keyword,
-                    cid,          // <--- No more error here
-                    null, null, 0, 0, // Author, Publisher, Price (Unused)
-                    true          // isAdmin = true
-            );
+    List<Book> list = bookDAO.getBooks(keyword, cid, null, null, 0, 0, sortBy, sortOrder, true, index, pageSize);
+    List<Category> categories = catDAO.getCategories();
 
-            // 6. Calculate End Page
-            int endPage = count / 5;
-            if (count % 5 != 0) {
-                endPage++;
-            }
+    request.setAttribute("listBooks", list);
+    request.setAttribute("listCategories", categories);
+    request.setAttribute("searchKeyword", keyword);
+    request.setAttribute("searchCid", cidRaw);
+    request.setAttribute("sortBy", sortBy);
+    request.setAttribute("sortOrder", sortOrder);
+    request.setAttribute("tag", index); 
+    request.setAttribute("endPage", endPage); 
 
             // 7. Get Data for Current Page
-            List<Book> list = bookDAO.getBooks(
-                    keyword,
-                    cid,
-                    null, // Author
-                    null, // Publisher
-                    0,    // Min Price
-                    0,    // Max Price
-                    sortBy,    // Dynamic Sort Column
-                    sortOrder, // Dynamic Sort Order
-                    true,      // isAdmin
-                    index      // Page Index
-            );
-
-            List<Category> categories = catDAO.getCategories();
+            
 
             // 8. Send Data to JSP
             request.setAttribute("listBooks", list);
@@ -112,6 +87,7 @@ public class AdminProductServlet extends HttpServlet {
         }
         CategoryDAO catDao = new CategoryDAO();
         request.setAttribute("listCategories", catDao.getCategories());
+    request.getRequestDispatcher("/view/admin/manage-products.jsp").forward(request, response);
 
 
         if (path.equals("/admin/product/add")) {

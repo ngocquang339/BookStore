@@ -13,7 +13,7 @@
         /* CSS Nhanh cho trang Search */
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5; }
         .main-header { background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); padding: 15px 0; margin-bottom: 20px; }
-        .product-card { background: #fff; border: 1px solid #eee; border-radius: 8px; padding: 15px; text-align: center; transition: 0.3s; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
+        .product-card { background: #fff; border: 1px solid #eee; border-radius: 8px; padding: 15px; text-align: center; transition: 0.3s; height: 100%; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
         .product-card:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.1); transform: translateY(-3px); }
         .product-card img { max-width: 100%; height: 200px; object-fit: contain; margin-bottom: 10px; }
         .product-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
@@ -27,6 +27,10 @@
         /* Button Style */
         .btn-filter { width: 100%; padding: 10px; background: #C92127; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
         .btn-filter:hover { background: #a01a1f; }
+
+        /* Badge cho Admin */
+        .badge-hidden { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; z-index: 10; }
+        .card-inactive { opacity: 0.6; border: 1px dashed #999; }
     </style>
 </head>
 
@@ -34,15 +38,6 @@
     <jsp:include page="component/header.jsp" />
 
     <main class="container" style="max-width: 1200px; margin: 0 auto; padding: 0 15px;">
-        
-        <div class="search-bar-wrapper" style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-            <form action="search" method="get" style="display: flex; gap: 10px;">
-                <input type="text" name="txt" value="${txtS}" placeholder="Bạn muốn tìm sách gì hôm nay? (Tên sách, tác giả...)" style="flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px;">
-                <button type="submit" style="padding: 0 30px; background: #C92127; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">
-                    <i class="fa-solid fa-search"></i> Tìm kiếm
-                </button>
-            </form>
-        </div>
 
         <div class="content-wrapper" style="display: flex; gap: 30px; align-items: flex-start;">
             
@@ -73,23 +68,6 @@
                         </div>
                     </div>
 
-        <div class="product-list">
-            <c:forEach items="${listBooks}" var="b">
-                <div class="product-card ${!b.active ? 'card-inactive' : ''}">
-                    
-                    <c:if test="${!b.active}">
-                        <div class="badge-hidden">
-                            <i class="fa-solid fa-eye-slash"></i> Hidden
-                        </div>
-                    </c:if>
-
-                    <a href="detail?pid=${b.id}" style="text-decoration: none; color: inherit;">
-                        <img src="${pageContext.request.contextPath}/assets/image/books/${b.imageUrl}" alt="${b.title}">
-                        <h4>${b.title}</h4>
-                        <p style="color: #666; font-size: 14px;">${b.author}</p>
-                        <p style="color: #C92127; font-weight: bold; font-size: 18px;">
-                            <fmt:formatNumber value="${b.price}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
-                        </p>
                     <div class="filter-group">
                         <label>Tác giả:</label>
                         <input type="text" name="author" value="${author}" placeholder="Nhập tên tác giả...">
@@ -142,7 +120,15 @@
 
                 <div class="product-list">
                     <c:forEach items="${listBooks}" var="b">
-                        <div class="product-card">
+                        
+                        <div class="product-card ${!b.active ? 'card-inactive' : ''}">
+                            
+                            <c:if test="${!b.active}">
+                                <div class="badge-hidden">
+                                    <i class="fa-solid fa-eye-slash"></i> Đang ẩn
+                                </div>
+                            </c:if>
+
                             <a href="detail?pid=${b.id}" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; height: 100%;">
                                 <img src="${pageContext.request.contextPath}/assets/image/books/${b.imageUrl}" 
                                      alt="${b.title}"
@@ -167,7 +153,7 @@
                         </div>
                     </c:forEach>
                 </div>
-            </div>
+                </div>
             
         </div>
     </main>

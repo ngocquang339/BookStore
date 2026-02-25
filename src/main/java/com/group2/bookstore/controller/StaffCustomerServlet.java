@@ -17,30 +17,6 @@ public class StaffCustomerServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         UserDAO userDAO = new UserDAO();
-
-        // --- XỬ LÝ V.I.P 1: KHÓA / MỞ KHÓA TÀI KHOẢN ---
-        String action = request.getParameter("action");
-        if ("toggleStatus".equals(action)) {
-            String idRaw = request.getParameter("id");
-            String statusRaw = request.getParameter("status"); // Trạng thái hiện tại
-
-            if (idRaw != null && statusRaw != null) {
-                try {
-                    int id = Integer.parseInt(idRaw);
-                    int currentStatus = Integer.parseInt(statusRaw);
-
-                    // Đảo ngược trạng thái: Nếu đang 1 (Hoạt động) thì thành 0 (Khóa), và ngược lại
-                    int newStatus = (currentStatus == 1) ? 0 : 1;
-
-                    userDAO.updateUserStatus(id, newStatus);
-                } catch (NumberFormatException e) {
-                    e.printStackTrace();
-                }
-            }
-            // Làm xong thì "quay xe" tải lại trang để thấy kết quả cập nhật ngay
-            response.sendRedirect(request.getContextPath() + "/staff/customers");
-            return; // Bắt buộc phải có return để dừng hàm doGet ở đây
-        }
         String keyword = request.getParameter("keyword"); // Lấy từ khóa từ ô tìm kiếm
         List<User> listCustomers;
 
