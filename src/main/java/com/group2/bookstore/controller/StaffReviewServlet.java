@@ -13,44 +13,22 @@ import java.util.List;
 @WebServlet(name = "StaffReviewServlet", urlPatterns = {"/staff/reviews", "/staff/delete-review"})
 public class StaffReviewServlet extends HttpServlet {
 
-    @Override
+@Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        String path = request.getServletPath();
-        ReviewDAO dao = new ReviewDAO();
-
-        // 1. XỬ LÝ XÓA
-        if (path.equals("/staff/delete-review")) {
-            String idRaw = request.getParameter("id");
-            if (idRaw != null) {
-                try {
-                    int id = Integer.parseInt(idRaw);
-                    dao.deleteReview(id);
-                } catch (NumberFormatException e) { e.printStackTrace(); }
-            }
-            // KHẮC PHỤC LỖI ĐƯỜNG DẪN Ở ĐÂY: Dùng đường dẫn tuyệt đối để redirect
-            response.sendRedirect(request.getContextPath() + "/staff/reviews");
-            return;
-        }
-
-        // 2. XỬ LÝ LỌC THEO SAO
-        String starRaw = request.getParameter("star");
-        List<Review> list;
+        // 1. Lấy tham số lọc số sao từ URL (Ví dụ: ?star=5)
+        String star = request.getParameter("star");
         
-        if (starRaw != null && !starRaw.isEmpty()) {
-            try {
-                int star = Integer.parseInt(starRaw);
-                list = dao.getReviewsByStar(star);
-                request.setAttribute("selectedStar", star);
-            } catch (Exception e) {
-                list = dao.getAllReviews();
-            }
-        } else {
-            list = dao.getAllReviews();
-        }
-
-        request.setAttribute("listReviews", list);
+        // 2. Gọi DAO để lấy dữ liệu
+        ReviewDAO reviewDAO = new ReviewDAO();
+        List<Review> listReviews = reviewDAO.getReviewsByStar(star);
+        
+        // 3. Đẩy dữ liệu sang JSP
+        request.setAttribute("listReviews", listReviews);
+        request.setAttribute("selectedStar", star); // Giữ lại số sao đang chọn trên giao diện
+        
+        // 4. Chuyển hướng sang file JSP (Nhớ trỏ đúng thư mục staff nhé)
         request.getRequestDispatcher("/view/staff/review-manage.jsp").forward(request, response);
     }
 }

@@ -64,26 +64,27 @@
         <body>
             <div class="container">
                 <div style="margin-bottom: 20px;">
-    <a href="${pageContext.request.contextPath}/home" style="color: #4da6ff; text-decoration: none; font-size: 16px; font-weight: bold;">
-        <i class="fa-solid fa-arrow-left"></i> Quay lại Trang chủ
-    </a>
-</div>
+                    <a href="${pageContext.request.contextPath}/home"
+                        style="color: #4da6ff; text-decoration: none; font-size: 16px; font-weight: bold;">
+                        <i class="fa-solid fa-arrow-left"></i> Quay lại Trang chủ
+                    </a>
+                </div>
                 <h2>Quản lý Đánh giá (Review Management)</h2>
                 <div
                     style="margin-bottom: 20px; background: #fff3cd; padding: 15px; border-radius: 5px; border: 1px solid #ffeeba;">
                     <form action="${pageContext.request.contextPath}/staff/reviews" method="get"
-                        style="display: flex; align-items: center; gap: 10px;">
-                        <strong style="color: #856404;"><i class="fa-solid fa-filter"></i> Lọc theo đánh giá:</strong>
-                        <select name="star" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc;">
-                            <option value="">-- Tất cả số sao --</option>
-                            <option value="5" ${selectedStar==5 ? 'selected' : '' }>⭐⭐⭐⭐⭐ (5 Sao)</option>
-                            <option value="4" ${selectedStar==4 ? 'selected' : '' }>⭐⭐⭐⭐ (4 Sao)</option>
-                            <option value="3" ${selectedStar==3 ? 'selected' : '' }>⭐⭐⭐ (3 Sao)</option>
-                            <option value="2" ${selectedStar==2 ? 'selected' : '' }>⭐⭐ (2 Sao)</option>
-                            <option value="1" ${selectedStar==1 ? 'selected' : '' }>⭐ (1 Sao - Cần xử lý)</option>
+                        style="display: flex; gap: 10px; align-items: center;">
+                        <label style="color: white;">Lọc theo đánh giá: </label>
+                        <select name="star" style="padding: 5px;">
+                            <option value="all" ${selectedStar=='all' ? 'selected' : '' }>-- Tất cả số sao --</option>
+                            <option value="5" ${selectedStar=='5' ? 'selected' : '' }>5 Sao</option>
+                            <option value="4" ${selectedStar=='4' ? 'selected' : '' }>4 Sao</option>
+                            <option value="3" ${selectedStar=='3' ? 'selected' : '' }>3 Sao</option>
+                            <option value="2" ${selectedStar=='2' ? 'selected' : '' }>2 Sao</option>
+                            <option value="1" ${selectedStar=='1' ? 'selected' : '' }>1 Sao</option>
                         </select>
                         <button type="submit"
-                            style="background: #28a745; color: white; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer;">Lọc</button>
+                            style="background: #28a745; color: white; border: none; padding: 6px 15px; cursor: pointer;">Lọc</button>
                     </form>
                 </div>
                 <table>
@@ -100,22 +101,38 @@
                     </thead>
                     <tbody>
                         <c:forEach items="${listReviews}" var="r">
-                            <tr>
-                                <td>${r.reviewId}</td>
-                                <td><strong>${r.username}</strong></td>
-                                <td>${r.bookTitle}</td>
-                                <td class="star">${r.rating} ★</td>
-                                <td>${r.comment}</td>
+                            <tr style="color: white; text-align: center; border-bottom: 1px solid #444;">
+                                <td style="padding: 15px;">${r.reviewId}</td>
+
+                                <td style="font-weight: bold; color: #4da6ff;">@${r.username}</td>
+
+                                <td style="text-align: left;">${r.bookTitle}</td>
+
+                                <td style="color: gold; font-size: 16px;">
+                                    ${r.rating} <i class="fa-solid fa-star"></i>
+                                </td>
+
+                                <td style="text-align: left; font-style: italic;">"${r.comment}"</td>
                                 <td>${r.createAt}</td>
+
                                 <td>
-                                    <a href="${pageContext.request.contextPath}/staff/delete-review?id=${r.reviewId}"
-                                        class="btn-delete"
-                                        onclick="return confirm('Bạn có chắc muốn xóa bình luận này?');">
-                                        Xóa
+                                    <a href="#" class="btn-call"
+                                        style="background: #007bff; padding: 6px 12px; color: white; text-decoration: none; border-radius: 4px; font-size: 13px;">
+                                        <i class="fa-solid fa-reply"></i> Phản hồi
                                     </a>
                                 </td>
                             </tr>
                         </c:forEach>
+
+                        <c:if test="${empty listReviews}">
+                            <tr>
+                                <td colspan="7" style="text-align: center; color: #bbb; padding: 30px;">
+                                    <i class="fa-regular fa-face-frown"
+                                        style="font-size: 24px; margin-bottom: 10px; display: block;"></i>
+                                    Chưa có đánh giá nào phù hợp với bộ lọc.
+                                </td>
+                            </tr>
+                        </c:if>
                     </tbody>
                 </table>
                 <c:if test="${empty listReviews}">
