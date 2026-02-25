@@ -128,8 +128,8 @@ public class UserDAO extends DBContext {
             st.setString(3, user.getUsername());
             st.setString(4, user.getPassword());
             st.setString(5, user.getEmail());
-            st.setInt(6, user.getStatus());
-            st.setInt(7, 2);
+            st.setInt(6, 0);
+            st.setInt(7, user.getStatus());
 
             // 5. Thực thi câu lệnh (QUAN TRỌNG)
             int rowsAffected = st.executeUpdate();
@@ -202,7 +202,7 @@ public class UserDAO extends DBContext {
     public List<User> getAllCustomers() {
         List<User> list = new ArrayList<>();
         // Role 2 là khách hàng (dựa trên dữ liệu mẫu của bạn)
-        String sql = "SELECT * FROM Users WHERE role = 2";
+        String sql = "SELECT * FROM Users WHERE role = 0";
 
         try (Connection conn = getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql);
@@ -229,7 +229,7 @@ public class UserDAO extends DBContext {
     public List<User> searchCustomers(String keyword) {
         List<User> list = new ArrayList<>();
         // Tìm theo tên hoặc SĐT, chỉ lấy khách hàng (role = 2)
-        String sql = "SELECT * FROM Users WHERE role = 2 AND (fullname LIKE ? OR phone_number LIKE ?)";
+        String sql = "SELECT * FROM Users WHERE role = 0 AND (fullname LIKE ? OR phone_number LIKE ?)";
 
         try (Connection conn = getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {

@@ -117,6 +117,20 @@
                         <a href="${pageContext.request.contextPath}/update-profile" class="dropdown-link">
                             <i class="fa-regular fa-id-card"></i> Hồ sơ của tôi
                         </a>
+
+                        <c:if test="${sessionScope.user.role == 3}">
+                            <hr style="border: 0; border-top: 1px solid #eee; margin: 5px 0;">
+                            
+                            <a href="${pageContext.request.contextPath}/staff/customers" style="color: #C92127; font-weight: bold;">
+                                <i class="fa-solid fa-users-gear"></i> Hỗ trợ Khách hàng
+                            </a>
+                            
+                            <a href="${pageContext.request.contextPath}/staff/reviews" style="color: #C92127; font-weight: bold;">
+                                <i class="fa-solid fa-comments"></i> Quản lý Đánh giá
+                            </a>
+                            
+                            <hr style="border: 0; border-top: 1px solid #eee; margin: 5px 0;">
+                        </c:if>
                         <a href="${pageContext.request.contextPath}/logout" class="dropdown-link logout-link">
                             <i class="fa-solid fa-power-off"></i> Đăng xuất
                         </a>
