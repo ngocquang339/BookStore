@@ -3,8 +3,10 @@ package com.group2.bookstore.controller;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
+import com.group2.bookstore.dal.AnalyticsDAO;
 import com.group2.bookstore.dal.ReportDAO;
 
 import jakarta.servlet.ServletException;
@@ -19,11 +21,11 @@ public class AdminReportServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         // 1. Handle Date Range (Default to Last 7 Days if null)
         String fromDate = request.getParameter("fromDate");
         String toDate = request.getParameter("toDate");
-        
+
         if (fromDate == null || fromDate.isEmpty()) {
             LocalDate today = LocalDate.now();
             toDate = today.toString();
@@ -47,11 +49,10 @@ public class AdminReportServlet extends HttpServlet {
         for (int count : statusCounts) {
             totalOrders += count;
         }
-        
+
         int completedOrders = statusCounts[2]; // Index 2 is Completed
 
         // 4. Format Data for Chart.js (Build JSON-like strings)
-        
         // A. REVENUE CHART
         StringBuilder dateLabels = new StringBuilder("[");
         StringBuilder revenueData = new StringBuilder("[");
@@ -60,8 +61,12 @@ public class AdminReportServlet extends HttpServlet {
             revenueData.append(entry.getValue()).append(",");
         }
         // Remove trailing comma
-        if (dateLabels.length() > 1) dateLabels.setLength(dateLabels.length() - 1);
-        if (revenueData.length() > 1) revenueData.setLength(revenueData.length() - 1);
+        if (dateLabels.length() > 1) {
+            dateLabels.setLength(dateLabels.length() - 1);
+        }
+        if (revenueData.length() > 1) {
+            revenueData.setLength(revenueData.length() - 1);
+        }
         dateLabels.append("]");
         revenueData.append("]");
 
@@ -70,33 +75,45 @@ public class AdminReportServlet extends HttpServlet {
         StringBuilder bookData = new StringBuilder("[");
         for (Map.Entry<String, Integer> entry : topSellers.entrySet()) {
             String cleanTitle = entry.getKey().replace("'", "\\'"); // Escape quotes
-            if (cleanTitle.length() > 20) cleanTitle = cleanTitle.substring(0, 20) + "..."; // Truncate
-            
+            if (cleanTitle.length() > 20) {
+                cleanTitle = cleanTitle.substring(0, 20) + "..."; // Truncate
+            }
             bookLabels.append("'").append(cleanTitle).append("',");
             bookData.append(entry.getValue()).append(",");
         }
-        if (bookLabels.length() > 1) bookLabels.setLength(bookLabels.length() - 1);
-        if (bookData.length() > 1) bookData.setLength(bookData.length() - 1);
+        if (bookLabels.length() > 1) {
+            bookLabels.setLength(bookLabels.length() - 1);
+        }
+        if (bookData.length() > 1) {
+            bookData.setLength(bookData.length() - 1);
+        }
         bookLabels.append("]");
         bookData.append("]");
 
         // 5. Send Attributes to JSP
         request.setAttribute("fromDate", fromDate);
         request.setAttribute("toDate", toDate);
-        
+
         // Summary Cards
         request.setAttribute("totalRevenue", totalRevenue);
         request.setAttribute("totalOrders", totalOrders);
         request.setAttribute("completedOrders", completedOrders);
-        
+
         // Charts Data
         request.setAttribute("dateLabels", dateLabels.toString());
         request.setAttribute("revenueData", revenueData.toString());
         request.setAttribute("statusCounts", Arrays.toString(statusCounts)); // "[1, 0, 5, 2]"
         request.setAttribute("bookLabels", bookLabels.toString());
         request.setAttribute("bookData", bookData.toString());
+        AnalyticsDAO analyticsDAO = new AnalyticsDAO();
+        List<String> adviceList = analyticsDAO.getSmartBusinessAdvice();
+
+        request.setAttribute("smartAdvice", adviceList);
 
         // Make sure this path matches your file structure
         request.getRequestDispatcher("/view/admin/report-dashboard.jsp").forward(request, response);
+
+        // Inside your doGet method for the dashboard/analytics page:
+        
     }
 }

@@ -129,6 +129,21 @@
                             <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
                         </a>
                     </div>
+                    <div class="analytics-card"
+                        style="background: #f8f9fa; border-left: 5px solid #ffc107; padding: 20px; border-radius: 8px; margin-bottom: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                        <h3 style="margin-top: 0; color: #333;">
+                            <i class="fa-solid fa-lightbulb" style="color: #ffc107;"></i> Smart System Insights
+                        </h3>
+
+                        <ul style="list-style-type: none; padding-left: 0; margin-bottom: 0;">
+                            <c:forEach items="${smartAdvice}" var="advice">
+                                <li
+                                    style="padding: 10px 0; border-bottom: 1px solid #eee; font-size: 15px; color: #555;">
+                                    ${advice}
+                                </li>
+                            </c:forEach>
+                        </ul>
+                    </div>
                     <div
                         style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 25px;">
                         <div>
