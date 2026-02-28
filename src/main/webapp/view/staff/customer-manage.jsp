@@ -113,9 +113,9 @@
                         </td>
                        
                         <td>
-                            <a href="mailto:${u.email}" class="btn-call" style="background: #007bff;">
-                                <i class="fa-solid fa-paper-plane"></i> Gửi Mail
-                            </a>
+<a href="https://mail.google.com/mail/?view=cm&fs=1&to=${u.email}" target="_blank" class="btn-call" style="background: #007bff; padding: 6px 12px; color: white; text-decoration: none; border-radius: 4px; font-size: 13px;">
+    <i class="fa-solid fa-paper-plane"></i> Gửi Mail
+</a>
                         </td>
                     </tr>
                 </c:forEach>

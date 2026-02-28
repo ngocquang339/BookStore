@@ -202,7 +202,7 @@ public class UserDAO extends DBContext {
     public List<User> getAllCustomers() {
         List<User> list = new ArrayList<>();
         // Role 2 là khách hàng (dựa trên dữ liệu mẫu của bạn)
-        String sql = "SELECT * FROM Users WHERE role = 2";
+        String sql = "SELECT * FROM Users WHERE role = 0";
 
         try (Connection conn = getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql);
@@ -229,7 +229,7 @@ public class UserDAO extends DBContext {
     public List<User> searchCustomers(String keyword) {
         List<User> list = new ArrayList<>();
         // Tìm theo tên hoặc SĐT, chỉ lấy khách hàng (role = 2)
-        String sql = "SELECT * FROM Users WHERE role = 2 AND (fullname LIKE ? OR phone_number LIKE ?)";
+        String sql = "SELECT * FROM Users WHERE role = 0 AND (fullname LIKE ? OR phone_number LIKE ?)";
 
         try (Connection conn = getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
