@@ -87,10 +87,10 @@ public class BookDAO extends DBContext {
          
         while (rs.next()) {
             list.add(new Category(
-                rs.getInt(1), // ID
-                rs.getString(2), // Name
-                rs.getString(3),// Image (Nếu DB chưa có cột này thì để null hoặc string rỗng)
-                rs.getString(4)  
+                rs.getInt("category_id"), // ID
+                rs.getString("category_name"), // Name
+                rs.getString("category_image"),// Image (Nếu DB chưa có cột này thì để null hoặc string rỗng)
+                rs.getString("description")  
             ));
         }
     } catch (Exception e) {

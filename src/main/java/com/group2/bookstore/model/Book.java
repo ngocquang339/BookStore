@@ -16,7 +16,7 @@ public class Book implements Serializable {
     private int soldQuantity;
     private String publisher;
     private String isbn;
-    private int categoryId;
+    private int category_id;
     private int yearOfPublish;
     private int number_page;     // Mapped from [number_of_pages]
     
@@ -37,7 +37,7 @@ public class Book implements Serializable {
         this.price = price;
         this.stockQuantity = stockQuantity;
         this.imageUrl = imageUrl;
-        this.categoryId = categoryId;
+        this.category_id = categoryId;
         this.description = description;
         this.publisher = publisher;
         this.yearOfPublish = yearOfPublish;
@@ -127,11 +127,11 @@ public class Book implements Serializable {
     }
 
     public int getCategoryId() {
-        return categoryId;
+        return category_id;
     }
 
     public void setCategoryId(int categoryId) {
-        this.categoryId = categoryId;
+        this.category_id = categoryId;
     }
 
     // Admin Feature Getters/Setters
