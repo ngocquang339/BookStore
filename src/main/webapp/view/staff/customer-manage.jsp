@@ -1,59 +1,34 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <title>Danh sách Khách hàng</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        body { font-family: sans-serif; background-color: #f9f9f9; padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        h2 { color: #333; border-bottom: 2px solid #C92127; padding-bottom: 10px; }
-       
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        th { background-color: #f4f4f4; font-weight: bold; }
-        tr:hover { background-color: #f1f1f1; }
-       
-        .status-active { color: green; font-weight: bold; }
-        .status-block { color: red; font-weight: bold; }
-       
-        .contact-info { font-size: 14px; color: #555; }
-        .btn-call { display: inline-block; padding: 5px 10px; color: white; text-decoration: none; border-radius: 4px; font-size: 12px; margin-bottom: 5px; width: 85px; text-align: center; }
-       
-        /* CSS cho thanh tìm kiếm */
-        .search-box { margin-bottom: 20px; background: #f4f4f4; padding: 15px; border-radius: 5px; border: 1px solid #ddd; }
-        .search-input { flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-        .btn-search { background: #C92127; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
-        .btn-reset { background: #6c757d; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; }
-    </style>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/staff.css">
 </head>
 <body>
     <div class="container">
-        <div style="margin-bottom: 20px;">
-    <a href="${pageContext.request.contextPath}/home" style="color: #4da6ff; text-decoration: none; font-size: 16px; font-weight: bold;">
-        <i class="fa-solid fa-arrow-left"></i> Quay lại Trang chủ
-    </a>
-</div>
+        <div>
+            <a href="${pageContext.request.contextPath}/home" class="btn-back">
+                <i class="fa-solid fa-arrow-left"></i> Quay lại Trang chủ
+            </a>
+        </div>
+        
         <h2><i class="fa-solid fa-users"></i> Hỗ trợ Khách hàng</h2>
         <p>Danh sách thông tin liên hệ để xác nhận đơn hàng hoặc giải quyết khiếu nại.</p>
 
-
         <div class="search-box">
-            <form action="${pageContext.request.contextPath}/staff/customers" method="get" style="display: flex; gap: 10px;">
+            <form action="${pageContext.request.contextPath}/staff/customers" method="get" class="search-form">
                 <input type="text" name="keyword" value="${keyword}" placeholder="Nhập tên hoặc email/sđt..." class="search-input">
                 <button type="submit" class="btn-search">
                     <i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm
                 </button>
-                <a href="${pageContext.request.contextPath}/staff/customers" class="btn-reset">
-                    Làm mới
-                </a>
+                <a href="${pageContext.request.contextPath}/staff/customers" class="btn-reset">Làm mới</a>
             </form>
         </div>
-
 
         <table>
             <thead>
@@ -70,12 +45,10 @@
                 <c:forEach items="${listCustomers}" var="u">
                     <tr>
                         <td>${u.id}</td>
-                       
                         <td>
                             <strong>${u.fullname}</strong><br>
                             <small style="color: #888;">@${u.username}</small>
                         </td>
-                       
                         <td>
                             <div class="contact-info">
                                 <i class="fa-solid fa-envelope"></i> ${u.email} <br>
@@ -89,18 +62,12 @@
                                 </c:choose>
                             </div>
                         </td>
-                       
                         <td>
                             <c:choose>
-                                <c:when test="${not empty u.address}">
-                                    ${u.address}
-                                </c:when>
-                                <c:otherwise>
-                                    <span style="color:#999">Chưa cập nhật</span>
-                                </c:otherwise>
+                                <c:when test="${not empty u.address}">${u.address}</c:when>
+                                <c:otherwise><span style="color:#999">Chưa cập nhật</span></c:otherwise>
                             </c:choose>
                         </td>
-                       
                         <td>
                             <c:choose>
                                 <c:when test="${u.status == 1}">
@@ -111,11 +78,10 @@
                                 </c:otherwise>
                             </c:choose>
                         </td>
-                       
                         <td>
-<a href="https://mail.google.com/mail/?view=cm&fs=1&to=${u.email}" target="_blank" class="btn-call" style="background: #007bff; padding: 6px 12px; color: white; text-decoration: none; border-radius: 4px; font-size: 13px;">
-    <i class="fa-solid fa-paper-plane"></i> Gửi Mail
-</a>
+                            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=${u.email}" target="_blank" class="btn-mail">
+                                <i class="fa-solid fa-paper-plane"></i> Gửi Mail
+                            </a>
                         </td>
                     </tr>
                 </c:forEach>
