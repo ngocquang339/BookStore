@@ -30,8 +30,8 @@ public class SearchServlet extends HttpServlet {
         // 2. Lấy dữ liệu từ Form (Sidebar + Header)
         String txtSearch = request.getParameter("txt");
         String cid_raw = request.getParameter("cid");
-        String priceFrom_raw = request.getParameter("priceFrom");
-        String priceTo_raw = request.getParameter("priceTo");
+        String priceFrom_raw = request.getParameter("minPrice");
+        String priceTo_raw = request.getParameter("maxPrice");
         String author = request.getParameter("author");
         String publisher = request.getParameter("publisher"); // Thêm Publisher
         String sort = request.getParameter("sort");
@@ -70,7 +70,7 @@ public class SearchServlet extends HttpServlet {
         List<Book> listBooks = bookDAO.getBooks(txtSearch, cid, author, publisher, priceFrom, priceTo, sort, "ASC", isAdmin);
 
         // Lấy dữ liệu cho Dropdown bộ lọc
-        List<Category> listCategories = catDAO.getAllCategories();
+        List<Category> listCategories = catDAO.getCategories();
         List<String> listPublishers = bookDAO.getAllPublishers();
 
         // 6. Đẩy dữ liệu sang JSP
@@ -81,8 +81,8 @@ public class SearchServlet extends HttpServlet {
         // 7. Lưu lại trạng thái bộ lọc (để form không bị reset)
         request.setAttribute("txtS", txtSearch);
         request.setAttribute("cid", cid);
-        request.setAttribute("priceFrom", (priceFrom > 0 ? priceFrom_raw : "")); 
-        request.setAttribute("priceTo", (priceTo > 0 ? priceTo_raw : ""));
+        request.setAttribute("minPrice", (priceFrom > 0 ? priceFrom_raw : "")); 
+        request.setAttribute("maxPrice", (priceTo > 0 ? priceTo_raw : ""));
         request.setAttribute("author", author);
         request.setAttribute("publisher", publisher);
         request.setAttribute("sort", sort);

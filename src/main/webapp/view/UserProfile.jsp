@@ -8,22 +8,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hồ sơ của ${sessionScope.user.username} - BookStore</title>
     
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/profile.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/home.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/home.css"> -->
-
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/home.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/profile.css"> 
+    
     <style>
         /* Style cho thông báo thành công */
         .toast-message {
             position: fixed;
-            top: 80px; /* Cách mép trên */
-            right: 20px; /* Cách mép phải */
+            top: 80px;
+            right: 20px;
             background-color: #ffffff;
-            color: #155724; /* Chữ xanh đậm */
-            border-left: 5px solid #28a745; /* Viền trái màu xanh lá */
+            color: #155724;
+            border-left: 5px solid #28a745;
             padding: 15px 25px;
             border-radius: 4px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
@@ -32,13 +31,13 @@
             gap: 15px;
             z-index: 9999;
             animation: slideIn 0.5s ease forwards, fadeOut 0.5s ease 3s forwards;
-            opacity: 0; /* Mặc định ẩn để chờ animation */
+            opacity: 0;
             min-width: 300px;
         }
 
         .toast-message i {
             font-size: 24px;
-            color: #28a745; /* Icon màu xanh lá */
+            color: #28a745;
         }
 
         .toast-content h4 {
@@ -53,13 +52,11 @@
             color: #666;
         }
 
-        /* Hiệu ứng bay vào */
         @keyframes slideIn {
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
 
-        /* Hiệu ứng mờ dần sau 3 giây */
         @keyframes fadeOut {
             to { opacity: 0; visibility: hidden; }
         }
@@ -67,7 +64,6 @@
 </head>
 
 <body>
-    
     <jsp:include page="component/header.jsp" />
 
     <c:if test="${empty sessionScope.user}">
@@ -118,15 +114,27 @@
 
                         <div class="form-row">
                             <label class="form-label-custom">Email</label>
-                            <div class="form-input-custom">
-                                <input type="email" name="email" value="${sessionScope.user.email}" class="form-control" required>
+                            <div class="form-input-custom position-relative">
+                                <input type="email" name="email" value="${sessionScope.user.email}" 
+                                    class="form-control" readonly style="background-color: #fff;">
+                                
+                                <a href="javascript:void(0);" onclick="openEmailModal()" 
+                                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #0d6efd; text-decoration: none; font-weight: 500;">
+                                Thay đổi
+                                </a>
                             </div>
                         </div>
 
                         <div class="form-row">
                             <label class="form-label-custom">Số điện thoại</label>
-                            <div class="form-input-custom">
-                                <input type="text" name="phone_number" value="${sessionScope.user.phone_number}" class="form-control" placeholder="Nhập số điện thoại">
+                            <div class="form-input-custom position-relative">
+                                <input type="text" name="phone_number" value="${sessionScope.user.phone_number}" 
+                                    class="form-control" readonly style="background-color: #fff;">
+                                
+                                <a href="javascript:void(0);" onclick="openPhoneModal(); return false;" 
+                                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #0d6efd; text-decoration: none; font-weight: 500;">
+                                Thay đổi
+                                </a>
                             </div>
                         </div>
 
@@ -138,7 +146,8 @@
                         </div>
 
                         <div class="form-row">
-                            <label class="form-label-custom"></label> <div class="form-input-custom">
+                            <label class="form-label-custom"></label> 
+                            <div class="form-input-custom">
                                 <button type="submit" class="btn-save-pass">
                                     <i class="fa-regular fa-floppy-disk"></i> Lưu thay đổi
                                 </button>
@@ -147,16 +156,215 @@
 
                     </form>
                 </div>
-            </div> </div> </div> <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+            </div> 
+        </div> 
+    </div> 
+
+    <!-- Modal -->
+   <div id="modalChangePhone" class="modal-overlay">
+        <div class="modal-box">
+            <h3 class="modal-title" style="text-align: center; margin-bottom: 20px; font-weight: bold;">THAY ĐỔI SỐ ĐIỆN THOẠI</h3>
+
+            <form action="verify-otp" method="POST">
+                
+                <div class="modal-group" style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Số điện thoại mới</label>
+                    
+                    <input type="text" id="newPhoneInput" name="new_phone" class="modal-input" 
+                        placeholder="Nhập số điện thoại mới" 
+                        required 
+                        oninput="validatePhone()"
+                        style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                    
+                    <small id="phoneError" style="color: #dc3545; font-size: 13px; display: none; margin-top: 5px; font-weight: bold;"></small>
+                </div>
+
+                <div class="modal-group" style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Chọn phương thức xác minh OTP</label>
+                    <div class="otp-options">
+                        <label class="otp-option">
+                            <input type="radio" name="otp_method" value="sms" checked>
+                            <div class="otp-box">
+                                <i class="fa-solid fa-comment-sms"></i> Tin nhắn SMS
+                            </div>
+                        </label>
+                        <label class="otp-option">
+                            <input type="radio" name="otp_method" value="zalo">
+                            <div class="otp-box">
+                                <i class="fa-solid fa-z"></i> Zalo ZNS
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="modal-group" style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Mã xác nhận OTP</label>
+                    <input type="text" name="otp_code" class="modal-input" placeholder="6 ký tự" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                </div>
+
+                <div class="modal-actions">
+                    <button type="submit" class="btn-confirm" id="btnConfirmPhone">Xác nhận</button>
+                    <button type="button" class="btn-cancel" onclick="closePhoneModal(); return false;">Trở về</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalChangeEmail" class="modal-overlay">
+        <div class="modal-box">
+            <h3 class="modal-title" style="text-align: center; margin-bottom: 20px; font-weight: bold;">THAY ĐỔI EMAIL</h3>
+
+            <form action="change-email" method="POST"> 
+                <div class="modal-group" style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Email</label>
+                    
+                    <div style="position: relative;">
+                        <input type="email" id="newEmailInput" name="new_email" maxlength="255" class="modal-input" 
+                            placeholder="Enter Email" required
+                            style="width: 100%; padding: 10px 90px 10px 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        
+                        <button type="submit" id="btnSendOTP"
+                        style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); 
+                                font-size: 13px; font-weight: bold; color: #0d6efd; text-decoration: none; background-color: #fff; border: none;outline: none;">
+                            Gửi mã OTP
+                        </button>
+                    </div>
+                    <small id="emailError" style="color: red; font-size: 13px; margin-top: 5px; font-weight: 500; display: ${not empty requestScope.error ? 'block' : 'none'};">
+                        ${requestScope.error}
+                    </small>
+                </div>
+            </form>
+
+            <form action="verify-otp" method="POST">
+                <div class="modal-group" style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Mã xác nhận OTP</label>
+                    <input type="text" name="email_otp" maxlength="10" class="modal-input" placeholder="6 ký tự" 
+                        style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                </div>
+
+                <div class="modal-actions">
+                    <button type="submit" class="btn-confirm" style="background-color: #e0e0e0; color: #333;">Xác nhận</button>
+                    
+                    <button type="button" class="btn-cancel" onclick="closeEmailModal()">Trở về</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
         // Tự động xóa element sau khi chạy xong hiệu ứng fadeOut
         setTimeout(function() {
-            let toast = document.getElementById('successToast');
+            let toast = document.getElementById('toastMsg');
             if (toast) {
                 toast.remove();
             }
-        }, 4000); // 4000ms = 4 giây
+        }, 4000);
+
+        // --- XỬ LÝ MODAL EMAIL ---
+    function openEmailModal() {
+        document.getElementById('modalChangeEmail').style.display = 'flex';
+    }
+
+    function closeEmailModal() {
+        document.getElementById('modalChangeEmail').style.display = 'none';
+    }
+
+    // Cập nhật hàm đóng khi bấm ra ngoài để đóng được cả 2 modal
+    window.onclick = function(event) {
+        var modalPhone = document.getElementById('modalChangePhone');
+        var modalEmail = document.getElementById('modalChangeEmail');
+        if (event.target == modalPhone) {
+            modalPhone.style.display = "none";
+        }
+        if (event.target == modalEmail) {
+            modalEmail.style.display = "none";
+        }
+    }
+
+    // Khi trang load xong, kiểm tra xem Server có yêu cầu mở Modal không
+    
+
+        // Hàm mở Modal
+        function openPhoneModal() {
+            var modal = document.getElementById('modalChangePhone');
+            if (modal) {
+                modal.style.display = 'flex';
+            }
+        }
+
+        // Hàm đóng Modal
+        function closePhoneModal() {
+            var modal = document.getElementById('modalChangePhone');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+        function validatePhone() {
+        var input = document.getElementById('newPhoneInput');
+        var errorMsg = document.getElementById('phoneError');
+        var btn = document.getElementById('btnConfirmPhone');
+        var value = input.value;
+
+        // Reset trạng thái ban đầu
+        errorMsg.style.display = 'none';
+        input.style.borderColor = '#ddd';
+        btn.disabled = false;
+        btn.style.opacity = '1'; // Nút sáng lên
+
+        // 1. Kiểm tra nếu có chữ (Ký tự không phải số)
+        // Regex: \D khớp với bất kỳ ký tự nào KHÔNG phải là số
+        if (/\D/.test(value)) {
+            errorMsg.innerText = 'Vui lòng chỉ nhập số, không nhập chữ!';
+            errorMsg.style.display = 'block';
+            input.style.borderColor = '#dc3545'; // Viền đỏ
+            btn.disabled = true; // Khóa nút
+            btn.style.opacity = '0.5'; // Nút mờ đi
+            return;
+        }
+
+        // 2. Kiểm tra độ dài (Quá 10 số)
+        if (value.length > 10) {
+            errorMsg.innerText = 'Số điện thoại không được quá 10 số!';
+            errorMsg.style.display = 'block';
+            input.style.borderColor = '#dc3545';
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+        }
+    }
+
+        // Đóng modal khi bấm ra ngoài vùng trắng
+        window.onclick = function(event) {
+            var modal = document.getElementById('modalChangePhone');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        // Hợp nhất tất cả logic cần chạy khi load trang vào đây
+        window.onload = function() {
+            
+            // --- PHẦN 1: Kiểm tra mở lại Modal Email (Sau khi gửi OTP) ---
+            var shouldOpenEmail = "${requestScope.openVerifyEmail}"; 
+            if (shouldOpenEmail === "true") {
+                openEmailModal();
+                
+                var pendingEmail = "${requestScope.pendingEmail}";
+                if (pendingEmail) {
+                    var emailInput = document.getElementById("newEmailInput");
+                    if(emailInput) emailInput.value = pendingEmail;
+                }
+
+                // Focus vào ô OTP
+                var otpInput = document.querySelector("input[name='email_otp']");
+                if(otpInput) otpInput.focus();
+            }
+
+            // --- PHẦN 2: Kiểm tra mở lại Modal Phone (Nếu bạn có làm tương tự) ---
+            // var shouldOpenPhone = "${requestScope.openVerifyPhone}";
+            // if (shouldOpenPhone === "true") { openPhoneModal(); }
+        };
     </script>
+
 </body>
 </html>

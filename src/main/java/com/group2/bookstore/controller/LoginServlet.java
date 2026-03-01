@@ -2,6 +2,8 @@ package com.group2.bookstore.controller;
 
 import com.group2.bookstore.dal.CartDAO;
 import com.group2.bookstore.dal.UserDAO;
+import com.group2.bookstore.dal.BookDAO;
+import com.group2.bookstore.model.Book;
 import com.group2.bookstore.model.CartItem;
 import com.group2.bookstore.model.User;
 import java.io.IOException;
@@ -19,7 +21,16 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("view/Login.jsp").forward(request, response);
+            BookDAO dao = new BookDAO();
+            HttpSession session = request.getSession();
+            User currentUser = (User) session.getAttribute("user");
+            int roleId = 0;
+            if(currentUser != null){
+                roleId = currentUser.getRole();
+            }
+             List<Book> list = dao.getRandomBook(roleId, 50);
+            request.setAttribute("suggestedBooks", list);
+            request.getRequestDispatcher("view/Login.jsp").forward(request, response);
     }
 
     @Override

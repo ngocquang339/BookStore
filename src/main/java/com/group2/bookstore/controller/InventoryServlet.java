@@ -67,10 +67,11 @@ public class InventoryServlet extends HttpServlet {
             }
         }
 
+        // // ĐÃ SỬA: Truyền biến cid vào hàm thay vì số 0
         // ĐÃ SỬA: Truyền biến cid vào hàm thay vì số 0
         // List<Book> list = dao.getBooks(keyword, cid, author, publisher, 0, 999999999, "book_id", "DESC", true);
 
-        // // 5. Gọi hàm DAO
+        // 5. Gọi hàm DAO
         // List<Book> list = dao.getBooks(search, cid, author, publisher, minPrice, maxPrice, sort, order, false, index);
 
         // 6. Gửi dữ liệu về JSP

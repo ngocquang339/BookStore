@@ -122,7 +122,7 @@
                                 <option value="all">All Roles</option>
                                 <option value="admin">Admin</option>
                                 <option value="customer">Customer</option>
-                                <option value="employee">Employee</option>
+                                <option value="staff">Staff</option>
                                 <option value="warehouse">Warehouse</option>
                             </select>
                         </div>

@@ -1,0 +1,104 @@
+/* =========================================
+   GIAO DIỆN CHUNG CHO STAFF (Khách hàng & Đánh giá)
+   ========================================= */
+body { 
+    font-family: sans-serif; 
+    background-color: #f4f6f9; 
+    padding: 20px; 
+    margin: 0;
+}
+
+.container { 
+    max-width: 1200px; 
+    margin: 0 auto; 
+    background: white; 
+    padding: 20px; 
+    border-radius: 8px; 
+    box-shadow: 0 0 10px rgba(0,0,0,0.1); 
+}
+
+h2 { 
+    color: #C92127; 
+    border-bottom: 2px solid #ddd; 
+    padding-bottom: 10px; 
+    margin-top: 15px;
+}
+
+/* --- Nút quay lại --- */
+.btn-back {
+    color: #4da6ff; 
+    text-decoration: none; 
+    font-size: 16px; 
+    font-weight: bold;
+    display: inline-block;
+    margin-bottom: 10px;
+}
+.btn-back:hover { color: #007bff; }
+
+/* --- Bảng dữ liệu (Table) --- */
+table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    margin-top: 20px; 
+}
+th, td { 
+    border: 1px solid #ddd; 
+    padding: 12px; 
+    text-align: left; 
+}
+th { 
+    background-color: #333; 
+    color: white; 
+    font-weight: bold; 
+}
+tr:hover { background-color: #f1f1f1; }
+
+/* --- Nút Gửi Mail / Phản hồi chung --- */
+.btn-mail { 
+    display: inline-block;
+    background: #007bff; 
+    padding: 6px 12px; 
+    color: white; 
+    text-decoration: none; 
+    border-radius: 4px; 
+    font-size: 13px; 
+    text-align: center;
+}
+.btn-mail:hover { background: #0056b3; }
+
+/* =========================================
+   TRANG KHÁCH HÀNG (Customer)
+   ========================================= */
+.status-active { color: green; font-weight: bold; }
+.status-block { color: red; font-weight: bold; }
+.contact-info { font-size: 14px; color: #555; }
+
+.search-box { 
+    margin-bottom: 20px; 
+    background: #f4f4f4; 
+    padding: 15px; 
+    border-radius: 5px; 
+    border: 1px solid #ddd; 
+}
+.search-form { display: flex; gap: 10px; }
+.search-input { flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+.btn-search { background: #C92127; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
+.btn-reset { background: #6c757d; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; }
+
+/* =========================================
+   TRANG ĐÁNH GIÁ (Review)
+   ========================================= */
+.star { color: gold; font-weight: bold; font-size: 16px; }
+.empty-msg { text-align: center; color: #666; margin-top: 20px; }
+
+.filter-box {
+    margin-bottom: 20px; 
+    background: #fff3cd; 
+    padding: 15px; 
+    border-radius: 5px; 
+    border: 1px solid #ffeeba;
+}
+.filter-form { display: flex; align-items: center; gap: 10px; }
+.filter-label { color: #856404; font-weight: bold; }
+.filter-select { padding: 6px; border-radius: 4px; border: 1px solid #ccc; }
+.btn-filter { background: #28a745; color: white; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer; }

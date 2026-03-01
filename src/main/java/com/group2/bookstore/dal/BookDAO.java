@@ -39,7 +39,7 @@ public class BookDAO extends DBContext {
             sql = "SELECT TOP " + quantity + " * FROM Books ORDER BY NEWID()";
         } else {
 
-            sql = "SELECT TOP 10 * FROM Books ORDER BY book_id DESC";
+            sql = "SELECT TOP " + quantity + " * FROM Books ORDER BY NEWID()";
         }
 
         try (Connection conn = new DBContext().getConnection();
@@ -87,10 +87,10 @@ public class BookDAO extends DBContext {
          
         while (rs.next()) {
             list.add(new Category(
-                rs.getInt(1), // ID
-                rs.getString(2), // Name
-                rs.getString(3),// Image (Nếu DB chưa có cột này thì để null hoặc string rỗng)
-                rs.getString(4)  
+                rs.getInt("category_id"), // ID
+                rs.getString("category_name"), // Name
+                rs.getString("category_image"),// Image (Nếu DB chưa có cột này thì để null hoặc string rỗng)
+                rs.getString("description")  
             ));
         }
     } catch (Exception e) {
@@ -130,6 +130,22 @@ public class BookDAO extends DBContext {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public List<Book> getBookByAuthor(String author) {
+        List<Book> list = new ArrayList<>();
+        String sql = "SELECT * FROM Books WHERE author = ?";
+        try (Connection conn = new DBContext().getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, author);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapResultSetToBook(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 
     // 5. Get Related Books
@@ -272,9 +288,18 @@ public class BookDAO extends DBContext {
                 b.setDescription(rs.getString("description"));
                 b.setStockQuantity(rs.getInt("stock_quantity"));
                 b.setCategoryId(rs.getInt("category_id"));
+                b.setDescription(rs.getString("description"));
+                b.setSupplier(rs.getString("supplier"));
+                b.setYearOfPublish(rs.getInt("yearOfPublish"));
+                b.setNumberPage(rs.getInt("number_page"));
+                
+                // --- ADDED THIS LINE ---
+                // Map the subquery result to the coverImage property
+                b.setCoverImage(rs.getString("cover_image"));
+                
+                // Add Admin fields
                 try { b.setCategoryName(rs.getString("category_name")); } catch (Exception e) {}
                 try { b.setActive(rs.getBoolean("is_active")); } catch (Exception e) {}
-                b.setCoverImage(rs.getString("cover_image"));
                 list.add(b);
             }
         } catch (Exception e) { e.printStackTrace(); }
@@ -433,7 +458,7 @@ public List<Book> getBooks(String keyword, int cid, String author, String publis
     // --- CRUD OPERATIONS ---
     // 9. INSERT (Create)
     public void insertBook(Book b) {
-        String sql = "INSERT INTO Books (title, author, price, description, image, stock_quantity, category_id, is_active, import_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Books (title, author, price, description, image, stock_quantity, category_id, is_active, import_price, publisher, supplier, yearOfPublish, number_page) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"; {
         try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, b.getTitle());
             ps.setString(2, b.getAuthor());
@@ -444,15 +469,20 @@ public List<Book> getBooks(String keyword, int cid, String author, String publis
             ps.setInt(7, b.getCategoryId());
             ps.setBoolean(8, b.isActive());
             ps.setDouble(9, b.getImportPrice());
+            ps.setString(10, b.getPublisher());
+            ps.setString(11, b.getSupplier());
+            ps.setInt(12, b.getYearOfPublish());
+            ps.setInt(13, b.getNumberPage());
             ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+}
 
     // 10. UPDATE (Edit)
     public void updateBook(Book b) {
-        String sql = "UPDATE Books SET title=?, author=?, price=?, description=?, image=?, stock_quantity=?, category_id=?, is_active=?, import_price=? WHERE book_id=?";
+        String sql = "UPDATE Books SET title=?, author=?, price=?, description=?, image=?, stock_quantity=?, category_id=?, is_active=?, import_price=?, publisher=?, supplier=?, yearOfPublish=?, number_page=? WHERE book_id=?"; {
         try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, b.getTitle());
             ps.setString(2, b.getAuthor());
@@ -463,12 +493,17 @@ public List<Book> getBooks(String keyword, int cid, String author, String publis
             ps.setInt(7, b.getCategoryId());
             ps.setBoolean(8, b.isActive());
             ps.setDouble(9, b.getImportPrice());
-            ps.setInt(10, b.getId());
+            ps.setString(10, b.getPublisher());
+            ps.setString(11, b.getSupplier());
+            ps.setInt(12, b.getYearOfPublish());
+            ps.setInt(13, b.getNumberPage());
+            ps.setInt(14, b.getId());
             ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+}
 
     // 11. SOFT DELETE (Hide instead of remove)
     public void softDeleteBook(int id) {
@@ -560,6 +595,9 @@ public List<Book> getBooks(String keyword, int cid, String author, String publis
         b.setStockQuantity(rs.getInt("stock_quantity"));
         b.setSoldQuantity(rs.getInt("sold_quantity"));
         b.setCategoryId(rs.getInt("category_id"));
+        b.setPublisher(rs.getString("publisher"));
+        b.setYearOfPublish(rs.getInt("yearOfPublish"));
+        b.setNumberPage(rs.getInt("number_page"));
 
         // Try-Catch blocks for optional columns (in case older queries don't select
         // them)
@@ -589,7 +627,6 @@ public List<Book> getBooks(String keyword, int cid, String author, String publis
                 b.setTitle(rs.getString("title"));
                 b.setPrice(rs.getDouble("price"));
                 b.setImageUrl(rs.getString("image")); // Tên cột ảnh trong DB
-                b.setAuthor(rs.getString("author"));
                 list.add(b);
             }
         } catch (Exception e) {

@@ -56,9 +56,10 @@
             <div class="form-group">
                 <label>Role</label>
                 <select class="form-control" name="role">
-                    <option value="2">Customer (Default)</option>
-                    <option value="4">Warehouse Manager</option>
+                    <option value="0">Customer (Default)</option>
+                    <option value="3">Warehouse Manager</option>
                     <option value="1">Admin</option>
+                    <option value="2">Staff</option>
                 </select>
                 <small style="color: #666;">Be careful when assigning Admin privileges.</small>
             </div>

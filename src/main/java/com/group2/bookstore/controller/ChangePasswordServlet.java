@@ -40,15 +40,12 @@ public class ChangePasswordServlet extends HttpServlet{
         String status = "error"; // Mặc định là lỗi
 
         // Kiểm tra 1: Mật khẩu cũ có đúng không?
-        // Lưu ý: Nếu bạn dùng mã hóa (MD5/BCrypt) thì phải mã hóa currentPass rồi mới so sánh
         if (!user.getPassword().equals(currentPass)) {
             message = "Mật khẩu hiện tại không đúng!";
         } 
-        // Kiểm tra 2: Mật khẩu mới và xác nhận có khớp không?
         else if (!newPass.equals(confirmPass)) {
             message = "Mật khẩu xác nhận không khớp!";
         } 
-        // Kiểm tra 3: Mật khẩu mới không được trùng mật khẩu cũ (Optional)
         else if (newPass.equals(currentPass)) {
             message = "Mật khẩu mới không được trùng với mật khẩu cũ!";
         }
@@ -56,7 +53,6 @@ public class ChangePasswordServlet extends HttpServlet{
             // 4. MỌI THỨ OK -> GỌI DAO ĐỂ UPDATE
             UserDAO userDAO = new UserDAO();
             
-            // Hàm này bạn phải viết trong UserDAO: public boolean changePassword(int userId, String newPass)
             boolean isUpdated = userDAO.changePassword(newPass, user);
 
             if (isUpdated) {
@@ -71,7 +67,6 @@ public class ChangePasswordServlet extends HttpServlet{
             }
         }
 
-        // 5. Gửi thông báo về JSP (Toast Message)
         Session.setAttribute("mess", message);
         Session.setAttribute("status", status);
 

@@ -58,14 +58,12 @@ public class ReviewDAO extends DBContext {
     // --- NÂNG CẤP: LỌC REVIEW THEO SỐ SAO ---
     public List<Review> getReviewsByStar(String starFilter) {
         List<Review> list = new ArrayList<>();
-
         // Dùng JOIN để lấy tên khách hàng (từ bảng Users) và tên sách (từ bảng Books)
-        // (Lưu ý:Hãy kiểm tra tên bảng và tên cột u.id, b.id xem đã khớp với DB chưa nhé)
         String sql = "SELECT r.review_id, r.user_id, r.book_id, r.rating, r.comment, r.create_at, " +
-                "u.username, b.title AS book_title " +
-                "FROM Reviews r " +
-                "JOIN Users u ON r.user_id = u.id " +
-                "JOIN Books b ON r.book_id = b.id ";
+                     "u.username, u.email, b.title AS book_title " + // <-- Có u.email ở đây
+                     "FROM Reviews r " +
+                     "JOIN Users u ON r.user_id = u.id " + 
+                     "JOIN Books b ON r.book_id = b.id ";
 
         if (starFilter != null && !starFilter.isEmpty() && !starFilter.equals("all")) {
             sql += " WHERE r.rating = ? ";
@@ -89,8 +87,8 @@ public class ReviewDAO extends DBContext {
                 r.setComment(rs.getString("comment"));
                 r.setCreateAt(rs.getDate("create_at"));
                 r.setUsername(rs.getString("username"));
+                r.setEmail(rs.getString("email"));
                 r.setBookTitle(rs.getString("book_title"));
-
                 list.add(r);
             }
         } catch (Exception e) {
