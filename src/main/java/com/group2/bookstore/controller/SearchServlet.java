@@ -58,17 +58,22 @@ public class SearchServlet extends HttpServlet {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
         boolean isAdmin = false;
-        if (user != null && user.getRole() == 1) { // Giả sử Role 1 là Admin
-            isAdmin = true;
+         int roldeId = 0;
+        if (user != null) {
+            if(user.getRole() == 1){
+                isAdmin = true;
+            } // Giả sử Role 1 là Admin
+            else{
+                roldeId = user.getRole();
+            }
         }
-
         // 5. Gọi DAO
         BookDAO bookDAO = new BookDAO();
         CategoryDAO catDAO = new CategoryDAO();
 
         // Gọi hàm getBooks (9 tham số) khớp với BookDAO mới của bạn
         List<Book> listBooks = bookDAO.getBooks(txtSearch, cid, author, publisher, priceFrom, priceTo, sort, "ASC", isAdmin);
-
+        List<Book> randomBooks = bookDAO.getRandomBook(roldeId, 50);
         // Lấy dữ liệu cho Dropdown bộ lọc
         List<Category> listCategories = catDAO.getCategories();
         List<String> listPublishers = bookDAO.getAllPublishers();
@@ -77,6 +82,7 @@ public class SearchServlet extends HttpServlet {
         request.setAttribute("listBooks", listBooks);
         request.setAttribute("listCategories", listCategories);
         request.setAttribute("listPublishers", listPublishers);
+        request.setAttribute("suggestedBooks", randomBooks);
         
         // 7. Lưu lại trạng thái bộ lọc (để form không bị reset)
         request.setAttribute("txtS", txtSearch);

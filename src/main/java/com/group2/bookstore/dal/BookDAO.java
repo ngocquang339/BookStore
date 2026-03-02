@@ -39,7 +39,7 @@ public class BookDAO extends DBContext {
             sql = "SELECT TOP " + quantity + " * FROM Books ORDER BY NEWID()";
         } else {
 
-            sql = "SELECT TOP " + quantity + " * FROM Books ORDER BY NEWID()";
+            sql = "SELECT TOP " + quantity + " * FROM Books where is_active = 1 ORDER BY NEWID()";
         }
 
         try (Connection conn = new DBContext().getConnection();
@@ -235,11 +235,18 @@ public class BookDAO extends DBContext {
 
         if (!isAdmin) sql.append(" AND b.is_active = 1 ");
         if (keyword != null && !keyword.trim().isEmpty()) {
-            sql.append(" AND LOWER(b.title) LIKE LOWER(?) ");
-            params.add("%" + keyword.trim() + "%");
+            sql.append(" AND (LOWER(b.title) LIKE LOWER(?) OR LOWER(b.author) LIKE LOWER(?) OR LOWER(b.supplier) LIKE LOWER(?)) OR LOWER(b.publisher) LIKE LOWER(?) ");
+        
+            // Truyền giá trị cho 3 dấu chấm hỏi
+            String searchParam = "%" + keyword.trim() + "%";
+            params.add(searchParam); // Cho title
+            params.add(searchParam); // Cho author
+            params.add(searchParam); // Cho supplier
+            params.add(searchParam); // Cho publisher
         }
         if (cid > 0) {
-            sql.append(" AND b.category_id = ? ");
+            sql.append(" AND b.category_id = ? OR c.parent_id = ? ");
+            params.add(cid);
             params.add(cid);
         }
         if (author != null && !author.trim().isEmpty()) {
@@ -363,12 +370,20 @@ public List<Book> getBooks(String keyword, int cid, String author, String publis
         sql.append(" AND b.is_active = 1 ");
     }
     if (keyword != null && !keyword.trim().isEmpty()) {
-        sql.append(" AND b.title LIKE ? ");
-        params.add("%" + keyword + "%");
+        sql.append(" AND (LOWER(b.title) LIKE LOWER(?) OR LOWER(b.author) LIKE LOWER(?) OR LOWER(b.supplier) LIKE LOWER(?)) OR LOWER(b.publisher) LIKE LOWER(?) ");
+        
+        // Truyền giá trị cho 3 dấu chấm hỏi
+        String searchParam = "%" + keyword.trim() + "%";
+        params.add(searchParam); // Cho title
+        params.add(searchParam); // Cho author
+        params.add(searchParam); // Cho supplier
+        params.add(searchParam); // Cho publisher
     }
     if (cid > 0) {
-        sql.append(" AND b.category_id = ? ");
-        params.add(cid);
+        // Tìm sách thuộc danh mục con (b.category_id) HOẶC danh mục cha (c.parent_id)
+        sql.append(" AND (b.category_id = ? OR c.parent_id = ?) ");
+        params.add(cid); 
+        params.add(cid); 
     }
     if (author != null && !author.trim().isEmpty()) {
         sql.append(" AND b.author = ? ");
@@ -596,6 +611,7 @@ public List<Book> getBooks(String keyword, int cid, String author, String publis
         b.setSoldQuantity(rs.getInt("sold_quantity"));
         b.setCategoryId(rs.getInt("category_id"));
         b.setPublisher(rs.getString("publisher"));
+        b.setSupplier(rs.getString("supplier"));
         b.setYearOfPublish(rs.getInt("yearOfPublish"));
         b.setNumberPage(rs.getInt("number_page"));
 
@@ -613,27 +629,6 @@ public List<Book> getBooks(String keyword, int cid, String author, String publis
         return b;
     }
 
-    public List<Book> getRandomBook() {
-        List<Book> list = new ArrayList<>();
-        String sql = "Select TOP 10 * from Books ORDER BY NEWID()";
-        try {
-            Connection conn = getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                Book b = new Book();
-                b.setId(rs.getInt("book_id"));
-                b.setTitle(rs.getString("title"));
-                b.setPrice(rs.getDouble("price"));
-                b.setImageUrl(rs.getString("image")); // Tên cột ảnh trong DB
-                list.add(b);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return list;
-    }
     // Lấy danh sách sách sắp hết hàng (Low Stock)
     public List<Book> getLowStockBooks(int threshold) {
         List<Book> list = new ArrayList<>();

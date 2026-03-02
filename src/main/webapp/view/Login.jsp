@@ -172,12 +172,12 @@
                 
                 <div class="form-group">
                     <label for="username">Số điện thoại/Email</label>
-                    <input type="text" id="username" name="username" value="${param.username}" placeholder="Nhập số điện thoại/Email" required>
+                    <input type="text" id="username" name="username" value="${param.username}" placeholder="Nhập số điện thoại/Email" maxlength="50" required>
                 </div>
 
                 <div class="form-group">
                     <label for="password">Mật khẩu</label>
-                    <input type="password" id="password" name="password" placeholder="Nhập mật khẩu" required>
+                    <input type="password" id="password" name="password" placeholder="Nhập mật khẩu" maxlength="50" required>
                     <span class="toggle-password" onclick="togglePassword()">Hiện</span>
                 </div>
 

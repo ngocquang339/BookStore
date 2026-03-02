@@ -132,7 +132,7 @@
                                 <tr style="border-bottom: 1px solid #eee;">
                                     <td>
                                         <div class="d-flex align-items-center">
-                                            <img src="${pageContext.request.contextPath}/assets/image/books/${item.book.imageUrl}" 
+                                            <img src="${pageContext.request.contextPath}/${item.book.imageUrl}" 
                                                  class="product-img me-3" 
                                                  alt="${item.book.title}"
                                                  onerror="this.src='https://placehold.co/80x100'">
