@@ -7,9 +7,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.List;
 
 import com.group2.bookstore.dal.UserDAO;
 import com.group2.bookstore.model.User;
+import com.group2.bookstore.model.Book;
+import com.group2.bookstore.dal.BookDAO;
 
 @WebServlet("/update-profile")
 public class UpdateProfileServlet extends HttpServlet{
@@ -17,6 +20,15 @@ public class UpdateProfileServlet extends HttpServlet{
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        HttpSession session = request.getSession();
+        User currentUser = (User) session.getAttribute("user");
+        int roleId = 0;
+        if(currentUser != null){
+            roleId = currentUser.getRole();
+        }
+        BookDAO dao = new BookDAO();
+        List<Book> list = dao.getRandomBook(roleId, 50);
+        request.setAttribute("suggestedBooks", list);
         request.getRequestDispatcher("view/UserProfile.jsp").forward(request, response);
     }
 
@@ -33,10 +45,9 @@ public class UpdateProfileServlet extends HttpServlet{
         String newPhone = request.getParameter("phone_number");
         String newAddress = request.getParameter("address");
 
-        // 4. Lấy User hiện tại từ Session ra để biết đang sửa ai
+        
         HttpSession session = request.getSession();
         User currentUser = (User) session.getAttribute("user");
-
         // Kiểm tra nếu session hết hạn (user null) thì đá về login
         if (currentUser == null) {
             response.sendRedirect("login.jsp");

@@ -66,28 +66,7 @@
     </c:if>
 
 
-    <header class="main-header">
-        <div class="container d-flex justify-content-between align-items-center">
-            <div class="logo">
-                <a href="${pageContext.request.contextPath}/home" style="text-decoration: none;">
-                    <span style="color: #C92127; font-weight: 900; font-size: 28px;">BOOK</span><span style="color: #333; font-weight: 900; font-size: 28px;">STORE</span>
-                </a>
-            </div>
-            
-            <div class="search-box" style="flex-grow: 0.5;"> 
-                <form action="search" method="get" style="display: flex; width: 100%; position: relative;">
-                    <input type="text" name="txt" placeholder="Tìm kiếm sách, tác giả..." style="width: 100%; padding: 8px 15px; border: 1px solid #ddd; border-radius: 4px;">
-                    <button type="submit" style="position: absolute; right: 0; top: 0; bottom: 0; background: #C92127; border: none; color: white; padding: 0 15px; border-radius: 0 4px 4px 0;">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                    </button>
-                </form>
-            </div>
-
-            <div class="header-icons d-flex gap-4 align-items-center">
-                <a href="${pageContext.request.contextPath}/home" class="text-decoration-none text-dark"><i class="fa-solid fa-arrow-left"></i> Tiếp tục mua sắm</a>
-            </div>
-        </div>
-    </header>
+    <jsp:include page="component/header.jsp" />
 
     <div class="cart-wrapper">
         <c:set var="cartSize" value="${sessionScope.cart != null ? sessionScope.cart.size() : 0}" />
@@ -183,7 +162,7 @@
             </c:choose>
         </div>
     </div>
-
+    <jsp:include page="component/footer.jsp" />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

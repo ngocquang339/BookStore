@@ -20,9 +20,9 @@ public class AddToCartServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
-
+        int bookId = 0;
         try {
-            int bookId = Integer.parseInt(request.getParameter("id"));
+            bookId = Integer.parseInt(request.getParameter("id"));
             BookDAO bookDAO = new BookDAO();
             Book book = bookDAO.getBookById(bookId);
 
@@ -54,6 +54,6 @@ public class AddToCartServlet extends HttpServlet {
                 session.setAttribute("message", "Đã thêm vào giỏ hàng!");
             }
         } catch (Exception e) { e.printStackTrace(); }
-        response.sendRedirect("home");
+        response.sendRedirect("detail?pid=" + bookId); // Quay lại trang chi tiết sản phẩm
     }
 }

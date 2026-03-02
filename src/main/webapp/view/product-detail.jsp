@@ -33,11 +33,66 @@
             font-weight: bold;
         }
         .edit-btn:hover { background-color: #e0a800; }
+        /* --- CSS CHO THÔNG BÁO GIỎ HÀNG THÀNH CÔNG --- */
+        .cart-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(30, 30, 30, 0.85); /* Nền đen mờ */
+            color: white;
+            padding: 30px 40px;
+            border-radius: 8px;
+            text-align: center;
+            z-index: 10005; /* Đảm bảo nổi lên trên cùng */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            animation: fadeInOut 2.5s ease-in-out forwards; /* Tự động mờ dần và biến mất */
+            pointer-events: none; /* Không chặn click chuột của người dùng */
+        }
+        
+        .cart-toast .toast-icon {
+            font-size: 50px;
+            color: #00b14f; /* Màu xanh lá cây giống ảnh */
+            background: white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .cart-toast .toast-text {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        /* Hiệu ứng trượt nhẹ từ dưới lên và tự mờ đi */
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translate(-50%, -40%); }
+            15% { opacity: 1; transform: translate(-50%, -50%); }
+            80% { opacity: 1; transform: translate(-50%, -50%); }
+            100% { opacity: 0; transform: translate(-50%, -60%); visibility: hidden; }
+        }
     </style>
 </head>
 <body>
 
     <jsp:include page="component/header.jsp" />
+    <%-- KHỐI HIỂN THỊ THÔNG BÁO KHI THÊM VÀO GIỎ HÀNG THÀNH CÔNG --%>
+    <c:if test="${not empty sessionScope.message}">
+        <div class="cart-toast">
+            <div class="toast-icon">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <div class="toast-text">${sessionScope.message}</div>
+        </div>
+        <%-- Xóa message ngay lập tức để F5 không bị hiện lại --%>
+        <c:remove var="message" scope="session" />
+    </c:if>
 
     <main class="container-fluid" style=" margin-top: 20px; margin-bottom: 50px">
         
@@ -84,8 +139,8 @@
 
                     </c:forEach>
                 </div>
-                <form action="${pageContext.request.contextPath}/add-to-cart?id=${b.id}" style="width: 100%; margin-top: 25px;">
-    
+                <form action="${pageContext.request.contextPath}/add-to-cart" style="width: 100%; margin-top: 25px;">
+                    <input type="hidden" name="id" value="${book.id}">
                     <div class="button-group" style="display: flex; gap: 15px; width: 100%;">
                         
                         <button type="submit" style="background: white; color: #C92127; border: 2px solid #C92127; padding: 12px 20px; font-weight: bold; font-size: 16px; cursor: pointer; border-radius: 8px; flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.3s;">
@@ -433,7 +488,7 @@
     </main>
 
     <script>
-        function changeImage(element, imageUrl) {
+        function changeImage(element, imageUrl){
             // 1. Thay đổi nguồn ảnh của ảnh chính (ảnh to)
             document.getElementById('mainImage').src = imageUrl;
 
@@ -442,12 +497,11 @@
             allThumbs.forEach(function(thumb) {
                 thumb.style.borderColor = "transparent"; // Đưa về trong suốt
             });
-
             // 3. Thêm viền đỏ cho ảnh đang được click
             element.style.borderColor = "#C92127";
         }
 
-        // --- KHAI BÁO BIẾN TOÀN CỤC ---
+    // --- KHAI BÁO BIẾN TOÀN CỤC ---
     let currentZoom = 1;
     const zoomStep = 0.3;
     
@@ -472,10 +526,8 @@
                 if(event.key === "Escape") { closeFullscreenGallery(); }
             }
         });
-        
         // (Giữ lại logic mở modal email cũ của bạn nếu có ở đây...)
     };
-
     // --- CÁC HÀM ĐIỀU HƯỚNG ---
     
     // Chuyển sang ảnh TIẾP THEO
