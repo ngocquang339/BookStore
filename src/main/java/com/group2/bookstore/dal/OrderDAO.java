@@ -195,8 +195,11 @@ public class OrderDAO extends DBContext {
                      "JOIN Users u ON o.user_id = u.user_id " +
                      "WHERE o.status = ? ";
                      
+        // Thêm logic sắp xếp theo tên khách hàng (fullname)
         if ("total".equals(sortBy)) {
             sql += "ORDER BY o.total_amount " + ("asc".equals(sortOrder) ? "ASC" : "DESC");
+        } else if ("name".equals(sortBy)) {
+            sql += "ORDER BY u.fullname " + ("asc".equals(sortOrder) ? "ASC" : "DESC");
         } else {
             sql += "ORDER BY o.order_date " + ("asc".equals(sortOrder) ? "ASC" : "DESC");
         }
@@ -429,9 +432,11 @@ public class OrderDAO extends DBContext {
         String sql = "SELECT o.*, u.username FROM Orders o " +
                      "JOIN Users u ON o.user_id = u.user_id ";
         
-        // Logic sắp xếp (Lọc theo cột và chiều mũi tên)
+        // Thêm logic sắp xếp theo tên khách hàng (username)
         if ("total".equals(sortBy)) {
             sql += "ORDER BY o.total_amount " + ("asc".equals(sortOrder) ? "ASC" : "DESC");
+        } else if ("name".equals(sortBy)) {
+            sql += "ORDER BY u.username " + ("asc".equals(sortOrder) ? "ASC" : "DESC");
         } else {
             sql += "ORDER BY o.order_date " + ("asc".equals(sortOrder) ? "ASC" : "DESC");
         }

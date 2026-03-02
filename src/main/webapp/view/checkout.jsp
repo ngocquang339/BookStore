@@ -41,7 +41,7 @@
                             <label class="form-label" style="min-width: 150px;">Số điện thoại</label>
                             <input type="text" name="phone" id="phone" class="form-control" 
                                    placeholder="Nhập 10 chữ số"
-                                   value="${sessionScope.user.phone_number}" required>
+                                   value="${sessionScope.user.phone_number}" required maxlength="10">
                         </div>
                         <small id="phone-type-error" class="error-hint ms-5 ps-5">* Số điện thoại chỉ được nhập chữ số</small>
                         <small id="phone-error" class="error-hint ms-5 ps-5">* Số điện thoại phải gồm đúng 10 chữ số và bắt đầu bằng số 0</small>
