@@ -74,7 +74,7 @@
                     <div class="section-title">KIỂM TRA LẠI ĐƠN HÀNG</div>
                     <c:forEach items="${sessionScope.cart}" var="item">
                         <div class="book-item d-flex mb-3 border-bottom pb-3">
-                            <img src="${pageContext.request.contextPath}/assets/image/books/${item.book.imageUrl}" 
+                            <img src="${pageContext.request.contextPath}/${item.book.imageUrl}" 
                                  class="book-img border rounded me-3" alt="${item.book.title}"
                                  style="width: 80px; height: 100px; object-fit: cover;"
                                  onerror="this.src='https://placehold.co/80x100?text=No+Image'">

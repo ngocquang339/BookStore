@@ -10,7 +10,7 @@ import java.util.List;
 public class CategoryDAO extends DBContext {
 
     // Hàm lấy tất cả danh mục
-    public List<Category> getCategories() {
+    public List<Category> getCategories(){
         List<Category> list = new ArrayList<>();
         // Tên bảng trong DB của bạn là Categories
         String sql = "SELECT * FROM Categories where parent_id is null"; // Lấy danh mục cha (nếu có phân cấp)

@@ -53,51 +53,51 @@
 
                 <div class="thumbnail-list" style="display:flex; gap:12px; justify-content:center;">
 
-    <div class="thumb-item active" 
-        style="width: 80px; height: 80px; border: 2px solid #C92127; border-radius: 4px; cursor: pointer; padding: 2px; display: flex; justify-content: center; align-items: center;"
-        onclick="changeImage(this, '${pageContext.request.contextPath}/${book.imageUrl}')">
-        <img src="${pageContext.request.contextPath}/${book.imageUrl}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-    </div>
+                    <div class="thumb-item active" 
+                        style="width: 80px; height: 80px; border: 2px solid #C92127; border-radius: 4px; cursor: pointer; padding: 2px; display: flex; justify-content: center; align-items: center;"
+                        onclick="changeImage(this, '${pageContext.request.contextPath}/${book.imageUrl}')">
+                        <img src="${pageContext.request.contextPath}/${book.imageUrl}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                    </div>
 
-    <c:forEach items="${bookImages}" var="img" varStatus="status">
+                    <c:forEach items="${bookImages}" var="img" varStatus="status">
 
-        <c:if test="${status.index < 3}">
-            <div class="thumb-item" 
-                style="width: 80px; height: 80px; border: 2px solid transparent; border-radius: 4px; cursor: pointer; padding: 2px; display: flex; justify-content: center; align-items: center;"
-                onclick="changeImage(this, '${pageContext.request.contextPath}/${img.imageUrl}')">
-                <img src="${pageContext.request.contextPath}/${img.imageUrl}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-            </div>
-        </c:if>
+                        <c:if test="${status.index < 3}">
+                            <div class="thumb-item" 
+                                style="width: 80px; height: 80px; border: 2px solid transparent; border-radius: 4px; cursor: pointer; padding: 2px; display: flex; justify-content: center; align-items: center;"
+                                onclick="changeImage(this, '${pageContext.request.contextPath}/${img.imageUrl}')">
+                                <img src="${pageContext.request.contextPath}/${img.imageUrl}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                            </div>
+                        </c:if>
 
-        <c:if test="${status.index == 3}">
-            <div class="thumb-item plus-item" 
-                style="position:relative; width: 80px; height: 80px; border: 2px solid transparent; border-radius: 4px; cursor: pointer; padding: 2px; display: flex; justify-content: center; align-items: center;"
-                onclick="openFullscreenGallery()">
+                        <c:if test="${status.index == 3}">
+                            <div class="thumb-item plus-item" 
+                                style="position:relative; width: 80px; height: 80px; border: 2px solid transparent; border-radius: 4px; cursor: pointer; padding: 2px; display: flex; justify-content: center; align-items: center;"
+                                onclick="openFullscreenGallery()">
 
-                <img src="${pageContext.request.contextPath}/${img.imageUrl}" style="max-width: 100%; max-height: 100%; object-fit: contain; opacity:0.4;">
+                                <img src="${pageContext.request.contextPath}/${img.imageUrl}" style="max-width: 100%; max-height: 100%; object-fit: contain; opacity:0.4;">
 
-                <div style="position:absolute; top:0; left:0; right:0; bottom:0; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size: 22px; color:#fff; background: rgba(0,0,0,0.5); border-radius: 2px;">
-                    +${bookImages.size() - 3}
+                                <div style="position:absolute; top:0; left:0; right:0; bottom:0; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size: 22px; color:#fff; background: rgba(0,0,0,0.5); border-radius: 2px;">
+                                    +${bookImages.size() - 3}
+                                </div>
+                            </div>
+                        </c:if>
+
+                    </c:forEach>
                 </div>
-            </div>
-        </c:if>
-
-    </c:forEach>
-</div>
-                <form action="cart" method="post" style="width: 100%; margin-top: 25px;">
+                <form action="${pageContext.request.contextPath}/add-to-cart?id=${b.id}" style="width: 100%; margin-top: 25px;">
     
-    <div class="button-group" style="display: flex; gap: 15px; width: 100%;">
-        
-        <button type="submit" style="background: white; color: #C92127; border: 2px solid #C92127; padding: 12px 20px; font-weight: bold; font-size: 16px; cursor: pointer; border-radius: 8px; flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.3s;">
-            <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ hàng
-        </button>
+                    <div class="button-group" style="display: flex; gap: 15px; width: 100%;">
+                        
+                        <button type="submit" style="background: white; color: #C92127; border: 2px solid #C92127; padding: 12px 20px; font-weight: bold; font-size: 16px; cursor: pointer; border-radius: 8px; flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.3s;">
+                            <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ hàng
+                        </button>
 
-        <button type="button" style="background: #C92127; color: white; border: none; padding: 12px 20px; font-weight: bold; font-size: 16px; cursor: pointer; border-radius: 8px; flex: 1; display: flex; align-items: center; justify-content: center; transition: 0.3s;">
-            Mua ngay
-        </button>
-        
-    </div>
-</form>
+                        <button type="button" style="background: #C92127; color: white; border: none; padding: 12px 20px; font-weight: bold; font-size: 16px; cursor: pointer; border-radius: 8px; flex: 1; display: flex; align-items: center; justify-content: center; transition: 0.3s;">
+                            Mua ngay
+                        </button>
+                        
+                    </div>
+                </form>
             </div>
             <div class="product-info-column" style="flex: 1;display: flex; flex-direction: column; gap: 15px;">
                 <div class="product-info-box white-box" style="padding: 20px; border-radius: 8px;">
@@ -232,7 +232,7 @@
                 <h3 class="section-header" style="margin-top: 0; margin-bottom: 15px; font-size: 18px;">Thông tin chi tiết</h3>
                 
                 <div class="detail-row" style="margin-bottom: 10px;">
-                    <div class="detail-label" style="color: #777; width: 150px; display: inline-block;">Mã hàng</div>
+                    <div class="detail-label" style="color: #777; width: 150px; display: inline-block;">Mã sách</div>
                     <div class="detail-value" style="display: inline-block;">893${book.id}00${book.id}</div>
                 </div>
                 <div class="detail-row" style="margin-bottom: 10px;">
@@ -325,7 +325,7 @@
             
             <c:forEach items="${bookSameAuthor}" var="b" end="4">
                 
-                <a href="detail?id=${b.id}" style="text-decoration: none; color: inherit; display: block; padding: 10px; transition: 0.3s; border-radius: 8px;" 
+                <a href="${pageContext.request.contextPath}/detail?pid=${b.id}" style="text-decoration: none; color: inherit; display: block; padding: 10px; transition: 0.3s; border-radius: 8px;" 
                    onmouseover="this.style.boxShadow='0 0 10px rgba(0,0,0,0.1)'" 
                    onmouseout="this.style.boxShadow='none'">
                     
