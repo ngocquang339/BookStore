@@ -36,22 +36,21 @@ public class LocationDAO extends DBContext {
     }
 
     // 2. Thêm mới vị trí
-    public void addLocation(Location l) {
+    public void addLocation(Location l) throws Exception {
         String sql = "INSERT INTO Warehouse_Locations (zone, rack, shelf, category_id, description) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, l.getZone().toUpperCase()); // Luôn viết hoa Khu
+            ps.setString(1, l.getZone().toUpperCase());
             ps.setString(2, l.getRack());
             ps.setString(3, l.getShelf());
             if (l.getCategoryId() > 0) ps.setInt(4, l.getCategoryId());
-            else ps.setNull(4, Types.INTEGER); // Nếu không chọn thể loại thì set NULL
+            else ps.setNull(4, Types.INTEGER);
             ps.setString(5, l.getDescription());
             ps.executeUpdate();
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (java.sql.SQLException e) { throw new Exception("Lỗi DB: " + e.getMessage()); }
     }
 
-    // 3. Cập nhật vị trí
-    public void updateLocation(Location l) {
+    public void updateLocation(Location l) throws Exception {
         String sql = "UPDATE Warehouse_Locations SET zone=?, rack=?, shelf=?, category_id=?, description=? WHERE location_id=?";
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -63,16 +62,18 @@ public class LocationDAO extends DBContext {
             ps.setString(5, l.getDescription());
             ps.setInt(6, l.getId());
             ps.executeUpdate();
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (java.sql.SQLException e) { throw new Exception("Lỗi DB: " + e.getMessage()); }
     }
 
-    // 4. Xóa vị trí
-    public void deleteLocation(int id) {
+    public void deleteLocation(int id) throws Exception {
         String sql = "DELETE FROM Warehouse_Locations WHERE location_id=?";
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
             ps.executeUpdate();
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (java.sql.SQLException e) { 
+            if (e.getErrorCode() == 547) throw new Exception("Không thể xóa kệ này vì đang có sách nằm trên kệ!");
+            throw new Exception("Lỗi DB: " + e.getMessage()); 
+        }
     }
 }

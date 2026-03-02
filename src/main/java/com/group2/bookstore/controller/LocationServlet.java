@@ -33,33 +33,55 @@ public class LocationServlet extends HttpServlet {
         String action = request.getParameter("action");
 
         try {
-            if ("add".equals(action)) {
-                Location l = new Location(0, 
-                    request.getParameter("zone"), 
-                    request.getParameter("rack"), 
-                    request.getParameter("shelf"), null, 
-                    Integer.parseInt(request.getParameter("categoryId")), null, 
-                    request.getParameter("description"));
-                dao.addLocation(l);
-            } 
-            else if ("update".equals(action)) {
-                Location l = new Location(
-                    Integer.parseInt(request.getParameter("id")), 
-                    request.getParameter("zone"), 
-                    request.getParameter("rack"), 
-                    request.getParameter("shelf"), null, 
-                    Integer.parseInt(request.getParameter("categoryId")), null, 
-                    request.getParameter("description"));
-                dao.updateLocation(l);
-            } 
-            else if ("delete".equals(action)) {
+            if ("add".equals(action) || "update".equals(action)) {
+                String zone = request.getParameter("zone");
+                String rack = request.getParameter("rack");
+                String shelf = request.getParameter("shelf");
+                String categoryIdStr = request.getParameter("categoryId");
+                String description = request.getParameter("description");
+
+                if (zone == null || zone.trim().isEmpty() || rack == null || rack.trim().isEmpty() || shelf == null || shelf.trim().isEmpty()) {
+                    throw new Exception("Khu, Kệ và Tầng không được để trống!");
+                }
+
+                zone = zone.trim().toUpperCase(); rack = rack.trim(); shelf = shelf.trim();
+
+                if (!zone.matches("^[A-Z]$")) throw new Exception("Khu phải là 1 chữ cái (VD: A, B, C).");
+                if (!rack.matches("^[0-9]{1}$")) throw new Exception("Kệ phải có đúng 2 chữ số (VD: 01, 02).");
+                if (!shelf.matches("^0[1-5]$")) throw new Exception("Tầng phải từ 01 đến 05.");
+
+                int categoryId = 0;
+                try { categoryId = Integer.parseInt(categoryIdStr); } catch (Exception e) {}
+                if (categoryId <= 0) throw new Exception("Vui lòng chọn Thể loại cho kệ!");
+
+                Location l = new Location();
+                l.setZone(zone);
+                l.setRack(rack);
+                l.setShelf(shelf);
+                l.setCategoryId(categoryId);
+                l.setDescription(description);
+
+                if ("add".equals(action)) {
+                    dao.addLocation(l);
+                    request.setAttribute("successMessage", "Thêm vị trí thành công!");
+                } else {
+                    l.setId(Integer.parseInt(request.getParameter("id")));
+                    dao.updateLocation(l);
+                    request.setAttribute("successMessage", "Cập nhật vị trí thành công!");
+                }
+            } else if ("delete".equals(action)) {
                 int id = Integer.parseInt(request.getParameter("id"));
                 dao.deleteLocation(id);
+                request.setAttribute("successMessage", "Xóa vị trí thành công!");
             }
         } catch (Exception e) {
-            e.printStackTrace(); // Bắt lỗi parse số (nếu có)
+            request.setAttribute("errorMessage", e.getMessage());
         }
-        
-        response.sendRedirect("location");
+
+        // Forward lại trang kèm theo data và thông báo
+        com.group2.bookstore.dal.CategoryDAO cDao = new com.group2.bookstore.dal.CategoryDAO();
+        request.setAttribute("listL", dao.getAllLocations());
+        request.setAttribute("listC", cDao.getAllCategories());
+        request.getRequestDispatcher("/view/warehouse/location_list.jsp").forward(request, response);
     }
 }

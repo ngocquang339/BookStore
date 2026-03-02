@@ -32,7 +32,8 @@ public class SupplierDAO extends DBContext {
     }
 
     // 2. Create: Thêm mới
-    public void addSupplier(Supplier s) {
+    // Thêm throws Exception và sửa lại khối catch
+    public void addSupplier(Supplier s) throws Exception {
         String sql = "INSERT INTO Suppliers (supplier_name, contact_person, phone, email, address, is_active) VALUES (?, ?, ?, ?, ?, 1)";
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -42,11 +43,13 @@ public class SupplierDAO extends DBContext {
             ps.setString(4, s.getEmail());
             ps.setString(5, s.getAddress());
             ps.executeUpdate();
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (java.sql.SQLException e) { 
+            if (e.getErrorCode() == 2627) throw new Exception("Lỗi: Số điện thoại hoặc Email đã tồn tại!");
+            throw new Exception("Lỗi DB: " + e.getMessage()); 
+        }
     }
 
-    // 3. Update: Sửa thông tin
-    public void updateSupplier(Supplier s) {
+    public void updateSupplier(Supplier s) throws Exception {
         String sql = "UPDATE Suppliers SET supplier_name=?, contact_person=?, phone=?, email=?, address=? WHERE supplier_id=?";
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -57,16 +60,20 @@ public class SupplierDAO extends DBContext {
             ps.setString(5, s.getAddress());
             ps.setInt(6, s.getId());
             ps.executeUpdate();
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (java.sql.SQLException e) { 
+            if (e.getErrorCode() == 2627) throw new Exception("Lỗi: Số điện thoại hoặc Email đã tồn tại!");
+            throw new Exception("Lỗi DB: " + e.getMessage()); 
+        }
     }
 
-    // 4. Delete: Xóa mềm (set is_active = 0)
-    public void deleteSupplier(int id) {
+    public void deleteSupplier(int id) throws Exception {
         String sql = "UPDATE Suppliers SET is_active = 0 WHERE supplier_id=?";
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
             ps.executeUpdate();
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (java.sql.SQLException e) { 
+            throw new Exception("Lỗi DB: " + e.getMessage()); 
+        }
     }
 }
