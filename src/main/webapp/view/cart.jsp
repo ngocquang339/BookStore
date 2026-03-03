@@ -41,20 +41,19 @@
         
         /* CSS MỚI CHO Ô CHECKBOX TO HƠN */
         .custom-checkbox { transform: scale(1.5); cursor: pointer; accent-color: #C92127; }
+
+        /* CSS MỚI: Làm mờ nút khi không được phép bấm */
+        .btn-disabled {
+            background-color: #cccccc !important;
+            cursor: not-allowed !important;
+            color: #888888 !important;
+        }
     </style>
 </head>
 
 <body>
 
-    <c:if test="${not empty sessionScope.message}">
-        <div class="alert alert-${sessionScope.messageType} alert-dismissible fade show alert-fixed" role="alert">
-            <i class="fa-solid ${sessionScope.messageType == 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation'}"></i> 
-            <strong>Thông báo:</strong> ${sessionScope.message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        <c:remove var="message" scope="session" />
-        <c:remove var="messageType" scope="session" />
-    </c:if>
+    
 
     <c:if test="${not empty sessionScope.cartError}">
         <div class="alert alert-danger alert-dismissible fade show alert-fixed" role="alert">
@@ -84,11 +83,13 @@
                 </c:when>
 
                 <c:otherwise>
-                    <form action="${pageContext.request.contextPath}/checkout" method="GET">
+                    <form action="${pageContext.request.contextPath}/checkout" method="GET" id="cartForm">
                         <table class="table table-borderless align-middle">
                             <thead>
                                 <tr style="border-bottom: 1px solid #eee;">
-                                    <th style="width: 5%" class="text-center">Chọn</th>
+                                    <th style="width: 5%" class="text-center">
+                                        <input type="checkbox" id="selectAll" class="form-check-input custom-checkbox" title="Chọn tất cả">
+                                    </th>
                                     <th style="width: 45%">Sản phẩm</th>
                                     <th style="width: 15%" class="text-center">Số lượng</th>
                                     <th style="width: 15%" class="text-center">Thành tiền</th>
@@ -99,7 +100,10 @@
                                 <c:forEach items="${sessionScope.cart}" var="item">
                                     <tr style="border-bottom: 1px solid #eee;">
                                         <td class="text-center">
-                                            <input type="checkbox" name="selectedItems" value="${item.book.id}" class="form-check-input custom-checkbox">
+                                            <input type="checkbox" name="selectedItems" value="${item.book.id}" 
+                                                   class="form-check-input custom-checkbox item-checkbox"
+                                                   data-price="${item.book.price}" 
+                                                   data-quantity="${item.quantity}">
                                         </td>
 
                                         <td>
@@ -119,10 +123,13 @@
                                         
                                         <td>
                                             <div class="d-flex justify-content-center">
-                                                <a href="${pageContext.request.contextPath}/update-cart?id=${item.book.id}&action=dec" class="btn-qty text-decoration-none">-</a>
+                                                <a href="${pageContext.request.contextPath}/add-to-cart?id=${item.book.id}&action=dec" class="btn-qty text-decoration-none">-</a>
+                                                
                                                 <input type="number" class="qty-input" value="${item.quantity}" min="1"
-                                                       onchange="window.location.href='${pageContext.request.contextPath}/update-cart?id=${item.book.id}&action=update&quantity=' + this.value">
-                                                <a href="${pageContext.request.contextPath}/update-cart?id=${item.book.id}&action=inc" class="btn-qty text-decoration-none">+</a>
+                                                       onkeypress="if(event.keyCode === 13) { event.preventDefault(); this.blur(); return false; }"
+                                                       onchange="if(this.value.trim() !== '') { window.location.href='${pageContext.request.contextPath}/add-to-cart?id=${item.book.id}&action=update&quantity=' + this.value.trim(); } else { this.value = '${item.quantity}'; }">
+                                                
+                                                <a href="${pageContext.request.contextPath}/add-to-cart?id=${item.book.id}&action=inc" class="btn-qty text-decoration-none">+</a>
                                             </div>
                                         </td>
                                         
@@ -133,7 +140,7 @@
                                         </td>
                                         
                                         <td class="text-center">
-                                            <a href="${pageContext.request.contextPath}/update-cart?id=${item.book.id}&action=remove" 
+                                            <a href="${pageContext.request.contextPath}/add-to-cart?id=${item.book.id}&action=remove" 
                                                class="btn-delete" title="Xóa sản phẩm"
                                                onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này không?');">
                                                 <i class="fa-solid fa-trash-can"></i>
@@ -146,14 +153,14 @@
 
                         <div class="total-section">
                             <div class="d-flex justify-content-end align-items-center gap-3">
-                                <span>Tổng giỏ hàng:</span>
-                                <span style="font-size: 24px; font-weight: bold; color: #C92127;">
-                                    <fmt:formatNumber value="${grandTotal}" type="currency" currencySymbol="₫"/>
+                                <span>Tổng thanh toán:</span>
+                                <span id="totalPriceDisplay" style="font-size: 24px; font-weight: bold; color: #C92127;">
+                                    0 ₫
                                 </span>
                             </div>
                             
                             <div class="d-flex justify-content-end mt-3">
-                                <button type="submit" class="btn-shopping" style="border: none; width: 300px;">THANH TOÁN</button>
+                                <button type="submit" id="btnCheckout" class="btn-shopping btn-disabled" style="border: none; width: 300px;" disabled>THANH TOÁN</button>
                             </div>
                         </div>
                     </form>
@@ -161,7 +168,69 @@
             </c:choose>
         </div>
     </div>
-    <jsp:include page="component/footer.jsp" />
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const itemCheckboxes = document.querySelectorAll('.item-checkbox');
+        const totalPriceDisplay = document.getElementById('totalPriceDisplay');
+        const selectAll = document.getElementById('selectAll');
+        const btnCheckout = document.getElementById('btnCheckout'); 
+
+        // Hàm tính lại tổng tiền và trạng thái nút
+        function calculateTotal() {
+            let total = 0;
+            let checkedCount = 0;
+            
+            itemCheckboxes.forEach(cb => {
+                if (cb.checked) {
+                    let price = parseFloat(cb.getAttribute('data-price'));
+                    let quantity = parseInt(cb.getAttribute('data-quantity'));
+                    total += (price * quantity);
+                    checkedCount++;
+                }
+            });
+
+            // In ra tiền
+            if(totalPriceDisplay) {
+                totalPriceDisplay.innerText = new Intl.NumberFormat('vi-VN', { 
+                    style: 'currency', 
+                    currency: 'VND' 
+                }).format(total);
+            }
+
+            // Đổi trạng thái ô "Chọn tất cả"
+            if(selectAll) {
+                selectAll.checked = (checkedCount === itemCheckboxes.length && itemCheckboxes.length > 0);
+            }
+
+            // BẬT / TẮT NÚT THANH TOÁN
+            if(btnCheckout) {
+                if (checkedCount === 0) {
+                    btnCheckout.disabled = true;
+                    btnCheckout.classList.add('btn-disabled');
+                } else {
+                    btnCheckout.disabled = false;
+                    btnCheckout.classList.remove('btn-disabled');
+                }
+            }
+        }
+
+        // Lắng nghe sự kiện click vào từng món
+        itemCheckboxes.forEach(cb => {
+            cb.addEventListener('change', calculateTotal);
+        });
+
+        // Lắng nghe sự kiện click vào nút "Chọn tất cả"
+        if(selectAll) {
+            selectAll.addEventListener('change', function() {
+                itemCheckboxes.forEach(cb => cb.checked = this.checked);
+                calculateTotal();
+            });
+        }
+
+        // Khởi chạy hàm 1 lần khi load trang để thiết lập màu nút và giá tiền
+        calculateTotal();
+    </script>
 </body>
 </html>

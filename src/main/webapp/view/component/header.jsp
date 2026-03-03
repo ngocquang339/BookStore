@@ -31,9 +31,13 @@
                         <div class="filter-group">
                             <h4><i class="fa-solid fa-book"></i> Thể loại</h4>
                             <label class="checkbox-item"><input type="checkbox" name="cid" value="1"> Văn học</label>
-                            <label class="checkbox-item"><input type="checkbox" name="cid" value="2"> Kinh tế</label>
-                            <label class="checkbox-item"><input type="checkbox" name="cid" value="3"> Thiếu nhi</label>
-                            <label class="checkbox-item"><input type="checkbox" name="cid" value="4"> Kỹ năng sống</label>
+                            <label class="checkbox-item"><input type="checkbox" name="cid" value="6"> Kinh tế</label>
+                            <label class="checkbox-item"><input type="checkbox" name="cid" value="11"> Kỹ năng sống</label>
+                            <label class="checkbox-item"><input type="checkbox" name="cid" value="16"> Nuôi dạy con </label>
+                            <label class="checkbox-item"><input type="checkbox" name="cid" value="21"> Sách thiếu nhi</label>
+                            <label class="checkbox-item"><input type="checkbox" name="cid" value="26"> Tiểu sử - Hồi kí</label>
+                            <label class="checkbox-item"><input type="checkbox" name="cid" value="31"> Giáo khoa - Tham khảo</label>
+                            <label class="checkbox-item"><input type="checkbox" name="cid" value="36"> Ngoại ngữ</label>
                         </div>
                         <div class="filter-group">
                             <h4><i class="fa-solid fa-layer-group"></i> Hình thức</h4>
