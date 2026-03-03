@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@WebServlet(name = "SupplierServlet", urlPatterns = {"/warehouse/supplier"})
+@WebServlet(name = "SupplierServlet", urlPatterns = { "/warehouse/supplier" })
 public class SupplierServlet extends HttpServlet {
 
     @Override
@@ -17,6 +17,7 @@ public class SupplierServlet extends HttpServlet {
             throws ServletException, IOException {
         SupplierDAO dao = new SupplierDAO();
         request.setAttribute("listS", dao.getAllSuppliers());
+        request.setAttribute("listDeleted", dao.getDeletedSuppliers());
         request.getRequestDispatcher("/view/warehouse/supplier_list.jsp").forward(request, response);
     }
 
@@ -37,16 +38,22 @@ public class SupplierServlet extends HttpServlet {
 
                 // Validate Rỗng
                 if (name == null || name.trim().isEmpty() || phone == null || phone.trim().isEmpty() ||
-                    email == null || email.trim().isEmpty() || address == null || address.trim().isEmpty()) {
+                        email == null || email.trim().isEmpty() || address == null || address.trim().isEmpty()) {
                     throw new Exception("Vui lòng nhập đầy đủ Tên, SĐT, Email và Địa chỉ!");
                 }
-                
-                name = name.trim(); phone = phone.trim(); email = email.trim(); address = address.trim();
-                if(contactPerson != null) contactPerson = contactPerson.trim();
+
+                name = name.trim();
+                phone = phone.trim();
+                email = email.trim();
+                address = address.trim();
+                if (contactPerson != null)
+                    contactPerson = contactPerson.trim();
 
                 // Validate Định dạng
-                if (!phone.matches("^[0-9]{10,11}$")) throw new Exception("Số điện thoại phải từ 10-11 số.");
-                if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) throw new Exception("Email không hợp lệ.");
+                if (!phone.matches("^[0-9]{10,11}$"))
+                    throw new Exception("Số điện thoại phải từ 10-11 số.");
+                if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$"))
+                    throw new Exception("Email không hợp lệ.");
 
                 Supplier s = new Supplier();
                 s.setName(name);
@@ -68,6 +75,10 @@ public class SupplierServlet extends HttpServlet {
                 int id = Integer.parseInt(request.getParameter("id"));
                 dao.deleteSupplier(id);
                 request.setAttribute("successMessage", "Xóa nhà cung cấp thành công!");
+            } else if ("restore".equals(action)) {
+                int id = Integer.parseInt(request.getParameter("id"));
+                dao.restoreSupplier(id);
+                request.setAttribute("successMessage", "Khôi phục nhà cung cấp thành công!");
             }
         } catch (Exception e) {
             request.setAttribute("errorMessage", e.getMessage());
@@ -75,6 +86,7 @@ public class SupplierServlet extends HttpServlet {
 
         // Forward lại trang để hiện thông báo thay vì redirect
         request.setAttribute("listS", dao.getAllSuppliers());
+        request.setAttribute("listDeleted", dao.getDeletedSuppliers());
         request.getRequestDispatcher("/view/warehouse/supplier_list.jsp").forward(request, response);
     }
 }
