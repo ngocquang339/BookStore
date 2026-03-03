@@ -55,43 +55,52 @@ public class ReviewDAO extends DBContext {
         }
     }
 
-    // --- NÂNG CẤP: LỌC REVIEW THEO SỐ SAO ---
-    public List<Review> getReviewsByStar(String starFilter) {
+    // --- ĐÃ NÂNG CẤP: NHẬN THAM SỐ INT VÀ CHỐNG RÒ RỈ RAM ---
+    public List<Review> getReviewsByStar(int starValue) {
         List<Review> list = new ArrayList<>();
-        // Dùng JOIN để lấy tên khách hàng (từ bảng Users) và tên sách (từ bảng Books)
-        String sql = "SELECT r.review_id, r.user_id, r.book_id, r.rating, r.comment, r.create_at, " +
-                     "u.username, u.email, b.title AS book_title " + // <-- Có u.email ở đây
-                     "FROM Reviews r " +
-                     "JOIN Users u ON r.user_id = u.id " + 
-                     "JOIN Books b ON r.book_id = b.id ";
 
-        if (starFilter != null && !starFilter.isEmpty() && !starFilter.equals("all")) {
+        // Cấu trúc SQL đã được fix chuẩn tên bảng (Review) và khóa ngoại (user_id,
+        // book_id)
+        String sql = "SELECT r.review_id, r.user_id, r.book_id, r.rating, r.comment, r.create_at, " +
+                "u.username, u.email, b.title AS book_title " +
+                "FROM Review r " +
+                "JOIN Users u ON r.user_id = u.user_id " +
+                "JOIN Books b ON r.book_id = b.book_id ";
+
+        // Quy ước: starValue = 0 nghĩa là "Lấy tất cả", từ 1-5 là lọc theo sao
+        if (starValue >= 1 && starValue <= 5) {
             sql += " WHERE r.rating = ? ";
         }
         sql += " ORDER BY r.create_at DESC";
 
+        // Sử dụng Try-with-resources để tự động đóng Connection và PreparedStatement
         try (Connection conn = getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            if (starFilter != null && !starFilter.isEmpty() && !starFilter.equals("all")) {
-                ps.setInt(1, Integer.parseInt(starFilter));
+            // Nếu có điều kiện lọc sao, truyền giá trị vào dấu ?
+            if (starValue >= 1 && starValue <= 5) {
+                ps.setInt(1, starValue);
             }
 
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                Review r = new Review();
-                r.setReviewId(rs.getInt("review_id"));
-                r.setUserId(rs.getInt("user_id"));
-                r.setBookId(rs.getInt("book_id"));
-                r.setRating(rs.getInt("rating"));
-                r.setComment(rs.getString("comment"));
-                r.setCreateAt(rs.getDate("create_at"));
-                r.setUsername(rs.getString("username"));
-                r.setEmail(rs.getString("email"));
-                r.setBookTitle(rs.getString("book_title"));
-                list.add(r);
+            // Mở ResultSet cũng phải đưa vào Try-with-resources
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Review r = new Review();
+                    r.setReviewId(rs.getInt("review_id"));
+                    r.setUserId(rs.getInt("user_id"));
+                    r.setBookId(rs.getInt("book_id"));
+                    r.setRating(rs.getInt("rating"));
+                    r.setComment(rs.getString("comment"));
+                    r.setCreateAt(rs.getDate("create_at"));
+                    r.setUsername(rs.getString("username"));
+                    r.setEmail(rs.getString("email"));
+                    r.setBookTitle(rs.getString("book_title"));
+
+                    list.add(r);
+                }
             }
         } catch (Exception e) {
+            System.err.println("Lỗi SQL khi lọc Review: " + e.getMessage());
             e.printStackTrace();
         }
         return list;
