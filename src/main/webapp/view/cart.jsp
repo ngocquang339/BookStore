@@ -53,15 +53,7 @@
 
 <body>
 
-    <c:if test="${not empty sessionScope.message}">
-        <div class="alert alert-${sessionScope.messageType} alert-dismissible fade show alert-fixed" role="alert">
-            <i class="fa-solid ${sessionScope.messageType == 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation'}"></i> 
-            <strong>Thông báo:</strong> ${sessionScope.message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        <c:remove var="message" scope="session" />
-        <c:remove var="messageType" scope="session" />
-    </c:if>
+    
 
     <c:if test="${not empty sessionScope.cartError}">
         <div class="alert alert-danger alert-dismissible fade show alert-fixed" role="alert">
@@ -73,28 +65,7 @@
     </c:if>
 
 
-    <header class="main-header">
-        <div class="container d-flex justify-content-between align-items-center">
-            <div class="logo">
-                <a href="${pageContext.request.contextPath}/home" style="text-decoration: none;">
-                    <span style="color: #C92127; font-weight: 900; font-size: 28px;">BOOK</span><span style="color: #333; font-weight: 900; font-size: 28px;">STORE</span>
-                </a>
-            </div>
-            
-            <div class="search-box" style="flex-grow: 0.5;"> 
-                <form action="search" method="get" style="display: flex; width: 100%; position: relative;">
-                    <input type="text" name="txt" placeholder="Tìm kiếm sách, tác giả..." style="width: 100%; padding: 8px 15px; border: 1px solid #ddd; border-radius: 4px;">
-                    <button type="submit" style="position: absolute; right: 0; top: 0; bottom: 0; background: #C92127; border: none; color: white; padding: 0 15px; border-radius: 0 4px 4px 0;">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                    </button>
-                </form>
-            </div>
-
-            <div class="header-icons d-flex gap-4 align-items-center">
-                <a href="${pageContext.request.contextPath}/home" class="text-decoration-none text-dark"><i class="fa-solid fa-arrow-left"></i> Tiếp tục mua sắm</a>
-            </div>
-        </div>
-    </header>
+    <jsp:include page="component/header.jsp" />
 
     <div class="cart-wrapper">
         <c:set var="cartSize" value="${sessionScope.cart != null ? sessionScope.cart.size() : 0}" />
@@ -128,7 +99,6 @@
                             <tbody>
                                 <c:forEach items="${sessionScope.cart}" var="item">
                                     <tr style="border-bottom: 1px solid #eee;">
-                                        
                                         <td class="text-center">
                                             <input type="checkbox" name="selectedItems" value="${item.book.id}" 
                                                    class="form-check-input custom-checkbox item-checkbox"
@@ -138,7 +108,7 @@
 
                                         <td>
                                             <div class="d-flex align-items-center">
-                                                <img src="${pageContext.request.contextPath}/assets/image/books/${item.book.imageUrl}" 
+                                                <img src="${pageContext.request.contextPath}/${item.book.imageUrl}" 
                                                      class="product-img me-3" 
                                                      alt="${item.book.title}"
                                                      onerror="this.src='https://placehold.co/80x100'">
@@ -190,7 +160,7 @@
                             </div>
                             
                             <div class="d-flex justify-content-end mt-3">
-                                <button type="submit" id="btnCheckout" class="btn-shopping btn-disabled" style="border: none; width: 300px;" disabled>THANH TOÁN MÓN ĐÃ CHỌN</button>
+                                <button type="submit" id="btnCheckout" class="btn-shopping btn-disabled" style="border: none; width: 300px;" disabled>THANH TOÁN</button>
                             </div>
                         </div>
                     </form>

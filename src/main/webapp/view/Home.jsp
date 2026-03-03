@@ -72,18 +72,6 @@
     </div>
 </c:if>
 
-    <%-- 2. THÔNG BÁO --%>
-    <c:if test="${not empty sessionScope.message}">
-        <div class="alert alert-${sessionScope.messageType} alert-dismissible fade show" role="alert" 
-             style="position: fixed; top: 60px; right: 20px; z-index: 9999; min-width: 300px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-            <i class="fa-solid fa-bell"></i> 
-            <strong>Thông báo:</strong> ${sessionScope.message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        <c:remove var="message" scope="session" />
-        <c:remove var="messageType" scope="session" />
-    </c:if>
-
     <jsp:include page="component/header.jsp" />
 
     <%-- SỬA LỖI 2: Gộp tất cả vào 1 thẻ MAIN duy nhất --%>
