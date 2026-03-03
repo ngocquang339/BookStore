@@ -96,7 +96,10 @@
                     $(document).ready(function () {
                         $('#lowStockTable').DataTable({
                             "language": { "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" },
-                            "pageLength": 10
+                            "pageLength": 10,
+                            "columnDefs": [
+                                { "orderable": false, "targets": 1 } // disable sort cột Ảnh
+                            ]
                         });
                     });
                 </script>

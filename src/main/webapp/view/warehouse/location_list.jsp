@@ -46,6 +46,27 @@
                     </button>
                 </div>
 
+                <!-- ===== FILTER THEO KHU (THÊM MỚI) ===== -->
+                <div class="mb-3">
+                    <form method="get" action="location" class="row g-2 align-items-center">
+                        <div class="col-auto">
+                            <label class="col-form-label fw-semibold">Filter theo Khu:</label>
+                        </div>
+                        <div class="col-auto">
+                            <select name="zone" class="form-select form-select-sm" onchange="this.form.submit()">
+                                <option value="">-- Tất cả --</option>
+
+                                <c:forEach var="z" items="${zoneList}">
+                                    <option value="${z}" <c:if test="${z == selectedZone}">selected</c:if>>
+                                        ${z}
+                                    </option>
+                                </c:forEach>
+
+                            </select>
+                        </div>
+                    </form>
+                </div>
+
                 <div class="table-container border-top border-info border-4">
                     <table id="locationTable" class="table table-bordered table-hover align-middle w-100">
                         <thead class="table-light">
