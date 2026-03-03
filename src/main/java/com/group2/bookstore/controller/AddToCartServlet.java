@@ -27,11 +27,14 @@ public class AddToCartServlet extends HttpServlet {
         if (cart == null) {
             cart = new ArrayList<>();
         }
-
+         int bookId = 0;
         try {
-            int bookId = Integer.parseInt(request.getParameter("id"));
+             bookId = Integer.parseInt(request.getParameter("id"));
             String action = request.getParameter("action"); // Lấy hành động (null, inc, dec, update, remove)
             
+         bookId = 0;
+        
+            bookId = Integer.parseInt(request.getParameter("id"));
             BookDAO bookDAO = new BookDAO();
             Book book = bookDAO.getBookById(bookId);
 
@@ -125,9 +128,13 @@ public class AddToCartServlet extends HttpServlet {
                     return;
                 }
             }
-        } catch (Exception e) { 
-            e.printStackTrace(); 
-        }
-        response.sendRedirect("home");
+        } 
+        // catch (Exception e) { 
+        //     e.printStackTrace(); 
+        // }
+        // response.sendRedirect("home");
+        // } 
+        catch (Exception e) { e.printStackTrace(); }
+        response.sendRedirect("detail?pid=" + bookId); // Quay lại trang chi tiết sản phẩm
     }
 }

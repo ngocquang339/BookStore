@@ -41,6 +41,13 @@
         
         /* CSS MỚI CHO Ô CHECKBOX TO HƠN */
         .custom-checkbox { transform: scale(1.5); cursor: pointer; accent-color: #C92127; }
+
+        /* CSS MỚI: Làm mờ nút khi không được phép bấm */
+        .btn-disabled {
+            background-color: #cccccc !important;
+            cursor: not-allowed !important;
+            color: #888888 !important;
+        }
     </style>
 </head>
 
@@ -146,10 +153,13 @@
                                         
                                         <td>
                                             <div class="d-flex justify-content-center">
-                                                <a href="${pageContext.request.contextPath}/update-cart?id=${item.book.id}&action=dec" class="btn-qty text-decoration-none">-</a>
+                                                <a href="${pageContext.request.contextPath}/add-to-cart?id=${item.book.id}&action=dec" class="btn-qty text-decoration-none">-</a>
+                                                
                                                 <input type="number" class="qty-input" value="${item.quantity}" min="1"
-                                                       onchange="window.location.href='${pageContext.request.contextPath}/update-cart?id=${item.book.id}&action=update&quantity=' + this.value">
-                                                <a href="${pageContext.request.contextPath}/update-cart?id=${item.book.id}&action=inc" class="btn-qty text-decoration-none">+</a>
+                                                       onkeypress="if(event.keyCode === 13) { event.preventDefault(); this.blur(); return false; }"
+                                                       onchange="if(this.value.trim() !== '') { window.location.href='${pageContext.request.contextPath}/add-to-cart?id=${item.book.id}&action=update&quantity=' + this.value.trim(); } else { this.value = '${item.quantity}'; }">
+                                                
+                                                <a href="${pageContext.request.contextPath}/add-to-cart?id=${item.book.id}&action=inc" class="btn-qty text-decoration-none">+</a>
                                             </div>
                                         </td>
                                         
@@ -160,7 +170,7 @@
                                         </td>
                                         
                                         <td class="text-center">
-                                            <a href="${pageContext.request.contextPath}/update-cart?id=${item.book.id}&action=remove" 
+                                            <a href="${pageContext.request.contextPath}/add-to-cart?id=${item.book.id}&action=remove" 
                                                class="btn-delete" title="Xóa sản phẩm"
                                                onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này không?');">
                                                 <i class="fa-solid fa-trash-can"></i>
@@ -180,7 +190,7 @@
                             </div>
                             
                             <div class="d-flex justify-content-end mt-3">
-                                <button type="submit" class="btn-shopping" style="border: none; width: 300px;">THANH TOÁN MÓN ĐÃ CHỌN</button>
+                                <button type="submit" id="btnCheckout" class="btn-shopping btn-disabled" style="border: none; width: 300px;" disabled>THANH TOÁN MÓN ĐÃ CHỌN</button>
                             </div>
                         </div>
                     </form>
@@ -195,9 +205,9 @@
         const itemCheckboxes = document.querySelectorAll('.item-checkbox');
         const totalPriceDisplay = document.getElementById('totalPriceDisplay');
         const selectAll = document.getElementById('selectAll');
-        const cartForm = document.getElementById('cartForm');
+        const btnCheckout = document.getElementById('btnCheckout'); 
 
-        // Hàm tính lại tổng tiền
+        // Hàm tính lại tổng tiền và trạng thái nút
         function calculateTotal() {
             let total = 0;
             let checkedCount = 0;
@@ -211,7 +221,7 @@
                 }
             });
 
-            // Định dạng tiền tệ VNĐ và in ra màn hình
+            // In ra tiền
             if(totalPriceDisplay) {
                 totalPriceDisplay.innerText = new Intl.NumberFormat('vi-VN', { 
                     style: 'currency', 
@@ -219,38 +229,38 @@
                 }).format(total);
             }
 
-            // Tự động thay đổi trạng thái của nút "Chọn tất cả"
+            // Đổi trạng thái ô "Chọn tất cả"
             if(selectAll) {
                 selectAll.checked = (checkedCount === itemCheckboxes.length && itemCheckboxes.length > 0);
             }
+
+            // BẬT / TẮT NÚT THANH TOÁN
+            if(btnCheckout) {
+                if (checkedCount === 0) {
+                    btnCheckout.disabled = true;
+                    btnCheckout.classList.add('btn-disabled');
+                } else {
+                    btnCheckout.disabled = false;
+                    btnCheckout.classList.remove('btn-disabled');
+                }
+            }
         }
 
-        // 1. Lắng nghe sự kiện click vào từng món
+        // Lắng nghe sự kiện click vào từng món
         itemCheckboxes.forEach(cb => {
             cb.addEventListener('change', calculateTotal);
         });
 
-        // 2. Lắng nghe sự kiện click vào nút "Chọn tất cả"
+        // Lắng nghe sự kiện click vào nút "Chọn tất cả"
         if(selectAll) {
             selectAll.addEventListener('change', function() {
-                itemCheckboxes.forEach(cb => cb.checked = this.checked); // Cập nhật các ô con theo ô tổng
-                calculateTotal(); // Tính lại tiền
+                itemCheckboxes.forEach(cb => cb.checked = this.checked);
+                calculateTotal();
             });
         }
 
-        // 3. Lắng nghe sự kiện Bấm Thanh Toán (Chặn form nếu chưa chọn món)
-        if(cartForm) {
-            cartForm.addEventListener('submit', function(e) {
-                const checkedItems = document.querySelectorAll('.item-checkbox:checked');
-                if(checkedItems.length === 0) {
-                    e.preventDefault(); // Chặn không cho chuyển sang /checkout
-                    alert('Vui lòng tích chọn ít nhất 1 sản phẩm để thanh toán!');
-                }
-            });
-        }
-
-        // Khởi chạy hàm 1 lần khi load trang để mặc định hiển thị 0đ
+        // Khởi chạy hàm 1 lần khi load trang để thiết lập màu nút và giá tiền
         calculateTotal();
     </script>
 </body>
-</html
+</html>

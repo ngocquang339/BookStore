@@ -250,6 +250,8 @@
             </form>
         </div>
     </div>
+    <jsp:include page="component/suggested-books.jsp" />
+    <jsp:include page="component/footer.jsp" />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>

@@ -157,5 +157,8 @@
             
         </div>
     </main>
+
+    <jsp:include page="component/suggested-books.jsp" />
+    <jsp:include page="component/footer.jsp" />
 </body>
 </html>

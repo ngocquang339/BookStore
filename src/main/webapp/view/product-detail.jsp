@@ -33,11 +33,66 @@
             font-weight: bold;
         }
         .edit-btn:hover { background-color: #e0a800; }
+        /* --- CSS CHO THÔNG BÁO GIỎ HÀNG THÀNH CÔNG --- */
+        .cart-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(30, 30, 30, 0.85); /* Nền đen mờ */
+            color: white;
+            padding: 30px 40px;
+            border-radius: 8px;
+            text-align: center;
+            z-index: 10005; /* Đảm bảo nổi lên trên cùng */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            animation: fadeInOut 2.5s ease-in-out forwards; /* Tự động mờ dần và biến mất */
+            pointer-events: none; /* Không chặn click chuột của người dùng */
+        }
+        
+        .cart-toast .toast-icon {
+            font-size: 50px;
+            color: #00b14f; /* Màu xanh lá cây giống ảnh */
+            background: white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .cart-toast .toast-text {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        /* Hiệu ứng trượt nhẹ từ dưới lên và tự mờ đi */
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translate(-50%, -40%); }
+            15% { opacity: 1; transform: translate(-50%, -50%); }
+            80% { opacity: 1; transform: translate(-50%, -50%); }
+            100% { opacity: 0; transform: translate(-50%, -60%); visibility: hidden; }
+        }
     </style>
 </head>
 <body>
 
     <jsp:include page="component/header.jsp" />
+    <%-- KHỐI HIỂN THỊ THÔNG BÁO KHI THÊM VÀO GIỎ HÀNG THÀNH CÔNG --%>
+    <c:if test="${not empty sessionScope.message}">
+        <div class="cart-toast">
+            <div class="toast-icon">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <div class="toast-text">${sessionScope.message}</div>
+        </div>
+        <%-- Xóa message ngay lập tức để F5 không bị hiện lại --%>
+        <c:remove var="message" scope="session" />
+    </c:if>
 
     <main class="container-fluid" style=" margin-top: 20px; margin-bottom: 50px">
         
@@ -53,51 +108,51 @@
 
                 <div class="thumbnail-list" style="display:flex; gap:12px; justify-content:center;">
 
-    <div class="thumb-item active" 
-        style="width: 80px; height: 80px; border: 2px solid #C92127; border-radius: 4px; cursor: pointer; padding: 2px; display: flex; justify-content: center; align-items: center;"
-        onclick="changeImage(this, '${pageContext.request.contextPath}/${book.imageUrl}')">
-        <img src="${pageContext.request.contextPath}/${book.imageUrl}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-    </div>
+                    <div class="thumb-item active" 
+                        style="width: 80px; height: 80px; border: 2px solid #C92127; border-radius: 4px; cursor: pointer; padding: 2px; display: flex; justify-content: center; align-items: center;"
+                        onclick="changeImage(this, '${pageContext.request.contextPath}/${book.imageUrl}')">
+                        <img src="${pageContext.request.contextPath}/${book.imageUrl}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                    </div>
 
-    <c:forEach items="${bookImages}" var="img" varStatus="status">
+                    <c:forEach items="${bookImages}" var="img" varStatus="status">
 
-        <c:if test="${status.index < 3}">
-            <div class="thumb-item" 
-                style="width: 80px; height: 80px; border: 2px solid transparent; border-radius: 4px; cursor: pointer; padding: 2px; display: flex; justify-content: center; align-items: center;"
-                onclick="changeImage(this, '${pageContext.request.contextPath}/${img.imageUrl}')">
-                <img src="${pageContext.request.contextPath}/${img.imageUrl}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-            </div>
-        </c:if>
+                        <c:if test="${status.index < 3}">
+                            <div class="thumb-item" 
+                                style="width: 80px; height: 80px; border: 2px solid transparent; border-radius: 4px; cursor: pointer; padding: 2px; display: flex; justify-content: center; align-items: center;"
+                                onclick="changeImage(this, '${pageContext.request.contextPath}/${img.imageUrl}')">
+                                <img src="${pageContext.request.contextPath}/${img.imageUrl}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                            </div>
+                        </c:if>
 
-        <c:if test="${status.index == 3}">
-            <div class="thumb-item plus-item" 
-                style="position:relative; width: 80px; height: 80px; border: 2px solid transparent; border-radius: 4px; cursor: pointer; padding: 2px; display: flex; justify-content: center; align-items: center;"
-                onclick="openFullscreenGallery()">
+                        <c:if test="${status.index == 3}">
+                            <div class="thumb-item plus-item" 
+                                style="position:relative; width: 80px; height: 80px; border: 2px solid transparent; border-radius: 4px; cursor: pointer; padding: 2px; display: flex; justify-content: center; align-items: center;"
+                                onclick="openFullscreenGallery()">
 
-                <img src="${pageContext.request.contextPath}/${img.imageUrl}" style="max-width: 100%; max-height: 100%; object-fit: contain; opacity:0.4;">
+                                <img src="${pageContext.request.contextPath}/${img.imageUrl}" style="max-width: 100%; max-height: 100%; object-fit: contain; opacity:0.4;">
 
-                <div style="position:absolute; top:0; left:0; right:0; bottom:0; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size: 22px; color:#fff; background: rgba(0,0,0,0.5); border-radius: 2px;">
-                    +${bookImages.size() - 3}
+                                <div style="position:absolute; top:0; left:0; right:0; bottom:0; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size: 22px; color:#fff; background: rgba(0,0,0,0.5); border-radius: 2px;">
+                                    +${bookImages.size() - 3}
+                                </div>
+                            </div>
+                        </c:if>
+
+                    </c:forEach>
                 </div>
-            </div>
-        </c:if>
+                <form action="${pageContext.request.contextPath}/add-to-cart" style="width: 100%; margin-top: 25px;">
+                    <input type="hidden" name="id" value="${book.id}">
+                    <div class="button-group" style="display: flex; gap: 15px; width: 100%;">
+                        
+                        <button type="submit" style="background: white; color: #C92127; border: 2px solid #C92127; padding: 12px 20px; font-weight: bold; font-size: 16px; cursor: pointer; border-radius: 8px; flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.3s;">
+                            <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ hàng
+                        </button>
 
-    </c:forEach>
-</div>
-                <form action="cart" method="post" style="width: 100%; margin-top: 25px;">
-    
-    <div class="button-group" style="display: flex; gap: 15px; width: 100%;">
-        
-        <button type="submit" style="background: white; color: #C92127; border: 2px solid #C92127; padding: 12px 20px; font-weight: bold; font-size: 16px; cursor: pointer; border-radius: 8px; flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.3s;">
-            <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ hàng
-        </button>
-
-        <button type="button" style="background: #C92127; color: white; border: none; padding: 12px 20px; font-weight: bold; font-size: 16px; cursor: pointer; border-radius: 8px; flex: 1; display: flex; align-items: center; justify-content: center; transition: 0.3s;">
-            Mua ngay
-        </button>
-        
-    </div>
-</form>
+                        <button type="button" style="background: #C92127; color: white; border: none; padding: 12px 20px; font-weight: bold; font-size: 16px; cursor: pointer; border-radius: 8px; flex: 1; display: flex; align-items: center; justify-content: center; transition: 0.3s;">
+                            Mua ngay
+                        </button>
+                        
+                    </div>
+                </form>
             </div>
             <div class="product-info-column" style="flex: 1;display: flex; flex-direction: column; gap: 15px;">
                 <div class="product-info-box white-box" style="padding: 20px; border-radius: 8px;">
@@ -232,7 +287,7 @@
                 <h3 class="section-header" style="margin-top: 0; margin-bottom: 15px; font-size: 18px;">Thông tin chi tiết</h3>
                 
                 <div class="detail-row" style="margin-bottom: 10px;">
-                    <div class="detail-label" style="color: #777; width: 150px; display: inline-block;">Mã hàng</div>
+                    <div class="detail-label" style="color: #777; width: 150px; display: inline-block;">Mã sách</div>
                     <div class="detail-value" style="display: inline-block;">893${book.id}00${book.id}</div>
                 </div>
                 <div class="detail-row" style="margin-bottom: 10px;">
@@ -325,7 +380,7 @@
             
             <c:forEach items="${bookSameAuthor}" var="b" end="4">
                 
-                <a href="detail?id=${b.id}" style="text-decoration: none; color: inherit; display: block; padding: 10px; transition: 0.3s; border-radius: 8px;" 
+                <a href="${pageContext.request.contextPath}/detail?pid=${b.id}" style="text-decoration: none; color: inherit; display: block; padding: 10px; transition: 0.3s; border-radius: 8px;" 
                    onmouseover="this.style.boxShadow='0 0 10px rgba(0,0,0,0.1)'" 
                    onmouseout="this.style.boxShadow='none'">
                     
@@ -433,7 +488,7 @@
     </main>
 
     <script>
-        function changeImage(element, imageUrl) {
+        function changeImage(element, imageUrl){
             // 1. Thay đổi nguồn ảnh của ảnh chính (ảnh to)
             document.getElementById('mainImage').src = imageUrl;
 
@@ -442,12 +497,11 @@
             allThumbs.forEach(function(thumb) {
                 thumb.style.borderColor = "transparent"; // Đưa về trong suốt
             });
-
             // 3. Thêm viền đỏ cho ảnh đang được click
             element.style.borderColor = "#C92127";
         }
 
-        // --- KHAI BÁO BIẾN TOÀN CỤC ---
+    // --- KHAI BÁO BIẾN TOÀN CỤC ---
     let currentZoom = 1;
     const zoomStep = 0.3;
     
@@ -472,10 +526,8 @@
                 if(event.key === "Escape") { closeFullscreenGallery(); }
             }
         });
-        
         // (Giữ lại logic mở modal email cũ của bạn nếu có ở đây...)
     };
-
     // --- CÁC HÀM ĐIỀU HƯỚNG ---
     
     // Chuyển sang ảnh TIẾP THEO

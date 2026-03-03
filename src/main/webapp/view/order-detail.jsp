@@ -67,7 +67,7 @@
                                         <tr>
                                             <td>
     <div class="d-flex align-items-center">
-        <img src="${pageContext.request.contextPath}/assets/image/books/${item.book.imageUrl}" alt="book" class="book-img me-3 border rounded">
+        <img src="${pageContext.request.contextPath}/${item.book.imageUrl}" alt="book" class="book-img me-3 border rounded">
         <span class="fw-bold">${item.book.title}</span>
     </div>
 </td>
