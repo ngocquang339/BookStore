@@ -128,10 +128,18 @@
                     </div>
                 </div>
                 <div class="banner-bottom">
-                    <img src="${pageContext.request.contextPath}/assets/image/Banner/BannerBottom1.jpg" alt="Small 1">
-                    <img src="${pageContext.request.contextPath}/assets/image/Banner/BannerBottom2.jpg" alt="Small 2">
-                    <img src="${pageContext.request.contextPath}/assets/image/Banner/BannerBottom3.jpg" alt="Small 3">
-                    <img src="${pageContext.request.contextPath}/assets/image/Banner/BannerBottom4.jpg" alt="Small 4">
+                    <a href="${pageContext.request.contextPath}/search?cid=6">
+                        <img src="${pageContext.request.contextPath}/assets/image/Banner/BannerKinhte.jpg" alt="Small 1">
+                    </a>
+                    <a href="${pageContext.request.contextPath}/search?cid=1">
+                        <img src="${pageContext.request.contextPath}/assets/image/Banner/BannerVanHoc.jpg" alt="Small 2">
+                    </a>
+                    <a href="${pageContext.request.contextPath}/search?cid=36">
+                        <img src="${pageContext.request.contextPath}/assets/image/Banner/BannerNgoaingu.jpg" alt="Small 3">
+                    </a>
+                    <a href="${pageContext.request.contextPath}/search?cid=34">
+                        <img src="${pageContext.request.contextPath}/assets/image/Banner/LuyenthiTHPT.jpg" alt="Small 4">
+                    </a>
                 </div>
             </section>
 
@@ -262,9 +270,7 @@
                             <div class="book-price">
                                 <fmt:formatNumber value="${b.price}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
                             </div>
-                            <a href="${pageContext.request.contextPath}/add-to-cart?id=${b.id}" class="btn-buy">
-                                <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ
-                            </a>
+                            
                         </div>
                     </div>
                 </c:forEach>

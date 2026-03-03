@@ -4,6 +4,7 @@ import com.group2.bookstore.dal.OrderDAO;
 import com.group2.bookstore.model.CartItem;
 import com.group2.bookstore.model.User;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -20,18 +21,50 @@ public class CheckoutController extends HttpServlet {
         HttpSession session = req.getSession();
         User user = (User) session.getAttribute("user");
         
-        // 1. Kiểm tra đăng nhập
         if (user == null) {
             resp.sendRedirect(req.getContextPath() + "/login");
             return;
         }
 
-        // 2. Kiểm tra giỏ hàng rỗng
         List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
         if (cart == null || cart.isEmpty()) {
             resp.sendRedirect(req.getContextPath() + "/cart");
             return;
         }
+
+        // 1. NHẬN DANH SÁCH ID SẢN PHẨM KHÁCH ĐÃ TÍCH CHỌN TỪ FORM
+        String[] selectedItems = req.getParameterValues("selectedItems");
+        
+        // 2. NẾU KHÁCH KHÔNG TÍCH MÓN NÀO MÀ BẤM THANH TOÁN -> ĐUỔI VỀ KÈM BÁO LỖI
+        if (selectedItems == null || selectedItems.length == 0) {
+            session.setAttribute("cartError", "Vui lòng tích chọn ít nhất 1 sản phẩm để thanh toán!");
+            resp.sendRedirect(req.getContextPath() + "/cart");
+            return;
+        }
+
+        // 3. TẠO GIỎ HÀNG CHỜ THANH TOÁN (Chỉ chứa các món đã tích)
+        List<CartItem> checkoutCart = new ArrayList<>();
+        double checkoutTotal = 0.0;
+
+        for (String idStr : selectedItems) {
+            try {
+                int bookId = Integer.parseInt(idStr);
+                for (CartItem item : cart) {
+                    // Nếu ID sách trong giỏ chính khớp với ID khách đã tích chọn
+                    if (item.getBook().getId() == bookId) {
+                        checkoutCart.add(item);
+                        checkoutTotal += (item.getQuantity() * item.getBook().getPrice());
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        // 4. LƯU GIỎ HÀNG TẠM VÀO SESSION ĐỂ TRANG CHECKOUT.JSP HIỂN THỊ
+        session.setAttribute("checkoutCart", checkoutCart);
+        session.setAttribute("grandTotal", checkoutTotal); // Ghi đè tổng tiền mới
 
         req.getRequestDispatcher("/view/checkout.jsp").forward(req, resp);
     }
@@ -40,15 +73,16 @@ public class CheckoutController extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession session = req.getSession();
         User user = (User) session.getAttribute("user");
-        List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
+        
+        // Lấy giỏ hàng CHỜ THANH TOÁN (chỉ chứa các món đã chọn)
+        List<CartItem> checkoutCart = (List<CartItem>) session.getAttribute("checkoutCart");
+        List<CartItem> mainCart = (List<CartItem>) session.getAttribute("cart");
 
-        // Bảo vệ hệ thống
-        if (user == null || cart == null || cart.isEmpty()) {
+        if (user == null || checkoutCart == null || checkoutCart.isEmpty()) {
             resp.sendRedirect(req.getContextPath() + "/cart");
             return;
         }
 
-        // 1. Lấy dữ liệu người dùng nhập
         String fullname = req.getParameter("fullname");
         String phone = req.getParameter("phone");
         String address = req.getParameter("address");
@@ -56,72 +90,56 @@ public class CheckoutController extends HttpServlet {
 
         boolean hasError = false;
 
-        // ==========================================
-        // 2. LOGIC KIỂM TRA (VALIDATION BẰNG JAVA)
-        // ==========================================
-        
-        // A. Kiểm tra Họ tên
+        // VALIDATION (Kiểm tra dữ liệu)
         if (fullname != null) {
             if (fullname.matches(".*\\d.*")) { 
                 req.setAttribute("nameError", "Họ tên không được bao gồm chữ số.");
-                hasError = true;
-            } else if (fullname.trim().length() > 50) { 
-                req.setAttribute("nameError", "Họ và tên không hợp lệ (vượt quá 50 ký tự).");
-                hasError = true;
+             hasError = true; 
+            }
+            else if (fullname.trim().length() > 50) { 
+                req.setAttribute("nameError", "Họ và tên không hợp lệ (vượt quá 50 ký tự)."); 
+                hasError = true; 
             }
         }
 
-        // B. Kiểm tra Số điện thoại
         if (phone != null) {
-            if (phone.matches(".*\\D.*")) { // Có ký tự không phải số
-                req.setAttribute("phoneError", "Số điện thoại chỉ được nhập chữ số.");
-                hasError = true;
-            } else if (!phone.matches("^0\\d{9}$")) { // Không đúng định dạng 10 số đầu 0
-                req.setAttribute("phoneError", "Số điện thoại phải gồm đúng 10 chữ số và bắt đầu bằng số 0.");
-                hasError = true;
-            }
+            if (phone.matches(".*\\D.*")) { req.setAttribute("phoneError", "Số điện thoại chỉ được nhập chữ số."); hasError = true; }
+            else if (!phone.matches("^0\\d{9}$")) { req.setAttribute("phoneError", "Số điện thoại phải gồm đúng 10 chữ số và bắt đầu bằng số 0."); hasError = true; }
         }
 
-        // C. Kiểm tra Địa chỉ
         if (address != null && address.trim().length() > 100) {
-            req.setAttribute("addressError", "Địa chỉ không hợp lệ (vượt quá 100 ký tự).");
-            hasError = true;
+            req.setAttribute("addressError", "Địa chỉ không hợp lệ (vượt quá 100 ký tự)."); hasError = true;
         }
 
-        // ==========================================
-        // 3. XỬ LÝ NẾU CÓ LỖI XẢY RA
-        // ==========================================
+        // NẾU LỖI -> TRẢ VỀ CHECKOUT
         if (hasError) {
-            // Giữ lại dữ liệu người dùng vừa nhập để không bị mất
             req.setAttribute("fullnameInput", fullname);
             req.setAttribute("phoneInput", phone);
             req.setAttribute("addressInput", address);
-            
-            // Forward về lại trang checkout để hiển thị lỗi
             req.getRequestDispatcher("/view/checkout.jsp").forward(req, resp);
-            return; // Đảm bảo DỪNG CODE tại đây, không lưu đơn hàng rác
+            return;
         }
 
-        // ==========================================
-        // 4. XỬ LÝ LƯU ĐƠN HÀNG THÀNH CÔNG
-        // ==========================================
+        // NẾU THÀNH CÔNG -> LƯU ĐƠN HÀNG
         try {
             Double grandTotal = (Double) session.getAttribute("grandTotal");
-            if (grandTotal == null) {
-                grandTotal = 0.0;
-                for (CartItem item : cart) {
-                    grandTotal += item.getQuantity() * item.getBook().getPrice();
+            OrderDAO dao = new OrderDAO();
+            
+            // Lưu những món trong checkoutCart vào DB
+            dao.createOrder(user, checkoutCart, address, phone, grandTotal, paymentMethod);
+
+            // LOGIC QUAN TRỌNG: Chỉ xóa những món đã thanh toán khỏi giỏ hàng gốc
+            if (mainCart != null) {
+                for (CartItem purchasedItem : checkoutCart) {
+                    mainCart.removeIf(item -> item.getBook().getId() == purchasedItem.getBook().getId());
                 }
             }
 
-            OrderDAO dao = new OrderDAO();
-            dao.createOrder(user, cart, address, phone, grandTotal, paymentMethod);
-
-            // Xóa giỏ hàng
-            session.removeAttribute("cart");
+            // Cập nhật lại giỏ hàng chính, dọn dẹp biến tạm
+            session.setAttribute("cart", mainCart);
+            session.removeAttribute("checkoutCart");
             session.removeAttribute("grandTotal");
 
-            // Chuyển hướng sang trang mua thành công hoặc trang chủ
             req.getSession().setAttribute("successMsg", "Đặt hàng thành công!");
             resp.sendRedirect(req.getContextPath() + "/home");
 

@@ -37,10 +37,10 @@
             <table class="table table-bordered table-hover align-middle mb-0">
                 <thead class="table-dark text-center align-middle">
                     <tr>
-                        <th>STT</th>
+                        <th style="width: 5%;">STT</th>
                         
                         <c:set var="nextDateOrder" value="${currentSortBy == 'date' && currentSortOrder == 'desc' ? 'asc' : 'desc'}" />
-                        <th style="cursor: pointer; width: 15%;">
+                        <th style="cursor: pointer; width: 12%;">
                             <a href="?status=${currentStatus}&sortBy=date&sortOrder=${nextDateOrder}" class="text-white text-decoration-none d-flex justify-content-center align-items-center gap-1">
                                 Ngày đặt
                                 <c:choose>
@@ -51,11 +51,23 @@
                             </a>
                         </th>
                         
-                        <th>Khách hàng</th>
-                        <th>SĐT / Địa chỉ</th>
+                        <c:set var="nextNameOrder" value="${currentSortBy == 'name' && currentSortOrder == 'desc' ? 'asc' : 'desc'}" />
+                        <th style="cursor: pointer; width: 13%;">
+                            <a href="?status=${currentStatus}&sortBy=name&sortOrder=${nextNameOrder}" class="text-white text-decoration-none d-flex justify-content-center align-items-center gap-1">
+                                Khách hàng
+                                <c:choose>
+                                    <c:when test="${currentSortBy == 'name' && currentSortOrder == 'asc'}"><i class="fa-solid fa-sort-up text-warning"></i></c:when>
+                                    <c:when test="${currentSortBy == 'name' && currentSortOrder == 'desc'}"><i class="fa-solid fa-sort-down text-warning"></i></c:when>
+                                    <c:otherwise><i class="fa-solid fa-sort text-secondary"></i></c:otherwise>
+                                </c:choose>
+                            </a>
+                        </th>
+
+                        <th style="width: 10%;">SĐT</th>
+                        <th style="width: 20%;">Địa chỉ</th>
                         
                         <c:set var="nextTotalOrder" value="${currentSortBy == 'total' && currentSortOrder == 'desc' ? 'asc' : 'desc'}" />
-                        <th style="cursor: pointer; width: 15%;">
+                        <th style="cursor: pointer; width: 12%;">
                             <a href="?status=${currentStatus}&sortBy=total&sortOrder=${nextTotalOrder}" class="text-white text-decoration-none d-flex justify-content-center align-items-center gap-1">
                                 Tổng tiền
                                 <c:choose>
@@ -66,8 +78,8 @@
                             </a>
                         </th>
                         
-                        <th>Trạng thái (Xử lý)</th>
-                        <th>Hành động</th>
+                        <th style="width: 12%;">Trạng thái</th>
+                        <th style="width: 16%;">Hành động</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -81,9 +93,11 @@
 
                             <td class="fw-bold text-secondary text-center">${o.userName}</td>
 
+                            <td class="text-center">
+                                <span class="fw-bold text-dark"><i class="fa-solid fa-phone fa-sm text-secondary me-1"></i>${o.phoneNumber}</span>
+                            </td>
                             <td>
-                                <span class="fw-bold text-dark"><i class="fa-solid fa-phone fa-sm me-1"></i> ${o.phoneNumber}</span><br>
-                                <small class="text-muted"><i class="fa-solid fa-location-dot fa-sm me-1"></i> ${o.shippingAddress}</small>
+                                <small class="text-muted"><i class="fa-solid fa-location-dot fa-sm text-secondary me-1"></i>${o.shippingAddress}</small>
                             </td>
 
                             <td class="fw-bold text-danger text-end pe-3">
@@ -122,7 +136,7 @@
                     
                     <c:if test="${empty orders}">
                         <tr>
-                            <td colspan="7" class="text-center py-4 text-muted">
+                            <td colspan="8" class="text-center py-4 text-muted">
                                 Không có đơn hàng nào để hiển thị.
                             </td>
                         </tr>

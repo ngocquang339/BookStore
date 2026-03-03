@@ -36,8 +36,6 @@ public class CartServlet extends HttpServlet {
         request.setAttribute("grandTotal", grandTotal);
         request.setAttribute("totalItems", totalItems);
 
-        // 4. Chuyển hướng về trang giao diện
-        // Sửa "cart.jsp" thành "/cart.jsp"
 request.getRequestDispatcher("/view/cart.jsp").forward(request, response);
     }
 }
