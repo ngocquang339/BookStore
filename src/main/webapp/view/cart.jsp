@@ -105,11 +105,13 @@
                 </c:when>
 
                 <c:otherwise>
-                    <form action="${pageContext.request.contextPath}/checkout" method="GET">
+                    <form action="${pageContext.request.contextPath}/checkout" method="GET" id="cartForm">
                         <table class="table table-borderless align-middle">
                             <thead>
                                 <tr style="border-bottom: 1px solid #eee;">
-                                    <th style="width: 5%" class="text-center">Chọn</th>
+                                    <th style="width: 5%" class="text-center">
+                                        <input type="checkbox" id="selectAll" class="form-check-input custom-checkbox" title="Chọn tất cả">
+                                    </th>
                                     <th style="width: 45%">Sản phẩm</th>
                                     <th style="width: 15%" class="text-center">Số lượng</th>
                                     <th style="width: 15%" class="text-center">Thành tiền</th>
@@ -121,7 +123,10 @@
                                     <tr style="border-bottom: 1px solid #eee;">
                                         
                                         <td class="text-center">
-                                            <input type="checkbox" name="selectedItems" value="${item.book.id}" class="form-check-input custom-checkbox">
+                                            <input type="checkbox" name="selectedItems" value="${item.book.id}" 
+                                                   class="form-check-input custom-checkbox item-checkbox"
+                                                   data-price="${item.book.price}" 
+                                                   data-quantity="${item.quantity}">
                                         </td>
 
                                         <td>
@@ -168,14 +173,14 @@
 
                         <div class="total-section">
                             <div class="d-flex justify-content-end align-items-center gap-3">
-                                <span>Tổng giỏ hàng:</span>
-                                <span style="font-size: 24px; font-weight: bold; color: #C92127;">
-                                    <fmt:formatNumber value="${grandTotal}" type="currency" currencySymbol="₫"/>
+                                <span>Tổng thanh toán:</span>
+                                <span id="totalPriceDisplay" style="font-size: 24px; font-weight: bold; color: #C92127;">
+                                    0 ₫
                                 </span>
                             </div>
                             
                             <div class="d-flex justify-content-end mt-3">
-                                <button type="submit" class="btn-shopping" style="border: none; width: 300px;">THANH TOÁN</button>
+                                <button type="submit" class="btn-shopping" style="border: none; width: 300px;">THANH TOÁN MÓN ĐÃ CHỌN</button>
                             </div>
                         </div>
                     </form>
@@ -185,5 +190,67 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const itemCheckboxes = document.querySelectorAll('.item-checkbox');
+        const totalPriceDisplay = document.getElementById('totalPriceDisplay');
+        const selectAll = document.getElementById('selectAll');
+        const cartForm = document.getElementById('cartForm');
+
+        // Hàm tính lại tổng tiền
+        function calculateTotal() {
+            let total = 0;
+            let checkedCount = 0;
+            
+            itemCheckboxes.forEach(cb => {
+                if (cb.checked) {
+                    let price = parseFloat(cb.getAttribute('data-price'));
+                    let quantity = parseInt(cb.getAttribute('data-quantity'));
+                    total += (price * quantity);
+                    checkedCount++;
+                }
+            });
+
+            // Định dạng tiền tệ VNĐ và in ra màn hình
+            if(totalPriceDisplay) {
+                totalPriceDisplay.innerText = new Intl.NumberFormat('vi-VN', { 
+                    style: 'currency', 
+                    currency: 'VND' 
+                }).format(total);
+            }
+
+            // Tự động thay đổi trạng thái của nút "Chọn tất cả"
+            if(selectAll) {
+                selectAll.checked = (checkedCount === itemCheckboxes.length && itemCheckboxes.length > 0);
+            }
+        }
+
+        // 1. Lắng nghe sự kiện click vào từng món
+        itemCheckboxes.forEach(cb => {
+            cb.addEventListener('change', calculateTotal);
+        });
+
+        // 2. Lắng nghe sự kiện click vào nút "Chọn tất cả"
+        if(selectAll) {
+            selectAll.addEventListener('change', function() {
+                itemCheckboxes.forEach(cb => cb.checked = this.checked); // Cập nhật các ô con theo ô tổng
+                calculateTotal(); // Tính lại tiền
+            });
+        }
+
+        // 3. Lắng nghe sự kiện Bấm Thanh Toán (Chặn form nếu chưa chọn món)
+        if(cartForm) {
+            cartForm.addEventListener('submit', function(e) {
+                const checkedItems = document.querySelectorAll('.item-checkbox:checked');
+                if(checkedItems.length === 0) {
+                    e.preventDefault(); // Chặn không cho chuyển sang /checkout
+                    alert('Vui lòng tích chọn ít nhất 1 sản phẩm để thanh toán!');
+                }
+            });
+        }
+
+        // Khởi chạy hàm 1 lần khi load trang để mặc định hiển thị 0đ
+        calculateTotal();
+    </script>
 </body>
-</html>
+</html
