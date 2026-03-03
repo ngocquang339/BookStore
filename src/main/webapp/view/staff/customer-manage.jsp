@@ -52,7 +52,6 @@
                             <tr>
                                 <th class="ps-3">Khách hàng</th>
                                 <th>Thông tin liên lạc</th>
-                                <th>Địa chỉ giao hàng</th>
                                 <th class="text-center">Trạng thái</th>
                                 <th class="text-end pe-3">Hành động</th>
                             </tr>
@@ -80,12 +79,6 @@
                                             </c:choose>
                                         </div>
                                     </td>
-                                    <td>
-                                        <c:choose>
-                                            <c:when test="${not empty u.address}"><i class="fa-solid fa-location-dot text-muted me-2"></i><c:out value="${u.address}" /></c:when>
-                                            <c:otherwise><span class="text-muted fst-italic">Chưa cập nhật</span></c:otherwise>
-                                        </c:choose>
-                                    </td>
                                     <td class="text-center">
                                         <c:choose>
                                             <c:when test="${u.status == 1}"><span class="badge bg-success rounded-pill px-3 py-2 fw-normal"><i class="fa-solid fa-check me-1"></i> Hoạt động</span></c:when>
@@ -100,7 +93,7 @@
                                 </tr>
                             </c:forEach>
                             <c:if test="${empty listCustomers}">
-                                <tr><td colspan=\"5\" class=\"text-center py-5 text-muted\"><i class=\"fa-solid fa-box-open fs-1 mb-3\"></i><br>Không tìm thấy khách hàng nào.</td></tr>
+                                <tr><td colspan="4" class="text-center py-5 text-muted"><i class="fa-solid fa-box-open fs-1 mb-3"></i><br>Không tìm thấy khách hàng nào.</td></tr>
                             </c:if>
                         </tbody>
                     </table>
