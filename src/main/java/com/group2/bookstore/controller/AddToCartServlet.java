@@ -21,11 +21,18 @@ public class AddToCartServlet extends HttpServlet {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
         int bookId = 0;
+        // LẤY THÊM SỐ LƯỢNG (Nếu không có thì mặc định là 1)
+        int quantity = 1;
+        String qtyRaw = request.getParameter("quantity");
+        if (qtyRaw != null && !qtyRaw.isEmpty()) {
+            quantity = Integer.parseInt(qtyRaw);
+        }
         try {
             bookId = Integer.parseInt(request.getParameter("id"));
             BookDAO bookDAO = new BookDAO();
             Book book = bookDAO.getBookById(bookId);
-
+            List<CartItem> updatedCart = new ArrayList<>(); // Khởi tạo danh sách mới để cập nhật sau khi thêm vào DB
+            List<CartItem> cart = new ArrayList<>(); // Khởi tạo danh sách mới để cập nhật cho Guest
             if (book != null) {
                 CartItem newItem = new CartItem(book, 1);
 
@@ -35,11 +42,11 @@ public class AddToCartServlet extends HttpServlet {
                     cartDao.addToCart(user.getId(), newItem);
                     
                     // 2. CẬP NHẬT LẠI SESSION TỪ DB (Đảm bảo dữ liệu mới nhất)
-                    List<CartItem> updatedCart = cartDao.getCartByUserId(user.getId());
+                    updatedCart = cartDao.getCartByUserId(user.getId());
                     session.setAttribute("cart", updatedCart);
                 } else {
                     // Logic cho khách vãng lai (Guest)
-                    List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
+                    cart = (List<CartItem>) session.getAttribute("cart");
                     if (cart == null) cart = new ArrayList<>();
                     boolean found = false;
                     for (CartItem item : cart) {
@@ -52,6 +59,22 @@ public class AddToCartServlet extends HttpServlet {
                     session.setAttribute("cart", cart);
                 }
                 session.setAttribute("message", "Đã thêm vào giỏ hàng!");
+                // TÍNH TOÁN SỐ LƯỢNG LOẠI SÁCH ĐANG CÓ TRONG GIỎ
+                int cartSize = 0;
+                if (user != null) {
+                    cartSize = updatedCart.size(); // Nếu có user thì đếm theo DB
+                } else {
+                    cartSize = cart.size(); // Nếu khách vãng lai thì đếm theo Session
+                }
+
+                // KIỂM TRA XEM CÓ PHẢI LÀ GỌI TỪ AJAX KHÔNG?
+                String isAjax = request.getParameter("ajax");
+                if ("true".equals(isAjax)) {
+                    // Nếu là AJAX -> Trả về con số nguyên thủy và DỪNG LẠI
+                    response.setContentType("text/plain");
+                    response.getWriter().write(String.valueOf(cartSize));
+                    return; 
+                }
             }
         } catch (Exception e) { e.printStackTrace(); }
         response.sendRedirect("detail?pid=" + bookId); // Quay lại trang chi tiết sản phẩm

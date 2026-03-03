@@ -91,7 +91,7 @@
 
             <a href="${pageContext.request.contextPath}/cart" class="icon-item" style="text-decoration: none; color: inherit;">
                 <i class="fa-solid fa-cart-shopping"></i>
-                <span>Giỏ hàng (${sessionScope.cart != null ? sessionScope.cart.size() : 0})</span>
+                <span>Giỏ hàng (<span id="cartTotal">${sessionScope.cart != null ? sessionScope.cart.size() : 0}</span>)</span>
             </a>
 
             <div class="icon-item user-account">

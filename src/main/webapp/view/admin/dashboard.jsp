@@ -24,7 +24,7 @@
                     <div class="container">
                         <div class="logo">
                             <a href="${pageContext.request.contextPath}/home">
-                                <span style="color: #C92127; font-weight: 900; font-size: 28px;">BOOK</span>STORE
+                                <span style="color: #C92127; font-weight: 900; font-size: 28px;">MIND</span>BOOK
                             </a>
                             <span style="color: white; margin-left: 10px; font-weight: 300;">| ADMIN PANEL</span>
                         </div>

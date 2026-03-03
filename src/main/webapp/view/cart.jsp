@@ -98,7 +98,6 @@
                             <tbody>
                                 <c:forEach items="${sessionScope.cart}" var="item">
                                     <tr style="border-bottom: 1px solid #eee;">
-                                        
                                         <td class="text-center">
                                             <input type="checkbox" name="selectedItems" value="${item.book.id}" class="form-check-input custom-checkbox">
                                         </td>
