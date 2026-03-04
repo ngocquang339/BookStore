@@ -59,14 +59,12 @@ public class ReviewDAO extends DBContext {
     public List<Review> getReviewsByStar(int starValue) {
         List<Review> list = new ArrayList<>();
 
-        // Cấu trúc SQL đã được fix chuẩn tên bảng (Review) và khóa ngoại (user_id,
-        // book_id)
+        // Cấu trúc SQL đã được fix chuẩn tên bảng (Review) và khóa ngoại (user_id, book_id)
         String sql = "SELECT r.review_id, r.user_id, r.book_id, r.rating, r.comment, r.create_at, " +
                 "u.username, u.email, b.title AS book_title " +
                 "FROM Review r " +
                 "JOIN Users u ON r.user_id = u.user_id " +
                 "JOIN Books b ON r.book_id = b.book_id ";
-
         // Quy ước: starValue = 0 nghĩa là "Lấy tất cả", từ 1-5 là lọc theo sao
         if (starValue >= 1 && starValue <= 5) {
             sql += " WHERE r.rating = ? ";

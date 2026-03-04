@@ -22,7 +22,6 @@ public class StaffReviewServlet extends HttpServlet {
         if (star != null && !star.isEmpty() && !star.equals("all")) {
             try {
                 starValue = Integer.parseInt(star);
-                // Kiểm tra thêm: Số sao chỉ được từ 1 đến 5
                 if (starValue < 1 || starValue > 5)
                     starValue = 0;
             } catch (NumberFormatException e) {

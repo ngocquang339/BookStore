@@ -198,10 +198,10 @@ public class UserDAO extends DBContext {
         }
     }
 
-    // // Lấy danh sách khách hàng (Role = 2) dành cho Staff
+    // // Lấy danh sách khách hàng (Role = 0) dành cho Staff
     public List<User> getAllCustomers() {
         List<User> list = new ArrayList<>();
-        // Role 2 là khách hàng (dựa trên dữ liệu mẫu của bạn)
+        // Role 0 là khách hàng (dựa trên dữ liệu mẫu của bạn)
         String sql = "SELECT * FROM Users WHERE role = 0";
 
         try (Connection conn = getConnection();
@@ -213,8 +213,8 @@ public class UserDAO extends DBContext {
                 u.setFullname(rs.getString("fullname")); // Cần hiển thị tên thật
                 u.setUsername(rs.getString("username"));
                 u.setEmail(rs.getString("email"));
-                u.setPhone_number(rs.getString("phone_number")); // Quan trọng để liên hệ
-                u.setAddress(rs.getString("address")); // Quan trọng để ship
+                u.setPhone_number(rs.getString("phone_number"));
+                u.setAddress(rs.getString("address"));
                 u.setRole(rs.getInt("role"));
                 u.setStatus(rs.getInt("status")); // Để biết khách có bị khóa không
                 list.add(u);
@@ -228,7 +228,7 @@ public class UserDAO extends DBContext {
     // --- NÂNG CẤP: TÌM KIẾM KHÁCH HÀNG ---
     public List<User> searchCustomers(String keyword) {
         List<User> list = new ArrayList<>();
-        // Tìm theo tên hoặc SĐT, chỉ lấy khách hàng (role = 2)
+        // Tìm theo tên hoặc SĐT, chỉ lấy khách hàng (role = 0)
         String sql = "SELECT * FROM Users WHERE role = 0 AND (fullname LIKE ? OR phone_number LIKE ?)";
 
         try (Connection conn = getConnection();
