@@ -129,6 +129,7 @@
                             <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
                         </a>
                     </div>
+<<<<<<< HEAD
                     <div class="analytics-card"
                         style="background: #f8f9fa; border-left: 5px solid #ffc107; padding: 20px; border-radius: 8px; margin-bottom: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
                         <h3 style="margin-top: 0; color: #333;">
@@ -144,6 +145,8 @@
                             </c:forEach>
                         </ul>
                     </div>
+=======
+>>>>>>> 736d6299164d3064077504be0f8e1b7b7f12aef9
                     <div
                         style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 25px;">
                         <div>

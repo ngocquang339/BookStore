@@ -124,7 +124,10 @@
                                         <tr class="${!b.active ? 'row-hidden' : ''}">
                                             <td>${b.id}</td>
                                             <td>
+<<<<<<< HEAD
                                                 <span style="color:red; font-size: 10px;">Path: [${b.coverImage}]</span>
+=======
+>>>>>>> 736d6299164d3064077504be0f8e1b7b7f12aef9
                                                 <c:choose>
 
                                                     <c:when test="${not empty b.coverImage}">
@@ -229,4 +232,8 @@
 
                 </body>
 
+<<<<<<< HEAD
                 </html>
+=======
+                </html>
+>>>>>>> 736d6299164d3064077504be0f8e1b7b7f12aef9

@@ -63,7 +63,7 @@ public class AdminProductServlet extends HttpServlet {
 
     // 4. Fetch the Data
     List<Book> list = bookDAO.getBooks(keyword, cid, null, null, 0, 0, sortBy, sortOrder, true, index, pageSize);
-    List<Category> categories = catDAO.getAllCategories();
+    List<Category> categories = catDAO.getCategories();
 
     // 5. Send data to JSP
     request.setAttribute("listBooks", list);
@@ -82,7 +82,7 @@ public class AdminProductServlet extends HttpServlet {
 
         if (path.equals("/admin/product/add")) {
             CategoryDAO categoryDAO = new CategoryDAO();
-            List<Category> listC = categoryDAO.getAllCategories();
+            List<Category> listC = categoryDAO.getCategories();
             request.setAttribute("listCategories", listC);
             request.getRequestDispatcher("/view/admin/product-form.jsp").forward(request, response);
         } else if (path.equals("/admin/product/edit")) {
@@ -93,7 +93,7 @@ public class AdminProductServlet extends HttpServlet {
             int id = Integer.parseInt(request.getParameter("id"));
             Book b = bookDAO.getBookById(id);
 
-            List<Category> listC = categoryDAO.getAllCategories();
+            List<Category> listC = categoryDAO.getCategories();
 
             request.setAttribute("book", b);
             request.setAttribute("listCategories", listC); // 3. Send the list to JSP

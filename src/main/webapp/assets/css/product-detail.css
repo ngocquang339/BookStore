@@ -13,7 +13,7 @@ body {
     border-radius: 8px;
     padding: 20px;
     margin-bottom: 20px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05)product-top-section;
 }
 
 /* 3. Bố cục phần trên (Chia 2 cột: Ảnh - Thông tin) */
@@ -227,3 +227,4 @@ body {
 .detail-value {
     color: #333;
 }
+

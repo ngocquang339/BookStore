@@ -532,15 +532,23 @@
     .banner-bottom {
         display: flex;
         gap: 10px;
+        justify-content: space-between; /* Dàn đều 4 ảnh ra 2 bên mép */
     }
 
-    .banner-bottom img {
-        width: 25%;          /* Chia đều 4 ảnh (100% / 4) */
+    /* THÊM MỚI: Định hình kích thước cho thẻ a (Flex Item) */
+    .banner-bottom a {
+        flex: 1; /* Ép 4 thẻ a tự động chia đều nhau 100% chiều ngang */
+        display: block;
+    }
+
+    /* SỬA LẠI: Ảnh bung 100% theo chiều rộng của thẻ a */
+    .banner-bottom a img {
+        width: 100%;          
         height: auto;
         border-radius: 8px;
         object-fit: cover;
         display: block;
-        transition: transform 0.3s ease; /* Hiệu ứng khi di chuột */
+        transition: transform 0.3s ease; 
     }
 
     /* Hiệu ứng hover nhẹ cho đẹp */

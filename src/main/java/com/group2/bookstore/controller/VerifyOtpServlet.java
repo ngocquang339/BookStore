@@ -1,14 +1,16 @@
 package com.group2.bookstore.controller;
 
+import java.io.IOException;
+
+import com.group2.bookstore.dal.UserDAO;
+import com.group2.bookstore.model.User;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.io.IOException;
-import com.group2.bookstore.model.User;
-import com.group2.bookstore.dal.UserDAO;
 
 @WebServlet("/verify-otp")
 public class VerifyOtpServlet extends HttpServlet {
@@ -20,22 +22,41 @@ public class VerifyOtpServlet extends HttpServlet {
         String userOtp = request.getParameter("userOtp");
         String serverOtp = (String) session.getAttribute("otp");
         User tempUser = (User) session.getAttribute("tempUser");
+        String tempEmail = (String) session.getAttribute("tempEmail");
 
         // 2. Kiểm tra
-        if (userOtp.equals(serverOtp)) {
+        if (userOtp != null && userOtp.equals(serverOtp)) {
             // --- THÀNH CÔNG ---
             
             // Gọi DAO để lưu tempUser vào Database chính thức
             UserDAO dao = new UserDAO();
-            dao.createUser(tempUser);
+            if(tempEmail != null) {
+                User user = (User)session.getAttribute("user");
+                user.setEmail(tempEmail);
+                dao.updateUser(user);
+                session.setAttribute("user", user); // Cập nhật email mới nếu có
+                request.setAttribute("mess", "Đổi email thành công!");
+                request.setAttribute("status", "success");
+                
+                // Xóa session rác
+                session.removeAttribute("tempEmail");
+                session.removeAttribute("tempOTP");
+                
+                request.getRequestDispatcher("view/UserProfile.jsp").forward(request, response);
+            }
+            if(tempUser != null) {
+                dao.createUser(tempUser);
             
-            // Xóa session tạm
-            session.removeAttribute("otp");
-            session.removeAttribute("tempUser");
+                // Xóa session tạm
+                session.removeAttribute("otp");
+                session.removeAttribute("tempUser");
+                session.removeAttribute("tempEmail");
+                
+                // Thông báo và chuyển về Login
+                request.setAttribute("message", "Đăng ký thành công! Hãy đăng nhập.");
+                request.getRequestDispatcher("view/Login.jsp").forward(request, response);
+            }
             
-            // Thông báo và chuyển về Login
-            request.setAttribute("message", "Đăng ký thành công! Hãy đăng nhập.");
-            request.getRequestDispatcher("view/Login.jsp").forward(request, response);
             
         } else {
             // --- THẤT BẠI ---

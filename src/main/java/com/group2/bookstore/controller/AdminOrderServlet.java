@@ -13,7 +13,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-// Map multiple URLs to this one Servlet
+// Map multiple URLs to this one Servletm
 @WebServlet(name = "AdminOrderServlet", urlPatterns = {"/admin/order", "/admin/order/detail", "/admin/order/update"})
 public class AdminOrderServlet extends HttpServlet {
 
@@ -93,7 +93,6 @@ public class AdminOrderServlet extends HttpServlet {
             request.setAttribute("listOrders", list);
             request.setAttribute("endPage", endPage);
             request.setAttribute("tag", index); // "tag" is the active page number
-
             // 7. Send Back Filters & Sort (So they stick in the UI)
             request.setAttribute("keyword", keyword);
             request.setAttribute("fromDate", fromDate);

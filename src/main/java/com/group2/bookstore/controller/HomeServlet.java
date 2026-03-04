@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import com.group2.bookstore.dal.BookDAO;
+import com.group2.bookstore.dal.CategoryDAO;
 import com.group2.bookstore.model.Book;
 import com.group2.bookstore.model.BookImage;
 import com.group2.bookstore.model.User;
@@ -24,6 +25,7 @@ public class HomeServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String path = request.getServletPath();
         BookDAO dao = new BookDAO();
+        CategoryDAO cateDAO = new CategoryDAO();
         // 1. GET USER & ROLE
         HttpSession session = request.getSession();
         User currentUser = (User) session.getAttribute("user");
@@ -39,7 +41,7 @@ public class HomeServlet extends HttpServlet {
         if (path.equals("/search")) {
             String keyword = request.getParameter("txt");
             List<Book> searchResults = dao.searchBooks(keyword, roleId);
-            
+            // Lấy đại 10 cuốn ngẫu nhiên (Bạn truyền tham số roleId và số lượng theo hàm của bạn nhé)
             request.setAttribute("listBooks", searchResults);
             request.setAttribute("searchKeyword", keyword);
             
@@ -50,13 +52,15 @@ public class HomeServlet extends HttpServlet {
         // CASE B: HOMEPAGE
         else {
             List<Book> newArrivals = dao.getNewArrivals(); 
-            List<Book> bestSellers = dao.getBestSellers(); 
+            List<Book> bestSellers = dao.getBestSellers();
+            List<Book> suggestedBooks = dao.getRandomBook(2, 50); 
             List<Book> randomBooks = dao.getRandomBook(roleId, 10);
             List<Book> flashSaleBooks = dao.getRandomBook(roleId, 10);
-            List<Category> listCategories = dao.getCategories();
+            List<Category> listCategories = cateDAO.getCategories();
             
             request.setAttribute("listCategories", listCategories);
             request.setAttribute("newBooks", newArrivals);
+            request.setAttribute("suggestedBooks", suggestedBooks); // Tên này phải khớp với ${suggestedBooks} trong JSP
             request.setAttribute("bestBooks", bestSellers);
             request.setAttribute("randomBooks", randomBooks);
             request.setAttribute("flashSaleBooks", flashSaleBooks);

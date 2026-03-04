@@ -31,9 +31,13 @@
                         <div class="filter-group">
                             <h4><i class="fa-solid fa-book"></i> Thể loại</h4>
                             <label class="checkbox-item"><input type="checkbox" name="cid" value="1"> Văn học</label>
-                            <label class="checkbox-item"><input type="checkbox" name="cid" value="2"> Kinh tế</label>
-                            <label class="checkbox-item"><input type="checkbox" name="cid" value="3"> Thiếu nhi</label>
-                            <label class="checkbox-item"><input type="checkbox" name="cid" value="4"> Kỹ năng sống</label>
+                            <label class="checkbox-item"><input type="checkbox" name="cid" value="6"> Kinh tế</label>
+                            <label class="checkbox-item"><input type="checkbox" name="cid" value="11"> Kỹ năng sống</label>
+                            <label class="checkbox-item"><input type="checkbox" name="cid" value="16"> Nuôi dạy con </label>
+                            <label class="checkbox-item"><input type="checkbox" name="cid" value="21"> Sách thiếu nhi</label>
+                            <label class="checkbox-item"><input type="checkbox" name="cid" value="26"> Tiểu sử - Hồi kí</label>
+                            <label class="checkbox-item"><input type="checkbox" name="cid" value="31"> Giáo khoa - Tham khảo</label>
+                            <label class="checkbox-item"><input type="checkbox" name="cid" value="36"> Ngoại ngữ</label>
                         </div>
                         <div class="filter-group">
                             <h4><i class="fa-solid fa-layer-group"></i> Hình thức</h4>
@@ -91,7 +95,7 @@
 
             <a href="${pageContext.request.contextPath}/cart" class="icon-item" style="text-decoration: none; color: inherit;">
                 <i class="fa-solid fa-cart-shopping"></i>
-                <span>Giỏ hàng (${sessionScope.cart != null ? sessionScope.cart.size() : 0})</span>
+                <span>Giỏ hàng (<span id="cartTotal">${sessionScope.cart != null ? sessionScope.cart.size() : 0}</span>)</span>
             </a>
 
             <div class="icon-item user-account">
@@ -117,6 +121,20 @@
                         <a href="${pageContext.request.contextPath}/update-profile" class="dropdown-link">
                             <i class="fa-regular fa-id-card"></i> Hồ sơ của tôi
                         </a>
+
+                        <c:if test="${sessionScope.user.role == 3}">
+                            <hr style="border: 0; border-top: 1px solid #eee; margin: 5px 0;">
+                            
+                            <a href="${pageContext.request.contextPath}/staff/customers" style="color: #C92127; font-weight: bold;">
+                                <i class="fa-solid fa-users-gear"></i> Hỗ trợ Khách hàng
+                            </a>
+                            
+                            <a href="${pageContext.request.contextPath}/staff/reviews" style="color: #C92127; font-weight: bold;">
+                                <i class="fa-solid fa-comments"></i> Quản lý Đánh giá
+                            </a>
+                            
+                            <hr style="border: 0; border-top: 1px solid #eee; margin: 5px 0;">
+                        </c:if>
                         <a href="${pageContext.request.contextPath}/logout" class="dropdown-link logout-link">
                             <i class="fa-solid fa-power-off"></i> Đăng xuất
                         </a>

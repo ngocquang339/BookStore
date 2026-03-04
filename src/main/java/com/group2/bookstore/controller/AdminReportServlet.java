@@ -93,12 +93,10 @@ public class AdminReportServlet extends HttpServlet {
         // 5. Send Attributes to JSP
         request.setAttribute("fromDate", fromDate);
         request.setAttribute("toDate", toDate);
-
         // Summary Cards
         request.setAttribute("totalRevenue", totalRevenue);
         request.setAttribute("totalOrders", totalOrders);
         request.setAttribute("completedOrders", completedOrders);
-
         // Charts Data
         request.setAttribute("dateLabels", dateLabels.toString());
         request.setAttribute("revenueData", revenueData.toString());

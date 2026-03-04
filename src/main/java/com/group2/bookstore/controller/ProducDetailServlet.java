@@ -42,11 +42,15 @@ public class ProducDetailServlet extends HttpServlet{
             List<BookImage> bookImage = dao.getBookImage(id);
             // 3. Get Related Books (Same Category)
             List<Book> relatedBooks = dao.getRelatedBooks(book.getCategoryId(), id);
+            List<Book> bookSameAuthor = dao.getBookByAuthor(book.getAuthor());
+            List<Book> suggestedBooks = dao.getRandomBook(2, 50);
 
             // 4. Send data to JSP
             request.setAttribute("book", book);
             request.setAttribute("bookImages", bookImage);
             request.setAttribute("relatedBooks", relatedBooks);
+            request.setAttribute("bookSameAuthor", bookSameAuthor);
+            request.setAttribute("suggestedBooks", suggestedBooks);
             
             request.getRequestDispatcher("view/product-detail.jsp").forward(request, response);
             

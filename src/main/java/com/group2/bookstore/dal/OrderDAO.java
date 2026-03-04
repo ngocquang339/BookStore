@@ -196,6 +196,8 @@ public class OrderDAO extends DBContext {
 
         if ("total".equals(sortBy)) {
             sql += "ORDER BY o.total_amount " + ("asc".equals(sortOrder) ? "ASC" : "DESC");
+        } else if ("name".equals(sortBy)) {
+            sql += "ORDER BY u.fullname " + ("asc".equals(sortOrder) ? "ASC" : "DESC");
         } else {
             sql += "ORDER BY o.order_date " + ("asc".equals(sortOrder) ? "ASC" : "DESC");
         }
@@ -246,6 +248,8 @@ public class OrderDAO extends DBContext {
         // Logic sắp xếp (Lọc theo cột và chiều mũi tên)
         if ("total".equals(sortBy)) {
             sql += "ORDER BY o.total_amount " + ("asc".equals(sortOrder) ? "ASC" : "DESC");
+        } else if ("name".equals(sortBy)) {
+            sql += "ORDER BY u.username " + ("asc".equals(sortOrder) ? "ASC" : "DESC");
         } else {
             sql += "ORDER BY o.order_date " + ("asc".equals(sortOrder) ? "ASC" : "DESC");
         }
