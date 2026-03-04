@@ -116,6 +116,55 @@
                         color: #0d6efd !important;
                         /* Bootstrap Blue */
                     }
+
+                    /* Container for the report card to give it some elevation */
+                    .report-card {
+                        background: #fff;
+                        padding: 20px;
+                        border-radius: 8px;
+                        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+                        margin-top: 30px;
+                    }
+
+                    /* The actual table spacing */
+                    .admin-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        /* Prevents double borders */
+                        margin-top: 15px;
+                    }
+
+                    .admin-table th {
+                        background-color: #f8f9fa;
+                        color: #333;
+                        font-weight: 600;
+                        text-align: left;
+                        padding: 12px 15px;
+                        /* Horizontal and vertical spacing for headers */
+                        border-bottom: 2px solid #dee2e6;
+                    }
+
+                    .admin-table td {
+                        padding: 18px 15px;
+                        /* Increased vertical padding to separate rows */
+                        border-bottom: 1px solid #eee;
+                        vertical-align: middle;
+                    }
+
+                    /* Hover effect so the Admin can track rows easily */
+                    .admin-table tbody tr:hover {
+                        background-color: #fcfcfc;
+                    }
+
+                    /* Style for the badges to make them pop */
+                    .badge-danger {
+                        background-color: #fff5f5;
+                        color: #e03131;
+                        padding: 4px 10px;
+                        border-radius: 4px;
+                        border: 1px solid #ffa8a8;
+                        font-size: 0.85rem;
+                    }
                 </style>
             </head>
 
@@ -129,7 +178,6 @@
                             <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
                         </a>
                     </div>
-<<<<<<< HEAD
                     <div class="analytics-card"
                         style="background: #f8f9fa; border-left: 5px solid #ffc107; padding: 20px; border-radius: 8px; margin-bottom: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
                         <h3 style="margin-top: 0; color: #333;">
@@ -145,8 +193,6 @@
                             </c:forEach>
                         </ul>
                     </div>
-=======
->>>>>>> 736d6299164d3064077504be0f8e1b7b7f12aef9
                     <div
                         style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 25px;">
                         <div>
@@ -212,6 +258,30 @@
                         </div>
 
                     </div>
+                    <div class="report-card">
+                        <h3><i class="fa-solid fa-triangle-exclamation"></i> Top 5 Returned Books</h3>
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Book Title</th>
+                                    <th>Return Frequency</th>
+                                    <th>Loss (Refunds)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <c:forEach items="${topReturns}" var="item">
+                                    <tr>
+                                        <td><strong>${item.bookTitle}</strong><br><small>${item.author}</small></td>
+                                        <td><span class="badge badge-danger">${item.returnCount} returns</span></td>
+                                        <td>
+                                            <fmt:formatNumber value="${item.totalRefunded}" type="currency"
+                                                currencySymbol="đ" />
+                                        </td>
+                                    </tr>
+                                </c:forEach>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <script>
@@ -275,7 +345,7 @@
                     }
     });
                 </script>
-
+                <%@ include file="admin-notifications.jsp" %>
             </body>
 
             </html>

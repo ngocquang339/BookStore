@@ -8,6 +8,8 @@ import java.util.Map;
 
 import com.group2.bookstore.dal.AnalyticsDAO;
 import com.group2.bookstore.dal.ReportDAO;
+import com.group2.bookstore.dal.ReturnRequestDAO;
+import com.group2.bookstore.model.ReturnReportDTO;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -107,11 +109,14 @@ public class AdminReportServlet extends HttpServlet {
         List<String> adviceList = analyticsDAO.getSmartBusinessAdvice();
 
         request.setAttribute("smartAdvice", adviceList);
+        // Inside doGet
+        ReturnRequestDAO returnDao = new ReturnRequestDAO();
+        List<ReturnReportDTO> topReturns = returnDao.getTopReturnedBooks(5);
+        request.setAttribute("topReturns", topReturns);
 
         // Make sure this path matches your file structure
         request.getRequestDispatcher("/view/admin/report-dashboard.jsp").forward(request, response);
 
         // Inside your doGet method for the dashboard/analytics page:
-        
     }
 }
