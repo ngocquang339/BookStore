@@ -72,7 +72,7 @@
 
                 <div class="checkout-section">
                     <div class="section-title">KIỂM TRA LẠI ĐƠN HÀNG</div>
-                    <c:forEach items="${sessionScope.cart}" var="item">
+                    <c:forEach items="${sessionScope.checkoutCart}" var="item">
                         <div class="book-item d-flex mb-3 border-bottom pb-3">
                             <img src="${pageContext.request.contextPath}/${item.book.imageUrl}" 
                                  class="book-img border rounded me-3" alt="${item.book.title}"
