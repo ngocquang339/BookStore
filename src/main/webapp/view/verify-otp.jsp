@@ -35,7 +35,7 @@
 
             <p>Mã xác thực đã được gửi đến email của bạn.<br>Vui lòng kiểm tra và nhập mã 6 số.</p>
             
-            <input type="text" name="userOtp" placeholder="------" maxlength="6" required autocomplete="off">
+            <input type="number" name="Userotp" placeholder="------" maxlength="6" required autocomplete="off">
             
             <button type="submit">Xác nhận</button>
             

@@ -245,7 +245,7 @@ public class BookDAO extends DBContext {
             params.add(searchParam); // Cho publisher
         }
         if (cid > 0) {
-            sql.append(" AND b.category_id = ? OR c.parent_id = ? ");
+            sql.append(" AND (b.category_id = ? OR c.parent_id = ?) ");
             params.add(cid);
             params.add(cid);
         }
@@ -267,7 +267,7 @@ public class BookDAO extends DBContext {
         }
 
         if (sortBy != null && !sortBy.isEmpty() && (sortBy.equals("price") || sortBy.equals("title") || sortBy.equals("stock_quantity") || sortBy.equals("book_id"))) {
-            sql.append(" ORDER BY b.").append(sortBy).append("DESC".equalsIgnoreCase(sortOrder) ? " DESC" : " ASC");
+            sql.append(" ORDER BY b.").append(sortBy).append("DESC".equalsIgnoreCase(sortOrder)? " DESC" : " ASC");
         } else {
             sql.append(" ORDER BY b.book_id DESC");
         }
