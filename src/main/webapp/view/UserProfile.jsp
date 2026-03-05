@@ -238,7 +238,7 @@
             <form action="verify-otp" method="POST">
                 <div class="modal-group" style="margin-bottom: 20px;">
                     <label style="display: block; margin-bottom: 5px; font-weight: 500;">Mã xác nhận OTP</label>
-                    <input type="text" name="email_otp" maxlength="10" class="modal-input" placeholder="6 ký tự" 
+                    <input type="number" name="Userotp" maxlength="6" class="modal-input" placeholder="6 ký tự" 
                         style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
                 </div>
 

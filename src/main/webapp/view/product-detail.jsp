@@ -81,75 +81,75 @@
         .coupon-scroll::-webkit-scrollbar-thumb:hover { background: #bbb; }
 
         /* Nền đen mờ phủ toàn màn hình */
-            .address-modal-overlay {
-                position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-                background: rgba(0,0,0,0.5); z-index: 10005;
-                display: flex; justify-content: center; align-items: center;
-            }
+        .address-modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.5); z-index: 10005;
+            display: flex; justify-content: center; align-items: center;
+        }
 
-            /* Hộp trắng Modal */
-            .address-modal-box {
-                background: #fff; width: 700px; padding: 30px;
-                border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            }
+        /* Hộp trắng Modal */
+        .address-modal-box {
+            background: #fff; width: 700px; padding: 30px;
+            border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
 
-            /* Custom Radio Button */
-            .address-radio-label {
-                display: flex; align-items: center; cursor: pointer;
-                font-size: 15px; color: #333; margin-bottom: 15px;
-            }
-            .address-radio-label input {
-                width: 18px; height: 18px; margin-right: 10px; cursor: pointer;
-                accent-color: #ea0606; /* Đổi màu nút tick sang đỏ MINDBOOK */
-            }
+        /* Custom Radio Button */
+        .address-radio-label {
+            display: flex; align-items: center; cursor: pointer;
+            font-size: 15px; color: #333; margin-bottom: 15px;
+        }
+        .address-radio-label input {
+            width: 18px; height: 18px; margin-right: 10px; cursor: pointer;
+            accent-color: #ea0606; /* Đổi màu nút tick sang đỏ MINDBOOK */
+        }
 
-            /* Nhóm Thẻ Select */
-            .select-group {
-                display: flex; align-items: center; margin-bottom: 15px;
-            }
-            
-            .select-group label {
-                width: 140px; /* Tăng lên 140px để chữ "Tỉnh/Thành Phố" không bị rớt xuống 2 dòng */
-                font-size: 14px; color: #333;
-            }
-            
-            .select-group select {
-                width: 350px; /* SỬA Ở ĐÂY: Xóa 'flex: 1' và chốt cứng chiều rộng là 350px */
-                padding: 8px 12px; border: 1px solid #ddd;
-                border-radius: 4px; outline: none; font-size: 14px; color: #555;
-                background-color: #fff;
-            }
-            /* Giao diện khi select bị khóa (disabled) */
-            .select-group select:disabled {
-                background-color: #f5f5f5; cursor: not-allowed;
-            }
+        /* Nhóm Thẻ Select */
+        .select-group {
+            display: flex; align-items: center; margin-bottom: 15px;
+        }
+        
+        .select-group label {
+            width: 140px; /* Tăng lên 140px để chữ "Tỉnh/Thành Phố" không bị rớt xuống 2 dòng */
+            font-size: 14px; color: #333;
+        }
+        
+        .select-group select {
+            width: 350px; /* SỬA Ở ĐÂY: Xóa 'flex: 1' và chốt cứng chiều rộng là 350px */
+            padding: 8px 12px; border: 1px solid #ddd;
+            border-radius: 4px; outline: none; font-size: 14px; color: #555;
+            background-color: #fff;
+        }
+        /* Giao diện khi select bị khóa (disabled) */
+        .select-group select:disabled {
+            background-color: #f5f5f5; cursor: not-allowed;
+        }
 
-            /* Nút Hủy và Xác nhận */
-            .address-modal-actions {
-                display: flex; justify-content: flex-end; gap: 15px; margin-top: 30px;
-            }
-            .btn-cancel {
-                background: transparent; border: none; color: #555;
-                font-size: 15px; font-weight: bold; cursor: pointer;
-            }
-            .btn-confirm {
-                background: #e0e0e0; color: #888; border: none; padding: 8px 20px;
-                border-radius: 4px; font-size: 15px; font-weight: bold; 
-                cursor: not-allowed; /* SỬA DÒNG NÀY: Hiện biểu tượng cấm click khi nút màu xám */
-                transition: background 0.3s, color 0.3s;
-            }
-            
-            /* CLASS MỚI: Dùng để đổi nút sang màu đỏ khi đã chọn đủ thông tin */
-            .btn-confirm.ready {
-                background: #C92127; color: white; cursor: pointer;
-            }
-            /* Nếu muốn nút Xác nhận đỏ lên khi sẵn sàng thì dùng class này: 
-            background: #C92127; color: white; */
-            .nav-btn:hover { background: rgba(255,255,255,0.2) !important; transform: translateY(-50%) scale(1.1) !important; }
-            .modal-thumb-scroll::-webkit-scrollbar { height: 6px; }
-            .modal-thumb-scroll::-webkit-scrollbar-track { background: #333; border-radius: 4px; }
-            .modal-thumb-scroll::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
-            .modal-thumb-scroll::-webkit-scrollbar-thumb:hover { background: #bbb; }
+        /* Nút Hủy và Xác nhận */
+        .address-modal-actions {
+            display: flex; justify-content: flex-end; gap: 15px; margin-top: 30px;
+        }
+        .btn-cancel {
+            background: transparent; border: none; color: #555;
+            font-size: 15px; font-weight: bold; cursor: pointer;
+        }
+        .btn-confirm {
+            background: #e0e0e0; color: #888; border: none; padding: 8px 20px;
+            border-radius: 4px; font-size: 15px; font-weight: bold; 
+            cursor: not-allowed; /* SỬA DÒNG NÀY: Hiện biểu tượng cấm click khi nút màu xám */
+            transition: background 0.3s, color 0.3s;
+        }
+        
+        /* CLASS MỚI: Dùng để đổi nút sang màu đỏ khi đã chọn đủ thông tin */
+        .btn-confirm.ready {
+            background: #C92127; color: white; cursor: pointer;
+        }
+        /* Nếu muốn nút Xác nhận đỏ lên khi sẵn sàng thì dùng class này: 
+        background: #C92127; color: white; */
+        .nav-btn:hover { background: rgba(255,255,255,0.2) !important; transform: translateY(-50%) scale(1.1) !important; }
+        .modal-thumb-scroll::-webkit-scrollbar { height: 6px; }
+        .modal-thumb-scroll::-webkit-scrollbar-track { background: #333; border-radius: 4px; }
+        .modal-thumb-scroll::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+        .modal-thumb-scroll::-webkit-scrollbar-thumb:hover { background: #bbb; }
 
         /* Hiệu ứng trượt nhẹ từ dưới lên và tự mờ đi */
         @keyframes fadeInOut {
@@ -158,6 +158,121 @@
             80% { opacity: 1; transform: translate(-50%, -50%); }
             100% { opacity: 0; transform: translate(-50%, -60%); visibility: hidden; }
         }
+
+                /* KHUNG TỔNG THỂ */
+        .review-container {
+            background-color: #ffffff;
+            padding: 25px;
+            border-radius: 8px;
+            margin-top: 20px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+        .review-title {
+            font-size: 18px;
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        /* 1. PHẦN TỔNG QUAN */
+        .review-overview {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 25px;
+            margin-bottom: 25px;
+        }
+        .rating-score { text-align: center; min-width: 120px; }
+        .rating-bars { flex: 1; min-width: 250px; max-width: 400px; margin: 0 20px; }
+        .rating-action { min-width: 200px; display: flex; justify-content: center; align-items: center; }
+
+        .btn-write-review {
+            background: white;
+            color: #C92127;
+            border: 1px solid #C92127;
+            padding: 10px 30px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+        }
+        .btn-write-review:hover { background: #fff0f0; }
+
+        /* 2. PHẦN FORM ĐÁNH GIÁ (ẨN MẶC ĐỊNH) */
+        .review-form-wrapper {
+            background: #f9f9f9;
+            border: 1px solid #eee;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            display: none; /* Sẽ được hiện bằng JS */
+        }
+        .star-voting {
+            font-size: 28px;
+            color: #ddd;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+        .star-voting i.active { color: #F5A623; }
+        .review-textarea {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+            outline: none;
+            box-sizing: border-box;
+        }
+        .review-textarea:focus { border-color: #C92127; }
+        .btn-submit-review {
+            background: #C92127;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 6px;
+            font-weight: bold;
+            margin-top: 15px;
+            cursor: pointer;
+        }
+
+        /* 3. PHẦN DANH SÁCH USER REVIEWS */
+        .review-list { display: flex; flex-direction: column; gap: 20px; }
+        .review-item {
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 20px;
+        }
+        .review-item:last-child { border-bottom: none; }
+        .reviewer-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        .reviewer-avatar {
+            width: 40px;
+            height: 40px;
+            background: #e0e0e0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #666;
+        }
+        .reviewer-name { font-weight: 600; color: #333; font-size: 14px; }
+        .review-date { font-size: 12px; color: #999; }
+        .review-stars { color: #F5A623; font-size: 12px; }
+        .review-content { font-size: 14px; color: #444; line-height: 1.5; margin-top: 8px; }
     </style>
 </head>
 <body>
@@ -226,9 +341,6 @@
             </div>
             <div class="product-info-column" style="flex: 1;display: flex; flex-direction: column; gap: 15px;">
                 <div class="product-info-box white-box" style="padding: 20px; border-radius: 8px;">
-        
-                    <%-- ===================================== --%>
-                    <%-- PHẦN ADMIN (GIỮ NGUYÊN KHÔNG CHẠM VÀO)--%>
                     <c:if test="${sessionScope.user != null && sessionScope.user.role == 1}">
                         <div class="admin-inspector" style="margin-bottom: 15px;">
                             <div class="admin-header">
@@ -386,52 +498,138 @@
 
         </div>
 
-        <div class="product-review-box white-box" style="padding: 20px; border-radius: 8px;">
-        <h3 class="section-header" style="margin-top: 0; margin-bottom: 25px; font-size: 18px;">Đánh giá sản phẩm</h3>
-        
-        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
-            
-            <div style="text-align: center; min-width: 120px;">
-                <div style="font-size: 48px; font-weight: bold; line-height: 1;">
-                    0<span style="font-size: 24px; color: #999; font-weight: normal;">/5</span>
-                </div>
-                <div style="color: #ddd; font-size: 18px; margin: 8px 0;">
-                    <i class="fa-solid fa-star"></i>
-                    <i class="fa-solid fa-star"></i>
-                    <i class="fa-solid fa-star"></i>
-                    <i class="fa-solid fa-star"></i>
-                    <i class="fa-solid fa-star"></i>
-                </div>
-                <div style="color: #777; font-size: 13px;">(0 đánh giá)</div>
-            </div>
+        <div id="review-section" class="review-container">
+            <h3 class="review-title">Đánh Giá Sản Phẩm</h3>
 
-            <div style="flex: 1; min-width: 250px; max-width: 400px; margin: 0 20px;">
-                
-                <c:forEach var="i" begin="1" end="5" step="1">
-                    <c:set var="starValue" value="${6 - i}" /> <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 13px; color: #555;">
-                        <span style="width: 45px; text-align: right;">${starValue} sao</span>
-                        
-                        <div style="flex: 1; height: 6px; background-color: #eee; border-radius: 3px; overflow: hidden;">
-                            <div style="width: 0%; height: 100%; background-color: #F5A623;"></div>
-                        </div>
-                        
-                        <span style="width: 30px; text-align: right;">0%</span>
+            <div class="review-overview">
+                <div class="rating-score">
+                    <div style="font-size: 48px; font-weight: bold; line-height: 1; color: #333;">
+                        ${totalReviews > 0 ? averageRating : '0.0'}<span style="font-size: 24px; color: #999; font-weight: normal;">/5</span>
                     </div>
-                </c:forEach>
+                    
+                    <div style="color: #F5A623; font-size: 18px; margin: 8px 0;">
+                        <c:forEach var="i" begin="1" end="5">
+                            <c:choose>
+                                <%-- Nếu điểm trung bình >= vị trí sao (VD: 4.5 >= 4) -> In sao Vàng Full --%>
+                                <c:when test="${averageRating >= i}">
+                                    <i class="fa-solid fa-star"></i>
+                                </c:when>
+                                <%-- Nếu điểm trung bình có phần lẻ >= 0.5 (VD: 4.5 >= 5 - 0.5) -> In sao Vàng Khuyết Nửa --%>
+                                <c:when test="${averageRating >= (i - 0.5)}">
+                                    <i class="fa-solid fa-star-half-stroke"></i>
+                                </c:when>
+                                <%-- Còn lại -> In sao Xám --%>
+                                <c:otherwise>
+                                    <i class="fa-regular fa-star" style="color: #ddd;"></i>
+                                </c:otherwise>
+                            </c:choose>
+                        </c:forEach>
+                    </div>
+                    
+                    <div style="color: #777; font-size: 13px;">(${totalReviews} đánh giá)</div>
+                </div>
+
+                <div class="rating-bars">
+                    <c:forEach var="i" begin="1" end="5" step="1">
+                        <%-- Tạo biến starValue chạy lùi từ 5 xuống 1 --%>
+                        <c:set var="starValue" value="${6 - i}" /> 
+                        
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 13px; color: #555;">
+                            <span style="width: 45px; text-align: right;">${starValue} sao</span>
+                            
+                            <div style="flex: 1; height: 6px; background-color: #eee; border-radius: 3px; overflow: hidden;">
+                                <%-- Chiều rộng của thanh cam sẽ tự động lấy từ mảng % (Thêm transition để có hiệu ứng trượt mượt mà) --%>
+                                <div style="width: ${starPercentages != null ? starPercentages[starValue] : 0}%; height: 100%; background-color: #F5A623; transition: width 0.8s ease-out;"></div>
+                            </div>
+                            
+                            <%-- In con số % ra text --%>
+                            <span style="width: 30px; text-align: right;">${starPercentages != null ? starPercentages[starValue] : 0}%</span>
+                        </div>
+                    </c:forEach>
+                </div>
+
+                <div class="rating-action">
+                    <c:choose>
+                        <c:when test="${sessionScope.user != null}">
+                            <button type="button" class="btn-write-review" onclick="toggleReviewForm()">
+                                <i class="fa-solid fa-pen"></i> Viết đánh giá
+                            </button>
+                        </c:when>
+                        <c:otherwise>
+                            <div style="font-size: 14px; color: #333; text-align: center; line-height: 1.5;">
+                                Chỉ có thành viên mới có thể viết nhận xét.<br>Vui lòng 
+                                <a href="${pageContext.request.contextPath}/login" style="color: #2f80ed; font-weight: bold; text-decoration: none;">Đăng nhập</a> hoặc 
+                                <a href="${pageContext.request.contextPath}/register" style="color: #2f80ed; font-weight: bold; text-decoration: none;">Đăng ký</a>.
+                            </div>
+                        </c:otherwise>
+                    </c:choose>
+                </div>
+            </div>
+            <%-- phần form đánh giá khi người dùng click vào nút "Viết đánh giá" --%>
+            <div id="reviewFormSection" class="review-form-wrapper">
+                <form id="reviewForm" action="review" method="POST">
+                    <input type="hidden" name="pid" value="${book.id}">
+                    <input type="hidden" id="ratingValue" name="rating" value="5"> <div style="font-weight: bold; margin-bottom: 10px;">Bạn chấm sản phẩm này bao nhiêu sao?</div>
+                    
+                    <div class="star-voting" id="starVoting">
+                        <i class="fa-solid fa-star active" data-value="1"></i>
+                        <i class="fa-solid fa-star active" data-value="2"></i>
+                        <i class="fa-solid fa-star active" data-value="3"></i>
+                        <i class="fa-solid fa-star active" data-value="4"></i>
+                        <i class="fa-solid fa-star active" data-value="5"></i>
+                    </div>
+
+                    <textarea name="comment" class="review-textarea" placeholder="Chia sẻ cảm nhận của bạn về cuốn sách này nhé..." required></textarea>
+                    
+                    <div style="text-align: right;">
+                        <button type="button" class="btn-write-review" style="display: inline-block; color: #666; border-color: #ccc; margin-right: 10px;" onclick="toggleReviewForm()">Hủy</button>
+                        <button type="submit" class="btn-submit-review">Gửi đánh giá</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="review-list" id="reviewListContainer">
+        
+                <c:choose>
+                    <%-- Trường hợp 1: Có đánh giá --%>
+                    <c:when test="${not empty listReviews}">
+                        <c:forEach items="${listReviews}" var="r">
+                            <div class="review-item">
+                                <div class="reviewer-info">
+                                    <div class="reviewer-avatar">${r.username.substring(0, 1).toUpperCase()}</div> 
+                                    <div>
+                                        <div class="reviewer-name">${r.username}</div>
+                                        <div class="review-date">${r.createAt}</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="review-stars">
+                                    <c:forEach begin="1" end="${r.rating}">
+                                        <i class="fa-solid fa-star"></i>
+                                    </c:forEach>
+                                    <c:forEach begin="${r.rating + 1}" end="5">
+                                        <i class="fa-regular fa-star" style="color: #ddd;"></i>
+                                    </c:forEach>
+                                </div>
+                                
+                                <div class="review-content">
+                                    ${r.comment}
+                                </div>
+                            </div>
+                        </c:forEach>
+                    </c:when>
+
+                    <%-- Trường hợp 2: Chưa có ai đánh giá --%>
+                    <c:otherwise>
+                        <div style="text-align: center; color: #999; padding: 30px; background: #fdfdfd; border-radius: 8px; border: 1px dashed #eee;">
+                            <i class="fa-regular fa-comment-dots" style="font-size: 32px; color: #ddd; margin-bottom: 10px; display: block;"></i>
+                            Chưa có đánh giá nào cho sản phẩm này.<br>Hãy là người đầu tiên nhận xét!
+                        </div>
+                    </c:otherwise>
+                </c:choose>
                 
             </div>
-
-            <div style="min-width: 200px; display: flex; justify-content: center;">
-                <button type="button" 
-                        style="background: white; color: #C92127; border: 1px solid #C92127; padding: 10px 40px; border-radius: 6px; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.3s;"
-                        onmouseover="this.style.background='#fff0f0'" 
-                        onmouseout="this.style.background='white'">
-                    <i class="fa-solid fa-pen"></i> Viết đánh giá
-                </button>
-            </div>
-
         </div>
-    </div>
 
     <div class="same-author-box white-box" style="padding: 20px; border-radius: 8px; margin-top: 20px;">
         <h3 style="text-transform: uppercase; font-size: 16px; font-weight: bold; margin-bottom: 20px; color: #333;">
@@ -737,10 +935,6 @@
         });
     }
 
-    // ===================================================================
-    // LOGIC TỈNH - HUYỆN - XÃ (Đã Fix lỗi xung đột JSTL trong JSP)
-    // ===================================================================
-    
     $(document).ready(function() {
         const $province = $("#provinceSelect");
         const $district = $("#districtSelect");
@@ -889,6 +1083,123 @@
     $(document).ready(function() {
         $('#addressModalOverlay').on('change', 'select, input[type="radio"]', function() {
             checkConfirmButtonState();
+        });
+    });
+
+    // Hàm bật/tắt form viết đánh giá
+    function toggleReviewForm() {
+        const form = document.getElementById("reviewFormSection");
+        if (form.style.display === "none" || form.style.display === "") {
+            form.style.display = "block";
+        } else {
+            form.style.display = "none";
+        }
+    }
+
+    // Xử lý hiệu ứng chọn sao (1 đến 5 sao)
+    const stars = document.querySelectorAll("#starVoting i");
+    const ratingInput = document.getElementById("ratingValue");
+
+    stars.forEach(star => {
+        star.addEventListener("click", function() {
+            const value = this.getAttribute("data-value");
+            ratingInput.value = value; // Cập nhật giá trị vào input hidden để submit lên Server
+
+            // Đổi màu các sao
+            stars.forEach(s => {
+                if (s.getAttribute("data-value") <= value) {
+                    s.classList.add("active");
+                    s.classList.replace("fa-regular", "fa-solid");
+                } else {
+                    s.classList.remove("active");
+                    s.classList.replace("fa-solid", "fa-regular");
+                }
+            });
+        });
+    });
+
+    document.getElementById('reviewForm').addEventListener('submit', function(e) {
+        // Chặn reload trang
+        e.preventDefault(); 
+
+        const form = this;
+        const formData = new FormData(form);
+        const submitBtn = form.querySelector('.btn-submit-review');
+        const originalBtnText = submitBtn.innerText;
+
+        submitBtn.innerText = "Đang xử lý...";
+        submitBtn.disabled = true;
+
+        const data = new URLSearchParams();
+        for (const pair of formData) {
+            data.append(pair[0], pair[1]);
+        }
+
+        fetch('review', {
+            method: 'POST',
+            body: data,
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        })
+        .then(response => {
+            // NẾU SERVLET TRẢ VỀ STATUS 200 (THÀNH CÔNG)
+            if(response.ok) { 
+                
+                toggleReviewForm(); // Đóng form
+                
+                // Vẽ bình luận mới lên đầu
+                const rating = parseInt(formData.get('rating'));
+                const comment = formData.get('comment');
+                const userName = '${sessionScope.user.username}'; 
+                const avatarChar = userName ? userName.substring(0, 1).toUpperCase() : 'U';
+
+                let starsHtml = '';
+                for(let i=1; i<=5; i++) {
+                    if(i <= rating) starsHtml += '<i class="fa-solid fa-star"></i>';
+                    else starsHtml += '<i class="fa-regular fa-star" style="color: #ddd;"></i>';
+                }
+
+                // Dùng dấu cộng chuỗi truyền thống để tránh đụng độ với JSP
+                const newReviewHtml = '<div class="review-item" style="animation: fadeIn 0.5s;">' +
+                    '<div class="reviewer-info">' +
+                        '<div class="reviewer-avatar">' + avatarChar + '</div>' +
+                        '<div>' +
+                            '<div class="reviewer-name">' + userName + '</div>' +
+                            '<div class="review-date">Vừa xong</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="review-stars">' + starsHtml + '</div>' +
+                    '<div class="review-content">' + comment + '</div>' +
+                '</div>';
+
+                const listContainer = document.getElementById('reviewListContainer');
+                if(listContainer.innerHTML.includes('fa-comment-dots')) {
+                    listContainer.innerHTML = ''; // Xóa thông báo trống
+                }
+                listContainer.insertAdjacentHTML('afterbegin', newReviewHtml);
+
+                // Xóa form
+                form.reset();
+                document.getElementById('ratingValue').value = 5;
+                document.querySelectorAll('#starVoting i').forEach(s => {
+                    s.classList.add("active");
+                    s.classList.replace("fa-regular", "fa-solid");
+                });
+
+            // NẾU SERVLET TRẢ VỀ STATUS 401 (CHƯA ĐĂNG NHẬP)
+            } else if (response.status === 401) {
+                alert("Phiên đăng nhập đã hết hạn. Vui lòng tải lại trang để đăng nhập!");
+            } else {
+                alert("Lỗi hệ thống, không thể lưu đánh giá!");
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Nếu bạn vẫn thấy dòng này hiện lên, nghĩa là mạng nhà bạn rớt hoặc Tomcat bị sập ngang
+            alert("Không thể kết nối đến máy chủ!"); 
+        })
+        .finally(() => {
+            submitBtn.innerText = originalBtnText;
+            submitBtn.disabled = false;
         });
     });
     </script>
