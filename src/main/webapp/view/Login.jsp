@@ -362,7 +362,7 @@
             <form action="${pageContext.request.contextPath}/login" method="post">
                 
                 <div class="form-group">
-                    <label for="username">Số điện thoại/Email</label>
+                    <label for="username">Tên đăng nhập</label>
                     <input type="text" id="username" name="username" value="${param.username}" placeholder="Nhập số điện thoại/Email" maxlength="50" required>
                 </div>
 

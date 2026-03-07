@@ -43,7 +43,6 @@ public class UpdateProfileServlet extends HttpServlet{
         String newFullname = request.getParameter("fullname");
         String newEmail = request.getParameter("email");
         String newPhone = request.getParameter("phone_number");
-        String newAddress = request.getParameter("address");
 
         
         HttpSession session = request.getSession();
@@ -58,7 +57,6 @@ public class UpdateProfileServlet extends HttpServlet{
         currentUser.setFullname(newFullname);
         currentUser.setEmail(newEmail);
         currentUser.setPhone_number(newPhone);
-        currentUser.setAddress(newAddress);
 
         // 6. GỌI DAO ĐỂ LƯU VÀO DATABASE (QUAN TRỌNG)
         UserDAO userDAO = new UserDAO();

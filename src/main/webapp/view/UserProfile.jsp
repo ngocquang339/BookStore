@@ -138,13 +138,7 @@
                             </div>
                         </div>
 
-                        <div class="form-row">
-                            <label class="form-label-custom">Địa chỉ nhận hàng</label>
-                            <div class="form-input-custom">
-                                <input type="text" name="address" value="${sessionScope.user.address}" class="form-control" placeholder="Nhập địa chỉ nhận hàng">
-                            </div>
-                        </div>
-
+                        
                         <div class="form-row">
                             <label class="form-label-custom"></label> 
                             <div class="form-input-custom">

@@ -95,7 +95,7 @@ public class AdminUserServlet extends HttpServlet {
                 u.setFullname(request.getParameter("fullname"));
                 u.setEmail(email);
                 u.setPhone_number(request.getParameter("phone"));
-                u.setAddress(request.getParameter("address"));
+                //u.setAddress(request.getParameter("address"));
                 u.setRole(Integer.parseInt(request.getParameter("role")));
 
                 dao.addUser(u);
