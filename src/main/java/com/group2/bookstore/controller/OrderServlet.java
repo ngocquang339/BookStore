@@ -40,6 +40,11 @@ public class OrderServlet extends HttpServlet {
 
         // 3. GỌI DAO ĐỂ LẤY DỮ LIỆU
         OrderDAO orderDAO = new OrderDAO();
+        int countProcessing = orderDAO.countOrdersByStatus(user.getId(), 1);
+        int countShipping = orderDAO.countOrdersByStatus(user.getId(), 2);
+        int countCompleted = orderDAO.countOrdersByStatus(user.getId(), 3);
+        int countCancelled = orderDAO.countOrdersByStatus(user.getId(), 4);
+        int countAll = countProcessing + countShipping + countCompleted + countCancelled;
         List<Order> listOrders;
         
         if ("all".equals(status)) {
@@ -48,16 +53,20 @@ public class OrderServlet extends HttpServlet {
         } else {
             // Chuyển đổi trạng thái dạng chữ (trên URL) sang số nguyên (trong DB)
             int dbStatus = -1;
-            switch (status) {
-                case "pending": dbStatus = 1; break;    // Chờ thanh toán
-                case "processing": dbStatus = 2; break; // Đang xử lý
-                case "shipping": dbStatus = 3; break;   // Đang giao
-                case "completed": dbStatus = 4; break;  // Hoàn tất
-                case "cancelled": dbStatus = 0; break;  // Bị hủy
+            switch (status) {    
+                case "processing": dbStatus = 1; break; // Đang xử lý
+                case "shipping": dbStatus = 2; break;   // Đang giao
+                case "completed": dbStatus = 3; break;  // Hoàn tất
+                case "cancelled": dbStatus = 4; break;  // Bị hủy
             }
             // Gọi hàm lấy theo trạng thái
             listOrders = orderDAO.getOrdersByStatusForUser(user.getId(), dbStatus);
         }
+        request.setAttribute("countAll", countAll);
+        request.setAttribute("countProcessing", countProcessing);
+        request.setAttribute("countShipping", countShipping);
+        request.setAttribute("countCompleted", countCompleted);
+        request.setAttribute("countCancelled", countCancelled);
         
         request.setAttribute("listOrders", listOrders);
 

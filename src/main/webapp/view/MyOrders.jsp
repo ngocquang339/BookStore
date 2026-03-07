@@ -179,26 +179,23 @@
                         <div class="order-tabs-title">Đơn hàng của tôi</div>
                         <ul class="order-tabs">
                             <a href="?status=all" class="tab-item ${currentStatus == 'all' ? 'active' : ''}">
-                                <div class="count">1</div> <div class="label">Tất cả</div>
-                            </a>
-                            <a href="?status=pending" class="tab-item ${currentStatus == 'pending' ? 'active' : ''}">
-                                <div class="count">0</div>
-                                <div class="label">Chờ thanh toán</div>
+                                <div class="count">${countAll != null ? countAll : 0}</div> 
+                                <div class="label">Tất cả</div>
                             </a>
                             <a href="?status=processing" class="tab-item ${currentStatus == 'processing' ? 'active' : ''}">
-                                <div class="count">0</div>
+                                <div class="count">${countProcessing != null ? countProcessing : 0}</div>
                                 <div class="label">Đang xử lý</div>
                             </a>
                             <a href="?status=shipping" class="tab-item ${currentStatus == 'shipping' ? 'active' : ''}">
-                                <div class="count">0</div>
+                                <div class="count">${countShipping != null ? countShipping : 0}</div>
                                 <div class="label">Đang giao</div>
                             </a>
                             <a href="?status=completed" class="tab-item ${currentStatus == 'completed' ? 'active' : ''}">
-                                <div class="count">0</div>
+                                <div class="count">${countCompleted != null ? countCompleted : 0}</div>
                                 <div class="label">Hoàn tất</div>
                             </a>
                             <a href="?status=cancelled" class="tab-item ${currentStatus == 'cancelled' ? 'active' : ''}">
-                                <div class="count">1</div>
+                                <div class="count">${countCancelled != null ? countCancelled : 0}</div>
                                 <div class="label">Bị hủy</div>
                             </a>
                         </ul>

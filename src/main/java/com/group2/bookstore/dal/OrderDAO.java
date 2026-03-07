@@ -123,11 +123,11 @@ public class OrderDAO extends DBContext {
     // Thêm vào OrderDAO.java
 // File: OrderDAO.java (Đã sửa lỗi)
     // Đã thêm tham số String receiverName vào hàm
-    public void createOrder(User user, List<CartItem> cart, String receiverName, String shippingAddress, String phone, double total, String paymentMethod) {
+    public void createOrder(User user, List<CartItem> cart, String receiverName, String shippingAddress, String phone, double total, String paymentMethod, int orderStatus) {
         
-        // Đã thêm cột receiver_name và thêm 1 dấu ? vào Values
-        String sqlOrder = "INSERT INTO Orders(user_id, order_date, total_amount, status, receiver_name, shipping_address, phone_number, payment_method) VALUES (?, GETDATE(), ?, 1, ?, ?, ?, ?)";
-        Connection cn = null; // Khai báo Connection ở ngoài để kiểm soát Transaction
+        // Đã sửa '1' thành '?' ở cột status
+        String sqlOrder = "INSERT INTO Orders(user_id, order_date, total_amount, status, receiver_name, shipping_address, phone_number, payment_method) VALUES (?, GETDATE(), ?, ?, ?, ?, ?, ?)";
+        Connection cn = null; 
 
         try {
             cn = getConnection();
@@ -137,10 +137,11 @@ public class OrderDAO extends DBContext {
             PreparedStatement ps = cn.prepareStatement(sqlOrder, PreparedStatement.RETURN_GENERATED_KEYS);
             ps.setInt(1, user.getId());
             ps.setDouble(2, total);
-            ps.setString(3, receiverName);     // Truyền Tên người nhận vào
-            ps.setString(4, shippingAddress);  // Truyền Địa chỉ vào
-            ps.setString(5, phone);            // Truyền SĐT vào
-            ps.setString(6, paymentMethod);
+            ps.setInt(3, orderStatus);         // Truyền Trạng thái đơn hàng (Động)
+            ps.setString(4, receiverName);     // Đã lùi index xuống 4
+            ps.setString(5, shippingAddress);  // Đã lùi index xuống 5
+            ps.setString(6, phone);            // Đã lùi index xuống 6
+            ps.setString(7, paymentMethod);    // Đã lùi index xuống 7
             ps.executeUpdate();
 
             ResultSet rs = ps.getGeneratedKeys();
@@ -158,23 +159,37 @@ public class OrderDAO extends DBContext {
             }
             psDetail.executeBatch();
 
-            // 3. Xóa giỏ hàng
+            // ==============================================================
+            // 3. TRỪ SỐ LƯỢNG TỒN KHO TRỰC TIẾP Ở ĐÂY (Reserve/Deduct Stock)
+            // ==============================================================
+            String sqlUpdateStock = "UPDATE Books SET stock_quantity = stock_quantity - ? WHERE book_id = ?";
+            PreparedStatement psUpdateStock = cn.prepareStatement(sqlUpdateStock);
+            for (CartItem item : cart) {
+                psUpdateStock.setInt(1, item.getQuantity()); // Số lượng khách mua
+                psUpdateStock.setInt(2, item.getBook().getId()); // ID sách
+                psUpdateStock.addBatch();
+            }
+            psUpdateStock.executeBatch();
+
+            // 4. Xóa giỏ hàng (CartItems)
             String sqlDeleteItems = "DELETE FROM CartItems WHERE cart_id = (SELECT cart_id FROM Cart WHERE user_id = ?)";
             PreparedStatement psDelItems = cn.prepareStatement(sqlDeleteItems);
             psDelItems.setInt(1, user.getId());
             psDelItems.executeUpdate();
 
-            // 4. Xóa bảng Cart
+            // 5. Xóa bảng Cart
             String sqlDeleteCart = "DELETE FROM Cart WHERE user_id = ?";
             PreparedStatement psDelCart = cn.prepareStatement(sqlDeleteCart);
             psDelCart.setInt(1, user.getId());
             psDelCart.executeUpdate();
 
-            cn.commit(); // Xác nhận Transaction thành công
+            // TẤT CẢ OK -> LƯU VÀO DB
+            cn.commit(); 
+            
         } catch (Exception e) {
             if (cn != null) {
                 try {
-                    cn.rollback();
+                    cn.rollback(); // CÓ LỖI -> HỦY BỎ TẤT CẢ (BAO GỒM CẢ VIỆC TRỪ KHO)
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
@@ -231,14 +246,59 @@ public class OrderDAO extends DBContext {
     }
 
     public void updateOrderStatus(int orderId, int newStatus) {
-        String sql = "UPDATE Orders SET status = ? WHERE order_id = ?";
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, newStatus);
-            ps.setInt(2, orderId);
-            int rows = ps.executeUpdate();
-            System.out.println("Updated Order ID: " + orderId + " to Status: " + newStatus + " (Rows: " + rows + ")");
+        String sqlUpdateStatus = "UPDATE Orders SET status = ? WHERE order_id = ?";
+        
+        // Câu lệnh SQL cộng trả lại sách vào kho (chỉ chạy khi status = 4)
+        String sqlRollbackStock = "UPDATE b " +
+                                  "SET b.stock_quantity = b.stock_quantity + od.quantity " +
+                                  "FROM Books b " +
+                                  "INNER JOIN OrderDetails od ON b.book_id = od.book_id " +
+                                  "WHERE od.order_id = ?";
+                                  
+        Connection conn = null; 
+        
+        try {
+            conn = getConnection();
+            conn.setAutoCommit(false); // Bắt đầu Transaction để đảm bảo an toàn
+
+            // 1. Cập nhật trạng thái đơn hàng
+            try (PreparedStatement ps = conn.prepareStatement(sqlUpdateStatus)) {
+                ps.setInt(1, newStatus);
+                ps.setInt(2, orderId);
+                int rows = ps.executeUpdate();
+                System.out.println("Updated Order ID: " + orderId + " to Status: " + newStatus + " (Rows: " + rows + ")");
+            }
+
+            // 2. Kích hoạt Rollback Stock nếu Staff bấm Hủy (Trạng thái = 4)
+            if (newStatus == 4) {
+                try (PreparedStatement psStock = conn.prepareStatement(sqlRollbackStock)) {
+                    psStock.setInt(1, orderId);
+                    int stockRows = psStock.executeUpdate();
+                    System.out.println("Rollback Stock for Order ID: " + orderId + " (Updated " + stockRows + " books)");
+                }
+            }
+
+            conn.commit(); // Cả 2 lệnh đều thành công -> Lưu vào Database
+            
         } catch (Exception e) {
+            if (conn != null) {
+                try {
+                    conn.rollback(); // Có lỗi -> Hoàn tác tất cả, không cho sai lệch kho
+                    System.out.println("Transaction rolled back for Order ID: " + orderId);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
             e.printStackTrace();
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true); // Trả lại trạng thái mặc định của hệ thống
+                    conn.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -301,6 +361,31 @@ public class OrderDAO extends DBContext {
             for (int i = 0; i < params.size(); i++) {
                 ps.setObject(i + 1, params.get(i));
             }
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int countOrdersByStatus(int userId, int status) {
+        // Nếu status = -1 thì đếm TẤT CẢ đơn hàng của user đó
+        String sql = "SELECT COUNT(*) FROM Orders WHERE user_id = ?";
+        if (status != -1) {
+            sql += " AND status = ?";
+        }
+        
+        try (Connection conn = getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setInt(1, userId);
+            if (status != -1) {
+                ps.setInt(2, status);
+            }
+            
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 return rs.getInt(1);

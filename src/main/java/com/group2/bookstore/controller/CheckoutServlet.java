@@ -47,21 +47,31 @@ public class CheckoutServlet extends HttpServlet {
             int flag = 0;
             int bId = 0;
 
+            // Trong vòng lặp xử lý selectedItems của bạn
             for (String idStr : selectedItems) {
                 try {
                     int bookId = Integer.parseInt(idStr);
                     Book book = dao.getBookById(bookId);
-                    if(book.getStockQuantity() < 1){
-                        flag = 1;
-                        bId = book.getId();
-                        break;
-                    }
+                    
+                    // Tìm CartItem tương ứng để biết khách muốn mua bao nhiêu
+                    CartItem currentItem = null;
                     for (CartItem item : cart) {
                         if (item.getBook().getId() == bookId) {
-                            checkoutCart.add(item);
-                            checkoutTotal += (item.getQuantity() * item.getBook().getPrice());
+                            currentItem = item;
                             break;
                         }
+                    }
+
+                    if (currentItem != null) {
+                        // KIỂM TRA: Kho còn ít hơn số lượng khách muốn mua
+                        if (book.getStockQuantity() < currentItem.getQuantity()) {
+                            flag = 1;
+                            bId = book.getId();
+                            session.setAttribute("cartError", "Sản phẩm " + book.getTitle() + " chỉ còn " + book.getStockQuantity() + " sản phẩm!");
+                            break;
+                        }
+                        checkoutCart.add(currentItem);
+                        checkoutTotal += (currentItem.getQuantity() * currentItem.getBook().getPrice());
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -156,10 +166,19 @@ public class CheckoutServlet extends HttpServlet {
             
             // ================= RẼ NHÁNH PHƯƠNG THỨC THANH TOÁN =================
             if ("COD".equals(paymentMethod)) {
-                
+                int orderStatus = 1; // Giả sử 1 là "Chờ duyệt" (Review Needed)
+                int totalQuantity = 0;
+                for (CartItem item : checkoutCart) {
+                    totalQuantity += item.getQuantity();
+                }
+
+                // Ví dụ Luật: Nếu mua dưới 10 cuốn HOẶC tổng tiền < 2 triệu -> Duyệt luôn
+                if (totalQuantity <= 10 && grandTotal <= 2000000) {
+                    orderStatus = 2; // Giả sử 2 là "Đang xử lý / Đã duyệt" (Auto-Approve)
+                }
                 // === LUỒNG 1: THANH TOÁN TIỀN MẶT (Lưu Database luôn - Giữ nguyên code cũ của bạn) ===
                 OrderDAO dao = new OrderDAO();
-                dao.createOrder(user, checkoutCart, receiverName, shippingAddress, phone, grandTotal, paymentMethod);
+                dao.createOrder(user, checkoutCart, receiverName, shippingAddress, phone, grandTotal, paymentMethod, orderStatus);
 
                 // Chỉ xóa những món đã thanh toán khỏi giỏ hàng gốc
                 if (mainCart != null) {
@@ -201,6 +220,9 @@ public class CheckoutServlet extends HttpServlet {
                 session.setAttribute("pending_grandTotal", grandTotal);
                 session.setAttribute("pending_paymentMethod", paymentMethod);
 
+                // [QUAN TRỌNG]: Bổ sung đoạn này để trừ kho tạm thời (Reserve Stock)
+                BookDAO bookDAO = new BookDAO();
+                bookDAO.updateStockForCheckout(checkoutCart, false);
                 // 6. TẠO LINK VÀ BAY THẲNG SANG TRANG VNPAY
                 String vnpayUrl = com.group2.bookstore.util.VNPayService.createPaymentUrl(orderId, amount, orderInfo, returnUrl);
                 resp.sendRedirect(vnpayUrl);
