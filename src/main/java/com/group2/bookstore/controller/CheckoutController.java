@@ -140,7 +140,8 @@ public class CheckoutController extends HttpServlet {
             session.removeAttribute("checkoutCart");
             session.removeAttribute("grandTotal");
 
-            req.getSession().setAttribute("successMsg", "Đặt hàng thành công!");
+            session.setAttribute("message", "Đặt hàng thành công!");
+            session.setAttribute("messageType", "success");
             resp.sendRedirect(req.getContextPath() + "/home");
 
         } catch (Exception e) {

@@ -39,48 +39,20 @@ public class SaleController extends HttpServlet {
         // 2. Lấy dữ liệu theo Tab trạng thái và Tham số sắp xếp
         String statusRaw = req.getParameter("status");
         if(statusRaw == null || statusRaw.equals("all")){
-            // listOrders = dao.getAllOrdersBySale(sortBy, sortOrder); // Gọi hàm MỚI
+            listOrders = dao.getAllOrdersBySale(sortBy, sortOrder); // Gọi hàm MỚI
             req.setAttribute("currentStatus", "all");
         } else {
             int status = Integer.parseInt(statusRaw);
-            // listOrders = dao.getOrdersByStatus(status, sortBy, sortOrder); // Gọi hàm MỚI
+            listOrders = dao.getOrdersByStatus(status, sortBy, sortOrder); // Gọi hàm MỚI
             req.setAttribute("currentStatus", status);
         }
         
         // 3. Gửi ngược trạng thái sắp xếp hiện tại sang JSP để hiển thị icon Mũi tên
         req.setAttribute("currentSortBy", sortBy);
         req.setAttribute("currentSortOrder", sortOrder);
-        // req.setAttribute("orders", listOrders);
+        req.setAttribute("orders", listOrders);
         req.getRequestDispatcher("/view/dashboard.jsp").forward(req, resp);
     }
 
-    // Xử lý cập nhật trạng thái đơn hàng
-    // @Override
-//     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-//     try {
-//         // 1. Lấy dữ liệu từ Form gửi lên
-//         int orderId = Integer.parseInt(req.getParameter("orderId"));
-//         int newStatus = Integer.parseInt(req.getParameter("newStatus"));
-        
-//         // 2. LẤY TRẠNG THÁI TAB HIỆN TẠI TỪ THẺ HIDDEN TRONG JSP
-//         String currentTab = req.getParameter("currentTab");
-        
-//         // 3. Gọi DAO để cập nhật Database
-//         OrderDAO dao = new OrderDAO();
-//         dao.updateOrderStatus(orderId, newStatus);
-        
-//         // 4. CHUYỂN HƯỚNG VỀ ĐÚNG TAB CŨ
-//         // Nếu currentTab rỗng (trường hợp load trang đầu tiên), trả về dashboard gốc
-//         if (currentTab == null || currentTab.trim().isEmpty()) {
-//             resp.sendRedirect("dashboard");
-//         } else {
-//             // Trả về đúng tab đang xem (ví dụ: ?status=all hoặc ?status=1)
-//             resp.sendRedirect("dashboard?status=" + currentTab);
-//         }
-        
-//     } catch (Exception e) {
-//         e.printStackTrace();
-//         resp.sendRedirect("dashboard");
-//     }
-// }
+
 }

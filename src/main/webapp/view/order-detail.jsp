@@ -63,24 +63,32 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <c:forEach items="${listDetails}" var="item">
-                                        <tr>
-                                            <td>
-    <div class="d-flex align-items-center">
-        <img src="${pageContext.request.contextPath}/${item.book.imageUrl}" alt="book" class="book-img me-3 border rounded">
-        <span class="fw-bold">${item.book.title}</span>
-    </div>
-</td>
-                                            <td class="text-center text-muted">
-                                                <fmt:formatNumber value="${item.price}" type="currency" currencySymbol="đ"/>
-                                            </td>
-                                            <td class="text-center fw-bold">x${item.quantity}</td>
-                                            <td class="text-end fw-bold text-danger pe-3">
-                                                <fmt:formatNumber value="${item.price * item.quantity}" type="currency" currencySymbol="đ"/>
-                                            </td>
-                                        </tr>
-                                    </c:forEach>
-                                </tbody>
+    <c:forEach items="${listDetails}" var="item">
+        <tr>
+            <td>
+                <div class="d-flex align-items-center">
+                    <img src="${pageContext.request.contextPath}/assets/image/books/${item.book.imageUrl}" 
+                         class="book-img me-3 border" 
+                         alt="${item.book.title}"
+                         onerror="this.src='https://placehold.co/60x80?text=No+Image'"
+                         style="width: 60px; height: 80px; object-fit: cover;">
+                    
+                    <div>
+                        <h6 class="mb-0 fw-bold text-dark">${item.book.title}</h6>
+                    </div>
+                </div>
+            </td>
+
+            <td class="text-center text-muted">
+                <fmt:formatNumber value="${item.price}" type="currency" currencySymbol="đ"/>
+            </td>
+            <td class="text-center fw-bold">x${item.quantity}</td>
+            <td class="text-end fw-bold text-danger pe-3">
+                <fmt:formatNumber value="${item.price * item.quantity}" type="currency" currencySymbol="đ"/>
+            </td>
+        </tr>
+    </c:forEach>
+</tbody>
                                 <tfoot class="table-light">
                                     <tr>
                                         <td colspan="3" class="text-end fw-bold fs-5">Tổng cộng:</td>
