@@ -110,12 +110,15 @@
                                         <span class="badge bg-warning text-dark px-2 py-2" style="width: 90px;">Chờ xử lý</span>
                                     </c:when>
                                     <c:when test="${o.status == 2}">
-                                        <span class="badge bg-primary px-2 py-2" style="width: 90px;">Đang giao</span>
+                                        <span class="badge bg-primary px-2 py-2" style="width: 90px;">Đang xử lí</span>
                                     </c:when>
                                     <c:when test="${o.status == 3}">
-                                        <span class="badge bg-success px-2 py-2" style="width: 90px;">Hoàn thành</span>
+                                        <span class="badge bg-primary px-2 py-2" style="width: 90px;">Đang giao</span>
                                     </c:when>
                                     <c:when test="${o.status == 4}">
+                                        <span class="badge bg-success px-2 py-2" style="width: 90px;">Đã giao</span>
+                                    </c:when>
+                                    <c:when test="${o.status == 5}">
                                         <span class="badge bg-danger px-2 py-2" style="width: 90px;">Đã hủy</span>
                                     </c:when>
                                 </c:choose>

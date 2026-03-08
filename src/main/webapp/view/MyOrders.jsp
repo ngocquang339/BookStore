@@ -269,10 +269,40 @@
                                     <div class="order-footer mt-3">
                                         <div class="total-items-text">${totalItemsCount} sản phẩm</div>
                                         <div class="text-end">
-                                            <div class="order-total-price">Tổng tiền: 
-                                                <strong style="color: #C92127;">
-                                                    <fmt:formatNumber value="${order.totalAmount}" type="currency" currencySymbol="₫"/>
-                                                </strong>
+                                            <div class="order-total-price" style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+                                                <c:choose>
+                                                    <%-- TRƯỜNG HỢP 1: CÓ ÁP DỤNG VOUCHER --%>
+                                                    <c:when test="${order.discountAmount > 0}">
+                                                        <div style="font-size: 14px; color: #777;">
+                                                            Tổng tiền hàng: 
+                                                            <span style="color: #333; margin-left: 8px;">
+                                                                <fmt:formatNumber value="${order.totalAmount + order.discountAmount}" type="currency" currencySymbol="₫"/>
+                                                            </span>
+                                                        </div>
+                                                        <div style="font-size: 14px; color: #777;">
+                                                            Voucher giảm giá: 
+                                                            <span style="color: #28a745; font-weight: bold; margin-left: 8px;">
+                                                                - <fmt:formatNumber value="${order.discountAmount}" type="currency" currencySymbol="₫"/>
+                                                            </span>
+                                                        </div>
+                                                        <div style="margin-top: 4px; font-size: 15px;">
+                                                            Thành tiền: 
+                                                            <strong style="color: #C92127; font-size: 18px; margin-left: 8px;">
+                                                                <fmt:formatNumber value="${order.totalAmount}" type="currency" currencySymbol="₫"/>
+                                                            </strong>
+                                                        </div>
+                                                    </c:when>
+                                                    
+                                                    <%-- TRƯỜNG HỢP 2: KHÔNG CÓ VOUCHER (Giữ nguyên như cũ) --%>
+                                                    <c:otherwise>
+                                                        <div style="font-size: 15px;">
+                                                            Tổng tiền: 
+                                                            <strong style="color: #C92127; font-size: 18px; margin-left: 8px;">
+                                                                <fmt:formatNumber value="${order.totalAmount}" type="currency" currencySymbol="₫"/>
+                                                            </strong>
+                                                        </div>
+                                                    </c:otherwise>
+                                                </c:choose>
                                             </div>
                                             
                                             <div class="order-actions">

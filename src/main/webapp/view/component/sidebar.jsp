@@ -50,7 +50,7 @@
             <i class="fa-solid fa-receipt"></i> Đơn hàng của tôi
         </a>
         
-        <a href="#" class="menu-item">
+        <a href="${pageContext.request.contextPath}/user/voucher-wallet" class="menu-item">
             <i class="fa-solid fa-ticket"></i> Ví Voucher <span style="background:red; color:white; font-size:10px; padding: 2px 5px; border-radius:10px; margin-left:5px;">18</span>
         </a>
 

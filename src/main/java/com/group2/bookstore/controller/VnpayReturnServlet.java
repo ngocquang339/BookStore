@@ -2,6 +2,7 @@ package com.group2.bookstore.controller;
 
 import com.group2.bookstore.dal.BookDAO;
 import com.group2.bookstore.dal.OrderDAO;
+import com.group2.bookstore.dal.VoucherDAO; 
 import com.group2.bookstore.model.CartItem;
 import com.group2.bookstore.model.User;
 import java.io.IOException;
@@ -43,12 +44,28 @@ public class VnpayReturnServlet extends HttpServlet {
             try {
                 // 2. GỌI TẠO ĐƠN
                 String paymentMethod = "VNPAY (Mã GD: " + vnp_TransactionNo + ")";
+                int orderStatus = 2; // Đã duyệt
                 
-                // ĐÃ SỬA LỖI Ở ĐÂY: Thêm orderStatus = 2 (Đã duyệt)
-                int orderStatus = 2; 
-                orderDAO.createOrder(user, checkoutCart, receiverName, shippingAddress, phone, grandTotal, paymentMethod, orderStatus);
+                // ==========================================================
+                // [MỚI THÊM]: Lấy Voucher ID và Tiền giảm giá từ Session ra
+                // ==========================================================
+                Integer pendingVoucherId = (Integer) session.getAttribute("pending_voucherId");
+                int voucherId = (pendingVoucherId != null) ? pendingVoucherId : 0;
                 
-                // 3. Xóa những món đã mua khỏi session giỏ hàng hiện tại
+                Double pendingDiscount = (Double) session.getAttribute("pending_discount");
+                java.math.BigDecimal discountAmount = (pendingDiscount == null) ? java.math.BigDecimal.ZERO : java.math.BigDecimal.valueOf(pendingDiscount);
+                
+                // TRUYỀN THÊM voucherId VÀ discountAmount VÀO HÀM NÀY
+                orderDAO.createOrder(user, checkoutCart, receiverName, shippingAddress, phone, grandTotal, paymentMethod, orderStatus, voucherId, discountAmount);
+                // ==========================================================
+                
+                // 3. XÉ VOUCHER NẾU KHÁCH CÓ DÙNG
+                if (voucherId > 0) {
+                    VoucherDAO voucherDAO = new VoucherDAO();
+                    voucherDAO.markVoucherAsUsed(user.getId(), voucherId);
+                }
+
+                // 4. Xóa những món đã mua khỏi session giỏ hàng hiện tại
                 List<CartItem> mainCart = (List<CartItem>) session.getAttribute("cart");
                 if (mainCart != null && checkoutCart != null) {
                     for (CartItem purchasedItem : checkoutCart) {
@@ -92,6 +109,8 @@ public class VnpayReturnServlet extends HttpServlet {
         session.removeAttribute("pending_phone");
         session.removeAttribute("pending_grandTotal");
         session.removeAttribute("pending_paymentMethod");
+        session.removeAttribute("pending_voucherId"); 
+        session.removeAttribute("pending_discount"); // [MỚI THÊM]: Dọn luôn biến tiền giảm giá
         session.removeAttribute("checkoutCart");
         session.removeAttribute("grandTotal");
     }

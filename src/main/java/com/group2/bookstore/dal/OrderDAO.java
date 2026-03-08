@@ -1,5 +1,6 @@
 package com.group2.bookstore.dal;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -34,6 +35,23 @@ public class OrderDAO extends DBContext {
                 o.setStatus(rs.getInt("status"));
                 o.setShippingAddress(rs.getString("shipping_address"));
                 o.setPhoneNumber(rs.getString("phone_number"));
+                
+                // ==============================================================
+                // [MỚI THÊM] - Lấy thông tin Voucher và số tiền giảm giá
+                // ==============================================================
+                
+                // Lấy ID Voucher (Nếu trong SQL là NULL thì rs.getInt() sẽ tự động trả về số 0)
+                o.setVoucher_id(rs.getInt("voucher_id")); 
+                
+                // Lấy số tiền giảm (Xử lý an toàn với BigDecimal)
+                java.math.BigDecimal dbDiscount = rs.getBigDecimal("discount_amount");
+                if (dbDiscount == null) {
+                    o.setDiscountAmount(java.math.BigDecimal.ZERO); // Nếu không xài mã, mặc định là 0
+                } else {
+                    o.setDiscountAmount(dbDiscount); // Nếu có xài mã, gán số tiền vào
+                }
+                // ==============================================================
+
                 list.add(o);
             }
         } catch (Exception e) {
@@ -62,6 +80,20 @@ public class OrderDAO extends DBContext {
                 o.setStatus(rs.getInt("status"));
                 o.setShippingAddress(rs.getString("shipping_address"));
                 o.setPhoneNumber(rs.getString("phone_number"));
+                
+                // ==============================================================
+                // [MỚI THÊM] - Lấy thông tin Voucher và số tiền giảm giá
+                // ==============================================================
+                o.setVoucher_id(rs.getInt("voucher_id")); 
+                
+                java.math.BigDecimal dbDiscount = rs.getBigDecimal("discount_amount");
+                if (dbDiscount == null) {
+                    o.setDiscountAmount(java.math.BigDecimal.ZERO); // Mặc định là 0 nếu không xài mã
+                } else {
+                    o.setDiscountAmount(dbDiscount);
+                }
+                // ==============================================================
+
                 return o;
             }
         } catch (Exception e) {
@@ -120,13 +152,13 @@ public class OrderDAO extends DBContext {
         }
     }
 
-    // Thêm vào OrderDAO.java
-// File: OrderDAO.java (Đã sửa lỗi)
+        // Thêm vào OrderDAO.java
+    // File: OrderDAO.java (Đã sửa lỗi)
     // Đã thêm tham số String receiverName vào hàm
-    public void createOrder(User user, List<CartItem> cart, String receiverName, String shippingAddress, String phone, double total, String paymentMethod, int orderStatus) {
+    public void createOrder(User user, List<CartItem> cart, String receiverName, String shippingAddress, String phone, double total, String paymentMethod, int orderStatus, int voucherId, BigDecimal discountAmount) {
         
-        // Đã sửa '1' thành '?' ở cột status
-        String sqlOrder = "INSERT INTO Orders(user_id, order_date, total_amount, status, receiver_name, shipping_address, phone_number, payment_method) VALUES (?, GETDATE(), ?, ?, ?, ?, ?, ?)";
+        // Đã thêm voucher_id và discount_amount vào câu lệnh INSERT
+        String sqlOrder = "INSERT INTO Orders(user_id, order_date, total_amount, status, receiver_name, shipping_address, phone_number, payment_method, voucher_id, discount_amount) VALUES (?, GETDATE(), ?, ?, ?, ?, ?, ?, ?, ?)";
         Connection cn = null; 
 
         try {
@@ -137,11 +169,28 @@ public class OrderDAO extends DBContext {
             PreparedStatement ps = cn.prepareStatement(sqlOrder, PreparedStatement.RETURN_GENERATED_KEYS);
             ps.setInt(1, user.getId());
             ps.setDouble(2, total);
-            ps.setInt(3, orderStatus);         // Truyền Trạng thái đơn hàng (Động)
-            ps.setString(4, receiverName);     // Đã lùi index xuống 4
-            ps.setString(5, shippingAddress);  // Đã lùi index xuống 5
-            ps.setString(6, phone);            // Đã lùi index xuống 6
-            ps.setString(7, paymentMethod);    // Đã lùi index xuống 7
+            ps.setInt(3, orderStatus);         
+            ps.setString(4, receiverName);     
+            ps.setString(5, shippingAddress);  
+            ps.setString(6, phone);            
+            ps.setString(7, paymentMethod);    
+            
+            // ==============================================================
+            // [MỚI THÊM] Set giá trị cho cột số 8 (voucher_id) và 9 (discount_amount)
+            // ==============================================================
+            if (voucherId > 0) {
+                ps.setInt(8, voucherId);
+            } else {
+                ps.setNull(8, java.sql.Types.INTEGER); // Không xài mã thì lưu NULL
+            }
+            
+            if (discountAmount == null) {
+                ps.setBigDecimal(9, java.math.BigDecimal.ZERO);
+            } else {
+                ps.setBigDecimal(9, discountAmount);
+            }
+            // ==============================================================
+
             ps.executeUpdate();
 
             ResultSet rs = ps.getGeneratedKeys();
@@ -159,9 +208,7 @@ public class OrderDAO extends DBContext {
             }
             psDetail.executeBatch();
 
-            // ==============================================================
             // 3. TRỪ SỐ LƯỢNG TỒN KHO TRỰC TIẾP Ở ĐÂY (Reserve/Deduct Stock)
-            // ==============================================================
             String sqlUpdateStock = "UPDATE Books SET stock_quantity = stock_quantity - ? WHERE book_id = ?";
             PreparedStatement psUpdateStock = cn.prepareStatement(sqlUpdateStock);
             for (CartItem item : cart) {
@@ -206,7 +253,6 @@ public class OrderDAO extends DBContext {
         }
     }
 
-
     public List<Order> getOrdersByStatus(int status, String sortBy, String sortOrder) {
         List<Order> list = new ArrayList<>();
         String sql = "SELECT o.*, u.fullname, u.phone_number FROM Orders o " +
@@ -245,55 +291,79 @@ public class OrderDAO extends DBContext {
         return list;
     }
 
-    public void updateOrderStatus(int orderId, int newStatus) {
-        String sqlUpdateStatus = "UPDATE Orders SET status = ? WHERE order_id = ?";
-        
-        // Câu lệnh SQL cộng trả lại sách vào kho (chỉ chạy khi status = 4)
-        String sqlRollbackStock = "UPDATE b " +
-                                  "SET b.stock_quantity = b.stock_quantity + od.quantity " +
-                                  "FROM Books b " +
-                                  "INNER JOIN OrderDetails od ON b.book_id = od.book_id " +
-                                  "WHERE od.order_id = ?";
-                                  
+    // Hàm đã được đổi kiểu trả về thành boolean để báo cho Servlet biết là Thành công hay Thất bại
+    public boolean updateOrderStatus(int orderId, int newStatus) {
         Connection conn = null; 
         
         try {
             conn = getConnection();
-            conn.setAutoCommit(false); // Bắt đầu Transaction để đảm bảo an toàn
+            conn.setAutoCommit(false); // Bắt đầu Transaction
 
-            // 1. Cập nhật trạng thái đơn hàng
+            // =========================================================
+            // BƯỚC 1: LẤY TRẠNG THÁI HIỆN TẠI CỦA ĐƠN HÀNG ĐỂ KIỂM TRA
+            // =========================================================
+            int currentStatus = -1;
+            String sqlCheck = "SELECT status FROM Orders WHERE order_id = ?";
+            try (PreparedStatement psCheck = conn.prepareStatement(sqlCheck)) {
+                psCheck.setInt(1, orderId);
+                ResultSet rs = psCheck.executeQuery();
+                if (rs.next()) {
+                    currentStatus = rs.getInt("status");
+                } else {
+                    return false; // Không tìm thấy đơn hàng
+                }
+            }
+            // =========================================================
+            // BƯỚC 2: CHẶN ĐỨNG NẾU ĐƠN HÀNG ĐÃ Ở TRẠNG THÁI CUỐI (Đã Hủy)
+            // =========================================================
+            if (currentStatus == 5) {
+                System.out.println("LỖI: Đơn hàng " + orderId + " đã bị hủy trước đó, không thể thay đổi trạng thái nữa!");
+                return false; // Từ chối cập nhật
+            }
+
+            // =========================================================
+            // BƯỚC 3: NẾU HỢP LỆ THÌ TIẾN HÀNH CẬP NHẬT TRẠNG THÁI MỚI
+            // =========================================================
+            String sqlUpdateStatus = "UPDATE Orders SET status = ? WHERE order_id = ?";
             try (PreparedStatement ps = conn.prepareStatement(sqlUpdateStatus)) {
                 ps.setInt(1, newStatus);
                 ps.setInt(2, orderId);
-                int rows = ps.executeUpdate();
-                System.out.println("Updated Order ID: " + orderId + " to Status: " + newStatus + " (Rows: " + rows + ")");
+                ps.executeUpdate();
             }
 
-            // 2. Kích hoạt Rollback Stock nếu Staff bấm Hủy (Trạng thái = 4)
+            // =========================================================
+            // BƯỚC 4: ROLLBACK STOCK (CHỈ CHẠY KHI TỪ TRẠNG THÁI KHÁC CHUYỂN SANG 4)
+            // =========================================================
             if (newStatus == 4) {
+                String sqlRollbackStock = "UPDATE b " +
+                                          "SET b.stock_quantity = b.stock_quantity + od.quantity " +
+                                          "FROM Books b " +
+                                          "INNER JOIN OrderDetails od ON b.book_id = od.book_id " +
+                                          "WHERE od.order_id = ?";
                 try (PreparedStatement psStock = conn.prepareStatement(sqlRollbackStock)) {
                     psStock.setInt(1, orderId);
                     int stockRows = psStock.executeUpdate();
-                    System.out.println("Rollback Stock for Order ID: " + orderId + " (Updated " + stockRows + " books)");
+                    System.out.println("Rollback Stock for Order ID: " + orderId + " (Đã hoàn lại " + stockRows + " đầu sách)");
                 }
             }
 
-            conn.commit(); // Cả 2 lệnh đều thành công -> Lưu vào Database
+            conn.commit(); // Hoàn tất an toàn
+            return true;
             
         } catch (Exception e) {
             if (conn != null) {
                 try {
-                    conn.rollback(); // Có lỗi -> Hoàn tác tất cả, không cho sai lệch kho
-                    System.out.println("Transaction rolled back for Order ID: " + orderId);
+                    conn.rollback(); 
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
             }
             e.printStackTrace();
+            return false;
         } finally {
             if (conn != null) {
                 try {
-                    conn.setAutoCommit(true); // Trả lại trạng thái mặc định của hệ thống
+                    conn.setAutoCommit(true); 
                     conn.close();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -448,15 +518,16 @@ public class OrderDAO extends DBContext {
 
         if (status != null && !status.equals("All Statuses") && !status.isEmpty()) {
             sql.append(" AND o.status = ? ");
-            // Map status string to int if necessary
             if (status.equals("Pending")) {
-                params.add(1);
+                params.add(1); // Chờ xử lý
+            } else if (status.equals("Processing")) { // (Thêm nếu trên giao diện Admin có mục này)
+                params.add(2); // Đang xử lý
             } else if (status.equals("Shipping")) {
-                params.add(2);
+                params.add(3); // [SỬA] Đang giao là 3
             } else if (status.equals("Completed")) {
-                params.add(3);
+                params.add(4); // [SỬA] Hoàn tất là 4
             } else if (status.equals("Cancelled")) {
-                params.add(0);
+                params.add(5); // [SỬA] Đã hủy là 5
             } else {
                 params.add(status);
             }
@@ -604,6 +675,20 @@ public class OrderDAO extends DBContext {
                     o.setOrderDate(rs.getTimestamp("order_date"));
                     o.setTotalAmount(rs.getDouble("total_amount"));
                     o.setStatus(rs.getInt("status"));
+                    
+                    // ==============================================================
+                    // [MỚI THÊM] - Lấy thông tin Voucher để hiển thị lên Hóa Đơn
+                    // ==============================================================
+                    o.setVoucher_id(rs.getInt("voucher_id")); 
+                    
+                    java.math.BigDecimal dbDiscount = rs.getBigDecimal("discount_amount");
+                    if (dbDiscount == null) {
+                        o.setDiscountAmount(java.math.BigDecimal.ZERO);
+                    } else {
+                        o.setDiscountAmount(dbDiscount);
+                    }
+                    // ==============================================================
+                    
                     list.add(o);
                 }
             } // rs tự động được đóng ở đây!
@@ -637,6 +722,20 @@ public class OrderDAO extends DBContext {
                     o.setOrderDate(rs.getTimestamp("order_date"));
                     o.setTotalAmount(rs.getDouble("total_amount"));
                     o.setStatus(rs.getInt("status"));
+                    
+                    // ==============================================================
+                    // [MỚI THÊM] - Lấy thông tin Voucher để hiển thị lên Hóa Đơn
+                    // ==============================================================
+                    o.setVoucher_id(rs.getInt("voucher_id")); 
+                    
+                    java.math.BigDecimal dbDiscount = rs.getBigDecimal("discount_amount");
+                    if (dbDiscount == null) {
+                        o.setDiscountAmount(java.math.BigDecimal.ZERO);
+                    } else {
+                        o.setDiscountAmount(dbDiscount);
+                    }
+                    // ==============================================================
+                    
                     list.add(o);
                 }
             }
@@ -650,5 +749,67 @@ public class OrderDAO extends DBContext {
             e.printStackTrace();
         }
         return list;
+    }
+
+    // =====================================================================
+    // TÍNH NĂNG 3: ĐÁNH DẤU ĐÃ SỬ DỤNG VÀ TRỪ 1 LƯỢT TRONG KHO CHUNG
+    // =====================================================================
+    public void markVoucherAsUsed(int userId, int voucherId) {
+        String sqlWallet = "UPDATE User_Vouchers SET is_used = 1 WHERE user_id = ? AND voucher_id = ?";
+        String sqlGlobal = "UPDATE Vouchers SET usage_limit = usage_limit - 1 WHERE voucher_id = ?";
+        
+        try (Connection conn = getConnection()) {
+            conn.setAutoCommit(false); // Bắt đầu Transaction
+            try (PreparedStatement ps1 = conn.prepareStatement(sqlWallet);
+                 PreparedStatement ps2 = conn.prepareStatement(sqlGlobal)) {
+                
+                // 1. Xóa vé trong ví
+                ps1.setInt(1, userId);
+                ps1.setInt(2, voucherId);
+                ps1.executeUpdate();
+                
+                // 2. Trừ kho chung
+                ps2.setInt(1, voucherId);
+                ps2.executeUpdate();
+                
+                conn.commit(); // Chốt lưu
+            } catch (Exception e) {
+                conn.rollback(); // Nếu lỗi thì hoàn tác
+                e.printStackTrace();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // =====================================================================
+    // TÍNH NĂNG 2: HOÀN TRẢ VOUCHER KHI HỦY ĐƠN HÀNG
+    // =====================================================================
+    public void refundVoucher(int userId, int voucherId) {
+        String sqlWallet = "UPDATE User_Vouchers SET is_used = 0 WHERE user_id = ? AND voucher_id = ?";
+        String sqlGlobal = "UPDATE Vouchers SET usage_limit = usage_limit + 1 WHERE voucher_id = ?";
+        
+        try (Connection conn = getConnection()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement ps1 = conn.prepareStatement(sqlWallet);
+                 PreparedStatement ps2 = conn.prepareStatement(sqlGlobal)) {
+                
+                // 1. Phục hồi vé trong ví
+                ps1.setInt(1, userId);
+                ps1.setInt(2, voucherId);
+                ps1.executeUpdate();
+                
+                // 2. Cộng trả lại kho chung
+                ps2.setInt(1, voucherId);
+                ps2.executeUpdate();
+                
+                conn.commit();
+            } catch (Exception e) {
+                conn.rollback();
+                e.printStackTrace();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

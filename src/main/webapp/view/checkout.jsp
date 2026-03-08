@@ -235,7 +235,36 @@
             </div>
 
             <div class="checkout-section shadow-sm bg-white p-4 mb-4 rounded">
+                <div class="section-title mb-3" style="border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; color: #333; font-weight: bold;">
+                    MÃ KHUYẾN MÃI / GIFT CARD
                 </div>
+                
+                <div class="d-flex align-items-start mt-3 flex-wrap">
+                    <div class="me-4 mt-2" style="min-width: 200px; color: #555; font-size: 15px;">
+                        Mã khuyến mãi / Gift Card
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex align-items-center flex-wrap gap-3">
+                            <div class="input-group" style="max-width: 400px; border-radius: 8px; border: 1px solid #7cb3f5; padding: 3px;">
+                                <input type="text" id="voucherCodeInput" class="form-control border-0 shadow-none" placeholder="Nhập mã khuyến mãi / Gift Card" style="font-size: 14px;">
+                                <button type="button" class="btn text-white px-4 fw-bold" id="btnApplyVoucher" style="background-color: #2f80ed; border-radius: 6px;">Áp dụng</button>
+                            </div>
+                            
+                            <a href="javascript:void(0)" class="text-decoration-none fw-medium" id="btnChooseVoucher" style="color: #2f80ed; font-size: 14.5px;" data-bs-toggle="modal" data-bs-target="#voucherModal">
+                                Chọn mã khuyến mãi
+                            </a>
+                        </div>
+                        
+                        <div class="mt-2 text-muted" style="font-size: 13px;">
+                            Hướng dẫn sử dụng Gift Card <i class="fa-regular fa-circle-question ms-1"></i>
+                        </div>
+
+                        <div id="voucherMessage" class="mt-2" style="font-size: 13px; display: none;"></div>
+                    </div>
+                </div>
+
+                <input type="hidden" name="appliedVoucherId" id="appliedVoucherId" value="">
+            </div>
             
         </div> 
         <div class="checkout-footer-sticky">
@@ -277,8 +306,6 @@
 
             </div>
         </div>
-            
-        
     </form>
 </div>
 
@@ -354,6 +381,61 @@
             </div>
         </div>
       </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="voucherModal" tabindex="-1" aria-labelledby="voucherModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content" style="border-radius: 10px;">
+      <div class="modal-header border-bottom-0 pb-0 mt-2 d-flex justify-content-between align-items-center">
+        <h5 class="modal-title fw-bold" style="color: #333;" id="voucherModalLabel">Chọn mã khuyến mãi</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body px-4 pb-4" style="background-color: #f8f9fa;">
+        <c:choose>
+            <c:when test="${empty wallet}">
+                <div class="text-center text-muted py-4">Ví của bạn hiện chưa có mã giảm giá nào.</div>
+            </c:when>
+            <c:otherwise>
+                <c:forEach items="${wallet}" var="uv">
+                    <c:set var="isEligible" value="${grandTotal >= uv.voucher.minOrderValue}" />
+                    
+                    <div class="card mb-3 border-0 shadow-sm ${!isEligible ? 'opacity-50' : ''}" style="border-radius: 8px;">
+                        <div class="card-body d-flex align-items-center p-3">
+                            <div class="voucher-icon bg-success text-white d-flex justify-content-center align-items-center rounded me-3" style="width: 60px; height: 60px; font-size: 24px;">
+                                🎟️
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1 fw-bold text-success">
+                                    <c:choose>
+                                        <c:when test="${uv.voucher.discountPercent > 0}">Giảm ${uv.voucher.discountPercent}%</c:when>
+                                        <c:otherwise>Giảm <fmt:formatNumber value="${uv.voucher.discountAmount}" type="number" pattern="#,###"/>đ</c:otherwise>
+                                    </c:choose>
+                                </h6>
+                                <div class="text-muted" style="font-size: 12px;">Đơn tối thiểu <fmt:formatNumber value="${uv.voucher.minOrderValue}" type="number" pattern="#,###"/>đ</div>
+                                <div class="text-primary mt-1" style="font-size: 11px;">HSD: <fmt:formatDate value="${uv.voucher.endDate}" pattern="dd/MM/yyyy"/></div>
+                            </div>
+                            <div class="ms-2">
+                                <c:choose>
+                                    <c:when test="${isEligible}">
+                                        <button type="button" class="btn btn-outline-danger btn-sm fw-bold px-3" 
+                                                onclick="applyVoucher('${uv.voucher.code}', '${uv.voucher.discountAmount != null ? uv.voucher.discountAmount : 0}', '${uv.voucher.discountPercent != null ? uv.voucher.discountPercent : 0}', '${uv.voucher.id}')">
+                                            Chọn
+                                        </button>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <button type="button" class="btn btn-secondary btn-sm disabled" style="font-size: 12px;">Chưa đạt</button>
+                                    </c:otherwise>
+                                </c:choose>
+                            </div>
+                        </div>
+                    </div>
+                </c:forEach>
+            </c:otherwise>
+        </c:choose>
+      </div>
     </div>
   </div>
 </div>
@@ -565,6 +647,122 @@ $(document).ready(function() {
         }
     });
 });
+
+// Lấy giá trị tổng tiền gốc từ Backend và ép kiểu an toàn (loại bỏ phần thập phân .0 nếu có)
+const originalGrandTotal = Math.round(Number('${grandTotal}')) || 0;
+
+function applyVoucher(code, amount, percent, voucherId) {
+    // Ép kiểu các tham số truyền vào thành số nguyên để tính toán cho chuẩn
+    amount = Math.round(Number(amount)) || 0;
+    percent = Number(percent) || 0;
+
+    // 1. Điền mã vào ô Input và gắn ID vào thẻ ẩn
+    document.getElementById('voucherCodeInput').value = code;
+    document.getElementById('appliedVoucherId').value = voucherId;
+    
+    // 2. Tính toán số tiền được giảm
+    let discountValue = 0;
+    if (percent > 0) {
+        // Khuyến mãi theo %
+        discountValue = Math.round(originalGrandTotal * (percent / 100));
+    } else if (amount > 0) {
+        // Khuyến mãi trừ thẳng tiền mặt
+        discountValue = amount;
+    }
+    
+    // Đảm bảo tiền giảm không bao giờ lớn hơn tổng tiền đơn hàng (Tránh bị âm tiền)
+    if (discountValue > originalGrandTotal) {
+        discountValue = originalGrandTotal;
+    }
+    
+    let newTotal = originalGrandTotal - discountValue;
+    
+    // 3. Cập nhật giao diện Bảng giá tiền
+    const totalRow = document.querySelector('.total-row');
+    
+    // Kiểm tra xem đã có dòng "Voucher giảm giá" chưa, nếu có thì xóa đi tạo lại
+    let discountRow = document.getElementById('discount-row');
+    if (discountRow) discountRow.remove();
+    
+    // Chèn dòng Giảm giá mới vào TRƯỚC dòng Tổng Số Tiền
+    const newRowHTML = `
+        <tr id="discount-row">
+            <td class="text-muted text-start">Voucher giảm giá</td>
+            <td class="text-end fw-bold text-success">- ` + new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(discountValue) + `</td>
+        </tr>
+    `;
+    totalRow.insertAdjacentHTML('beforebegin', newRowHTML);
+    
+    // Cập nhật lại số tiền cuối cùng ở màu cam
+    document.querySelector('.text-orange-total').innerHTML = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(newTotal);
+    
+    // Hiển thị thông báo thành công dưới ô input
+    const msgBox = document.getElementById('voucherMessage');
+    msgBox.style.display = 'block';
+    msgBox.className = 'mt-2 text-success fw-bold';
+    msgBox.innerHTML = '<i class="fa-solid fa-circle-check"></i> Đã áp dụng mã ' + code + ' thành công!';
+    
+    // 4. Đóng Modal
+    const modalEl = document.getElementById('voucherModal');
+    const modal = bootstrap.Modal.getInstance(modalEl);
+    if(modal) modal.hide();
+}
+
+// 1. CHUYỂN DỮ LIỆU VÍ VOUCHER TỪ JAVA SANG JAVASCRIPT
+    // Chúng ta lặp qua danh sách 'wallet' đã được gửi từ CheckoutServlet
+    var myVouchers = [
+        <c:forEach items="${wallet}" var="uv">
+            {
+                id: ${uv.voucher.id},
+                code: '${uv.voucher.code.toUpperCase()}',
+                amount: ${uv.voucher.discountAmount},
+                percent: ${uv.voucher.discountPercent},
+                minOrder: ${uv.voucher.minOrderValue}
+            },
+        </c:forEach>
+    ];
+
+    // Lấy tổng tiền gốc của đơn hàng từ Session
+    var baseTotal = ${grandTotal != null ? grandTotal : 0};
+
+    // 2. BẮT SỰ KIỆN KHI BẤM NÚT "ÁP DỤNG" (NHẬP TAY)
+    document.getElementById('btnApplyVoucher').addEventListener('click', function() {
+        var inputCode = document.getElementById('voucherCodeInput').value.trim().toUpperCase();
+        
+        if (inputCode === "") {
+            showVoucherMsg("Vui lòng nhập mã khuyến mãi!", "#dc3545"); // Màu đỏ Bootstrap
+            return;
+        }
+
+        // Dò tìm xem mã khách nhập có tồn tại trong ví không
+        var matchedVoucher = myVouchers.find(function(v) {
+            return v.code === inputCode;
+        });
+
+        if (!matchedVoucher) {
+            showVoucherMsg("Mã khuyến mãi không hợp lệ, đã hết hạn hoặc chưa được lưu vào ví!", "#dc3545");
+            return;
+        }
+
+        // Kiểm tra điều kiện đơn hàng tối thiểu
+        if (baseTotal < matchedVoucher.minOrder) {
+            showVoucherMsg("Đơn hàng chưa đạt tối thiểu " + matchedVoucher.minOrder.toLocaleString('vi-VN') + "đ để dùng mã này!", "#dc3545");
+            return;
+        }
+
+        // TẬN DỤNG LUÔN HÀM CỦA MODAL ĐỂ XỬ LÝ (Không cần viết lại code trừ tiền)
+        // Hàm này tự động trừ tiền, thêm dòng "Voucher giảm giá" và show thông báo thành công
+        applyVoucher(matchedVoucher.code, matchedVoucher.amount, matchedVoucher.percent, matchedVoucher.id);
+    });
+
+    // Hàm phụ trợ để hiển thị text thông báo lỗi (Riêng phần báo lỗi thì vẫn dùng hàm này)
+    function showVoucherMsg(text, color) {
+        var msgDiv = document.getElementById('voucherMessage');
+        msgDiv.innerText = text;
+        msgDiv.style.color = color;
+        msgDiv.style.fontWeight = "bold";
+        msgDiv.style.display = "block";
+    }
 </script>
 
 </body>

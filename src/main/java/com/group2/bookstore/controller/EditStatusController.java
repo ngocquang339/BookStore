@@ -52,12 +52,24 @@ protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws Se
             int newStatus = Integer.parseInt(req.getParameter("newStatus"));
 
             OrderDAO dao = new OrderDAO();
-            dao.updateOrderStatus(orderId, newStatus);
+            
+            // 1. HỨNG KẾT QUẢ TỪ DAO
+            boolean isSuccess = dao.updateOrderStatus(orderId, newStatus);
 
-            // Cập nhật xong thì đá về lại dashboard
+            // 2. DỰA VÀO KẾT QUẢ ĐỂ BÁO LỖI HOẶC THÀNH CÔNG
+            if (isSuccess) {
+                req.getSession().setAttribute("successMsg", "Cập nhật trạng thái đơn hàng #" + orderId + " thành công!");
+            } else {
+                // Báo lỗi cho Admin biết lý do không cập nhật được
+                req.getSession().setAttribute("errorMsg", "Cập nhật thất bại! Đơn hàng này có thể đã ở trạng thái Đã Hủy từ trước.");
+            }
+
+            // 3. Cập nhật xong thì đá về lại dashboard
             resp.sendRedirect("dashboard");
+            
         } catch (Exception e) {
             e.printStackTrace();
+            req.getSession().setAttribute("errorMsg", "Lỗi hệ thống: Tham số không hợp lệ.");
             resp.sendRedirect("dashboard");
         }
     }
