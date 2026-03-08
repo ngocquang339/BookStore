@@ -16,7 +16,7 @@
 <body>
     <div class="container mt-4 mb-5">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <a href="dashboard" class="btn btn-outline-secondary">
+            <a href="${pageContext.request.contextPath}/orders-management" class="btn btn-outline-secondary">
                 <i class="fa-solid fa-arrow-left"></i> Quay lại Dashboard
             </a>
             <h3 class="text-primary fw-bold mb-0">CHI TIẾT ĐƠN HÀNG #${order.id}</h3>

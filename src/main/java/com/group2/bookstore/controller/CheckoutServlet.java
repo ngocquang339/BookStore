@@ -1,8 +1,10 @@
 package com.group2.bookstore.controller;
 
 import com.group2.bookstore.dal.OrderDAO;
+import com.group2.bookstore.dal.BookDAO;
 import com.group2.bookstore.model.CartItem;
 import com.group2.bookstore.model.User;
+import com.group2.bookstore.model.Book;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,13 +16,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 @WebServlet("/checkout")
-public class CheckoutController extends HttpServlet {
+public class CheckoutServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession session = req.getSession();
         User user = (User) session.getAttribute("user");
-        
+        BookDAO dao = new BookDAO();
         if (user == null) {
             resp.sendRedirect(req.getContextPath() + "/login");
             return;
@@ -34,7 +36,21 @@ public class CheckoutController extends HttpServlet {
 
         // 1. NHẬN DANH SÁCH ID SẢN PHẨM KHÁCH ĐÃ TÍCH CHỌN TỪ FORM
         String[] selectedItems = req.getParameterValues("selectedItems");
-        
+        int flag = 0;
+        int bId = 0;
+        for (String id : selectedItems) {
+            Book book = dao.getBookById(Integer.parseInt(id));
+            if(book.getStockQuantity() < 1){
+                flag = 1;
+                bId = book.getId();
+                break;
+            }
+        }
+        if(flag == 1){
+            session.setAttribute("cartError", "Sản phẩm " + dao.getBookById(bId).getTitle() + " đã hết hàng, vui lòng chọn sản phẩm khác!");
+            resp.sendRedirect(req.getContextPath() + "/cart");
+            return;
+        }
         // 2. NẾU KHÁCH KHÔNG TÍCH MÓN NÀO MÀ BẤM THANH TOÁN -> ĐUỔI VỀ KÈM BÁO LỖI
         if (selectedItems == null || selectedItems.length == 0) {
             session.setAttribute("cartError", "Vui lòng tích chọn ít nhất 1 sản phẩm để thanh toán!");
@@ -134,6 +150,8 @@ public class CheckoutController extends HttpServlet {
                     mainCart.removeIf(item -> item.getBook().getId() == purchasedItem.getBook().getId());
                 }
             }
+
+
 
             // Cập nhật lại giỏ hàng chính, dọn dẹp biến tạm
             session.setAttribute("cart", mainCart);

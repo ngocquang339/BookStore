@@ -34,18 +34,33 @@ public class SearchServlet extends HttpServlet {
         String priceTo_raw = request.getParameter("maxPrice");
         String author = request.getParameter("author");
         String publisher = request.getParameter("publisher"); // Thêm Publisher
-        String sort = request.getParameter("sort");
-
+        String sortBy = request.getParameter("sort");
+        String sortOrder = "";
         // 3. Xử lý dữ liệu (tránh null)
         txtSearch = (txtSearch == null) ? "" : txtSearch.trim();
         author = (author == null) ? "" : author.trim();
         publisher = (publisher == null) ? "" : publisher.trim();
-        sort = (sort == null) ? "" : sort.trim();
+        sortBy = (sortBy == null) ? "" : sortBy.trim();
         
         int cid = 0;
         double priceFrom = 0;
         double priceTo = 0;
-        
+        if(sortBy.equals("price_asc")){
+            sortBy = "price";
+            sortOrder = "ASC";
+        }
+        else if(sortBy.equals("price_desc")){
+            sortBy = "price";
+            sortOrder = "DESC";
+        }
+        else if(sortBy.equals("title")){
+            sortBy = "title";
+            sortOrder = "ASC";
+        }
+        else if(sortBy.equals("newest")){
+            sortBy = "book_id";
+            sortOrder = "DESC";
+        }
         try {
             if (cid_raw != null && !cid_raw.isEmpty()) cid = Integer.parseInt(cid_raw);
             if (priceFrom_raw != null && !priceFrom_raw.isEmpty()) priceFrom = Double.parseDouble(priceFrom_raw);
@@ -58,7 +73,7 @@ public class SearchServlet extends HttpServlet {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
         boolean isAdmin = false;
-         int roldeId = 0;
+        int roldeId = 0;
         if (user != null) {
             if(user.getRole() == 1){
                 isAdmin = true;
@@ -72,7 +87,7 @@ public class SearchServlet extends HttpServlet {
         CategoryDAO catDAO = new CategoryDAO();
 
         // Gọi hàm getBooks (9 tham số) khớp với BookDAO mới của bạn
-        List<Book> listBooks = bookDAO.getBooks(txtSearch, cid, author, publisher, priceFrom, priceTo, sort, "ASC", isAdmin);
+        List<Book> listBooks = bookDAO.getBooks(txtSearch, cid, author, publisher, priceFrom, priceTo, sortBy, sortOrder, isAdmin);
         List<Book> randomBooks = bookDAO.getRandomBook(roldeId, 50);
         // Lấy dữ liệu cho Dropdown bộ lọc
         List<Category> listCategories = catDAO.getCategories();
@@ -91,7 +106,7 @@ public class SearchServlet extends HttpServlet {
         request.setAttribute("maxPrice", (priceTo > 0 ? priceTo_raw : ""));
         request.setAttribute("author", author);
         request.setAttribute("publisher", publisher);
-        request.setAttribute("sort", sort);
+        request.setAttribute("sort", sortBy);
 
         request.getRequestDispatcher("view/Search.jsp").forward(request, response);
     }
