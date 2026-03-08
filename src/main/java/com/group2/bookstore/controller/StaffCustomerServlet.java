@@ -16,20 +16,22 @@ public class StaffCustomerServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
         UserDAO userDAO = new UserDAO();
-        String keyword = request.getParameter("keyword"); // Lấy từ khóa từ ô tìm kiếm
-        List<User> listCustomers;
 
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            // Nếu có gõ tìm kiếm -> Gọi hàm Search
-            listCustomers = userDAO.searchCustomers(keyword);
-            request.setAttribute("keyword", keyword); // Giữ lại từ khóa trên ô input
-        } else {
-            // Nếu không tìm kiếm -> Hiển thị tất cả
-            listCustomers = userDAO.getAllCustomers();
-        }
+        // Lấy tham số từ URL do người dùng thao tác
+        String keyword = request.getParameter("keyword");
+        String sort = request.getParameter("sort");
 
+        List<User> listCustomers = userDAO.getCustomers(keyword, sort);
+
+        // Đẩy dữ liệu sang JSP
         request.setAttribute("listCustomers", listCustomers);
+
+        // Đẩy lại tham số để giữ trạng thái trên thanh Tìm kiếm và Ô chọn Sắp xếp
+        request.setAttribute("keyword", keyword);
+        request.setAttribute("sort", sort);
+
         request.getRequestDispatcher("/view/staff/customer-manage.jsp").forward(request, response);
     }
 

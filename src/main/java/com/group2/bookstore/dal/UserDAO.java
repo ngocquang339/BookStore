@@ -31,6 +31,7 @@ public class UserDAO extends DBContext {
                         rs.getString("fullname"),
                         rs.getInt("role"),
                         rs.getString("phone_number"),
+                        rs.getString("address"),
                         rs.getInt("status"));
                 return u;
             }
@@ -78,9 +79,10 @@ public class UserDAO extends DBContext {
                         rs.getString("fullname"),
                         rs.getInt("role"),
                         rs.getString("phone_number"),
+                        rs.getString("address"),
                         rs.getInt("status"));
             }
-} catch (Exception e) {
+        } catch (Exception e) {
             System.out.println(e);
         }
         return null;
@@ -102,6 +104,7 @@ public class UserDAO extends DBContext {
                         rs.getString("fullname"),
                         rs.getInt("role"),
                         rs.getString("phone_number"),
+                        rs.getString("address"),
                         rs.getInt("status"));
             }
         } catch (Exception e) {
@@ -150,35 +153,35 @@ public class UserDAO extends DBContext {
 
     // 1. GET ALL USERS (For Admin List)
     public List<User> getAllUsers() {
-    List<User> list = new ArrayList<>();
-    // Order by newest accounts first
-    String sql = "SELECT * FROM Users ORDER BY createAt DESC";
+        List<User> list = new ArrayList<>();
+        // Order by newest accounts first
+        String sql = "SELECT * FROM Users ORDER BY createAt DESC";
 
-    try (Connection conn = getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
 
-        while (rs.next()) {
-            User u = new User();
-            u.setId(rs.getInt("user_id"));
-            u.setUsername(rs.getString("username"));
-u.setFullname(rs.getString("fullname"));
-            u.setEmail(rs.getString("email"));
-            u.setPhone_number(rs.getString("phone_number"));
-            u.setRole(rs.getInt("role"));
-            
-            // --- YOU MUST ADD THESE TWO LINES ---
-            u.setStatus(rs.getInt("status")); 
-            u.setCreateAt(rs.getTimestamp("createAt")); // Use getTimestamp for datetime
-            // ------------------------------------
-            
-            list.add(u);
+            while (rs.next()) {
+                User u = new User();
+                u.setId(rs.getInt("user_id"));
+                u.setUsername(rs.getString("username"));
+                u.setFullname(rs.getString("fullname"));
+                u.setEmail(rs.getString("email"));
+                u.setPhone_number(rs.getString("phone_number"));
+                u.setRole(rs.getInt("role"));
+
+                // --- YOU MUST ADD THESE TWO LINES ---
+                u.setStatus(rs.getInt("status"));
+                u.setCreateAt(rs.getTimestamp("createAt")); // Use getTimestamp for datetime
+                // ------------------------------------
+
+                list.add(u);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    } catch (Exception e) {
-        e.printStackTrace();
+        return list;
     }
-    return list;
-}
 
     // 2. UPDATE USER STATUS/ROLE
     public void updateUser(int userId, int newStatus, int newRole) {
@@ -193,58 +196,87 @@ u.setFullname(rs.getString("fullname"));
         }
     }
 
-    // // Lấy danh sách khách hàng (Role = 0) dành cho Staff
-    public List<User> getAllCustomers() {
+    // --- HÀM TÍCH HỢP: TÌM KIẾM & SẮP XẾP TÀI KHOẢN ---
+    public List<User> getCustomers(String keyword, String sort) {
         List<User> list = new ArrayList<>();
-        // Role 0 là khách hàng (dựa trên dữ liệu mẫu của bạn)
-        String sql = "SELECT * FROM Users WHERE role = 0";
 
+        // 1. Dùng trick "WHERE 1=1" để dễ dàng cộng chuỗi điều kiện
+        StringBuilder sql = new StringBuilder("SELECT * FROM Users WHERE role = 0 "); // Chỉ lấy khách hàng (role=0)
+
+        // 2. Nếu có từ khóa -> Nối thêm điều kiện LIKE
+        boolean hasKeyword = (keyword != null && !keyword.trim().isEmpty());
+        if (hasKeyword) {
+            sql.append(
+                    " AND (fullname LIKE ? OR phone_number LIKE ? OR email LIKE ? OR CAST(user_id AS VARCHAR) LIKE ?) ");
+        }
+        // 3. Xử lý Sắp xếp (Sorting)
+        if ("az".equals(sort)) {
+            sql.append(" ORDER BY fullname ASC "); // Tên A-Z
+        } else if ("za".equals(sort)) {
+            sql.append(" ORDER BY fullname DESC "); // Tên Z-A
+        } else if ("id_asc".equals(sort)) {
+            sql.append(" ORDER BY user_id ASC "); // ID Tăng dần (1, 2, 3...)
+        } else {
+            sql.append(" ORDER BY user_id DESC "); // Mặc định: ID Giảm dần (Mới nhất lên đầu)
+        }
+
+        // 4. Chạy câu lệnh an toàn (Try-with-resources)
         try (Connection conn = getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                User u = new User();
-                u.setId(rs.getInt("user_id"));
-                u.setFullname(rs.getString("fullname")); // Cần hiển thị tên thật
-                u.setUsername(rs.getString("username"));
-                u.setEmail(rs.getString("email"));
-                u.setPhone_number(rs.getString("phone_number"));
-                u.setRole(rs.getInt("role"));
-                u.setStatus(rs.getInt("status")); // Để biết khách có bị khóa không
-                list.add(u);
+                PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+
+            // Nếu có tìm kiếm thì mới set tham số ?
+            if (hasKeyword) {
+                ps.setString(1, "%" + keyword + "%"); // Dấu ? số 1 (fullname)
+                ps.setString(2, "%" + keyword + "%"); // Dấu ? số 2 (phone_number)
+                ps.setString(3, "%" + keyword + "%"); // Dấu ? số 3 (email) - Vừa thêm
+                ps.setString(4, "%" + keyword + "%"); // Dấu ? số 4 (user_id)
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    User u = new User();
+                    u.setId(rs.getInt("user_id"));
+                    u.setUsername(rs.getString("username"));
+                    u.setFullname(rs.getString("fullname"));
+                    u.setEmail(rs.getString("email"));
+                    u.setPhone_number(rs.getString("phone_number"));
+                    u.setAddress(rs.getString("address"));
+                    u.setRole(rs.getInt("role"));
+                    u.setStatus(rs.getInt("status"));
+                    list.add(u);
+                }
             }
         } catch (Exception e) {
+            System.err.println("Lỗi SQL khi lấy danh sách user: " + e.getMessage());
             e.printStackTrace();
         }
         return list;
     }
 
-    // --- NÂNG CẤP: TÌM KIẾM KHÁCH HÀNG ---
-    public List<User> searchCustomers(String keyword) {
-        List<User> list = new ArrayList<>();
-        // Tìm theo tên hoặc SĐT, chỉ lấy khách hàng (role = 0)
-        String sql = "SELECT * FROM Users WHERE role = 0 AND (fullname LIKE ? OR phone_number LIKE ?)";
-
+    // Hàm lấy thông tin 1 User theo ID
+    public User getUserById(int id) {
+        String sql = "SELECT * FROM Users WHERE user_id = ?";
         try (Connection conn = getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, "%" + keyword + "%");
-            ps.setString(2, "%" + keyword + "%");
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                User u = new User();
-                u.setId(rs.getInt("user_id"));
-                u.setUsername(rs.getString("username"));
-u.setFullname(rs.getString("fullname"));
-                u.setEmail(rs.getString("email"));
-                u.setPhone_number(rs.getString("phone_number"));
-                u.setRole(rs.getInt("role"));
-                u.setStatus(rs.getInt("status"));
-                list.add(u);
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    User u = new User();
+                    u.setId(rs.getInt("user_id"));
+                    u.setUsername(rs.getString("username"));
+                    u.setFullname(rs.getString("fullname"));
+                    u.setEmail(rs.getString("email"));
+                    u.setPhone_number(rs.getString("phone_number"));
+                    u.setAddress(rs.getString("address"));
+                    u.setRole(rs.getInt("role"));
+                    u.setStatus(rs.getInt("status"));
+                    return u;
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return list;
+        return null;
     }
 
     // Change passWord

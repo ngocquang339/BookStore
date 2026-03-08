@@ -16,7 +16,21 @@ public class StaffReviewServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
+        if ("/staff/delete-review".equals(request.getServletPath())) {
+            String idRaw = request.getParameter("id");
+            if (idRaw != null) {
+                try {
+                    int reviewId = Integer.parseInt(idRaw);
+                    ReviewDAO dao = new ReviewDAO();
+                    dao.deleteReview(reviewId); // Xóa khỏi Database
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                }
+            }
+            // Xóa xong thì load lại trang danh sách đánh giá
+            response.sendRedirect(request.getContextPath() + "/staff/reviews");
+            return; // Kết thúc luôn, không chạy phần code hiển thị bên dưới nữa
+        }
         String star = request.getParameter("star");
         int starValue = 0;
         if (star != null && !star.isEmpty() && !star.equals("all")) {
@@ -36,7 +50,33 @@ public class StaffReviewServlet extends HttpServlet {
         request.setAttribute("listReviews", listReviews);
         request.setAttribute("selectedStar", (starValue == 0) ? "" : String.valueOf(starValue));
 
-        // 4. Chuyển hướng sang file JSP (Nhớ trỏ đúng thư mục staff nhé)
+        // 4. Chuyển hướng sang file JSP
         request.getRequestDispatcher("/view/staff/review-manage.jsp").forward(request, response);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        // Hỗ trợ gõ tiếng Việt có dấu không bị lỗi font
+        request.setCharacterEncoding("UTF-8");
+
+        // 1. Lấy dữ liệu từ Popup Modal gửi lên
+        String reviewIdStr = request.getParameter("reviewId");
+        String replyText = request.getParameter("replyText");
+
+        // 2. Gọi DAO để update xuống DB
+        if (reviewIdStr != null && replyText != null && !replyText.trim().isEmpty()) {
+            try {
+                int reviewId = Integer.parseInt(reviewIdStr);
+                ReviewDAO reviewDAO = new ReviewDAO();
+                reviewDAO.updateStaffReply(reviewId, replyText);
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // 3. Update xong thì load lại trang Quản lý đánh giá
+        response.sendRedirect(request.getContextPath() + "/staff/reviews");
     }
 }

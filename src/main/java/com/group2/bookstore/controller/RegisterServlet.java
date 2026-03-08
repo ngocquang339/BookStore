@@ -80,7 +80,7 @@ public class RegisterServlet extends HttpServlet{
             HttpSession session = request.getSession();
             
             // Tạo đối tượng User tạm
-            User tempUser = new User(u, p, e, fn, phone); 
+            User tempUser = new User(u, p, e, fn, phone, otp);
             
             session.setAttribute("tempUser", tempUser); // Lưu user chờ kích hoạt
             session.setAttribute("otp", otp);           // Lưu mã OTP chuẩn

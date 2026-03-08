@@ -60,7 +60,7 @@ public class ReviewDAO extends DBContext {
         List<Review> list = new ArrayList<>();
 
         // Cấu trúc SQL đã được fix chuẩn tên bảng (Review) và khóa ngoại (user_id, book_id)
-        String sql = "SELECT r.review_id, r.user_id, r.book_id, r.rating, r.comment, r.create_at, " +
+        String sql = "SELECT r.review_id, r.user_id, r.book_id, r.rating, r.comment, r.create_at, r.staff_reply, " +
                 "u.username, u.email, b.title AS book_title " +
                 "FROM Review r " +
                 "JOIN Users u ON r.user_id = u.user_id " +
@@ -93,7 +93,7 @@ public class ReviewDAO extends DBContext {
                     r.setUsername(rs.getString("username"));
                     r.setEmail(rs.getString("email"));
                     r.setBookTitle(rs.getString("book_title"));
-
+                    r.setStaffReply(rs.getString("staff_reply"));
                     list.add(r);
                 }
             }
@@ -104,20 +104,32 @@ public class ReviewDAO extends DBContext {
         return list;
     }
 
+    public void updateStaffReply(int reviewId, String replyText) {
+        String sql = "UPDATE Review SET staff_reply = ? WHERE review_id = ?";
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, replyText);
+            ps.setInt(2, reviewId);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     // Hàm 1: Lưu đánh giá mới vào Database
     public boolean insertReview(int userId, int bookId, int rating, String comment) {
         String sql = "INSERT INTO Review (user_id, book_id, rating, comment) VALUES (?, ?, ?, ?)";
-        
+
         try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setInt(1, userId);
             ps.setInt(2, bookId);
             ps.setInt(3, rating);
-            ps.setString(4, comment); 
-            
+            ps.setString(4, comment);
+
             return ps.executeUpdate() > 0;
-            
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -129,16 +141,16 @@ public class ReviewDAO extends DBContext {
         List<Review> list = new ArrayList<>();
         // Nối bảng Review với Users để lấy username
         String sql = "SELECT r.*, u.username, u.email FROM Review r " +
-                     "JOIN Users u ON r.user_id = u.user_id " +
-                     "WHERE r.book_id = ? " +
-                     "ORDER BY r.create_at DESC"; // Xếp mới nhất lên đầu
-                     
+                "JOIN Users u ON r.user_id = u.user_id " +
+                "WHERE r.book_id = ? " +
+                "ORDER BY r.create_at DESC"; // Xếp mới nhất lên đầu
+
         try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setInt(1, bookId);
             ResultSet rs = ps.executeQuery();
-            
+
             while (rs.next()) {
                 Review r = new Review();
                 r.setReviewId(rs.getInt("review_id"));
@@ -146,12 +158,15 @@ public class ReviewDAO extends DBContext {
                 r.setBookId(rs.getInt("book_id"));
                 r.setRating(rs.getInt("rating"));
                 r.setComment(rs.getString("comment"));
-                r.setCreateAt(rs.getDate("create_at")); 
-                
+                r.setCreateAt(rs.getDate("create_at"));
+
                 // Thuộc tính phụ từ bảng Users
                 r.setUsername(rs.getString("username"));
-                try { r.setEmail(rs.getString("email")); } catch (Exception e) {}
-                
+                try {
+                    r.setEmail(rs.getString("email"));
+                } catch (Exception e) {
+                }
+
                 list.add(r);
             }
         } catch (Exception e) {

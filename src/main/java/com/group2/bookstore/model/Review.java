@@ -14,13 +14,14 @@ public class Review {
     private String username;
     private String bookTitle;
     private String email;
+    private String staffReply;
 
     public Review() {
     }
 
     // Constructor đầy đủ
     public Review(int reviewId, int userId, int bookId, int rating, String comment, Date createAt, String username,
-            String bookTitle) {
+            String bookTitle, String staffReply) {
         this.reviewId = reviewId;
         this.userId = userId;
         this.bookId = bookId;
@@ -29,6 +30,7 @@ public class Review {
         this.createAt = createAt;
         this.username = username;
         this.bookTitle = bookTitle;
+        this.staffReply = staffReply;
     }
 
     public String getEmail() {
@@ -101,5 +103,11 @@ public class Review {
 
     public void setBookTitle(String bookTitle) {
         this.bookTitle = bookTitle;
+    }
+    public String getStaffReply() {
+        return staffReply;
+    }
+    public void setStaffReply(String staffReply) {
+        this.staffReply = staffReply;
     }
 }
