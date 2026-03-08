@@ -3,10 +3,11 @@ package com.group2.bookstore.model;
 import java.io.Serializable;
 
 public class Book implements Serializable {
-    
+
     // Core Fields (Matches Database Columns)
     private int id;
     private String title;
+    private String supplier;
     private String author;
     private double price;
     private String description;
@@ -18,68 +19,135 @@ public class Book implements Serializable {
     private int categoryId;
     private String categoryName; // thêm vào để load data cho View 
     private String locationCode; // Thêm biến lưu mã vị trí (VD: A-01-01)
-    
+    private int category_id;
+    private int yearOfPublish;
+    private int number_page;     // Mapped from [number_of_pages]
     // NEW FIELDS for Admin Features
     private boolean active;       // Maps to [is_active]
     private double importPrice;   // Maps to [import_price]
-
+    private String coverImage;
     // 1. Empty Constructor (Required for JSP/Frameworks)
     public Book() {
     }
 
     // Constructor đầy đủ (Dùng cho DAO khi load dữ liệu từ DB lên)
-    public Book(int id, String title, String author, double price, int stockQuantity, String imageUrl, int categoryId,String categoryName, String description, String locationCode) {
+    public Book(int id, String title, String author, double price, int stockQuantity,
+            String imageUrl, int categoryId, String categoryName,
+            String description, String locationCode,
+            String publisher, String supplier,
+            int yearOfPublish, int number_page) {
+
+    this.id = id;
+    this.title = title;
+    this.author = author;
+    this.price = price;
+    this.stockQuantity = stockQuantity;
+    this.imageUrl = imageUrl;
+
+    this.categoryId = categoryId;
+    this.categoryName = categoryName;
+    this.locationCode = locationCode;
+
+    this.description = description;
+    this.publisher = publisher;
+    this.supplier = supplier;
+    this.yearOfPublish = yearOfPublish;
+    this.number_page = number_page;
+}
+
+    // --- GETTERS & SETTERS ---
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
         this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
         this.author = author;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
         this.price = price;
-        this.stockQuantity = stockQuantity;
-        this.imageUrl = imageUrl;
-        this.imageUrl = imageUrl;
-        this.categoryId = categoryId;
-        this.categoryName = categoryName;
-        this.locationCode = locationCode;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
         this.description = description;
     }
 
-    // --- GETTERS & SETTERS ---
+    public String getImageUrl() {
+        return imageUrl;
+    }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public void setImageUrl(String image) {
+        this.imageUrl = image;
+    }
 
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
+    public int getStockQuantity() {
+        return stockQuantity;
+    }
 
-    public String getAuthor() { return author; }
-    public void setAuthor(String author) { this.author = author; }
+    public void setStockQuantity(int stockQuantity) {
+        this.stockQuantity = stockQuantity;
+    }
 
-    public double getPrice() { return price; }
-    public void setPrice(double price) { this.price = price; }
+    public int getSoldQuantity() {
+        return soldQuantity;
+    }
 
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
+    public void setSoldQuantity(int soldQuantity) {
+        this.soldQuantity = soldQuantity;
+    }
 
-    public String getImageUrl() { return imageUrl; }
-    public void setImageUrl(String image) { this.imageUrl = image; }
+    public String getPublisher() {
+        return publisher;
+    }
 
-    public int getStockQuantity() { return stockQuantity; }
-    public void setStockQuantity(int stockQuantity) { this.stockQuantity = stockQuantity; }
+    public void setPublisher(String publisher) {
+        this.publisher = publisher;
+    }
 
-    public int getSoldQuantity() { return soldQuantity; }
-    public void setSoldQuantity(int soldQuantity) { this.soldQuantity = soldQuantity; }
+    public String getIsbn() {
+        return isbn;
+    }
 
-    public String getPublisher() { return publisher; }
-    public void setPublisher(String publisher) { this.publisher = publisher; }
+    public void setIsbn(String isbn) {
+        this.isbn = isbn;
+    }
 
-    public String getIsbn() { return isbn; }
-    public void setIsbn(String isbn) { this.isbn = isbn; }
+    public int getCategoryId() {
+        return category_id;
+    }
 
-    public int getCategoryId() { return categoryId; }
-    public void setCategoryId(int categoryId) { this.categoryId = categoryId; }
+    public void setCategoryId(int categoryId) {
+        this.category_id = categoryId;
+    }
 
     // Admin Feature Getters/Setters
-    public boolean isActive() { return active; }
-    public void setActive(boolean active) { this.active = active; }
+    public boolean isActive() {
+        return active;
+    }
 
     public double getImportPrice() { return importPrice; }
     public void setImportPrice(double importPrice) { this.importPrice = importPrice; }
@@ -90,4 +158,23 @@ public class Book implements Serializable {
     public String getLocationCode() { return locationCode; }
     public void setLocationCode(String locationCode) { this.locationCode = locationCode; }
     
+    public int getYearOfPublish() { return yearOfPublish; }
+    public void setYearOfPublish(int yearOfPublish) { this.yearOfPublish = yearOfPublish; }
+
+    public int getNumberPage() { return number_page; }
+    public void setNumberPage(int number_page) { this.number_page = number_page; }
+
+    public String getSupplier() { return supplier; }
+    public void setSupplier(String supplier) { this.supplier = supplier; }
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public String getCoverImage() {
+        return coverImage;
+    }
+
+    public void setCoverImage(String coverImage) {
+        this.coverImage = coverImage;
+    }
 }

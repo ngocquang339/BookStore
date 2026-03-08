@@ -10,47 +10,34 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet(name = "StaffReviewServlet", urlPatterns = {"/staff/reviews", "/staff/delete-review"})
+@WebServlet(name = "StaffReviewServlet", urlPatterns = { "/staff/reviews", "/staff/delete-review" })
 public class StaffReviewServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-        String path = request.getServletPath();
-        ReviewDAO dao = new ReviewDAO();
 
-        // 1. XỬ LÝ XÓA
-        if (path.equals("/staff/delete-review")) {
-            String idRaw = request.getParameter("id");
-            if (idRaw != null) {
-                try {
-                    int id = Integer.parseInt(idRaw);
-                    dao.deleteReview(id);
-                } catch (NumberFormatException e) { e.printStackTrace(); }
-            }
-            // KHẮC PHỤC LỖI ĐƯỜNG DẪN Ở ĐÂY: Dùng đường dẫn tuyệt đối để redirect
-            response.sendRedirect(request.getContextPath() + "/staff/reviews");
-            return;
-        }
-
-        // 2. XỬ LÝ LỌC THEO SAO
-        String starRaw = request.getParameter("star");
-        List<Review> list;
-        
-        if (starRaw != null && !starRaw.isEmpty()) {
+        String star = request.getParameter("star");
+        int starValue = 0;
+        if (star != null && !star.isEmpty() && !star.equals("all")) {
             try {
-                int star = Integer.parseInt(starRaw);
-                list = dao.getReviewsByStar(star);
-                request.setAttribute("selectedStar", star);
-            } catch (Exception e) {
-                list = dao.getAllReviews();
+                starValue = Integer.parseInt(star);
+                // Kiểm tra thêm: Số sao chỉ được từ 1 đến 5
+                if (starValue < 1 || starValue > 5)
+                    starValue = 0;
+            } catch (NumberFormatException e) {
+                starValue = 0; // Nếu user nhập bậy chữ cái, ép về chế độ xem tất cả
             }
-        } else {
-            list = dao.getAllReviews();
         }
+        // 2. Gọi DAO để lấy dữ liệu
+        ReviewDAO reviewDAO = new ReviewDAO();
+        List<Review> listReviews = reviewDAO.getReviewsByStar(starValue);
 
-        request.setAttribute("listReviews", list);
+        // 3. Đẩy dữ liệu sang JSP
+        request.setAttribute("listReviews", listReviews);
+        request.setAttribute("selectedStar", (starValue == 0) ? "" : String.valueOf(starValue));
+
+        // 4. Chuyển hướng sang file JSP (Nhớ trỏ đúng thư mục staff nhé)
         request.getRequestDispatcher("/view/staff/review-manage.jsp").forward(request, response);
     }
 }

@@ -1,168 +1,263 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
     <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+        <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+            <!DOCTYPE html>
+            <html>
 
-        <!DOCTYPE html>
-        <html lang="en">
+            <head>
+                <title>Sales Analytics | Admin</title>
+                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-        <head>
-            <title>Sales Reports</title>
-            <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-dashboard.css">
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-            <style>
-                /* FIX: Force standard font to prevent Cursive fallback */
-                body,
-                h1,
-                h2,
-                h3,
-                h4,
-                h5,
-                h6,
-                p,
-                a,
-                span,
-                div {
-                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
-                }
+                <style>
+                    /* --- 1. GLOBAL FONT RESET (Fixes the Cursive Font Issue) --- */
+                    body,
+                    h1,
+                    h2,
+                    h3,
+                    h4,
+                    h5,
+                    h6,
+                    p,
+                    span,
+                    div,
+                    label,
+                    input,
+                    button {
+                        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+                    }
 
-                .chart-container {
-                    background: white;
-                    padding: 20px;
-                    border-radius: 8px;
-                    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-                    margin-bottom: 20px;
-                }
+                    /* --- 2. PAGE LAYOUT --- */
+                    body {
+                        background-color: #f8f9fa;
+                        margin: 0;
+                        padding: 20px;
+                    }
 
-                .charts-grid {
-                    display: grid;
-                    grid-template-columns: 2fr 1fr;
-                    /* Revenue chart is wider */
-                    gap: 20px;
-                }
+                    .page-container {
+                        max-width: 1200px;
+                        margin: 0 auto;
+                    }
 
-                /* BACK LINK STYLE */
-                .back-link {
-                    display: inline-flex;
-                    align-items: center;
-                    text-decoration: none;
-                    color: #6c757d;
-                    /* Grey text */
-                    font-weight: 600;
-                    margin-bottom: 20px;
-                    font-size: 16px;
-                    transition: color 0.3s ease;
-                }
+                    /* --- 3. FORM STYLING (Date Pickers & Button) --- */
+                    .filter-form {
+                        display: flex;
+                        gap: 15px;
+                        background: white;
+                        padding: 15px 20px;
+                        border-radius: 8px;
+                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+                        align-items: flex-end;
+                    }
 
-                .back-link i {
-                    margin-right: 8px;
-                    /* Space between arrow and text */
-                }
+                    .form-group {
+                        display: flex;
+                        flex-direction: column;
+                    }
 
-                .back-link:hover {
-                    color: #0d6efd;
-                    /* Blue on hover */
-                    text-decoration: underline;
-                }
-            </style>
-        </head>
+                    .form-label {
+                        font-size: 12px;
+                        font-weight: 700;
+                        color: #555;
+                        margin-bottom: 5px;
+                        text-transform: uppercase;
+                    }
 
-        <body>
+                    .form-control {
+                        padding: 8px 12px;
+                        border: 1px solid #ced4da;
+                        border-radius: 5px;
+                        font-size: 14px;
+                        color: #495057;
+                        outline: none;
+                        transition: border-color 0.15s ease-in-out;
+                    }
 
-            <div class="page-container">
-                <a href="${pageContext.request.contextPath}/admin/dashboard" class="back-link">
-                    <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
-                </a>
+                    .form-control:focus {
+                        border-color: #86b7fe;
+                        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+                    }
 
-                <button onclick="exportToPDF()" class="btn-add-new"
-                    style="background-color: #dc3545; border:none; cursor:pointer; color:white; padding:10px 15px; border-radius:5px;">
-                    <i class="fa-solid fa-file-pdf"></i> Export to PDF
-                </button>
+                    .btn-update {
+                        background-color: #0d6efd;
+                        color: white;
+                        border: none;
+                        padding: 9px 20px;
+                        border-radius: 5px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: background-color 0.2s;
+                        height: 38px;
+                        /* Match input height */
+                    }
 
-                <h1><i class="fa-solid fa-chart-line"></i> Sales Analytics</h1>
+                    .btn-update:hover {
+                        background-color: #0b5ed7;
+                    }
 
-                <div class="charts-grid">
-                    <div class="chart-container">
-                        <h3>Revenue (Last 7 Days)</h3>
-                        <canvas id="revenueChart"></canvas>
+                    /* --- 4. CARD & CHART STYLING --- */
+                    .stat-card {
+                        background: white;
+                        padding: 20px;
+                        border-radius: 8px;
+                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+                    }
+
+                    .chart-container {
+                        background: white;
+                        padding: 20px;
+                        border-radius: 8px;
+                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+                    }
+
+                    /* Add this inside the <style> tag */
+                    a[href*="dashboard"]:hover {
+                        color: #0d6efd !important;
+                        /* Bootstrap Blue */
+                    }
+                </style>
+            </head>
+
+            <body>
+
+                <div class="page-container">
+
+                    <div style="margin-bottom: 15px;">
+                        <a href="${pageContext.request.contextPath}/admin/dashboard"
+                            style="text-decoration: none; color: #6c757d; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 5px; transition: color 0.2s;">
+                            <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+                        </a>
+                    </div>
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 25px;">
+                        <div>
+                            <h2 style="margin: 0; color: #343a40; font-weight: 700;">Sales Analytics</h2>
+                            <p style="margin: 5px 0 0; color: #6c757d; font-size: 14px;">Overview of store performance
+                            </p>
+                        </div>
+
+                        <form action="reports" method="get" class="filter-form">
+                            <div class="form-group">
+                                <label class="form-label">From Date</label>
+                                <input type="date" name="fromDate" value="${fromDate}" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">To Date</label>
+                                <input type="date" name="toDate" value="${toDate}" class="form-control" required>
+                            </div>
+                            <button type="submit" class="btn-update">
+                                <i class="fa-solid fa-sync"></i> Update
+                            </button>
+                        </form>
                     </div>
 
-                    <div class="chart-container">
-                        <h3>Top 5 Best Sellers</h3>
-                        <canvas id="booksChart"></canvas>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px;">
+                        <div class="stat-card" style="border-left: 4px solid #198754;">
+                            <h6
+                                style="color: #6c757d; margin: 0; font-size: 12px; font-weight: 700; text-transform: uppercase;">
+                                Total Revenue (Period)</h6>
+                            <h3 style="margin: 10px 0 0; color: #198754; font-weight: 700;">
+                                <fmt:formatNumber value="${totalRevenue}" type="currency" currencySymbol="đ"
+                                    maxFractionDigits="0" />
+                            </h3>
+                        </div>
+                        <div class="stat-card" style="border-left: 4px solid #0d6efd;">
+                            <h6
+                                style="color: #6c757d; margin: 0; font-size: 12px; font-weight: 700; text-transform: uppercase;">
+                                Total Orders</h6>
+                            <h3 style="margin: 10px 0 0; color: #0d6efd; font-weight: 700;">${totalOrders}</h3>
+                        </div>
+                        <div class="stat-card" style="border-left: 4px solid #ffc107;">
+                            <h6
+                                style="color: #6c757d; margin: 0; font-size: 12px; font-weight: 700; text-transform: uppercase;">
+                                Completed Orders</h6>
+                            <h3 style="margin: 10px 0 0; color: #ffc107; font-weight: 700;">${completedOrders}</h3>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+
+                        <div class="chart-container">
+                            <h5 style="margin-bottom: 20px; font-weight: 700;">Revenue Trend</h5>
+                            <canvas id="revenueChart" height="150"></canvas>
+                        </div>
+
+                        <div class="chart-container">
+                            <h5 style="margin-bottom: 20px; font-weight: 700;">Order Status</h5>
+                            <canvas id="statusChart" height="200"></canvas>
+                        </div>
+
+                        <div class="chart-container" style="grid-column: 1 / -1;">
+                            <h5 style="margin-bottom: 20px; font-weight: 700;">Top 5 Best Selling Books</h5>
+                            <canvas id="bestSellerChart" height="80"></canvas>
+                        </div>
+
                     </div>
                 </div>
-            </div>
 
-            <script>
-                // --- 1. REVENUE CHART CONFIG ---
-                const ctxRev = document.getElementById('revenueChart');
-                new Chart(ctxRev, {
-                    type: 'line', // Line graph for trends
-                    data: {
-                        labels: [${ chartDates }], // From Servlet
+                <script>
+                    // 1. REVENUE CHART
+                    const ctxRevenue = document.getElementById('revenueChart').getContext('2d');
+                    new Chart(ctxRevenue, {
+                        type: 'line',
+                        data: {
+                            labels: ${ dateLabels },
                         datasets: [{
                             label: 'Revenue (VND)',
-                            data: [${ chartRevenue }], // From Servlet
-                            borderColor: '#0d6efd',
-                            backgroundColor: 'rgba(13, 110, 253, 0.1)',
-                            borderWidth: 2,
-                            fill: true,
-                            tension: 0.3 // Makes the line curved and smooth
-                        }]
-                    },
-                    options: {
+                            data: ${ revenueData },
+                        borderColor: '#0d6efd',
+                        backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                        fill: true,
+                        tension: 0.3
+            }]
+        },
+                        options: {
+                        scales: { y: { beginAtZero: true } }
+                    }
+    });
+
+                    // 2. STATUS CHART
+                    const ctxStatus = document.getElementById('statusChart').getContext('2d');
+                    new Chart(ctxStatus, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Pending', 'Shipping', 'Completed', 'Cancelled'],
+                            datasets: [{
+                                data: ${ statusCounts },
+                                backgroundColor: ['#ffc107', '#0dcaf0', '#198754', '#dc3545']
+            }]
+                    }
+    });
+
+                    // 3. BEST SELLERS CHART (FIXED: INTEGERS ONLY)
+                    const ctxSeller = document.getElementById('bestSellerChart').getContext('2d');
+                    new Chart(ctxSeller, {
+                        type: 'bar',
+                        data: {
+                            labels: ${ bookLabels },
+                        datasets: [{
+                            label: 'Units Sold',
+                            data: ${ bookData },
+                        backgroundColor: '#6610f2'
+            }]
+        },
+                        options: {
+                        indexAxis: 'y',
                         scales: {
-                            y: { beginAtZero: true }
+                            x: {
+                                beginAtZero: true,
+                                // --- FIX IS HERE: FORCE INTEGERS ---
+                                ticks: {
+                                    stepSize: 1,  // Only show 1, 2, 3...
+                                    precision: 0  // No decimals
+                                }
+                            }
                         }
                     }
-                });
+    });
+                </script>
 
-                // --- 2. TOP BOOKS CHART CONFIG ---
-                const ctxBooks = document.getElementById('booksChart');
-                new Chart(ctxBooks, {
-                    type: 'doughnut', // Doughnut chart for distribution
-                    data: {
-                        labels: [${ chartBooks }], // From Servlet
-                        datasets: [{
-                            label: 'Sold Quantity',
-                            data: [${ chartSold }], // From Servlet
-                            backgroundColor: [
-                                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'
-                            ],
-                            hoverOffset: 4
-                        }]
-                    }
-                });
+            </body>
 
-                function exportToPDF() {
-                    // 1. Select the content to print (The entire container)
-                    const element = document.querySelector(".page-container");
-
-                    // 2. Hide the buttons so they don't appear in the PDF
-                    const btn = document.querySelector("button[onclick='exportToPDF()']");
-                    const link = document.querySelector(".back-link");
-                    btn.style.display = 'none';
-                    link.style.display = 'none';
-
-                    // 3. Configure settings
-                    const opt = {
-                        margin: 0.5,
-                        filename: 'Sales_Report.pdf',
-                        image: { type: 'jpeg', quality: 0.98 },
-                        html2canvas: { scale: 2 }, // Higher scale = sharper text/charts
-                        jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' } // Landscape is better for charts
-                    };
-
-                    // 4. Generate PDF, then show buttons again
-                    html2pdf().set(opt).from(element).save().then(() => {
-                        btn.style.display = 'block';
-                        link.style.display = 'flex'; // or 'inline-block' depending on your css
-                    });
-                }
-            </script>
-
-        </body>
-
-        </html>
+            </html>

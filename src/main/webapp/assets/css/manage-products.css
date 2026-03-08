@@ -1,7 +1,14 @@
 /* --- 1. GLOBAL FONT RESET (Fixes the Cursive Font Issue) --- */
-body, .page-container, .admin-table, h1, a, button, .btn-sm {
+body,
+.page-container,
+.admin-table,
+h1,
+a,
+button,
+.btn-sm {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    letter-spacing: normal; /* Removes any weird spacing from the script font */
+    letter-spacing: normal;
+    /* Removes any weird spacing from the script font */
 }
 
 /* --- 2. LAYOUT --- */
@@ -9,7 +16,8 @@ body, .page-container, .admin-table, h1, a, button, .btn-sm {
     padding: 30px;
     max-width: 1200px;
     margin: 0 auto;
-    background-color: #f8f9fa; /* Light grey background for the whole page area */
+    background-color: #f8f9fa;
+    /* Light grey background for the whole page area */
     min-height: 100vh;
 }
 
@@ -48,16 +56,19 @@ body, .page-container, .admin-table, h1, a, button, .btn-sm {
 /* --- 3. TABLE STYLING --- */
 .admin-table {
     width: 100%;
-    border-collapse: separate; /* Allows for border-radius */
+    border-collapse: separate;
+    /* Allows for border-radius */
     border-spacing: 0;
     background: white;
-    border-radius: 8px; /* Rounded corners for the table */
+    border-radius: 8px;
+    /* Rounded corners for the table */
     overflow: hidden;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
 .admin-table th {
-    background-color: #343a40; /* Dark header like a pro dashboard */
+    background-color: #343a40;
+    /* Dark header like a pro dashboard */
     color: white;
     font-weight: 600;
     text-transform: uppercase;
@@ -81,14 +92,17 @@ body, .page-container, .admin-table, h1, a, button, .btn-sm {
 }
 
 .admin-table tbody tr:hover {
-    background-color: #f1f8ff; /* Light blue highlight on hover */
+    background-color: #f1f8ff;
+    /* Light blue highlight on hover */
 }
 
 /* Hidden Row Styling */
 .row-hidden {
-    background-color: #f8f9fa !important; /* Force grey background */
+    background-color: #f8f9fa !important;
+    /* Force grey background */
     opacity: 0.7;
 }
+
 .row-hidden td {
     color: #aaa;
 }
@@ -116,14 +130,26 @@ body, .page-container, .admin-table, h1, a, button, .btn-sm {
     gap: 5px;
     border: none;
     cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.btn-edit { background-color: #007bff; color: white; }
-.btn-edit:hover { background-color: #0056b3; }
+.btn-edit {
+    background-color: #007bff;
+    color: white;
+}
 
-.btn-delete { background-color: #dc3545; color: white; }
-.btn-delete:hover { background-color: #a71d2a; }
+.btn-edit:hover {
+    background-color: #0056b3;
+}
+
+.btn-delete {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-delete:hover {
+    background-color: #a71d2a;
+}
 
 .btn-add-new {
     background-color: #28a745;
@@ -134,7 +160,10 @@ body, .page-container, .admin-table, h1, a, button, .btn-sm {
     text-decoration: none;
     box-shadow: 0 2px 5px rgba(40, 167, 69, 0.3);
 }
-.btn-add-new:hover { background-color: #218838; }
+
+.btn-add-new:hover {
+    background-color: #218838;
+}
 
 /* Status Badges */
 .status-badge {
@@ -163,7 +192,188 @@ body, .page-container, .admin-table, h1, a, button, .btn-sm {
     font-weight: 700;
     color: #212529;
 }
+
 .stock-warning {
     color: #dc3545;
     font-weight: 800;
+}
+
+/* Search Bar Styling */
+.filter-bar {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.search-input {
+    flex: 1;
+    /* Takes available space */
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+}
+
+.filter-select {
+    width: 200px;
+    padding: 8px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+}
+
+.btn-search {
+    background-color: #0d6efd;
+    color: white;
+    border: none;
+    padding: 9px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-search:hover {
+    background-color: #0b5ed7;
+}
+
+
+
+.page-btn {
+    padding: 8px 16px;
+    text-decoration: none;
+    border: 1px solid #ddd;
+    color: #333;
+    border-radius: 4px;
+    transition: 0.3s;
+}
+
+.page-btn:hover {
+    background-color: #f1f1f1;
+}
+
+.page-btn.active {
+    background-color: #0d6efd;
+    color: white;
+    border: 1px solid #0d6efd;
+}
+
+/* 1. Target links inside the Table Header */
+.admin-table thead th a {
+    color: white !important;
+    /* Force text to be White */
+    text-decoration: none !important;
+    /* Remove the underline */
+    display: flex;
+    /* Makes text and icon align nicely */
+    align-items: center;
+    /* Vertically center */
+    justify-content: center;
+    /* Horizontally center (optional) */
+    gap: 8px;
+    /* Space between text and icon */
+}
+
+/* 2. Prevent color change when clicked/visited */
+.admin-table thead th a:visited,
+.admin-table thead th a:active,
+.admin-table thead th a:focus {
+    color: white !important;
+}
+
+/* 3. Optional: Slight hover effect (Light Grey) so user knows it's clickable */
+.admin-table thead th a:hover {
+    color: #e2e6ea !important;
+    cursor: pointer;
+}
+
+/* 4. Style the Icon specifically */
+.admin-table thead th i {
+    font-size: 0.85em;
+    /* Make icon slightly smaller than text */
+    opacity: 0.7;
+    /* Make icon slightly dimmer */
+}
+
+/* 5. Highlight the icon if it is the Active Sort Column */
+.admin-table thead th a:hover i,
+.admin-table thead th a i.fa-sort-up,
+.admin-table thead th a i.fa-sort-down {
+    opacity: 1;
+    /* Full brightness when active or hovered */
+    color: #ffc107;
+    /* Optional: Gold color for the active sort icon */
+}
+
+/* FORCE REMOVE OLD ICONS */
+.admin-table th::after, 
+.admin-table th::before {
+    content: none !important;
+    display: none !important;
+}
+
+/* REMOVE POINTER EVENTS ON THE TH ITSELF (Only Link is clickable) */
+.admin-table th {
+    pointer-events: none; /* Disables click on the grey box */
+}
+
+/* RE-ENABLE CLICKS FOR THE LINK INSIDE */
+.admin-table th a {
+    pointer-events: auto; /* Enables click on the text/icon */
+}
+
+.pagination {
+    display: flex;
+    flex-wrap: wrap;          /* THIS IS THE MAGIC LINE */
+    justify-content: center;  /* Centers the buttons */
+    gap: 8px;                 /* Space between buttons */
+    margin-top: 20px;
+    padding-bottom: 20px;
+}
+
+/* Ensure the links themselves look like clean buttons */
+.pagination a {
+    padding: 8px 12px;
+    border: 1px solid #dee2e6;
+    color: #0d6efd;
+    text-decoration: none;
+    border-radius: 4px;
+    background-color: white;
+}
+
+.pagination a.active {
+    background-color: #0d6efd;
+    color: white;
+    border-color: #0d6efd;
+}
+
+.page-link {
+    padding: 6px 12px;
+    border: 1px solid #dee2e6;
+    color: #0d6efd;
+    text-decoration: none;
+    border-radius: 4px;
+    background-color: white;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.page-link:hover {
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+}
+
+.page-link.active {
+    background-color: #0d6efd;
+    color: white;
+    border-color: #0d6efd;
+    pointer-events: none; /* Prevents clicking the current page again */
+}
+
+.page-ellipsis {
+    padding: 6px 4px;
+    color: #6c757d;
+    font-weight: bold;
+    letter-spacing: 2px;
 }

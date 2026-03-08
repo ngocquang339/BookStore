@@ -129,3 +129,27 @@
     color: #ffc107; /* Yellow on hover */
     text-decoration: underline;
 }
+
+/* Sortable Table Headers */
+th {
+    cursor: pointer; /* Shows a hand icon */
+    position: relative;
+    user-select: none; /* Prevents highlighting text when clicking fast */
+}
+
+th:hover {
+    background-color: #e9ecef; /* Light grey highlight on hover */
+    color: #0d6efd; /* Blue text */
+}
+
+/* Optional: Add a small icon hint */
+th::after {
+    content: '\f0dc'; /* FontAwesome generic sort icon */
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    font-size: 12px;
+    color: #ccc;
+    position: absolute;
+    right: 8px;
+    opacity: 0.5;
+}

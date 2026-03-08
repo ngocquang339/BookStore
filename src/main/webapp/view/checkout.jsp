@@ -41,7 +41,7 @@
                             <label class="form-label" style="min-width: 150px;">Số điện thoại</label>
                             <input type="text" name="phone" id="phone" class="form-control" 
                                    placeholder="Nhập 10 chữ số"
-                                   value="${sessionScope.user.phone_number}" required>
+                                   value="${sessionScope.user.phone_number}" required maxlength="10">
                         </div>
                         <small id="phone-type-error" class="error-hint ms-5 ps-5">* Số điện thoại chỉ được nhập chữ số</small>
                         <small id="phone-error" class="error-hint ms-5 ps-5">* Số điện thoại phải gồm đúng 10 chữ số và bắt đầu bằng số 0</small>
@@ -72,9 +72,9 @@
 
                 <div class="checkout-section">
                     <div class="section-title">KIỂM TRA LẠI ĐƠN HÀNG</div>
-                    <c:forEach items="${sessionScope.cart}" var="item">
+                    <c:forEach items="${sessionScope.checkoutCart}" var="item">
                         <div class="book-item d-flex mb-3 border-bottom pb-3">
-                            <img src="${pageContext.request.contextPath}/assets/image/books/${item.book.imageUrl}" 
+                            <img src="${pageContext.request.contextPath}/${item.book.imageUrl}" 
                                  class="book-img border rounded me-3" alt="${item.book.title}"
                                  style="width: 80px; height: 100px; object-fit: cover;"
                                  onerror="this.src='https://placehold.co/80x100?text=No+Image'">
