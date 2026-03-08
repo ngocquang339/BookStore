@@ -12,7 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-@WebServlet("/dashboard")
+@WebServlet("/orders-management")
 public class SaleController extends HttpServlet {
 
     @Override
@@ -28,31 +28,37 @@ public class SaleController extends HttpServlet {
         OrderDAO dao = new OrderDAO();
         List<Order> listOrders;
         
-        // 1. Nhận tham số sắp xếp từ URL
+        // 1. Nhận các tham số từ giao diện
         String sortBy = req.getParameter("sortBy");
         String sortOrder = req.getParameter("sortOrder");
+        String searchQuery = req.getParameter("searchQuery"); 
         
-        // Gán giá trị mặc định lúc mới vào trang (Sắp xếp theo ngày, mới nhất lên đầu)
         if (sortBy == null) sortBy = "date";
         if (sortOrder == null) sortOrder = "desc";
+        if (searchQuery == null) searchQuery = ""; // Tránh lỗi null khi mới vào trang
 
-        // 2. Lấy dữ liệu theo Tab trạng thái và Tham số sắp xếp
+        // 2. Lấy dữ liệu kèm theo từ khóa tìm kiếm
         String statusRaw = req.getParameter("status");
-        if(statusRaw == null || statusRaw.equals("all")){
-            listOrders = dao.getAllOrdersBySale(sortBy, sortOrder); // Gọi hàm MỚI
+        if (statusRaw == null || statusRaw.equals("all")) {
+            listOrders = dao.getAllOrdersBySale(sortBy, sortOrder, searchQuery);
             req.setAttribute("currentStatus", "all");
         } else {
             int status = Integer.parseInt(statusRaw);
-            listOrders = dao.getOrdersByStatus(status, sortBy, sortOrder); // Gọi hàm MỚI
+            listOrders = dao.getOrdersByStatus(status, sortBy, sortOrder, searchQuery);
             req.setAttribute("currentStatus", status);
         }
         
-        // 3. Gửi ngược trạng thái sắp xếp hiện tại sang JSP để hiển thị icon Mũi tên
+        double[] todaySummary = dao.getTodaySummary();
+        req.setAttribute("todayTotalOrders", (int) todaySummary[0]);
+        req.setAttribute("todayPending", (int) todaySummary[1]);
+        req.setAttribute("todayRevenue", todaySummary[2]);
+
+        // 3. Đẩy dữ liệu về lại JSP
         req.setAttribute("currentSortBy", sortBy);
         req.setAttribute("currentSortOrder", sortOrder);
+        req.setAttribute("currentSearch", searchQuery); 
         req.setAttribute("orders", listOrders);
+        
         req.getRequestDispatcher("/view/dashboard.jsp").forward(req, resp);
     }
-
-
 }

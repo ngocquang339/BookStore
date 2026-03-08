@@ -142,7 +142,7 @@ public class CheckoutServlet extends HttpServlet {
             OrderDAO dao = new OrderDAO();
             
             // Lưu những món trong checkoutCart vào DB
-            dao.createOrder(user, checkoutCart, address, phone, grandTotal, paymentMethod);
+            dao.createOrder(user, checkoutCart,fullname, address, phone, grandTotal, paymentMethod);
 
             // LOGIC QUAN TRỌNG: Chỉ xóa những món đã thanh toán khỏi giỏ hàng gốc
             if (mainCart != null) {

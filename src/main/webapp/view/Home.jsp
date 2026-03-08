@@ -63,7 +63,7 @@
                     </a>
                 </c:when>
                 <c:when test="${sessionScope.user.role == 3}">
-                    <a href="${pageContext.request.contextPath}/dashboard" style="background-color: #C92127; color: white; padding: 10px 20px; text-decoration: none; font-weight: bold; display: flex; align-items: center; transition: background-color 0.2s;">
+                    <a href="${pageContext.request.contextPath}/staff-dashboard" style="background-color: #C92127; color: white; padding: 10px 20px; text-decoration: none; font-weight: bold; display: flex; align-items: center; transition: background-color 0.2s;">
                         VÀO TRANG QUẢN LÝ SALE <i class="fa-solid fa-arrow-right ms-2"></i>
                     </a>
                 </c:when>
