@@ -1,6 +1,7 @@
 package com.group2.bookstore.controller;
 
 import java.io.IOException;
+
 import com.group2.bookstore.dal.CategoryDAO;
 import com.group2.bookstore.model.Category;
 
@@ -35,7 +36,7 @@ public class AdminCategoryServlet extends HttpServlet {
         c.setDescription(description); // If your model/DB doesn't use description, just delete this line
         
         CategoryDAO dao = new CategoryDAO();
-        dao.insertCategory(c.getName(), c.getDescription()); // Adjust if your DAO method signature is different
+        dao.insertCategory(c);
         
         // 3. Redirect back to the product list to see the new category in the dropdown
         response.sendRedirect(request.getContextPath() + "/admin/product/list?msg=CategoryAdded");

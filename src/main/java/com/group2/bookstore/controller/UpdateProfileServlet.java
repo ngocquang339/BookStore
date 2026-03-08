@@ -58,7 +58,6 @@ public class UpdateProfileServlet extends HttpServlet{
         currentUser.setFullname(newFullname);
         currentUser.setEmail(newEmail);
         currentUser.setPhone_number(newPhone);
-        currentUser.setAddress(newAddress);
 
         // 6. GỌI DAO ĐỂ LƯU VÀO DATABASE (QUAN TRỌNG)
         UserDAO userDAO = new UserDAO();

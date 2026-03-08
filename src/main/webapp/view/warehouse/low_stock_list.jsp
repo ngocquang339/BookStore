@@ -32,7 +32,7 @@
                     <div class="mb-3 d-flex justify-content-between align-items-center">
                         <div>
                             <a href="dashboard" class="btn btn-outline-secondary me-2"><i
-                                    class="fa-solid fa-arrow-left"></i> Quay lại</a>
+                                    class="fa-solid fa-arrow-left"></i> Dashboard</a>
                         </div>
                         <a href="update-stock" class="btn btn-success"><i class="fa-solid fa-boxes-packing"></i> Nhập
                             hàng ngay</a>
@@ -96,7 +96,10 @@
                     $(document).ready(function () {
                         $('#lowStockTable').DataTable({
                             "language": { "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" },
-                            "pageLength": 10
+                            "pageLength": 10,
+                            "columnDefs": [
+                                { "orderable": false, "targets": 1 } // disable sort cột Ảnh
+                            ]
                         });
                     });
                 </script>

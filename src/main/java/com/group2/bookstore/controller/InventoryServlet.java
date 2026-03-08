@@ -17,73 +17,32 @@ public class InventoryServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        request.setCharacterEncoding("UTF-8"); // Đảm bảo tiếng Việt
+        request.setCharacterEncoding("UTF-8");
         BookDAO dao = new BookDAO();
-
-        // 1. Lấy dữ liệu cho các ô Select (Dropdown)
-        List<String> authors = dao.getAllAuthors();
-        List<String> publishers = dao.getAllPublishers();
-        request.setAttribute("listAuthors", authors);
-        request.setAttribute("listPublishers", publishers);
-
-        // 2. Nhận tham số từ Filter Form
-        String search = request.getParameter("search");
-
-        String cate = request.getParameter("cid");
-        int cid = (cate == null || cate.isEmpty()) ? 0 : Integer.parseInt(cate);
-
+        com.group2.bookstore.dal.CategoryDAO cDao = new com.group2.bookstore.dal.CategoryDAO(); // Khởi tạo CategoryDAO
+        
+        String keyword = request.getParameter("keyword");
         String author = request.getParameter("author");
         String publisher = request.getParameter("publisher");
+        String categoryIdStr = request.getParameter("categoryId"); // Lấy cid từ form
 
-        // 3. Xử lý khoảng giá
-        String priceRange = request.getParameter("priceRange");
-        double minPrice = 0;
-        double maxPrice = 0;
-
-        String indexPage = request.getParameter("index");
-        if (indexPage == null) {
-            indexPage = "1";
-        }
-        int index = Integer.parseInt(indexPage);
-
-        if (priceRange != null && !priceRange.isEmpty()) {
-            switch (priceRange) {
-                case "under100":
-                    minPrice = 0;
-                    maxPrice = 100000;
-                    break;
-                case "100-200":
-                    minPrice = 100000;
-                    maxPrice = 200000;
-                    break;
-                case "200-500":
-                    minPrice = 200000;
-                    maxPrice = 500000;
-                    break;
-                case "over500":
-                    minPrice = 500000;
-                    maxPrice = 999999999;
-                    break;
-            }
+        if (keyword == null) keyword = "";
+        
+        int cid = 0;
+        if (categoryIdStr != null && !categoryIdStr.isEmpty()) {
+            try { cid = Integer.parseInt(categoryIdStr); } catch (Exception e) {}
         }
 
-        // // ĐÃ SỬA: Truyền biến cid vào hàm thay vì số 0
         // ĐÃ SỬA: Truyền biến cid vào hàm thay vì số 0
-        // List<Book> list = dao.getBooks(keyword, cid, author, publisher, 0, 999999999, "book_id", "DESC", true);
+        List<Book> list = dao.getBooks(keyword, cid, author, publisher, 0, 999999999, "book_id", "DESC",true);
 
-        // 5. Gọi hàm DAO
-        // List<Book> list = dao.getBooks(search, cid, author, publisher, minPrice, maxPrice, sort, order, false, index);
-
-        // 6. Gửi dữ liệu về JSP
-        // request.setAttribute("listB", list);
-
-        // Giữ lại các giá trị đã chọn để hiển thị lại trên Form
-        request.setAttribute("paramSearch", search);
-        request.setAttribute("paramCid", cid);
-        request.setAttribute("paramAuthor", author);
-        request.setAttribute("paramPublisher", publisher);
-        request.setAttribute("paramPrice", priceRange);
-
+        // Truyền data sang JSP
+        request.setAttribute("listC", cDao.getAllCategories()); // Thêm list Thể loại
+        request.setAttribute("listA", dao.getAllAuthors());
+        request.setAttribute("listP", dao.getAllPublishers());
+        request.setAttribute("listB", list);
+        
         request.getRequestDispatcher("/view/warehouse/inventory_list.jsp").forward(request, response);
+
     }
 }
