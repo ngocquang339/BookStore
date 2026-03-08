@@ -16,11 +16,12 @@ public class Book implements Serializable {
     private int soldQuantity;
     private String publisher;
     private String isbn;
+    private int categoryId;
+    private String categoryName; // thêm vào để load data cho View 
+    private String locationCode; // Thêm biến lưu mã vị trí (VD: A-01-01)
     private int category_id;
     private int yearOfPublish;
     private int number_page;     // Mapped from [number_of_pages]
-    
-    private String categoryName;
     // NEW FIELDS for Admin Features
     private boolean active;       // Maps to [is_active]
     private double importPrice;   // Maps to [import_price]
@@ -30,20 +31,29 @@ public class Book implements Serializable {
     }
 
     // Constructor đầy đủ (Dùng cho DAO khi load dữ liệu từ DB lên)
-    public Book(int id, String title, String author, double price, int stockQuantity, String imageUrl, int categoryId, String description, String publisher, String supplier, int yearOfPublish, int number_page) {
-        this.id = id;
-        this.title = title;
-        this.author = author;
-        this.price = price;
-        this.stockQuantity = stockQuantity;
-        this.imageUrl = imageUrl;
-        this.category_id = categoryId;
-        this.description = description;
-        this.publisher = publisher;
-        this.yearOfPublish = yearOfPublish;
-        this.number_page = number_page;
-        this.supplier = supplier;
-    }
+    public Book(int id, String title, String author, double price, int stockQuantity,
+            String imageUrl, int categoryId, String categoryName,
+            String description, String locationCode,
+            String publisher, String supplier,
+            int yearOfPublish, int number_page) {
+
+    this.id = id;
+    this.title = title;
+    this.author = author;
+    this.price = price;
+    this.stockQuantity = stockQuantity;
+    this.imageUrl = imageUrl;
+
+    this.categoryId = categoryId;
+    this.categoryName = categoryName;
+    this.locationCode = locationCode;
+
+    this.description = description;
+    this.publisher = publisher;
+    this.supplier = supplier;
+    this.yearOfPublish = yearOfPublish;
+    this.number_page = number_page;
+}
 
     // --- GETTERS & SETTERS ---
     public int getId() {
@@ -141,6 +151,12 @@ public class Book implements Serializable {
 
     public double getImportPrice() { return importPrice; }
     public void setImportPrice(double importPrice) { this.importPrice = importPrice; }
+
+    public String getCategoryName() { return categoryName; }
+    public void setCategoryName(String categoryName) { this.categoryName = categoryName; }
+
+    public String getLocationCode() { return locationCode; }
+    public void setLocationCode(String locationCode) { this.locationCode = locationCode; }
     
     public int getYearOfPublish() { return yearOfPublish; }
     public void setYearOfPublish(int yearOfPublish) { this.yearOfPublish = yearOfPublish; }
@@ -152,15 +168,6 @@ public class Book implements Serializable {
     public void setSupplier(String supplier) { this.supplier = supplier; }
     public void setActive(boolean active) {
         this.active = active;
-    }
-
-
-    public String getCategoryName() {
-        return categoryName;
-    }
-
-    public void setCategoryName(String categoryName) {
-        this.categoryName = categoryName;
     }
 
     public String getCoverImage() {

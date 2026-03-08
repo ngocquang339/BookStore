@@ -36,6 +36,13 @@
                         <a href="supplier" class="btn btn-success mt-auto">Truy cập</a>
                     </div>
                 </div>
+                <div class="col-md-4 mt-4">
+                    <div class="card p-4 shadow-sm h-100 border-info">
+                        <h4 class="text-info"><i class="fa-solid fa-map-location-dot"></i> Location Setup</h4>
+                        <p>Thiết lập sơ đồ kho: Khu vực, Kệ, Tầng.</p>
+                        <a href="location" class="btn btn-info text-white mt-auto">Truy cập</a>
+                    </div>
+                </div>
             </div>
             <div class="text-center mt-4">
                 <a href="${pageContext.request.contextPath}/logout" class="btn btn-outline-danger">Đăng xuất</a>
