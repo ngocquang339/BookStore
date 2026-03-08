@@ -67,8 +67,6 @@ public class SupplierDAO extends DBContext {
         }
     }
 
-    // 2. Create: Thêm mới
-    // Thêm throws Exception và sửa lại khối catch
     public void addSupplier(Supplier s) throws Exception {
         String sql = "INSERT INTO Suppliers (supplier_name, contact_person, phone, email, address, is_active) VALUES (?, ?, ?, ?, ?, 1)";
         try (Connection conn = getConnection();

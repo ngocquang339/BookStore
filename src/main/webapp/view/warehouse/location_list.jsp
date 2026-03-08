@@ -193,6 +193,9 @@
             <script>
                 $(document).ready(function () {
                     $('#locationTable').DataTable({
+                        columnDefs: [
+                            { orderable: false, targets: 7 }
+                        ],
                         language: {
                             url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json"
                         }

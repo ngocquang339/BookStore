@@ -22,7 +22,6 @@ public class LocationServlet extends HttpServlet {
 
         String zone = request.getParameter("zone");
 
-        // ⚠ QUAN TRỌNG
         request.setAttribute("zoneList", dao.getAllZones());
 
         if (zone != null && !zone.trim().isEmpty()) {
