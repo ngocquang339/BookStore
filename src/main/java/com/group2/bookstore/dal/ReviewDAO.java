@@ -103,4 +103,60 @@ public class ReviewDAO extends DBContext {
         }
         return list;
     }
+
+    // Hàm 1: Lưu đánh giá mới vào Database
+    public boolean insertReview(int userId, int bookId, int rating, String comment) {
+        String sql = "INSERT INTO Review (user_id, book_id, rating, comment) VALUES (?, ?, ?, ?)";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setInt(1, userId);
+            ps.setInt(2, bookId);
+            ps.setInt(3, rating);
+            ps.setString(4, comment); 
+            
+            return ps.executeUpdate() > 0;
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // Hàm 2: Lấy danh sách đánh giá của 1 cuốn sách (kèm tên người đánh giá)
+    public List<Review> getReviewsByBookId(int bookId) {
+        List<Review> list = new ArrayList<>();
+        // Nối bảng Review với Users để lấy username
+        String sql = "SELECT r.*, u.username, u.email FROM Review r " +
+                     "JOIN Users u ON r.user_id = u.user_id " +
+                     "WHERE r.book_id = ? " +
+                     "ORDER BY r.create_at DESC"; // Xếp mới nhất lên đầu
+                     
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setInt(1, bookId);
+            ResultSet rs = ps.executeQuery();
+            
+            while (rs.next()) {
+                Review r = new Review();
+                r.setReviewId(rs.getInt("review_id"));
+                r.setUserId(rs.getInt("user_id"));
+                r.setBookId(rs.getInt("book_id"));
+                r.setRating(rs.getInt("rating"));
+                r.setComment(rs.getString("comment"));
+                r.setCreateAt(rs.getDate("create_at")); 
+                
+                // Thuộc tính phụ từ bảng Users
+                r.setUsername(rs.getString("username"));
+                try { r.setEmail(rs.getString("email")); } catch (Exception e) {}
+                
+                list.add(r);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 }

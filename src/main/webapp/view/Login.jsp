@@ -150,6 +150,197 @@
         .btn-submit:hover {
             background-color: #a01a1f; /* Đỏ sậm hơn một chút khi di chuột vào */
         }
+
+        /* Nền đen mờ phủ ngoài */
+.custom-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4); /* Làm tối nền */
+    display: none; /* Mặc định ẩn */
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+/* Hộp Modal */
+.custom-modal-box {
+    background-color: #fff;
+    width: 450px;
+    max-width: 90%;
+    border-radius: 12px;
+    padding: 30px 40px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+}
+
+/* Tiêu đề */
+.modal-title {
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+    margin-top: 0;
+    margin-bottom: 30px;
+}
+
+/* Nhóm form */
+.modal-form-group {
+    margin-bottom: 20px;
+}
+
+.modal-form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+/* Input có nút Gửi mã OTP bên trong */
+.input-with-action {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-with-action input, 
+.full-width-input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+    transition: 0.3s;
+    box-sizing: border-box;
+}
+
+.input-with-action input:focus, 
+.full-width-input:focus {
+    border-color: #C92127; /* Đổi màu viền khi click vào */
+}
+
+/* Chữ Gửi mã OTP màu xanh */
+.btn-send-otp {
+    position: absolute;
+    right: 15px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #0056b3;
+    text-decoration: none;
+    cursor: pointer;
+}
+.btn-send-otp:hover {
+    color: #003d82;
+}
+
+/* Nút bấm */
+.modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 30px;
+}
+
+.btn-confirm-modal {
+    width: 100%;
+    padding: 12px;
+    background-color: #e6e6e6;
+    color: #333;
+    font-weight: bold;
+    font-size: 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.btn-confirm-modal:hover {
+    background-color: #d4d4d4;
+}
+
+.btn-back-modal {
+    width: 100%;
+    padding: 12px;
+    background-color: white;
+    color: #d32f2f;
+    font-weight: bold;
+    font-size: 15px;
+    border: 1px solid #d32f2f;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.btn-back-modal:hover {
+    background-color: #fcebeb;
+}
+/* Trạng thái khóa (Disabled) của input và button */
+.input-with-action input:disabled {
+    background-color: #f7f7f7;
+    cursor: not-allowed;
+    border-color: #e0e0e0;
+}
+.btn-confirm-modal:disabled {
+    background-color: #f0f0f0;
+    color: #a0a0a0;
+    cursor: not-allowed;
+}
+
+/* Các thành phần báo thành công (Tích xanh) */
+.success-icon {
+    position: absolute;
+    right: 15px;
+    font-size: 18px;
+    color: #00b14f; /* Màu xanh lá chuẩn */
+    display: none; /* Mặc định ẩn */
+}
+.success-text {
+    display: none; /* Mặc định ẩn */
+    font-size: 13px;
+    color: #00b14f;
+    margin-top: 5px;
+}
+/* Đổi viền input sang xanh lá và nền xanh nhạt khi thành công */
+.input-success {
+    border-color: #00b14f !important;
+    background-color: #f2fcf5 !important;
+}
+
+/* Nút dạng Text bên trong Input (Gửi OTP, Hiện/Ẩn pass) */
+.btn-inside-input {
+    position: absolute;
+    right: 15px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #0056b3;
+    text-decoration: none;
+    cursor: pointer;
+}
+.btn-inside-input:hover {
+    color: #003d82;
+}
+
+/* Fix CSS phần action input */
+.input-with-action {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.input-with-action input {
+    width: 100%;
+    padding: 12px 15px;
+    padding-right: 90px; /* Chừa chỗ cho nút text bên phải */
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+    transition: 0.3s;
+    box-sizing: border-box;
+}
+.input-with-action input:focus:not(:disabled):not(.input-success) {
+    border-color: #C92127;
+}
     </style>
 </head>
 <body>
@@ -182,7 +373,7 @@
                 </div>
 
                 <div class="forgot-password">
-                    <a href="${pageContext.request.contextPath}/forgot-password">Quên mật khẩu?</a>
+                    <a href="javascript:void(0);" onclick="openPhoneModal(); return false;">Quên mật khẩu?</a>
                 </div>
 
                 <button type="submit" class="btn-submit">Đăng nhập</button>
@@ -190,6 +381,47 @@
             </form>
         </div>
     </div>
+
+    <div id="forgotPasswordModal" class="custom-modal-overlay">
+    <div class="custom-modal-box">
+        <h2 class="modal-title">KHÔI PHỤC MẬT KHẨU</h2>
+        
+        <form id="forgotPasswordForm" action="change-password" method="POST">
+            <input type="hidden" name="flag" value="1">
+            <div class="modal-form-group">
+                <label>Email</label>
+                <div class="input-with-action">
+                    <input type="email" id="resetEmail" name="email" placeholder="Nhập email của bạn..." required>
+                    <a href="javascript:void(0);" id="btnSendOtp" class="btn-inside-input" onclick="sendOTP()">Gửi mã OTP</a>
+                    <i class="fa-solid fa-circle-check success-icon" id="emailSuccessIcon"></i>
+                </div>
+                <span class="success-text" id="emailSuccessText">OTP đã được gửi qua Email</span>
+            </div>
+
+            <div class="modal-form-group">
+                <label>Mã xác nhận OTP</label>
+                <div class="input-with-action">
+                    <input type="text" id="otpCode" name="otp" placeholder="6 ký tự" required disabled maxlength="6" oninput="checkOTP(this.value)">
+                    <i class="fa-solid fa-circle-check success-icon" id="otpSuccessIcon"></i>
+                </div>
+                <span class="success-text" id="otpSuccessText">OTP hợp lệ</span>
+            </div>
+
+            <div class="modal-form-group">
+                <label>Mật khẩu mới</label>
+                <div class="input-with-action">
+                    <input type="password" id="newPassword" name="newPassword" placeholder="Nhập mật khẩu mới..." required disabled>
+                    <a href="javascript:void(0);" id="btnTogglePwd" class="btn-inside-input" style="color: #2b78e4;" onclick="togglePassword()">Hiện</a>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="submit" id="btnSubmitReset" class="btn-confirm-modal" disabled>Xác nhận</button>
+                <button type="button" class="btn-back-modal" onclick="closePhoneModal()">Trở về</button>
+            </div>
+        </form>
+    </div>
+</div>
 
     <jsp:include page="component/suggested-books.jsp" />
     <jsp:include page="component/footer.jsp" />
@@ -207,6 +439,127 @@
                 toggleText.textContent = "Hiện"; 
             }
         }
+
+        // Hàm mở Modal và Reset lại trắng tinh như mới
+    function openPhoneModal() {
+        resetModalState();
+        document.getElementById("forgotPasswordModal").style.display = "flex";
+    }
+
+    // Hàm đóng Modal
+    function closePhoneModal() {
+        document.getElementById("forgotPasswordModal").style.display = "none";
+    }
+
+    // ----------------------------------------------------
+    // BƯỚC 1: XỬ LÝ GỬI EMAIL
+    // ----------------------------------------------------
+    function sendOTP() {
+        let emailInput = document.getElementById("resetEmail");
+        let emailValue = emailInput.value.trim();
+        
+        // Validate sơ bộ
+        if (emailValue === "") {
+            alert("Vui lòng nhập Email trước khi lấy mã!");
+            return;
+        }
+        
+        // === GIẢ LẬP GỌI API GỬI EMAIL THÀNH CÔNG ===
+        // 1. Đổi UI ô Email sang trạng thái thành công
+        document.getElementById("btnSendOtp").style.display = "none"; // Ẩn chữ Gửi OTP
+        document.getElementById("emailSuccessIcon").style.display = "block"; // Hiện tích xanh
+        document.getElementById("emailSuccessText").style.display = "block"; // Hiện text dưới
+        emailInput.classList.add("input-success");
+        emailInput.readOnly = true; // Khóa không cho sửa Email nữa
+
+        // 2. MỞ KHÓA Ô OTP cho phép nhập
+        let otpInput = document.getElementById("otpCode");
+        otpInput.disabled = false;
+        otpInput.focus(); // Nhảy con trỏ chuột xuống ô OTP luôn
+    }
+
+    // ----------------------------------------------------
+    // BƯỚC 2: XỬ LÝ NHẬP VÀ KIỂM TRA OTP
+    // ----------------------------------------------------
+    function checkOTP(value) {
+        // Chỉ kiểm tra khi user nhập đủ 6 số
+        if (value.length === 6) {
+            
+            // === GIẢ LẬP OTP ĐÚNG LÀ "123456" ===
+            // (Sau này bạn thay bằng AJAX gọi về Java Servlet để check nhé)
+            if (value === "123456") { 
+                
+                let otpInput = document.getElementById("otpCode");
+                
+                // 1. Đổi UI ô OTP sang trạng thái thành công
+                document.getElementById("otpSuccessIcon").style.display = "block";
+                document.getElementById("otpSuccessText").style.display = "block";
+                otpInput.classList.add("input-success");
+                otpInput.readOnly = true; // Khóa ô OTP lại
+
+                // 2. MỞ KHÓA Ô MẬT KHẨU MỚI & NÚT XÁC NHẬN
+                let pwdInput = document.getElementById("newPassword");
+                pwdInput.disabled = false;
+                pwdInput.focus();
+                
+                document.getElementById("btnSubmitReset").disabled = false;
+
+            } else {
+                alert("Mã OTP không chính xác. (Mẹo: Nhập thử 123456)");
+            }
+        }
+    }
+
+    // ----------------------------------------------------
+    // HÀM BỔ TRỢ: HIỆN/ẨN MẬT KHẨU
+    // ----------------------------------------------------
+    function togglePassword() {
+        let pwdInput = document.getElementById("newPassword");
+        let btnToggle = document.getElementById("btnTogglePwd");
+        
+        if (pwdInput.disabled) return; // Nếu ô pass đang khóa thì nút này không có tác dụng
+
+        if (pwdInput.type === "password") {
+            pwdInput.type = "text";
+            btnToggle.innerText = "Ẩn";
+        } else {
+            pwdInput.type = "password";
+            btnToggle.innerText = "Hiện";
+        }
+    }
+
+    // ----------------------------------------------------
+    // HÀM BỔ TRỢ: ĐẶT LẠI TRẠNG THÁI MODAL TỪ ĐẦU
+    // ----------------------------------------------------
+    function resetModalState() {
+        // Reset Email
+        let emailInput = document.getElementById("resetEmail");
+        emailInput.value = "";
+        emailInput.readOnly = false;
+        emailInput.classList.remove("input-success");
+        document.getElementById("btnSendOtp").style.display = "block";
+        document.getElementById("emailSuccessIcon").style.display = "none";
+        document.getElementById("emailSuccessText").style.display = "none";
+
+        // Reset OTP
+        let otpInput = document.getElementById("otpCode");
+        otpInput.value = "";
+        otpInput.disabled = true;
+        otpInput.readOnly = false;
+        otpInput.classList.remove("input-success");
+        document.getElementById("otpSuccessIcon").style.display = "none";
+        document.getElementById("otpSuccessText").style.display = "none";
+
+        // Reset Pass
+        let pwdInput = document.getElementById("newPassword");
+        pwdInput.value = "";
+        pwdInput.disabled = true;
+        pwdInput.type = "password";
+        document.getElementById("btnTogglePwd").innerText = "Hiện";
+
+        // Khóa nút submit
+        document.getElementById("btnSubmitReset").disabled = true;
+    }
     </script>
 
 </body>
