@@ -1,13 +1,12 @@
 package com.group2.bookstore.dal;
 
-import com.group2.bookstore.model.User;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.group2.bookstore.model.User;
 
 public class UserDAO extends DBContext {
     public User checkLogin(String username, String password) {
@@ -32,7 +31,6 @@ public class UserDAO extends DBContext {
                         rs.getString("fullname"),
                         rs.getInt("role"),
                         rs.getString("phone_number"),
-                        rs.getString("address"),
                         rs.getInt("status"));
                 return u;
             }
@@ -43,15 +41,14 @@ public class UserDAO extends DBContext {
     }
 
     public boolean updateUser(User user) {
-        String sql = "UPDATE Users SET fullname = ?, email = ?, phone_number = ?, address = ? WHERE user_id = ?";
+        String sql = "UPDATE Users SET fullname = ?, email = ?, phone_number = ? WHERE user_id = ?";
         try {
             // 2. Chuẩn bị câu lệnh
             PreparedStatement st = getConnection().prepareStatement(sql);
             st.setString(1, user.getFullname());
             st.setString(2, user.getEmail());
             st.setString(3, user.getPhone_number());
-            st.setString(4, user.getAddress());
-            st.setInt(5, user.getId());
+            st.setInt(4, user.getId());
 
             int rowsUpdated = st.executeUpdate();
 
@@ -81,10 +78,9 @@ public class UserDAO extends DBContext {
                         rs.getString("fullname"),
                         rs.getInt("role"),
                         rs.getString("phone_number"),
-                        rs.getString("address"),
                         rs.getInt("status"));
             }
-        } catch (Exception e) {
+} catch (Exception e) {
             System.out.println(e);
         }
         return null;
@@ -106,7 +102,6 @@ public class UserDAO extends DBContext {
                         rs.getString("fullname"),
                         rs.getInt("role"),
                         rs.getString("phone_number"),
-                        rs.getString("address"),
                         rs.getInt("status"));
             }
         } catch (Exception e) {
@@ -129,8 +124,8 @@ public class UserDAO extends DBContext {
             st.setString(3, user.getUsername());
             st.setString(4, user.getPassword());
             st.setString(5, user.getEmail());
-            st.setInt(6, user.getStatus());
-            st.setInt(7, 2);
+            st.setInt(6, 0);
+            st.setInt(7, 1);
 
             // 5. Thực thi câu lệnh (QUAN TRỌNG)
             int rowsAffected = st.executeUpdate();
@@ -155,29 +150,35 @@ public class UserDAO extends DBContext {
 
     // 1. GET ALL USERS (For Admin List)
     public List<User> getAllUsers() {
-        List<User> list = new ArrayList<>();
-        // Order by newest accounts first
-        String sql = "SELECT * FROM Users ORDER BY createAt DESC";
+    List<User> list = new ArrayList<>();
+    // Order by newest accounts first
+    String sql = "SELECT * FROM Users ORDER BY createAt DESC";
 
-        try (Connection conn = getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
+    try (Connection conn = getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery()) {
 
-            while (rs.next()) {
-                User u = new User();
-                u.setId(rs.getInt("user_id"));
-                u.setUsername(rs.getString("username"));
-                u.setFullname(rs.getString("fullname"));
-                u.setEmail(rs.getString("email"));
-                u.setPhone_number(rs.getString("phone_number"));
-                u.setAddress(rs.getString("address"));
-                u.setRole(rs.getInt("role"));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        while (rs.next()) {
+            User u = new User();
+            u.setId(rs.getInt("user_id"));
+            u.setUsername(rs.getString("username"));
+u.setFullname(rs.getString("fullname"));
+            u.setEmail(rs.getString("email"));
+            u.setPhone_number(rs.getString("phone_number"));
+            u.setRole(rs.getInt("role"));
+            
+            // --- YOU MUST ADD THESE TWO LINES ---
+            u.setStatus(rs.getInt("status")); 
+            u.setCreateAt(rs.getTimestamp("createAt")); // Use getTimestamp for datetime
+            // ------------------------------------
+            
+            list.add(u);
         }
-        return list;
+    } catch (Exception e) {
+        e.printStackTrace();
     }
+    return list;
+}
 
     // 2. UPDATE USER STATUS/ROLE
     public void updateUser(int userId, int newStatus, int newRole) {
@@ -196,7 +197,7 @@ public class UserDAO extends DBContext {
     public List<User> getAllCustomers() {
         List<User> list = new ArrayList<>();
         // Role 2 là khách hàng (dựa trên dữ liệu mẫu của bạn)
-        String sql = "SELECT * FROM Users WHERE role = 2";
+        String sql = "SELECT * FROM Users WHERE role = 0";
 
         try (Connection conn = getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql);
@@ -208,7 +209,6 @@ public class UserDAO extends DBContext {
                 u.setUsername(rs.getString("username"));
                 u.setEmail(rs.getString("email"));
                 u.setPhone_number(rs.getString("phone_number")); // Quan trọng để liên hệ
-                u.setAddress(rs.getString("address")); // Quan trọng để ship
                 u.setRole(rs.getInt("role"));
                 u.setStatus(rs.getInt("status")); // Để biết khách có bị khóa không
                 list.add(u);
@@ -223,7 +223,7 @@ public class UserDAO extends DBContext {
     public List<User> searchCustomers(String keyword) {
         List<User> list = new ArrayList<>();
         // Tìm theo tên hoặc SĐT, chỉ lấy khách hàng (role = 2)
-        String sql = "SELECT * FROM Users WHERE role = 2 AND (fullname LIKE ? OR phone_number LIKE ?)";
+        String sql = "SELECT * FROM Users WHERE role = 0 AND (fullname LIKE ? OR phone_number LIKE ?)";
 
         try (Connection conn = getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -234,10 +234,9 @@ public class UserDAO extends DBContext {
                 User u = new User();
                 u.setId(rs.getInt("user_id"));
                 u.setUsername(rs.getString("username"));
-                u.setFullname(rs.getString("fullname"));
+u.setFullname(rs.getString("fullname"));
                 u.setEmail(rs.getString("email"));
                 u.setPhone_number(rs.getString("phone_number"));
-                u.setAddress(rs.getString("address"));
                 u.setRole(rs.getInt("role"));
                 u.setStatus(rs.getInt("status"));
                 list.add(u);
@@ -280,9 +279,9 @@ public class UserDAO extends DBContext {
 
     // 4. ADD NEW USER
     public void addUser(User u) {
-        String sql = "INSERT INTO Users (username, password, fullname, email, phone_number, address, role, status, createAt) "
+        String sql = "INSERT INTO Users (username, password, fullname, email, phone_number, role, status, createAt) "
                 +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, 1, GETDATE())"; // Default Status=1 (Active)
+                "VALUES (?, ?, ?, ?, ?, ?, 1, GETDATE())"; // Default Status=1 (Active)
 
         try (Connection conn = getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -292,8 +291,7 @@ public class UserDAO extends DBContext {
             ps.setString(3, u.getFullname());
             ps.setString(4, u.getEmail());
             ps.setString(5, u.getPhone_number());
-            ps.setString(6, u.getAddress());
-            ps.setInt(7, u.getRole());
+            ps.setInt(6, u.getRole());
 
             ps.executeUpdate();
         } catch (Exception e) {
@@ -303,9 +301,6 @@ public class UserDAO extends DBContext {
 
     // --- V.I.P 1: CẬP NHẬT TRẠNG THÁI TÀI KHOẢN (KHÓA/MỞ) ---
     public void updateUserStatus(int userId, int newStatus) {
-        // Lưu ý: Kiểm tra xem tên bảng của bạn là 'Users' hay 'User' và cột ID là
-        // 'user_id' hay 'id' nhé.
-        // Dựa theo form mẫu của bạn thì thường là thế này:
         String sql = "UPDATE Users SET status = ? WHERE user_id = ?";
 
         try (Connection conn = getConnection();
