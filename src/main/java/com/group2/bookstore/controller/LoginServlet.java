@@ -106,7 +106,7 @@ public class LoginServlet extends HttpServlet {
                 response.sendRedirect("admin/dashboard");
             } 
             else if (role == 3) {
-                response.sendRedirect("dashboard"); // Trang quản lý đơn hàng
+                response.sendRedirect(request.getContextPath() + "/staff-dashboard");
 }
             else {
                 // Customer Role (Khách hàng) -> Về trang chủ
