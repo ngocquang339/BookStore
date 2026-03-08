@@ -97,7 +97,7 @@ public class LoginServlet extends HttpServlet {
             // 3. Phân quyền và Chuyển hướng (Redirect based on Role)
             int role = account.getRole();
 
-            if (role == 4) {
+            if (role == 2) {
                 // Warehouse Role (Thủ kho)
                 response.sendRedirect("warehouse/dashboard");
             } 

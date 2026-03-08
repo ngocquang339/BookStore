@@ -14,42 +14,80 @@ public class SupplierDAO extends DBContext {
         List<Supplier> list = new ArrayList<>();
         String sql = "SELECT * FROM Suppliers WHERE is_active = 1 ORDER BY supplier_id DESC";
         try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(new Supplier(
-                    rs.getInt("supplier_id"),
-                    rs.getString("supplier_name"),
-                    rs.getString("contact_person"),
-                    rs.getString("phone"),
-                    rs.getString("email"),
-                    rs.getString("address"),
-                    rs.getBoolean("is_active")
-                ));
+                        rs.getInt("supplier_id"),
+                        rs.getString("supplier_name"),
+                        rs.getString("contact_person"),
+                        rs.getString("phone"),
+                        rs.getString("email"),
+                        rs.getString("address"),
+                        rs.getBoolean("is_active")));
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return list;
     }
 
-    // 2. Create: Thêm mới
-    public void addSupplier(Supplier s) {
+    // Lấy danh sách nhà cung cấp đã bị xóa mềm
+    public List<Supplier> getDeletedSuppliers() {
+        List<Supplier> list = new ArrayList<>();
+        String sql = "SELECT * FROM Suppliers WHERE is_active = 0 ORDER BY supplier_id DESC";
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(new Supplier(
+                        rs.getInt("supplier_id"),
+                        rs.getString("supplier_name"),
+                        rs.getString("contact_person"),
+                        rs.getString("phone"),
+                        rs.getString("email"),
+                        rs.getString("address"),
+                        rs.getBoolean("is_active")));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // Khôi phục nhà cung cấp
+    public void restoreSupplier(int id) throws Exception {
+        String sql = "UPDATE Suppliers SET is_active = 1 WHERE supplier_id=?";
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        } catch (java.sql.SQLException e) {
+            throw new Exception("Lỗi DB: " + e.getMessage());
+        }
+    }
+
+    public void addSupplier(Supplier s) throws Exception {
         String sql = "INSERT INTO Suppliers (supplier_name, contact_person, phone, email, address, is_active) VALUES (?, ?, ?, ?, ?, 1)";
         try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, s.getName());
             ps.setString(2, s.getContactPerson());
             ps.setString(3, s.getPhone());
             ps.setString(4, s.getEmail());
             ps.setString(5, s.getAddress());
             ps.executeUpdate();
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (java.sql.SQLException e) {
+            if (e.getErrorCode() == 2627)
+                throw new Exception("Lỗi: Số điện thoại hoặc Email đã tồn tại!");
+            throw new Exception("Lỗi DB: " + e.getMessage());
+        }
     }
 
-    // 3. Update: Sửa thông tin
-    public void updateSupplier(Supplier s) {
+    public void updateSupplier(Supplier s) throws Exception {
         String sql = "UPDATE Suppliers SET supplier_name=?, contact_person=?, phone=?, email=?, address=? WHERE supplier_id=?";
         try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, s.getName());
             ps.setString(2, s.getContactPerson());
             ps.setString(3, s.getPhone());
@@ -57,16 +95,21 @@ public class SupplierDAO extends DBContext {
             ps.setString(5, s.getAddress());
             ps.setInt(6, s.getId());
             ps.executeUpdate();
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (java.sql.SQLException e) {
+            if (e.getErrorCode() == 2627)
+                throw new Exception("Lỗi: Số điện thoại hoặc Email đã tồn tại!");
+            throw new Exception("Lỗi DB: " + e.getMessage());
+        }
     }
 
-    // 4. Delete: Xóa mềm (set is_active = 0)
-    public void deleteSupplier(int id) {
+    public void deleteSupplier(int id) throws Exception {
         String sql = "UPDATE Suppliers SET is_active = 0 WHERE supplier_id=?";
         try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
             ps.executeUpdate();
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (java.sql.SQLException e) {
+            throw new Exception("Lỗi DB: " + e.getMessage());
+        }
     }
 }

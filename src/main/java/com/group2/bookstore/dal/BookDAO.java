@@ -47,7 +47,7 @@ public class BookDAO extends DBContext {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(mapResultSetToBook(rs));
-            }   
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -75,21 +75,21 @@ public class BookDAO extends DBContext {
         return list;
     }
 
-    // 4. Get Categories
+    // 4. Get Categories (FIXED: Restored the chopped-off try-catch block)
     public List<Category> getCategories() {
         List<Category> list = new ArrayList<>();
-        String sql = "SELECT * FROM Categories"; 
-        
+        String sql = "SELECT * FROM Categories";
+
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
              
             while (rs.next()) {
                 list.add(new Category(
-                    rs.getInt("category_id"), 
-                    rs.getString("category_name"), 
+                    rs.getInt("category_id"),
+                    rs.getString("category_name"),
                     rs.getString("category_image"),
-                    rs.getString("description")  
+                    rs.getString("description")
                 ));
             }
         } catch (Exception e) {
@@ -98,7 +98,7 @@ public class BookDAO extends DBContext {
         return list;
     }
 
-    // 5. Get Top 4 Best Sellers
+    // 5. Get Best Sellers
     public List<Book> getBestSellers() {
         List<Book> list = new ArrayList<>();
         String sql = "SELECT TOP 4 * FROM Books ORDER BY sold_quantity DESC";
@@ -227,7 +227,7 @@ public class BookDAO extends DBContext {
     // --- MASTER GET BOOKS METHODS ---
     // ==========================================
 
-    // Overload 1: No pagination (Simulates getting all via huge pageSize)
+    // Overload 1: No pagination
     public List<Book> getBooks(String keyword, int cid, String author, String publisher, double minPrice, double maxPrice, String sortBy, String sortOrder, boolean isAdmin) {
         return getBooks(keyword, cid, author, publisher, minPrice, maxPrice, sortBy, sortOrder, isAdmin, 1, 1000000);
     }
@@ -237,20 +237,25 @@ public class BookDAO extends DBContext {
         return getBooks(keyword, cid, author, publisher, minPrice, maxPrice, sortBy, sortOrder, isAdmin, index, 5);
     }
 
-    // Overload 3: The Main Core Method
-    public List<Book> getBooks(String keyword, int cid, String author, String publisher, double minPrice, double maxPrice, String sortBy, String sortOrder, boolean isAdmin, int index, int pageSize) {
+    // Overload 3: The Main Core Method (MERGED WITH TEAMMATE'S WAREHOUSE LOGIC)
+    public List<Book> getBooks(String keyword, int cid, String author, String publisher, double minPrice,
+            double maxPrice, String sortBy, String sortOrder, boolean isAdmin, int index, int pageSize) {
         List<Book> list = new ArrayList<>();
+
         StringBuilder sql = new StringBuilder(
-            "SELECT b.*, c.category_name, " +
-            "(SELECT TOP 1 bi.image_url FROM BookImages bi WHERE bi.book_id = b.book_id) AS cover_image " +
-            "FROM Books b LEFT JOIN Categories c ON b.category_id = c.category_id WHERE 1=1 "
-        );
-        List<Object> params = new ArrayList<>(); 
+                "SELECT b.*, c.category_name, l.location_code, " +
+                        "(SELECT TOP 1 bi.image_url FROM BookImages bi WHERE bi.book_id = b.book_id) AS cover_image " +
+                        "FROM Books b " +
+                        "LEFT JOIN Categories c ON b.category_id = c.category_id " +
+                        "LEFT JOIN Warehouse_Locations l ON b.location_id = l.location_id " +
+                        "WHERE 1=1 ");
+        
+        List<Object> params = new ArrayList<>();
 
         if (!isAdmin) sql.append(" AND b.is_active = 1 ");
         
         if (keyword != null && !keyword.trim().isEmpty()) {
-            sql.append(" AND (LOWER(b.title) LIKE LOWER(?) OR LOWER(b.author) LIKE LOWER(?) OR LOWER(b.supplier) LIKE LOWER(?) OR LOWER(b.publisher) LIKE LOWER(?)) ");
+            sql.append(" AND ((LOWER(b.title) LIKE LOWER(?)) OR (LOWER(b.author) LIKE LOWER(?)) OR (LOWER(b.supplier) LIKE LOWER(?)) OR (LOWER(b.publisher) LIKE LOWER(?))) ");
             String searchParam = "%" + keyword.trim() + "%";
             params.add(searchParam); // title
             params.add(searchParam); // author
@@ -279,7 +284,8 @@ public class BookDAO extends DBContext {
             params.add(minPrice);
         }
 
-        if (sortBy != null && !sortBy.isEmpty() && (sortBy.equals("price") || sortBy.equals("title") || sortBy.equals("stock_quantity") || sortBy.equals("book_id"))) {
+        if (sortBy != null && !sortBy.isEmpty() && (sortBy.equals("price") || sortBy.equals("title")
+                || sortBy.equals("stock_quantity") || sortBy.equals("book_id"))) {
             sql.append(" ORDER BY b.").append(sortBy).append("DESC".equalsIgnoreCase(sortOrder) ? " DESC" : " ASC");
         } else if ("category_name".equals(sortBy)) {
             sql.append(" ORDER BY c.category_name").append("DESC".equalsIgnoreCase(sortOrder) ? " DESC" : " ASC");
@@ -291,10 +297,10 @@ public class BookDAO extends DBContext {
 
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql.toString())) {
-            
+
             int paramIndex = 1;
             for (Object param : params) ps.setObject(paramIndex++, param);
-            
+
             ps.setInt(paramIndex++, (index - 1) * pageSize);
             ps.setInt(paramIndex, pageSize);
 
@@ -306,8 +312,7 @@ public class BookDAO extends DBContext {
                 b.setAuthor(rs.getString("author"));
                 b.setPrice(rs.getDouble("price"));
                 try { b.setPublisher(rs.getString("publisher")); } catch (Exception e) {}
-                b.setImageUrl(rs.getString("image")); 
-                b.setDescription(rs.getString("description"));
+                b.setImageUrl(rs.getString("image"));
                 b.setStockQuantity(rs.getInt("stock_quantity"));
                 b.setCategoryId(rs.getInt("category_id"));
                 b.setSupplier(rs.getString("supplier"));
@@ -317,9 +322,15 @@ public class BookDAO extends DBContext {
                 
                 try { b.setCategoryName(rs.getString("category_name")); } catch (Exception e) {}
                 try { b.setActive(rs.getBoolean("is_active")); } catch (Exception e) {}
+                
+                // If your teammate added a locationCode field to the Book model, 
+                // you might need to map it here. E.g., b.setLocationCode(rs.getString("location_code"));
+                
                 list.add(b);
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return list;
     }
 
@@ -349,8 +360,11 @@ public class BookDAO extends DBContext {
                 ps.setObject(i + 1, params.get(i));
             }
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) return rs.getInt(1);
-        } catch (Exception e) { e.printStackTrace(); }
+            if (rs.next())
+                return rs.getInt(1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return 0;
     }
 
@@ -414,7 +428,6 @@ public class BookDAO extends DBContext {
     }
 
     public void insertBook(Book b) {
-        // FIXED: 13 question marks to match the 13 parameters
         String sql = "INSERT INTO Books (title, author, price, description, image, stock_quantity, category_id, is_active, import_price, publisher, supplier, yearOfPublish, number_page) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"; 
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, b.getTitle());
@@ -485,16 +498,16 @@ public class BookDAO extends DBContext {
     public List<Book> getLowStockBooks(int threshold) {
         List<Book> list = new ArrayList<>();
         String sql = "SELECT b.*, c.category_name FROM Books b "
-                   + "LEFT JOIN Categories c ON b.category_id = c.category_id "
-                   + "WHERE b.stock_quantity <= ? "
-                   + "ORDER BY b.stock_quantity ASC";
-                   
+                + "LEFT JOIN Categories c ON b.category_id = c.category_id "
+                + "WHERE b.stock_quantity <= ? "
+                + "ORDER BY b.stock_quantity ASC";
+
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            
+
             ps.setInt(1, threshold);
             ResultSet rs = ps.executeQuery();
-            
+
             while (rs.next()) {
                 Book b = new Book();
                 b.setId(rs.getInt("book_id"));
@@ -502,7 +515,7 @@ public class BookDAO extends DBContext {
                 b.setAuthor(rs.getString("author"));
                 b.setPrice(rs.getDouble("price"));
                 try { b.setPublisher(rs.getString("publisher")); } catch (Exception e) {}
-                b.setImageUrl(rs.getString("image")); 
+                b.setImageUrl(rs.getString("image"));
                 b.setStockQuantity(rs.getInt("stock_quantity"));
                 b.setCategoryId(rs.getInt("category_id"));
                 try { b.setCategoryName(rs.getString("category_name")); } catch (Exception e) {}

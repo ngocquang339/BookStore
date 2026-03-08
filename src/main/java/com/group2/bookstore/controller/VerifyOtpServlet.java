@@ -19,7 +19,7 @@ public class VerifyOtpServlet extends HttpServlet {
         HttpSession session = request.getSession();
         
         // 1. Lấy mã người dùng nhập và mã trong Session
-        String userOtp = request.getParameter("userOtp");
+        String userOtp = request.getParameter("Userotp");
         String serverOtp = (String) session.getAttribute("otp");
         User tempUser = (User) session.getAttribute("tempUser");
         String tempEmail = (String) session.getAttribute("tempEmail");

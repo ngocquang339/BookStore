@@ -12,7 +12,6 @@ public class User implements Serializable {
     private String email;
     private String fullname;
     private String phone_number;
-    private String address;
     private int role;           // 1=Admin, 2=Customer, 3=Warehouse
     
     // NEW FIELDS added to match Database
@@ -22,7 +21,7 @@ public class User implements Serializable {
     public User() {
     }
 
-    public User(int id, String username, String password, String email, String fullname, int role, String phone_number, String address, int status) {
+    public User(int id, String username, String password, String email, String fullname, int role, String phone_number, int status) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -30,7 +29,6 @@ public class User implements Serializable {
         this.fullname = fullname;
         this.role = role;
         this.phone_number = phone_number;
-        this.address = address;
         this.status = status;
     }
 
@@ -64,8 +62,6 @@ public class User implements Serializable {
     public String getPhone_number() { return phone_number; }
     public void setPhone_number(String phone_number) { this.phone_number = phone_number; }
 
-    public String getAddress() { return address; }
-    public void setAddress(String address) { this.address = address; }
 
     // New Getters/Setters
     public int getStatus() { return status; }
