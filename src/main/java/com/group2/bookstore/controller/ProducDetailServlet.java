@@ -46,7 +46,7 @@ public class ProducDetailServlet extends HttpServlet{
             // 3. Get Related Books (Same Category)
             List<Book> relatedBooks = dao.getRelatedBooks(book.getCategoryId(), id);
             List<Book> bookSameAuthor = dao.getBookByAuthor(book.getAuthor());
-            List<Book> suggestedBooks = dao.getRandomBook(2, 50);
+            List<Book> suggestedBooks = dao.getRandomBook(2, 20);
             List<Review> listReviews = reviewDAO.getReviewsByBookId(id);
 
             // 4. Send data to JSP

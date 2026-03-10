@@ -13,8 +13,8 @@ import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 import com.group2.bookstore.dal.BookDAO;
-@WebServlet(name = "SuggestBookServlet", urlPatterns = { "/suggest-book" })
-public class SuggestBookServlet extends HttpServlet {
+@WebServlet(name = "FlashSaleServlet", urlPatterns = { "/flash-sale" })
+public class FlashSaleServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         BookDAO dao = new BookDAO();
@@ -25,11 +25,11 @@ public class SuggestBookServlet extends HttpServlet {
                 roleId = currentUser.getRole();
             }
         // Gọi 50 cuốn sách ra để làm trang "Xem tất cả"
-        List<Book> allSuggestedBooks = dao.getRandomBook(roleId, 300); 
+        List<Book> allSuggestedBooks = dao.getRandomBook(roleId, 100); 
         
         // Đẩy dữ liệu sang file JSP mới
         request.setAttribute("allSuggestedBooks", allSuggestedBooks);
-        request.getRequestDispatcher("view/suggest.jsp").forward(request, response);
+        request.getRequestDispatcher("view/FlashSale.jsp").forward(request, response);
     }
 
    

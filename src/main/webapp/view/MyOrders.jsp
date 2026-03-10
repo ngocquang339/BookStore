@@ -305,22 +305,35 @@
                                                 </c:choose>
                                             </div>
                                             
-                                            <div class="order-actions">
-                                                <%-- CHỈ HIỂN THỊ NÚT HỦY KHI ĐƠN ĐANG CHỜ THANH TOÁN HOẶC ĐANG XỬ LÝ (Tùy logic doanh nghiệp của bạn) --%>
+                                            <div class="order-actions text-end mt-3">
                                                 <c:choose>
+                                                    <%-- TRƯỜNG HỢP 1: ĐƠN ĐANG CHỜ / ĐANG XỬ LÝ -> CHO PHÉP HỦY --%>
                                                     <c:when test="${order.status == 1 || order.status == 2}">
                                                         <form action="${pageContext.request.contextPath}/my-orders" method="POST" style="display:inline;">
                                                             <input type="hidden" name="action" value="cancel">
                                                             <input type="hidden" name="orderId" value="${order.id}">
                                                             <button type="submit" class="btn btn-outline-danger" style="padding: 8px 20px; font-size: 14px;" onclick="return confirm('Bạn chắc chắn muốn hủy đơn hàng này?');">Hủy đơn</button>
                                                         </form>
+                                                        <button class="btn btn-buy-again ms-2" style="padding: 8px 20px; font-size: 14px;">Mua lại</button>
                                                     </c:when>
+
+                                                    <%-- TRƯỜNG HỢP 2: ĐƠN ĐÃ GIAO (Hoàn tất) -> CHO PHÉP TRẢ HÀNG & MUA LẠI --%>
+                                                    <c:when test="${order.status == 4}">
+                                                        <button type="button" class="btn btn-outline-warning" 
+                                                                style="padding: 8px 20px; font-size: 14px; border-color: #f39c12; color: #e67e22;"
+                                                                data-bs-toggle="modal" 
+                                                                data-bs-target="#returnOrderModal"
+                                                                onclick="openReturnModal(${order.id})">
+                                                            Trả hàng / Hoàn tiền
+                                                        </button>
+                                                        <button class="btn btn-buy-again ms-2" style="padding: 8px 20px; font-size: 14px;">Mua lại</button>
+                                                    </c:when>
+
+                                                    <%-- TRƯỜNG HỢP 3: CÁC TRẠNG THÁI CÒN LẠI (Đang giao, Đã hủy) -> CHỈ CHO MUA LẠI --%>
                                                     <c:otherwise>
-                                                        <button class="btn btn-cancel-disabled" disabled>Hủy đơn</button>
+                                                        <button class="btn btn-buy-again" style="padding: 8px 20px; font-size: 14px;">Mua lại</button>
                                                     </c:otherwise>
                                                 </c:choose>
-                                                
-                                                <button class="btn btn-buy-again">Mua lại</button>
                                             </div>
                                         </div>
                                     </div>
@@ -334,6 +347,73 @@
         </div> 
     </div> 
 
+    <div class="modal fade" id="returnOrderModal" tabindex="-1" aria-labelledby="returnOrderModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius: 10px;">
+      
+      <div class="modal-header border-bottom-0 pb-0 mt-2">
+        <h5 class="modal-title fw-bold" style="color: #e67e22;" id="returnOrderModalLabel">
+            <i class="fa-solid fa-box-open me-2"></i> YÊU CẦU TRẢ HÀNG / HOÀN TIỀN
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <form action="${pageContext.request.contextPath}/return-order" method="POST">
+        <div class="modal-body px-4">
+          
+          <input type="hidden" name="orderId" id="modal_returnOrderId" value="">
+
+          <p class="fw-bold text-dark mb-3">Vui lòng chọn lý do trả hàng: <span class="text-danger">*</span></p>
+
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="radio" name="returnReason" id="reason1" value="Sản phẩm bị lỗi, trầy xước hoặc hư hỏng" required style="cursor: pointer;">
+            <label class="form-check-label" for="reason1" style="cursor: pointer;">Sản phẩm bị lỗi, trầy xước hoặc hư hỏng</label>
+          </div>
+          
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="radio" name="returnReason" id="reason2" value="Giao sai sản phẩm (sai tựa sách, sai tập...)" style="cursor: pointer;">
+            <label class="form-check-label" for="reason2" style="cursor: pointer;">Giao sai sản phẩm (sai tựa sách, sai tập...)</label>
+          </div>
+          
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="radio" name="returnReason" id="reason3" value="Sản phẩm không giống với mô tả" style="cursor: pointer;">
+            <label class="form-check-label" for="reason3" style="cursor: pointer;">Sản phẩm không giống với mô tả</label>
+          </div>
+          
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="radio" name="returnReason" id="reason4" value="Thiếu phụ kiện, quà tặng kèm" style="cursor: pointer;">
+            <label class="form-check-label" for="reason4" style="cursor: pointer;">Thiếu phụ kiện, quà tặng kèm</label>
+          </div>
+          
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="radio" name="returnReason" id="reason5" value="Lý do khác" style="cursor: pointer;">
+            <label class="form-check-label" for="reason5" style="cursor: pointer;">Lý do khác</label>
+          </div>
+
+          <div class="mb-2 mt-3">
+              <label for="returnNote" class="form-label text-muted small fw-bold">Chi tiết thêm (Bắt buộc/Tùy chọn):</label>
+              <textarea class="form-control bg-light" id="returnNote" name="returnNote" rows="3" placeholder="Vui lòng cung cấp thêm chi tiết về tình trạng sản phẩm để shop hỗ trợ nhanh nhất..."></textarea>
+          </div>
+
+        </div>
+        
+        <div class="modal-footer border-top-0 pt-0 pb-4 px-4 d-flex justify-content-end gap-2">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal" style="border: 1px solid #ccc; font-weight: 500;">Hủy bỏ</button>
+          <button type="submit" class="btn text-white fw-bold" style="background-color: #e67e22;">Gửi Yêu Cầu</button>
+        </div>
+      </form>
+      
+    </div>
+  </div>
+</div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Hàm này được gọi khi khách bấm nút "Trả hàng / Hoàn tiền" ở từng đơn hàng
+        function openReturnModal(orderId) {
+            // Tìm cái thẻ input ẩn trong Modal và gán ID đơn hàng vào đó
+            document.getElementById('modal_returnOrderId').value = orderId;
+        }
+    </script>
 </body>
 </html>

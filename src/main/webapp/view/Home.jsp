@@ -228,7 +228,7 @@
                                 </div>
                             </div>
                         </div>
-                        <a href="#" class="fs-view-all">Xem tất cả <i class="fa-solid fa-chevron-right"></i></a>
+                        <a href="${pageContext.request.contextPath}/flash-sale" class="fs-view-all">Xem tất cả <i class="fa-solid fa-chevron-right"></i></a>
                     </div>
 
                     <div class="fs-body">
