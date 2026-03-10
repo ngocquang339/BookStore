@@ -33,23 +33,29 @@
             <span style="margin-left: 30px;">Hồ sơ cá nhân</span>
         </a>
 
-        <a href="#" class="menu-item"> <span style="margin-left: 30px;">Sổ địa chỉ</span>
+        <a href="${pageContext.request.contextPath}/address" 
+           class="menu-item <%= currentPath.contains("address") ? "active" : "" %>"> 
+            <span style="margin-left: 30px;">Sổ địa chỉ</span>
         </a>
 
         <a href="${pageContext.request.contextPath}/change-password" 
-           class="menu-item <%= currentPath.contains("changePassword") || currentPath.contains("change-password") ? "active" : "" %>">
+           class="menu-item <%= currentPath.contains("ChangePassword") || currentPath.contains("change-password") ? "active" : "" %>">
             <span style="margin-left: 30px;">Đổi mật khẩu</span>
         </a>
 
         <hr style="margin: 10px 0; border-top: 1px solid #eee;">
 
-        <a href="${pageContext.request.contextPath}/orders" 
-           class="menu-item <%= currentPath.contains("Order") || currentPath.contains("orders") ? "active" : "" %>">
+        <a href="${pageContext.request.contextPath}/my-orders" 
+        class="menu-item <%= currentPath.toLowerCase().contains("order") ? "active" : "" %>">
             <i class="fa-solid fa-receipt"></i> Đơn hàng của tôi
         </a>
         
-        <a href="#" class="menu-item">
+        <a href="${pageContext.request.contextPath}/user/voucher-wallet" class="menu-item">
             <i class="fa-solid fa-ticket"></i> Ví Voucher <span style="background:red; color:white; font-size:10px; padding: 2px 5px; border-radius:10px; margin-left:5px;">18</span>
+        </a>
+
+        <a href="${pageContext.request.contextPath}/my-collections" class="menu-item">
+            <i class="fa-solid fa-ticket"></i> Bộ sưu tập của tôi <span style="background:red; color:white; font-size:10px; padding: 2px 5px; border-radius:10px; margin-left:5px;">18</span>
         </a>
 
         <a href="${pageContext.request.contextPath}/logout" class="menu-item" style="color: #666;">

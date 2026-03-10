@@ -53,7 +53,7 @@ public class HomeServlet extends HttpServlet {
         else {
             List<Book> newArrivals = dao.getNewArrivals(); 
             List<Book> bestSellers = dao.getBestSellers();
-            List<Book> suggestedBooks = dao.getRandomBook(2, 50); 
+            List<Book> suggestedBooks = dao.getRandomBook(roleId, 20); 
             List<Book> randomBooks = dao.getRandomBook(roleId, 10);
             List<Book> flashSaleBooks = dao.getRandomBook(roleId, 10);
             List<Category> listCategories = cateDAO.getCategories();

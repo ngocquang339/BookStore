@@ -33,8 +33,21 @@ public class InventoryServlet extends HttpServlet {
             try { cid = Integer.parseInt(categoryIdStr); } catch (Exception e) {}
         }
 
+        // =========================================================
+        // 1. GỌI DAO LẤY DANH SÁCH (Từ nhánh main)
+        // =========================================================
         // ĐÃ SỬA: Truyền biến cid vào hàm thay vì số 0
-        List<Book> list = dao.getBooks(keyword, cid, author, publisher, 0, 999999999, "book_id", "DESC",true);
+        List<Book> list = dao.getBooks(keyword, cid, author, publisher, 0, 999999999, "book_id", "DESC", true);
+
+        // =========================================================
+        // 2. GIỮ LẠI TRẠNG THÁI TÌM KIẾM TRÊN FORM (Từ nhánh của bạn)
+        // =========================================================
+        // Đã sửa biến 'search' thành 'keyword' cho đúng với khai báo ở trên
+        request.setAttribute("paramSearch", keyword); 
+        request.setAttribute("paramCid", cid);
+        request.setAttribute("paramAuthor", author);
+        request.setAttribute("paramPublisher", publisher);
+        // request.setAttribute("paramPrice", priceRange); // Tạm comment vì trang kho này chưa làm bộ lọc khoảng giá
 
         // Truyền data sang JSP
         request.setAttribute("listC", cDao.getAllCategories()); // Thêm list Thể loại

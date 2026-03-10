@@ -1,5 +1,6 @@
 package com.group2.bookstore.model;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,6 +8,8 @@ import java.util.List;
 public class Order {
 
     private int id;
+    private int voucher_id; 
+    private BigDecimal discount_amount = BigDecimal.ZERO;
     private int userId;
     private Timestamp orderDate; // Use Timestamp for exact date & time
     private double totalAmount;
@@ -40,6 +43,14 @@ public class Order {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public int getVoucher_id() { 
+        return voucher_id; 
+    }
+
+    public void setVoucher_id(int voucher_id) { 
+        this.voucher_id = voucher_id;
     }
 
     public int getUserId() {
@@ -104,6 +115,14 @@ public class Order {
 
     public void setDetails(List<OrderDetail> details) {
         this.details = details;
+    }
+
+    public BigDecimal getDiscountAmount() {
+        return discount_amount;
+    }
+
+    public void setDiscountAmount(BigDecimal discountAmount) {
+        this.discount_amount = discountAmount;
     }
 
     public String getStatusNote() {

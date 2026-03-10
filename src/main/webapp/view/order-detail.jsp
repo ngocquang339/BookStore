@@ -67,7 +67,7 @@
         <tr>
             <td>
                 <div class="d-flex align-items-center">
-                    <img src="${pageContext.request.contextPath}/assets/image/books/${item.book.imageUrl}" 
+                    <img src="${pageContext.request.contextPath}/${item.book.imageUrl}" 
                          class="book-img me-3 border" 
                          alt="${item.book.title}"
                          onerror="this.src='https://placehold.co/60x80?text=No+Image'"

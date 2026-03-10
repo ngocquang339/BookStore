@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.group2.bookstore.model.Book;
 import com.group2.bookstore.model.BookImage;
+import com.group2.bookstore.model.CartItem;
 import com.group2.bookstore.model.Category;
 
 public class BookDAO extends DBContext {
@@ -548,5 +549,34 @@ public class BookDAO extends DBContext {
         try { b.setImportPrice(rs.getDouble("import_price")); } catch (SQLException e) {}
 
         return b;
+    }
+
+    // Hàm dùng riêng cho việc thanh toán (Trừ kho hoặc Hoàn kho)
+    public void updateStockForCheckout(List<CartItem> cart, boolean isRestore) {
+        // Nếu isRestore = true -> Cộng lại kho (Khách hủy đơn)
+        // Nếu isRestore = false -> Trừ kho (Khách đang thanh toán)
+        String sql = isRestore 
+                ? "UPDATE Books SET stock_quantity = stock_quantity + ? WHERE book_id = ?"
+                : "UPDATE Books SET stock_quantity = stock_quantity - ? WHERE book_id = ?";
+
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement st = conn.prepareStatement(sql)) {
+            
+            // Tắt auto commit để chạy Transaction (Đảm bảo an toàn dữ liệu)
+            conn.setAutoCommit(false); 
+
+            for (CartItem item : cart) {
+                st.setInt(1, item.getQuantity()); // Lấy số lượng khách mua
+                st.setInt(2, item.getBook().getId()); // ID của cuốn sách
+                st.addBatch(); // Thêm vào hàng đợi
+            }
+
+            st.executeBatch(); // Thực thi một loạt các lệnh Update cùng lúc
+            conn.commit();     // Xác nhận lưu vào Database
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Lý tưởng nhất là log lỗi ở đây để theo dõi
+        }
     }
 }
