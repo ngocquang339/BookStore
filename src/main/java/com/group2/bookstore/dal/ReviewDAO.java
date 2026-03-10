@@ -59,7 +59,8 @@ public class ReviewDAO extends DBContext {
     public List<Review> getReviewsByStar(int starValue) {
         List<Review> list = new ArrayList<>();
 
-        // Cấu trúc SQL đã được fix chuẩn tên bảng (Review) và khóa ngoại (user_id, book_id)
+        // Cấu trúc SQL đã được fix chuẩn tên bảng (Review) và khóa ngoại (user_id,
+        // book_id)
         String sql = "SELECT r.review_id, r.user_id, r.book_id, r.rating, r.comment, r.create_at, r.staff_reply, " +
                 "u.username, u.email, b.title AS book_title " +
                 "FROM Review r " +
@@ -168,6 +169,84 @@ public class ReviewDAO extends DBContext {
                 }
 
                 list.add(r);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // 1. HÀM MỚI: Lấy danh sách các cuốn sách đã có đánh giá (để đưa lên thanh lọc)
+    public List<Review> getDistinctReviewedBooks() {
+        List<Review> list = new ArrayList<>();
+        // Dùng DISTINCT để lấy ra các sách không bị trùng lặp
+        String sql = "SELECT DISTINCT r.book_id, b.title AS book_title " +
+                "FROM Review r JOIN Books b ON r.book_id = b.book_id " +
+                "ORDER BY b.title ASC";
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Review r = new Review();
+                r.setBookId(rs.getInt("book_id"));
+                r.setBookTitle(rs.getString("book_title"));
+                list.add(r);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // 2. SỬA HÀM CŨ: Đổi tên thành getFilteredReviews và nhận thêm tham số bookId
+    public List<Review> getFilteredReviews(int starValue, int bookId) {
+        List<Review> list = new ArrayList<>();
+
+        // Dùng Trick "WHERE 1=1" để dễ dàng cộng chuỗi điều kiện
+        StringBuilder sql = new StringBuilder(
+                "SELECT r.review_id, r.user_id, r.book_id, r.rating, r.comment, r.create_at, r.staff_reply, " +
+                        "u.username, u.email, b.title AS book_title " +
+                        "FROM Review r " +
+                        "JOIN Users u ON r.user_id = u.user_id " +
+                        "JOIN Books b ON r.book_id = b.book_id " +
+                        "WHERE 1=1 ");
+
+        // Lọc theo Sao
+        if (starValue >= 1 && starValue <= 5) {
+            sql.append(" AND r.rating = ? ");
+        }
+        // Lọc theo Sách
+        if (bookId > 0) {
+            sql.append(" AND r.book_id = ? ");
+        }
+        sql.append(" ORDER BY r.create_at DESC");
+
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+
+            int paramIndex = 1; // Biến đếm vị trí dấu ?
+            if (starValue >= 1 && starValue <= 5) {
+                ps.setInt(paramIndex++, starValue);
+            }
+            if (bookId > 0) {
+                ps.setInt(paramIndex++, bookId);
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Review r = new Review();
+                    r.setReviewId(rs.getInt("review_id"));
+                    r.setUserId(rs.getInt("user_id"));
+                    r.setBookId(rs.getInt("book_id"));
+                    r.setRating(rs.getInt("rating"));
+                    r.setComment(rs.getString("comment"));
+                    r.setCreateAt(rs.getDate("create_at"));
+                    r.setUsername(rs.getString("username"));
+                    r.setEmail(rs.getString("email"));
+                    r.setBookTitle(rs.getString("book_title"));
+                    r.setStaffReply(rs.getString("staff_reply"));
+                    list.add(r);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

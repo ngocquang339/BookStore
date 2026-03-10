@@ -71,26 +71,38 @@
 
                 <div class="card shadow-sm border-0">
                     <div class="card-body p-4">
-                        <div class="row mb-4 bg-light p-3 rounded-3 align-items-center mx-0">
-                            <div class="col-auto">
-                                <strong class="text-dark"><i class="fa-solid fa-filter me-2 brand-color"></i>Lọc theo
-                                    sao:</strong>
-                            </div>
-                            <div class="col-md-4 col-sm-6">
-                                <form action="${pageContext.request.contextPath}/staff/reviews" method="get"
-                                    class="d-flex gap-2">
-                                    <select name="star" class="form-select form-select-sm shadow-none border-secondary">
-                                        <option value="">-- Tất cả số sao --</option>
-                                        <option value="5" ${selectedStar=='5' ? 'selected' : '' }>⭐⭐⭐⭐⭐ (5 Sao)</option>
-                                        <option value="4" ${selectedStar=='4' ? 'selected' : '' }>⭐⭐⭐⭐ (4 Sao)</option>
-                                        <option value="3" ${selectedStar=='3' ? 'selected' : '' }>⭐⭐⭐ (3 Sao)</option>
-                                        <option value="2" ${selectedStar=='2' ? 'selected' : '' }>⭐⭐ (2 Sao)</option>
-                                        <option value="1" ${selectedStar=='1' ? 'selected' : '' }>⭐ (1 Sao - Cần xử lý)
+                        <div class="row mb-4 bg-dark p-3 rounded-3 align-items-center mx-0 border border-secondary">
+                            <form action="${pageContext.request.contextPath}/staff/reviews" method="get"
+                                class="d-flex align-items-center gap-3 w-100 m-0 p-0">
+                                <div class="fw-bold text-danger" style="white-space: nowrap;"><i
+                                        class="fa-solid fa-filter me-2"></i>Bộ lọc:</div>
+
+                                <select name="bookId"
+                                    class="form-select bg-dark text-light border-secondary shadow-none"
+                                    style="max-width: 400px;" onchange="this.form.submit()">
+                                    <option value="all">-- Tất cả sản phẩm --</option>
+                                    <c:forEach items="${listBooks}" var="b">
+                                        <option value="${b.bookId}" ${selectedBook==b.bookId ? 'selected' : '' }>
+                                            <c:out value="${b.bookTitle}" />
                                         </option>
-                                    </select>
-                                    <button type="submit" class="btn btn-sm btn-brand px-3">Lọc</button>
-                                </form>
-                            </div>
+                                    </c:forEach>
+                                </select>
+
+                                <select name="star" class="form-select bg-dark text-light border-secondary shadow-none"
+                                    style="width: 200px;" onchange="this.form.submit()">
+                                    <option value="all">-- Tất cả số sao --</option>
+                                    <option value="5" ${selectedStar=='5' ? 'selected' : '' }>⭐⭐⭐⭐⭐ (5 Sao)</option>
+                                    <option value="4" ${selectedStar=='4' ? 'selected' : '' }>⭐⭐⭐⭐ (4 Sao)</option>
+                                    <option value="3" ${selectedStar=='3' ? 'selected' : '' }>⭐⭐⭐ (3 Sao)</option>
+                                    <option value="2" ${selectedStar=='2' ? 'selected' : '' }>⭐⭐ (2 Sao)</option>
+                                    <option value="1" ${selectedStar=='1' ? 'selected' : '' }>⭐ (1 Sao)</option>
+                                </select>
+
+                                <a href="${pageContext.request.contextPath}/staff/reviews"
+                                    class="btn btn-outline-secondary ms-auto text-light">
+                                    <i class="fa-solid fa-rotate-right me-1"></i> Làm mới
+                                </a>
+                            </form>
                         </div>
 
                         <div class="table-responsive">

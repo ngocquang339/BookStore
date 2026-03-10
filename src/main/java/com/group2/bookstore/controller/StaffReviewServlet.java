@@ -32,7 +32,9 @@ public class StaffReviewServlet extends HttpServlet {
             return; // Kết thúc luôn, không chạy phần code hiển thị bên dưới nữa
         }
         String star = request.getParameter("star");
+        String bookIdStr = request.getParameter("bookId");
         int starValue = 0;
+        int bookId = 0;
         if (star != null && !star.isEmpty() && !star.equals("all")) {
             try {
                 starValue = Integer.parseInt(star);
@@ -42,13 +44,23 @@ public class StaffReviewServlet extends HttpServlet {
                 starValue = 0; // Nếu user nhập bậy chữ cái, ép về chế độ xem tất cả
             }
         }
+        if (bookIdStr != null && !bookIdStr.isEmpty() && !bookIdStr.equals("all")) {
+            try {
+                bookId = Integer.parseInt(bookIdStr);
+            } catch (NumberFormatException e) {
+                bookId = 0;
+            }
+        }
         // 2. Gọi DAO để lấy dữ liệu
         ReviewDAO reviewDAO = new ReviewDAO();
-        List<Review> listReviews = reviewDAO.getReviewsByStar(starValue);
+        List<Review> listReviews = reviewDAO.getFilteredReviews(starValue, bookId);
+        List<Review> listBooks = reviewDAO.getDistinctReviewedBooks();
 
         // 3. Đẩy dữ liệu sang JSP
         request.setAttribute("listReviews", listReviews);
         request.setAttribute("selectedStar", (starValue == 0) ? "" : String.valueOf(starValue));
+        request.setAttribute("selectedBookId", (bookId == 0) ? "" : String.valueOf(bookId));
+        request.setAttribute("listBooks", listBooks);
 
         // 4. Chuyển hướng sang file JSP
         request.getRequestDispatcher("/view/staff/review-manage.jsp").forward(request, response);
