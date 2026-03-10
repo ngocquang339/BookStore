@@ -140,7 +140,17 @@ public class CheckoutServlet extends HttpServlet {
         try {
             Double grandTotal = (Double) session.getAttribute("grandTotal");
             OrderDAO dao = new OrderDAO();
+
+            // 1. MUST capture the new Order ID returned by your DAO!
+            int newOrderId = dao.createOrder(user, checkoutCart, address, phone, grandTotal, paymentMethod);
             
+
+            // ==========================================
+            // 2. ✨ NEW: TRIGGER ADMIN NOTIFICATION ✨
+            // ==========================================
+            com.group2.bookstore.dal.NotificationDAO notifDao = new com.group2.bookstore.dal.NotificationDAO();
+            String notifMsg = "New order placed by " + user.getUsername() + " (Total: " + grandTotal + "đ)";
+            notifDao.insertNotification(newOrderId, notifMsg);
             // Lưu những món trong checkoutCart vào DB
             dao.createOrder(user, checkoutCart, address, phone, grandTotal, paymentMethod);
 

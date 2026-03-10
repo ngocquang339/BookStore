@@ -122,9 +122,13 @@ public class OrderDAO extends DBContext {
 
     // Thêm vào OrderDAO.java
 // File: OrderDAO.java (Đã sửa lỗi)
-    public void createOrder(User user, List<CartItem> cart, String address, String phone, double total, String paymentMethod) {
+    // 1. CHANGE 'void' TO 'int'
+    public int createOrder(User user, List<CartItem> cart, String address, String phone, double total, String paymentMethod) {
         String sqlOrder = "INSERT INTO Orders(user_id, order_date, total_amount, status, shipping_address, phone_number, payment_method) VALUES (?, GETDATE(), ?, 1, ?, ?, ?)";
-        Connection cn = null; // Khai báo Connection ở ngoài để kiểm soát Transaction
+        Connection cn = null; 
+        
+        // 2. DECLARE THE ID VARIABLE HERE
+        int generatedOrderId = 0; 
 
         try {
             cn = getConnection();
@@ -140,13 +144,14 @@ public class OrderDAO extends DBContext {
             ps.executeUpdate();
 
             ResultSet rs = ps.getGeneratedKeys();
-            int orderID = rs.next() ? rs.getInt(1) : 0;
+            // 3. STORE THE NEW ID
+            generatedOrderId = rs.next() ? rs.getInt(1) : 0;
 
             // 2. Lưu OrderDetails
             String sqlDetail = "INSERT INTO OrderDetails(order_id, book_id, quantity, price) VALUES (?, ?, ?, ?)";
             PreparedStatement psDetail = cn.prepareStatement(sqlDetail);
             for (CartItem item : cart) {
-                psDetail.setInt(1, orderID);
+                psDetail.setInt(1, generatedOrderId); // Use the new ID here
                 psDetail.setInt(2, item.getBook().getId());
                 psDetail.setInt(3, item.getQuantity());
                 psDetail.setDouble(4, item.getBook().getPrice());
@@ -154,7 +159,7 @@ public class OrderDAO extends DBContext {
             }
             psDetail.executeBatch();
 
-            // 3. Xóa giỏ hàng (Sửa lỗi thiếu dấu đóng ngoặc)
+            // 3. Xóa giỏ hàng
             String sqlDeleteItems = "DELETE FROM CartItems WHERE cart_id = (SELECT cart_id FROM Cart WHERE user_id = ?)";
             PreparedStatement psDelItems = cn.prepareStatement(sqlDeleteItems);
             psDelItems.setInt(1, user.getId());
@@ -177,7 +182,6 @@ public class OrderDAO extends DBContext {
             }
             e.printStackTrace();
         } finally {
-            // Đóng Connection thủ công nếu không dùng try-with-resources cho Connection
             if (cn != null) {
                 try {
                     cn.close();
@@ -186,6 +190,9 @@ public class OrderDAO extends DBContext {
                 }
             }
         }
+        
+        // 4. RETURN THE ID SO THE SERVLET CAN CREATE THE NOTIFICATION!
+        return generatedOrderId; 
     }
 
     public List<Order> getOrdersByStatus(int status, String sortBy, String sortOrder) {

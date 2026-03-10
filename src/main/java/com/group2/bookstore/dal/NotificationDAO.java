@@ -43,4 +43,18 @@ public class NotificationDAO extends DBContext {
             e.printStackTrace();
         }
     }
+
+    // 3. Insert a new notification when an order is placed
+    public void insertNotification(int orderId, String message) {
+        // Assuming your DB handles the created_at timestamp automatically
+        String sql = "INSERT INTO AdminNotifications (order_id, message, is_read) VALUES (?, ?, 0)";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, orderId);
+            ps.setString(2, message);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            System.out.println("Error inserting notification: " + e.getMessage());
+        }
+    }
 }

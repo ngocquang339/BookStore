@@ -1,6 +1,8 @@
 package com.group2.bookstore.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Book implements Serializable {
 
@@ -26,6 +28,7 @@ public class Book implements Serializable {
     private boolean active;       // Maps to [is_active]
     private double importPrice;   // Maps to [import_price]
     private String coverImage;
+
     // 1. Empty Constructor (Required for JSP/Frameworks)
     public Book() {
     }
@@ -37,23 +40,23 @@ public class Book implements Serializable {
             String publisher, String supplier,
             int yearOfPublish, int number_page) {
 
-    this.id = id;
-    this.title = title;
-    this.author = author;
-    this.price = price;
-    this.stockQuantity = stockQuantity;
-    this.imageUrl = imageUrl;
+        this.id = id;
+        this.title = title;
+        this.author = author;
+        this.price = price;
+        this.stockQuantity = stockQuantity;
+        this.imageUrl = imageUrl;
 
-    this.categoryId = categoryId;
-    this.categoryName = categoryName;
-    this.locationCode = locationCode;
+        this.categoryId = categoryId;
+        this.categoryName = categoryName;
+        this.locationCode = locationCode;
 
-    this.description = description;
-    this.publisher = publisher;
-    this.supplier = supplier;
-    this.yearOfPublish = yearOfPublish;
-    this.number_page = number_page;
-}
+        this.description = description;
+        this.publisher = publisher;
+        this.supplier = supplier;
+        this.yearOfPublish = yearOfPublish;
+        this.number_page = number_page;
+    }
 
     // --- GETTERS & SETTERS ---
     public int getId() {
@@ -149,23 +152,54 @@ public class Book implements Serializable {
         return active;
     }
 
-    public double getImportPrice() { return importPrice; }
-    public void setImportPrice(double importPrice) { this.importPrice = importPrice; }
+    public double getImportPrice() {
+        return importPrice;
+    }
 
-    public String getCategoryName() { return categoryName; }
-    public void setCategoryName(String categoryName) { this.categoryName = categoryName; }
+    public void setImportPrice(double importPrice) {
+        this.importPrice = importPrice;
+    }
 
-    public String getLocationCode() { return locationCode; }
-    public void setLocationCode(String locationCode) { this.locationCode = locationCode; }
-    
-    public int getYearOfPublish() { return yearOfPublish; }
-    public void setYearOfPublish(int yearOfPublish) { this.yearOfPublish = yearOfPublish; }
+    public String getCategoryName() {
+        return categoryName;
+    }
 
-    public int getNumberPage() { return number_page; }
-    public void setNumberPage(int number_page) { this.number_page = number_page; }
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
+    }
 
-    public String getSupplier() { return supplier; }
-    public void setSupplier(String supplier) { this.supplier = supplier; }
+    public String getLocationCode() {
+        return locationCode;
+    }
+
+    public void setLocationCode(String locationCode) {
+        this.locationCode = locationCode;
+    }
+
+    public int getYearOfPublish() {
+        return yearOfPublish;
+    }
+
+    public void setYearOfPublish(int yearOfPublish) {
+        this.yearOfPublish = yearOfPublish;
+    }
+
+    public int getNumberPage() {
+        return number_page;
+    }
+
+    public void setNumberPage(int number_page) {
+        this.number_page = number_page;
+    }
+
+    public String getSupplier() {
+        return supplier;
+    }
+
+    public void setSupplier(String supplier) {
+        this.supplier = supplier;
+    }
+
     public void setActive(boolean active) {
         this.active = active;
     }
@@ -177,4 +211,15 @@ public class Book implements Serializable {
     public void setCoverImage(String coverImage) {
         this.coverImage = coverImage;
     }
+
+    private List<BookImage> detailImages = new ArrayList<>();
+
+    public List<BookImage> getDetailImages() {
+        return detailImages;
+    }
+
+    public void setDetailImages(List<BookImage> detailImages) {
+        this.detailImages = detailImages;
+    }
+
 }

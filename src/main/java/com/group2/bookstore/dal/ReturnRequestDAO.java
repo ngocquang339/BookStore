@@ -53,7 +53,8 @@ public class ReturnRequestDAO extends DBContext {
     // 1. Fetch a single return request AND calculate max refund
     public ReturnRequest getReturnById(int returnId) {
         // We join OrderDetails to find the exact discounted price the customer paid for this specific book
-        String sql = "SELECT r.*, b.title AS book_title, u.username AS customer_name, " +
+        // ✨ NEW: Added u.email AS customer_email to support automated email notifications ✨
+        String sql = "SELECT r.*, b.title AS book_title, u.username AS customer_name, u.email AS customer_email, " +
                      "(od.price * r.quantity) AS max_refundable " +
                      "FROM ReturnRequests r " +
                      "JOIN Books b ON r.book_id = b.book_id " +
@@ -86,6 +87,9 @@ public class ReturnRequestDAO extends DBContext {
                     req.setCreatedAt(rs.getTimestamp("created_at"));
                     req.setBookTitle(rs.getString("book_title"));
                     req.setCustomerName(rs.getString("customer_name"));
+                    
+                    // ✨ NEW: Map the joined email to the object ✨
+                    req.setUserEmail(rs.getString("customer_email"));
                     
                     // The crucial financial validation number
                     req.setMaxRefundableAmount(rs.getDouble("max_refundable"));

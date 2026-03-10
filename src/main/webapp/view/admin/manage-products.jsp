@@ -27,9 +27,9 @@
 
                         <div class="header-actions">
                             <h1><i class="fa-solid fa-box-open"></i> Product Management</h1>
-                            <a href="${pageContext.request.contextPath}/admin/category/add" class="btn-add-new"
+                            <a href="${pageContext.request.contextPath}/admin/categories" class="btn-add-new"
                                 style="background-color: #17a2b8; margin-right: 10px;">
-                                <i class="fa-solid fa-tags"></i> Add Category
+                                <i class="fa-solid fa-tags"></i> Manage Categories
                             </a>
                             <a href="${pageContext.request.contextPath}/admin/product/add" class="btn-add-new">
                                 <i class="fa-solid fa-plus"></i> Add New Book
@@ -42,14 +42,38 @@
                                 value="${searchKeyword}">
 
                             <select name="cid" class="filter-select">
-                                <option value="all" ${searchCid=='all' || empty searchCid ? 'selected' : '' }>All
-                                    Categories
-                                </option>
-                                <c:forEach items="${listCategories}" var="c">
-                                    <option value="${c.id}" ${searchCid ne 'all' && searchCid==c.id ? 'selected' : '' }>
-                                        ${c.name}
+                                <%-- The default 'All' option --%>
+                                    <option value="all" ${searchCid=='all' || empty searchCid ? 'selected' : '' }>
+                                        All Categories
                                     </option>
-                                </c:forEach>
+
+                                    <%-- Loop 1: Find all the Parent Categories --%>
+                                        <c:forEach items="${listCategories}" var="parent">
+                                            <c:if test="${empty parent.parentId}">
+
+                                                <optgroup label="${parent.name}">
+
+                                                    <%-- RESTORED SAFETY CHECK: searchCid ne 'all' --%>
+                                                        <option value="${parent.id}" ${searchCid ne 'all' &&
+                                                            searchCid==parent.id ? 'selected' : '' }>
+                                                            Search all ${parent.name}
+                                                        </option>
+
+                                                        <%-- Loop 2: Find all Children belonging to this Parent --%>
+                                                            <c:forEach items="${listCategories}" var="child">
+                                                                <c:if test="${child.parentId == parent.id}">
+                                                                    <%-- RESTORED SAFETY CHECK: searchCid ne 'all' --%>
+                                                                        <option value="${child.id}" ${searchCid ne 'all'
+                                                                            && searchCid==child.id ? 'selected' : '' }>
+                                                                            &nbsp;&nbsp;&nbsp;&nbsp;-- ${child.name}
+                                                                        </option>
+                                                                </c:if>
+                                                            </c:forEach>
+
+                                                </optgroup>
+
+                                            </c:if>
+                                        </c:forEach>
                             </select>
 
                             <button type="submit" class="btn-search">
@@ -123,22 +147,17 @@
                                     <c:forEach items="${listBooks}" var="b">
                                         <tr class="${!b.active ? 'row-hidden' : ''}">
                                             <td>${b.id}</td>
-                                            <td>
-                                                <span style="color:red; font-size: 10px;">Path: [${b.coverImage}]</span>
-                                                <c:choose>
+                                            <td class="text-center">
+                                                <%-- 1. Debug string (Now using 'b' ) --%>
+                                                    <div style="font-size: 9px; color: #888; margin-bottom: 4px;">
+                                                        DB: [${b.imageUrl}]
+                                                    </div>
 
-                                                    <c:when test="${not empty b.coverImage}">
-                                                        <img src="${pageContext.request.contextPath}/${b.coverImage}"
+                                                    <%-- 2. Image Tag (Now using 'b' ) --%>
+                                                        <img src="${pageContext.request.contextPath}/${b.imageUrl}"
                                                             alt="Cover"
-                                                            style="width: 50px; height: 70px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">
-                                                    </c:when>
-                                                    <c:otherwise>
-                                                        <div
-                                                            style="width: 50px; height: 70px; background-color: #e9ecef; border-radius: 4px; display: flex; align-items: center; justify-content: center; border: 1px solid #ddd;">
-                                                            <i class="fa-solid fa-image" style="color: #adb5bd;"></i>
-                                                        </div>
-                                                    </c:otherwise>
-                                                </c:choose>
+                                                            style="width: 50px; height: auto; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"
+                                                            onerror="this.onerror=null; this.src='https://placehold.co/50x70/e9ecef/666666?text=No+Image';">
                                             </td>
                                             <td>
                                                 <div style="font-weight: bold; font-size: 1.1em; color: #333;">
@@ -226,7 +245,7 @@
                     </div>
 
 
-<%@ include file="admin-notifications.jsp"  %>
+                    <%@ include file="admin-notifications.jsp" %>
                 </body>
 
                 </html>

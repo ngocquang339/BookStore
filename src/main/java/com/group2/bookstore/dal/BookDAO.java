@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -123,7 +124,14 @@ public class BookDAO extends DBContext {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return mapResultSetToBook(rs);
+                // 1. Catch the book object first
+                Book b = mapResultSetToBook(rs);
+                
+                // 2. Fetch the gallery images and attach them!
+                b.setDetailImages(getDetailImages(id));
+                
+                // 3. Now return the fully loaded book
+                return b;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -238,7 +246,7 @@ public class BookDAO extends DBContext {
     }
 
     // Overload 3: The Main Core Method (MERGED WITH TEAMMATE'S WAREHOUSE LOGIC)
-    public List<Book> getBooks(String keyword, int cid, String author, String publisher, double minPrice,
+    /* public List<Book> getBooks(String keyword, int cid, String author, String publisher, double minPrice,
             double maxPrice, String sortBy, String sortOrder, boolean isAdmin, int index, int pageSize) {
         List<Book> list = new ArrayList<>();
 
@@ -332,6 +340,100 @@ public class BookDAO extends DBContext {
             e.printStackTrace();
         }
         return list;
+    } */
+
+    // Overload 3: The Main Core Method (TEMPORARY BYPASS - WAREHOUSE DISABLED)
+    public List<Book> getBooks(String keyword, int cid, String author, String publisher, double minPrice,
+            double maxPrice, String sortBy, String sortOrder, boolean isAdmin, int index, int pageSize) {
+        List<Book> list = new ArrayList<>();
+
+        // BYPASS: Removed l.location_code and the Warehouse_Locations JOIN
+        StringBuilder sql = new StringBuilder(
+                "SELECT b.*, c.category_name, " +
+                        "(SELECT TOP 1 bi.image_url FROM BookImages bi WHERE bi.book_id = b.book_id) AS cover_image " +
+                        "FROM Books b " +
+                        "LEFT JOIN Categories c ON b.category_id = c.category_id " +
+                        "WHERE 1=1 ");
+        
+        List<Object> params = new ArrayList<>();
+
+        if (!isAdmin) sql.append(" AND b.is_active = 1 ");
+        
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append(" AND ((LOWER(b.title) LIKE LOWER(?)) OR (LOWER(b.author) LIKE LOWER(?)) OR (LOWER(b.supplier) LIKE LOWER(?)) OR (LOWER(b.publisher) LIKE LOWER(?))) ");
+            String searchParam = "%" + keyword.trim() + "%";
+            params.add(searchParam); // title
+            params.add(searchParam); // author
+            params.add(searchParam); // supplier
+            params.add(searchParam); // publisher
+        }
+        if (cid > 0) {
+            sql.append(" AND (b.category_id = ? OR c.parent_id = ?) ");
+            params.add(cid);
+            params.add(cid);
+        }
+        if (author != null && !author.trim().isEmpty()) {
+            sql.append(" AND LOWER(b.author) LIKE LOWER(?) ");
+            params.add("%" + author.trim() + "%");
+        }
+        if (publisher != null && !publisher.trim().isEmpty()) {
+            sql.append(" AND LOWER(b.publisher) LIKE LOWER(?) ");
+            params.add("%" + publisher.trim() + "%");
+        }
+        if (maxPrice > 0) {
+            sql.append(" AND b.price BETWEEN ? AND ? ");
+            params.add(minPrice);
+            params.add(maxPrice);
+        } else if (minPrice > 0) {
+            sql.append(" AND b.price >= ? ");
+            params.add(minPrice);
+        }
+
+        if (sortBy != null && !sortBy.isEmpty() && (sortBy.equals("price") || sortBy.equals("title")
+                || sortBy.equals("stock_quantity") || sortBy.equals("book_id"))) {
+            sql.append(" ORDER BY b.").append(sortBy).append("DESC".equalsIgnoreCase(sortOrder) ? " DESC" : " ASC");
+        } else if ("category_name".equals(sortBy)) {
+            sql.append(" ORDER BY c.category_name").append("DESC".equalsIgnoreCase(sortOrder) ? " DESC" : " ASC");
+        } else {
+            sql.append(" ORDER BY b.book_id DESC");
+        }
+
+        sql.append(" OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+
+            int paramIndex = 1;
+            for (Object param : params) ps.setObject(paramIndex++, param);
+
+            ps.setInt(paramIndex++, (index - 1) * pageSize);
+            ps.setInt(paramIndex, pageSize);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Book b = new Book();
+                b.setId(rs.getInt("book_id"));
+                b.setTitle(rs.getString("title"));
+                b.setAuthor(rs.getString("author"));
+                b.setPrice(rs.getDouble("price"));
+                try { b.setPublisher(rs.getString("publisher")); } catch (Exception e) {}
+                b.setImageUrl(rs.getString("image"));
+                b.setStockQuantity(rs.getInt("stock_quantity"));
+                b.setCategoryId(rs.getInt("category_id"));
+                b.setSupplier(rs.getString("supplier"));
+                b.setYearOfPublish(rs.getInt("yearOfPublish"));
+                b.setNumberPage(rs.getInt("number_page"));
+                b.setCoverImage(rs.getString("cover_image"));
+                
+                try { b.setCategoryName(rs.getString("category_name")); } catch (Exception e) {}
+                try { b.setActive(rs.getBoolean("is_active")); } catch (Exception e) {}
+                
+                list.add(b);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 
     // ==========================================
@@ -340,7 +442,11 @@ public class BookDAO extends DBContext {
 
     // Simple Count
     public int countBooks(String keyword, int cid, boolean isAdmin) {
-        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM Books b WHERE 1=1 ");
+        // FIXED: Added the LEFT JOIN to Categories so we can check parent_id
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM Books b ");
+        sql.append("LEFT JOIN Categories c ON b.category_id = c.category_id ");
+        sql.append("WHERE 1=1 ");
+        
         List<Object> params = new ArrayList<>();
         
         if (!isAdmin) sql.append(" AND b.is_active = 1 ");
@@ -350,7 +456,9 @@ public class BookDAO extends DBContext {
             params.add("%" + keyword.trim() + "%");
         }
         if (cid > 0) {
-            sql.append(" AND b.category_id = ? ");
+            // FIXED: Now checks both the direct category AND child categories
+            sql.append(" AND (b.category_id = ? OR c.parent_id = ?) ");
+            params.add(cid);
             params.add(cid);
         }
         
@@ -383,7 +491,9 @@ public class BookDAO extends DBContext {
             params.add("%" + keyword + "%");
         }
         if (cid > 0) {
-            sql.append(" AND b.category_id = ? ");
+            // FIXED: Now checks both the direct category AND child categories
+            sql.append(" AND (b.category_id = ? OR c.parent_id = ?) ");
+            params.add(cid);
             params.add(cid);
         }
         if (author != null && !author.trim().isEmpty()) {
@@ -427,27 +537,44 @@ public class BookDAO extends DBContext {
         }
     }
 
-    public void insertBook(Book b) {
-        String sql = "INSERT INTO Books (title, author, price, description, image, stock_quantity, category_id, is_active, import_price, publisher, supplier, yearOfPublish, number_page) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"; 
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, b.getTitle());
-            ps.setString(2, b.getAuthor());
-            ps.setDouble(3, b.getPrice());
-            ps.setString(4, b.getDescription());
-            ps.setString(5, b.getImageUrl());
-            ps.setInt(6, b.getStockQuantity());
-            ps.setInt(7, b.getCategoryId());
-            ps.setBoolean(8, b.isActive());
-            ps.setDouble(9, b.getImportPrice());
-            ps.setString(10, b.getPublisher());
-            ps.setString(11, b.getSupplier());
-            ps.setInt(12, b.getYearOfPublish());
-            ps.setInt(13, b.getNumberPage());
-            ps.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
+    public int insertBook(Book b) {
+    String sql = "INSERT INTO Books (title, author, price, description, image, stock_quantity, category_id, is_active, import_price, publisher, supplier, yearOfPublish, number_page) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"; 
+    
+    int generatedId = 0; // This will hold the new ID
+
+    // Notice the Statement.RETURN_GENERATED_KEYS added here!
+    try (Connection conn = getConnection(); 
+         PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        
+        ps.setString(1, b.getTitle());
+        ps.setString(2, b.getAuthor());
+        ps.setDouble(3, b.getPrice());
+        ps.setString(4, b.getDescription());
+        ps.setString(5, b.getImageUrl());
+        ps.setInt(6, b.getStockQuantity());
+        ps.setInt(7, b.getCategoryId());
+        ps.setBoolean(8, b.isActive());
+        ps.setDouble(9, b.getImportPrice());
+        ps.setString(10, b.getPublisher());
+        ps.setString(11, b.getSupplier());
+        ps.setInt(12, b.getYearOfPublish());
+        ps.setInt(13, b.getNumberPage());
+        
+        ps.executeUpdate();
+        
+        // Retrieve the auto-incrementing ID that SQL Server just created
+        try (ResultSet rs = ps.getGeneratedKeys()) {
+            if (rs.next()) {
+                generatedId = rs.getInt(1);
+            }
         }
+    } catch (Exception e) {
+        e.printStackTrace();
     }
+    
+    // Return the new ID back to the Servlet so it can save the detail images!
+    return generatedId; 
+}
 
     public void updateBook(Book b) {
         String sql = "UPDATE Books SET title=?, author=?, price=?, description=?, image=?, stock_quantity=?, category_id=?, is_active=?, import_price=?, publisher=?, supplier=?, yearOfPublish=?, number_page=? WHERE book_id=?"; 
@@ -466,9 +593,17 @@ public class BookDAO extends DBContext {
             ps.setInt(12, b.getYearOfPublish());
             ps.setInt(13, b.getNumberPage());
             ps.setInt(14, b.getId());
-            ps.executeUpdate();
+            
+            int rowsAffected = ps.executeUpdate();
+            
+            // If the database couldn't find the ID, force a crash!
+            if (rowsAffected == 0) {
+                throw new RuntimeException("ZERO ROWS UPDATED! Could not find book with ID: " + b.getId());
+            }
+            
         } catch (Exception e) {
-            e.printStackTrace();
+            // INSTEAD OF SWALLOWING THE ERROR, FORCE A VISIBLE CRASH ON THE SCREEN!
+            throw new RuntimeException("DATABASE UPDATE FAILED: " + e.getMessage(), e);
         }
     }
 
@@ -526,6 +661,67 @@ public class BookDAO extends DBContext {
         }
         return list;
     }
+
+    // 1. Save a single detail image to the database
+    public void insertDetailImage(int bookId, String imageUrl) {
+        String sql = "INSERT INTO BookImages (book_id, image_url) VALUES (?, ?)";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, bookId);
+            ps.setString(2, imageUrl);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            System.out.println("Error inserting detail image: " + e.getMessage());
+        }
+    }
+
+    // 2. Fetch all detail images for a specific book (Used for the Edit page and Product Details page)
+    public List<BookImage> getDetailImages(int bookId) {
+    List<BookImage> images = new ArrayList<>();
+    // Use the actual column names from your SQL Server table!
+    String sql = "SELECT image_id, book_id, image_url FROM BookImages WHERE book_id = ?";
+    
+    try (Connection conn = getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setInt(1, bookId);
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                BookImage img = new BookImage(
+                    rs.getInt("image_id"),
+                    rs.getInt("book_id"),
+                    rs.getString("image_url")
+                );
+                images.add(img);
+            }
+        }
+    } catch (Exception e) {
+        System.out.println("Error fetching detail images: " + e.getMessage());
+    }
+    return images;
+}
+
+    // 3. Delete old detail images (Crucial for when an Admin updates a book's gallery)
+    public void deleteDetailImages(int bookId) {
+        String sql = "DELETE FROM BookImages WHERE book_id = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, bookId);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            System.out.println("Error deleting detail images: " + e.getMessage());
+        }
+    }
+
+    public void deleteDetailImageById(int imageId) {
+    String sql = "DELETE FROM BookImages WHERE image_id = ?";
+    try (Connection conn = getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setInt(1, imageId);
+        ps.executeUpdate();
+    } catch (Exception e) {
+        System.out.println("Error deleting specific detail image: " + e.getMessage());
+    }
+}
 
     // HELPER: Map ResultSet to Book Object
     private Book mapResultSetToBook(ResultSet rs) throws SQLException {

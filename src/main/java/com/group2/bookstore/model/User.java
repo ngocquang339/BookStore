@@ -4,8 +4,9 @@ import java.io.Serializable;
 import java.sql.Timestamp; // Import for the date
 
 public class User implements Serializable {
+
     private static final long serialVersionUID = 1L;
-    
+
     private int id;
     private String username;
     private String password;
@@ -13,7 +14,8 @@ public class User implements Serializable {
     private String fullname;
     private String phone_number;
     private int role;           // 1=Admin, 2=Customer, 3=Warehouse
-    
+    private String address;
+
     // NEW FIELDS added to match Database
     private int status;         // 1=Active, 0=Banned (Mapped from [bit])
     private Timestamp createAt; // Mapped from [datetime]
@@ -41,32 +43,84 @@ public class User implements Serializable {
     }
 
     // --- GETTERS AND SETTERS ---
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
 
-    public String getUsername() { return username; }
-    public void setUsername(String username) { this.username = username; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
+    public String getUsername() {
+        return username;
+    }
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
-    public String getFullname() { return fullname; }
-    public void setFullname(String fullname) { this.fullname = fullname; }
+    public String getPassword() {
+        return password;
+    }
 
-    public int getRole() { return role; }
-    public void setRole(int role) { this.role = role; }
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-    public String getPhone_number() { return phone_number; }
-    public void setPhone_number(String phone_number) { this.phone_number = phone_number; }
+    public String getEmail() {
+        return email;
+    }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getFullname() {
+        return fullname;
+    }
+
+    public void setFullname(String fullname) {
+        this.fullname = fullname;
+    }
+
+    public int getRole() {
+        return role;
+    }
+
+    public void setRole(int role) {
+        this.role = role;
+    }
+
+    public String getPhone_number() {
+        return phone_number;
+    }
+
+    public void setPhone_number(String phone_number) {
+        this.phone_number = phone_number;
+    }
 
     // New Getters/Setters
-    public int getStatus() { return status; }
-    public void setStatus(int status) { this.status = status; }
+    public int getStatus() {
+        return status;
+    }
 
-    public Timestamp getCreateAt() { return createAt; }
-    public void setCreateAt(Timestamp createAt) { this.createAt = createAt; }
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public Timestamp getCreateAt() {
+        return createAt;
+    }
+
+    public void setCreateAt(Timestamp createAt) {
+        this.createAt = createAt;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
 }
