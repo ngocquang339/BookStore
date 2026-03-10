@@ -124,6 +124,7 @@
                                         <tr class="${!b.active ? 'row-hidden' : ''}">
                                             <td>${b.id}</td>
                                             <td>
+                                                <span style="color:red; font-size: 10px;">Path: [${b.coverImage}]</span>
                                                 <c:choose>
 
                                                     <c:when test="${not empty b.coverImage}">
@@ -225,7 +226,7 @@
                     </div>
 
 
-
+<%@ include file="admin-notifications.jsp"  %>
                 </body>
 
                 </html>

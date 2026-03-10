@@ -66,9 +66,9 @@
 
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-2">
-                                    <a href="dashboard" class="btn btn-outline-secondary" title="Quay lại">
+                                    <a href="${pageContext.request.contextPath}/orders-management" class="btn btn-outline-secondary" title="Quay lại">
                                         <i class="fa-solid fa-arrow-left"></i>
-                                    </a>
+                                        </a>
                                     <button type="submit" class="btn btn-success shadow-sm" title="Lưu thay đổi">
                                         <i class="fa-solid fa-floppy-disk"></i> Lưu
                                     </button>

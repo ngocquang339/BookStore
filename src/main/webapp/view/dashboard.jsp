@@ -17,19 +17,30 @@
     <div class="container-fluid mt-4 px-4">
         
         <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
-            <a href="${pageContext.request.contextPath}/home" class="btn btn-dark fw-bold d-flex align-items-center gap-2">
-                <i class="fa-solid fa-house"></i> Back to Shop
+            <a href="${pageContext.request.contextPath}/staff-dashboard" class="btn btn-dark fw-bold d-flex align-items-center gap-2">
+                <i class="fa-solid fa-house"></i> Back to Dashboard
             </a>
             <h2 class="text-primary m-0 fw-bold">BẢNG QUẢN LÝ ĐƠN HÀNG (SALE STAFF)</h2>
             <div style="width: 140px;"></div> 
         </div>
         
         <div class="row mb-3">
-            <div class="col-md-4">
-                <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Nhập SĐT khách cần hỗ trợ...">
-                    <button class="btn btn-primary"><i class="fa-solid fa-search"></i> Tìm kiếm</button>
-                </div>
+            <div class="col-md-5">
+                <form action="${pageContext.request.contextPath}/orders-management" method="GET" class="input-group shadow-sm">
+                    <input type="hidden" name="status" value="${currentStatus}">
+                    <input type="hidden" name="sortBy" value="${currentSortBy}">
+                    <input type="hidden" name="sortOrder" value="${currentSortOrder}">
+                    
+                    <input type="text" name="searchQuery" value="${currentSearch}" class="form-control border-primary" placeholder="Nhập tên hoặc SĐT khách hàng...">
+                    
+                    <button type="submit" class="btn btn-primary fw-bold"><i class="fa-solid fa-search"></i> Tìm kiếm</button>
+                    
+                    <c:if test="${not empty currentSearch}">
+                        <a href="${pageContext.request.contextPath}/orders-management?status=${currentStatus}" class="btn btn-outline-danger fw-bold" title="Xóa tìm kiếm">
+                            <i class="fa-solid fa-xmark"></i>
+                        </a>
+                    </c:if>
+                </form>
             </div>
         </div>
 
@@ -41,7 +52,7 @@
                         
                         <c:set var="nextDateOrder" value="${currentSortBy == 'date' && currentSortOrder == 'desc' ? 'asc' : 'desc'}" />
                         <th style="cursor: pointer; width: 12%;">
-                            <a href="?status=${currentStatus}&sortBy=date&sortOrder=${nextDateOrder}" class="text-white text-decoration-none d-flex justify-content-center align-items-center gap-1">
+                            <a href="?status=${currentStatus}&sortBy=date&sortOrder=${nextDateOrder}&searchQuery=${currentSearch}" class="text-white text-decoration-none d-flex justify-content-center align-items-center gap-1">
                                 Ngày đặt
                                 <c:choose>
                                     <c:when test="${currentSortBy == 'date' && currentSortOrder == 'asc'}"><i class="fa-solid fa-sort-up text-warning"></i></c:when>
@@ -53,7 +64,7 @@
                         
                         <c:set var="nextNameOrder" value="${currentSortBy == 'name' && currentSortOrder == 'desc' ? 'asc' : 'desc'}" />
                         <th style="cursor: pointer; width: 13%;">
-                            <a href="?status=${currentStatus}&sortBy=name&sortOrder=${nextNameOrder}" class="text-white text-decoration-none d-flex justify-content-center align-items-center gap-1">
+                            <a href="?status=${currentStatus}&sortBy=name&sortOrder=${nextNameOrder}&searchQuery=${currentSearch}" class="text-white text-decoration-none d-flex justify-content-center align-items-center gap-1">
                                 Khách hàng
                                 <c:choose>
                                     <c:when test="${currentSortBy == 'name' && currentSortOrder == 'asc'}"><i class="fa-solid fa-sort-up text-warning"></i></c:when>
@@ -68,7 +79,7 @@
                         
                         <c:set var="nextTotalOrder" value="${currentSortBy == 'total' && currentSortOrder == 'desc' ? 'asc' : 'desc'}" />
                         <th style="cursor: pointer; width: 12%;">
-                            <a href="?status=${currentStatus}&sortBy=total&sortOrder=${nextTotalOrder}" class="text-white text-decoration-none d-flex justify-content-center align-items-center gap-1">
+                            <a href="?status=${currentStatus}&sortBy=total&sortOrder=${nextTotalOrder}&searchQuery=${currentSearch}" class="text-white text-decoration-none d-flex justify-content-center align-items-center gap-1">
                                 Tổng tiền
                                 <c:choose>
                                     <c:when test="${currentSortBy == 'total' && currentSortOrder == 'asc'}"><i class="fa-solid fa-sort-up text-warning"></i></c:when>
@@ -140,7 +151,7 @@
                     <c:if test="${empty orders}">
                         <tr>
                             <td colspan="8" class="text-center py-4 text-muted">
-                                Không có đơn hàng nào để hiển thị.
+                                Không có đơn hàng nào phù hợp với tìm kiếm của bạn.
                             </td>
                         </tr>
                     </c:if>

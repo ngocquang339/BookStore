@@ -1,14 +1,19 @@
 package com.group2.bookstore.controller;
 
+import java.io.IOException;
+import java.util.List;
+
 import com.group2.bookstore.dal.AdminDashboardDAO;
+import com.group2.bookstore.dal.NotificationDAO;
+import com.group2.bookstore.model.AdminNotification;
 import com.group2.bookstore.model.User;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.io.IOException;
 
 @WebServlet(name = "AdminDashboardServlet", urlPatterns = {"/admin/dashboard"})
 public class AdminDashboardServlet extends HttpServlet {
@@ -44,6 +49,11 @@ public class AdminDashboardServlet extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        // Fetch unread notifications for the dashboard feed
+NotificationDAO notificationDAO = new NotificationDAO();
+List<AdminNotification> dashboardAlerts = notificationDAO.getUnreadNotifications();
+request.setAttribute("dashboardAlerts", dashboardAlerts);
 
         // 3. Forward to the dashboard JSP
         request.getRequestDispatcher("/view/admin/dashboard.jsp").forward(request, response);

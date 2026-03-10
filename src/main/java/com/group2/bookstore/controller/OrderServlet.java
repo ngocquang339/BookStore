@@ -58,6 +58,15 @@ public class OrderServlet extends HttpServlet {
                 // Lấy cả 1 và 2 gộp lại cho tab Đang xử lý
                 listOrders.addAll(orderDAO.getOrdersByStatusForUser(user.getId(), 1));
                 listOrders.addAll(orderDAO.getOrdersByStatusForUser(user.getId(), 2));
+
+                // THÊM ĐOẠN NÀY: Sắp xếp lại tổng thể danh sách vừa gộp (Mới nhất lên đầu)
+                java.util.Collections.sort(listOrders, new java.util.Comparator<Order>() {
+                    @Override
+                    public int compare(Order o1, Order o2) {
+                        // Sắp xếp giảm dần theo ID (ID to = đơn mới)
+                        return Integer.compare(o2.getId(), o1.getId());
+                    }
+                });
             } else {
                 int dbStatus = -1;
                 switch (status) {    
@@ -112,8 +121,8 @@ public class OrderServlet extends HttpServlet {
                 if (currentOrder != null && currentOrder.getUserId() == user.getId() 
                     && (currentOrder.getStatus() == 1 || currentOrder.getStatus() == 2)) {
                     
-                    // 1. Cập nhật trạng thái thành 4 (Đã hủy)
-                    boolean isCancelled = orderDAO.updateOrderStatus(orderId, 5);
+                    // 1. Cập nhật trạng thái thành 5 (Đã hủy)
+                    boolean isCancelled = orderDAO.updateOrderStatus(orderId, 5); // [SỬA] 5 là trạng thái Hủy
                     
                     if (isCancelled) {
                         // ==============================================================

@@ -80,7 +80,7 @@ public class UserDAO extends DBContext {
                         rs.getString("phone_number"),
                         rs.getInt("status"));
             }
-        } catch (Exception e) {
+} catch (Exception e) {
             System.out.println(e);
         }
         return null;
@@ -149,7 +149,7 @@ public class UserDAO extends DBContext {
     }
 
     // 1. GET ALL USERS (For Admin List)
-    public List<User> getAllUsers() {
+public List<User> getAllUsers() {
     List<User> list = new ArrayList<>();
     // Order by newest accounts first
     String sql = "SELECT * FROM Users ORDER BY createAt DESC";
@@ -162,15 +162,15 @@ public class UserDAO extends DBContext {
             User u = new User();
             u.setId(rs.getInt("user_id"));
             u.setUsername(rs.getString("username"));
-            u.setFullname(rs.getString("fullname"));
+u.setFullname(rs.getString("fullname"));
             u.setEmail(rs.getString("email"));
             u.setPhone_number(rs.getString("phone_number"));
             u.setRole(rs.getInt("role"));
             
-            // --- YOU MUST ADD THESE TWO LINES ---
+            // --- RESTORED LINES ---
             u.setStatus(rs.getInt("status")); 
-            u.setCreateAt(rs.getTimestamp("createAt")); // Use getTimestamp for datetime
-            // ------------------------------------
+            u.setCreateAt(rs.getTimestamp("createAt")); 
+            // ----------------------
             
             list.add(u);
         }
@@ -234,7 +234,7 @@ public class UserDAO extends DBContext {
                 User u = new User();
                 u.setId(rs.getInt("user_id"));
                 u.setUsername(rs.getString("username"));
-                u.setFullname(rs.getString("fullname"));
+u.setFullname(rs.getString("fullname"));
                 u.setEmail(rs.getString("email"));
                 u.setPhone_number(rs.getString("phone_number"));
                 u.setRole(rs.getInt("role"));

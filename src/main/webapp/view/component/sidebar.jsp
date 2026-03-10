@@ -54,6 +54,10 @@
             <i class="fa-solid fa-ticket"></i> Ví Voucher <span style="background:red; color:white; font-size:10px; padding: 2px 5px; border-radius:10px; margin-left:5px;">18</span>
         </a>
 
+        <a href="${pageContext.request.contextPath}/my-collections" class="menu-item">
+            <i class="fa-solid fa-ticket"></i> Bộ sưu tập của tôi <span style="background:red; color:white; font-size:10px; padding: 2px 5px; border-radius:10px; margin-left:5px;">18</span>
+        </a>
+
         <a href="${pageContext.request.contextPath}/logout" class="menu-item" style="color: #666;">
             <i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất
         </a>
