@@ -154,9 +154,11 @@
                                             <div class="collection-color-bar" style="background-color: ${c.coverColor};"></div>
                                             
                                             <div class="collection-body">
-                                                <div class="collection-title">
-                                                    ${c.name}
-                                                </div>
+                                                <a href="${pageContext.request.contextPath}/collection-detail?id=${c.id}" style="text-decoration: none; color: inherit;">
+                                                    <div class="collection-title" style="transition: color 0.3s;" onmouseover="this.style.color='${c.coverColor}'" onmouseout="this.style.color='#333'">
+                                                        ${c.name}
+                                                    </div>
+                                                </a>
                                                 
                                                 <div class="mb-2">
                                                     <c:if test="${c.isPublic()}">

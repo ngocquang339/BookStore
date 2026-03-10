@@ -75,6 +75,12 @@ public class CollectionServlet extends HttpServlet {
                 case "delete":
                     deleteCollection(request, response, user, dao, session);
                     break;
+                case "addBook":
+                    addBookToCollection(request, response, user, dao, session);
+                    break;
+                case "removeBook":
+                    removeBookFromCollection(request, response, user, dao, session);
+                    break;
                 default:
                     response.sendRedirect(request.getContextPath() + "/my-collections");
                     break;
@@ -132,5 +138,36 @@ public class CollectionServlet extends HttpServlet {
             session.setAttribute("errorMsg", "Xóa thất bại!");
         }
         response.sendRedirect(request.getContextPath() + "/my-collections");
+    }
+
+    // --- HÀM XỬ LÝ LƯU SÁCH VÀO GIÁ ---
+    private void addBookToCollection(HttpServletRequest request, HttpServletResponse response, User user, CollectionDAO dao, HttpSession session) throws IOException {
+        int collectionId = Integer.parseInt(request.getParameter("collectionId"));
+        int bookId = Integer.parseInt(request.getParameter("bookId"));
+
+        // Gọi hàm DAO đã viết ở Bước 3
+        if (dao.addBookToCollection(collectionId, bookId)) {
+            session.setAttribute("successMsg", "Đã lưu sách vào Bộ sưu tập thành công!");
+        } else {
+            session.setAttribute("errorMsg", "Sách này đã tồn tại trong Bộ sưu tập hoặc có lỗi xảy ra!");
+        }
+        
+        // Lưu xong thì đá lại về chính trang Chi tiết sách đó
+        response.sendRedirect(request.getContextPath() + "/detail?pid=" + bookId); 
+        // LƯU Ý: Đổi đường dẫn "/detail?pid=" cho khớp với URL trang chi tiết sách của bạn
+    }
+
+    private void removeBookFromCollection(HttpServletRequest request, HttpServletResponse response, User user, CollectionDAO dao, HttpSession session) throws IOException {
+        int collectionId = Integer.parseInt(request.getParameter("collectionId"));
+        int bookId = Integer.parseInt(request.getParameter("bookId"));
+
+        // Xác thực bảo mật: Phải là chủ nhân mới được xóa
+        Collection c = dao.getCollectionById(collectionId);
+        if (c != null && c.getUserId() == user.getId()) {
+            dao.removeBookFromCollection(collectionId, bookId);
+            session.setAttribute("successMsg", "Đã gỡ sách khỏi bộ sưu tập!");
+        }
+        // Load lại trang chi tiết của bộ sưu tập đó
+        response.sendRedirect(request.getContextPath() + "/collection-detail?id=" + collectionId);
     }
 }

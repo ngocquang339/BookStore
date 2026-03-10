@@ -153,4 +153,35 @@ public class CollectionDAO extends DBContext {
         }
         return false;
     }
+
+    // =======================================================================
+    // 5. READ BOOKS IN COLLECTION (Lấy danh sách sách trong 1 Bộ sưu tập)
+    // =======================================================================
+    public List<Book> getBooksByCollectionId(int collectionId) {
+        List<Book> list = new ArrayList<>();
+        // JOIN bảng Books và bảng Collection_Books lại với nhau
+        String sql = "SELECT b.book_id, b.title, b.image, b.price, b.author "
+                   + "FROM Books b "
+                   + "INNER JOIN Collection_Books cb ON b.book_id = cb.book_id "
+                   + "WHERE cb.collection_id = ? "
+                   + "ORDER BY cb.added_at DESC"; // Xếp sách mới thêm lên đầu
+                   
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, collectionId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Book b = new Book();
+                    b.setId(rs.getInt("book_id"));
+                    b.setTitle(rs.getString("title"));
+                    b.setImageUrl(rs.getString("image")); // Dùng hàm get/set tương ứng trong Book model của bạn
+                    b.setPrice(rs.getDouble("price"));
+                    b.setAuthor(rs.getString("author"));
+                    list.add(b);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 }

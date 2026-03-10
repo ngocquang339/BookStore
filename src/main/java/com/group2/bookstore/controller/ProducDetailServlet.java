@@ -1,10 +1,13 @@
 package com.group2.bookstore.controller;
 
 import com.group2.bookstore.model.Review;
+import com.group2.bookstore.model.User;
+
 import java.io.IOException;
 import java.util.List;
-
+import com.group2.bookstore.model.Collection;
 import com.group2.bookstore.dal.BookDAO;
+import com.group2.bookstore.dal.CollectionDAO;
 import com.group2.bookstore.dal.ReviewDAO;
 import com.group2.bookstore.model.Book;
 import com.group2.bookstore.model.BookImage;
@@ -14,6 +17,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @WebServlet(name = "ProductDetailServlet", urlPatterns = {"/detail"})
 public class ProducDetailServlet extends HttpServlet{
@@ -27,6 +31,20 @@ public class ProducDetailServlet extends HttpServlet{
         if (idRaw == null || idRaw.isEmpty()) {
             response.sendRedirect("home"); // Invalid ID -> Go Home
             return;
+        }
+
+        // Kéo CollectionDAO và Collection model vào (nhớ import ở đầu file nhé)
+        // import com.group2.bookstore.dal.CollectionDAO;
+        // import com.group2.bookstore.model.Collection;
+
+        HttpSession session = request.getSession();
+        User user = (User) session.getAttribute("user");
+
+        // Nếu khách đã đăng nhập, lấy danh sách "Giá sách" của họ ra để đẩy lên Modal
+        if (user != null) {
+            CollectionDAO collectionDAO = new CollectionDAO();
+            List<Collection> myCollections = collectionDAO.getCollectionsByUserId(user.getId());
+            request.setAttribute("myCollections", myCollections);
         }
 
         try {

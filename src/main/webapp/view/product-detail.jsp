@@ -10,6 +10,7 @@
     <title>${book.title} - BookStore</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/home.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/product-detail.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
@@ -336,6 +337,17 @@
                         <button type="button" style="background: #C92127; color: white; border: none; padding: 12px 20px; font-weight: bold; font-size: 16px; cursor: pointer; border-radius: 8px; flex: 1; display: flex; align-items: center; justify-content: center; transition: 0.3s;">
                             Mua ngay
                         </button>
+
+                        <c:if test="${sessionScope.user != null}">
+                            <button type="button" class="btn btn-outline-danger ms-2" data-bs-toggle="modal" data-bs-target="#addToCollectionModal" style="padding: 10px 20px; font-weight: bold;">
+                                <i class="fa-regular fa-heart me-1"></i> Lưu vào Giá sách
+                            </button>
+                        </c:if>
+                        <c:if test="${sessionScope.user == null}">
+                            <a href="${pageContext.request.contextPath}/login" class="btn btn-outline-danger ms-2" style="padding: 10px 20px; font-weight: bold;" title="Vui lòng đăng nhập để lưu sách">
+                                <i class="fa-regular fa-heart me-1"></i> Lưu vào Giá sách
+                            </a>
+                        </c:if>
                     </div>
                 </form>
             </div>
@@ -773,8 +785,54 @@
             </div>
         </div>
 
-    </main>
+        <div class="modal fade" id="addToCollectionModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold"><i class="fa-solid fa-bookmark text-danger me-2"></i>Lưu sách vào Bộ sưu tập</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="text-muted mb-3">Sách: <strong>${book.title}</strong></p> <c:choose>
+                            <c:when test="${empty myCollections}">
+                                <div class="text-center py-4">
+                                    <p class="text-muted">Bạn chưa có giá sách nào!</p>
+                                    <a href="${pageContext.request.contextPath}/my-collections" class="btn btn-sm btn-danger">Tạo giá sách mới</a>
+                                </div>
+                            </c:when>
+                            <c:otherwise>
+                                <form action="${pageContext.request.contextPath}/my-collections" method="POST">
+                                    <input type="hidden" name="action" value="addBook">
+                                    <input type="hidden" name="bookId" value="${book.id}"> 
+                                    
+                                    <label class="form-label fw-bold">Chọn giá sách:</label>
+                                    <div class="list-group mb-3">
+                                        <c:forEach var="c" items="${myCollections}">
+                                            <label class="list-group-item d-flex gap-2">
+                                                <input class="form-check-input flex-shrink-0" type="radio" name="collectionId" value="${c.id}" required>
+                                                <span>
+                                                    <span style="color: ${c.coverColor};"><i class="fa-solid fa-swatchbook me-1"></i></span>
+                                                    ${c.name} 
+                                                    <small class="text-muted d-block" style="font-size: 12px;">Đang có ${c.totalBooks} cuốn</small>
+                                                </span>
+                                            </label>
+                                        </c:forEach>
+                                    </div>
+                                    
+                                    <div class="text-end mt-3">
+                                        <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Hủy</button>
+                                        <button type="submit" class="btn text-white fw-bold" style="background-color: #C92127;">Lưu lại</button>
+                                    </div>
+                                </form>
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
+                </div>
+            </div>
+        </div>
 
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function changeImage(element, imageUrl){
             // 1. Thay đổi nguồn ảnh của ảnh chính (ảnh to)
