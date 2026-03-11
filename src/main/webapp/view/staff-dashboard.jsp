@@ -76,13 +76,14 @@
                     </div>
 
                     <h2 style="margin-top: 40px; margin-bottom: 20px; color: #333;">Chức năng nghiệp vụ</h2>
-                    <a href="${pageContext.request.contextPath}/vouchers-management" class="admin-card">
-                        <i class="fa-solid fa-ticket" style="color: #e83e8c;"></i>
-                        <h3>Quản lý Mã giảm giá</h3>
-                        <p>Tạo mới, theo dõi trạng thái và quản lý các mã khuyến mãi</p>
-                    </a>
 
                     <div class="card-grid">
+
+                        <a href="${pageContext.request.contextPath}/vouchers-management" class="admin-card">
+                            <i class="fa-solid fa-ticket" style="color: #e83e8c;"></i>
+                            <h3>Quản lý Mã giảm giá</h3>
+                            <p>Tạo mới, theo dõi trạng thái và quản lý các mã khuyến mãi</p>
+                        </a>
 
                         <a href="${pageContext.request.contextPath}/orders-management" class="admin-card">
                             <i class="fa-solid fa-list-check" style="color: #17a2b8;"></i>
@@ -101,11 +102,13 @@
                             <h3>Phản hồi Khách hàng</h3>
                             <p>Xem và trả lời các đánh giá, bình luận về sách</p>
                         </a>
+
                         <a href="${pageContext.request.contextPath}/staff/customers" class="admin-card">
-                            <i class="fa-solid fa-users-viewfinder" style="color: #e83e8c;"></i>
+                            <i class="fa-solid fa-users-viewfinder" style="color: #28a745;"></i>
                             <h3>Hỗ trợ Khách hàng</h3>
                             <p>Tra cứu thông tin liên hệ, lịch sử và giải quyết khiếu nại</p>
                         </a>
+
                     </div>
                 </main>
 
