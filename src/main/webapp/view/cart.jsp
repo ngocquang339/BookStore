@@ -48,7 +48,7 @@
             cursor: not-allowed !important;
             color: #888888 !important;
         }
-    </style>
+</style>
 </head>
 
 <body>
@@ -102,8 +102,7 @@
                                         <td class="text-center">
                                             <input type="checkbox" name="selectedItems" value="${item.book.id}" 
                                                    class="form-check-input custom-checkbox item-checkbox"
-                                                   data-price="${item.book.price}" 
-                                                   data-quantity="${item.quantity}">
+                                                   data-price="${item.book.price}"data-quantity="${item.quantity}">
                                         </td>
 
                                         <td>
@@ -138,8 +137,7 @@
                                                 <fmt:formatNumber value="${item.totalPrice}" type="currency" currencySymbol="₫"/>
                                             </span>
                                         </td>
-                                        
-                                        <td class="text-center">
+<td class="text-center">
                                             <a href="${pageContext.request.contextPath}/add-to-cart?id=${item.book.id}&action=remove" 
                                                class="btn-delete" title="Xóa sản phẩm"
                                                onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này không?');">
@@ -202,7 +200,7 @@
 
             // Đổi trạng thái ô "Chọn tất cả"
             if(selectAll) {
-                selectAll.checked = (checkedCount === itemCheckboxes.length && itemCheckboxes.length > 0);
+selectAll.checked = (checkedCount === itemCheckboxes.length && itemCheckboxes.length > 0);
             }
 
             // BẬT / TẮT NÚT THANH TOÁN

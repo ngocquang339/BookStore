@@ -323,7 +323,7 @@
                         }
                     }
                 </script>
-
+<%@ include file="admin-notifications.jsp"  %>
             </body>
 
             </html>

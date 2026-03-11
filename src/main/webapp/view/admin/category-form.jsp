@@ -108,6 +108,6 @@
             <a href="${pageContext.request.contextPath}/admin/product/list" class="back-link">Cancel</a>
         </form>
     </div>
-
+<%@ include file="admin-notifications.jsp"  %>
 </body>
 </html>

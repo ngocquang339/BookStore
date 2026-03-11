@@ -1,14 +1,16 @@
 package com.group2.bookstore.controller;
 
+import java.io.IOException;
+
+import com.group2.bookstore.dal.UserDAO;
+import com.group2.bookstore.model.User;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.io.IOException;
-import com.group2.bookstore.model.User;
-import com.group2.bookstore.dal.UserDAO;
 
 @WebServlet("/verify-otp")
 public class VerifyOtpServlet extends HttpServlet {

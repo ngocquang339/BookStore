@@ -20,7 +20,7 @@ public class AdminOrderServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         String path = request.getServletPath();
         OrderDAO dao = new OrderDAO();
 
@@ -29,24 +29,22 @@ public class AdminOrderServlet extends HttpServlet {
         if (path.equals("/admin/order/detail")) {
             try {
                 int orderId = Integer.parseInt(request.getParameter("id"));
-                
+
                 // Get the Order Header (Who, When, Total)
                 Order order = dao.getOrderById(orderId);
-                
+
                 // Get the Order Items (List of Books)
                 List<OrderDetail> details = dao.getOrderDetails(orderId);
-                
+
                 request.setAttribute("order", order);
                 request.setAttribute("details", details);
-                
+
                 request.getRequestDispatcher("/view/admin/order-detail.jsp").forward(request, response);
             } catch (Exception e) {
                 // If ID is missing or bad, go back to list
                 response.sendRedirect(request.getContextPath() + "/admin/order");
             }
-        } 
-        
-        // CASE 2: List All Orders with Search, Sort & Page (/admin/order)
+        } // CASE 2: List All Orders with Search, Sort & Page (/admin/order)
         else {
             // 1. Get Filter Parameters from URL
             String keyword = request.getParameter("keyword");
@@ -82,20 +80,19 @@ public class AdminOrderServlet extends HttpServlet {
 
             // 5. Fetch Data for the Current Page
             List<Order> list = dao.getOrders(
-                keyword, 
-                fromDate, 
-                toDate, 
-                status, 
-                sortBy, 
-                sortOrder, 
-                index
+                    keyword,
+                    fromDate,
+                    toDate,
+                    status,
+                    sortBy,
+                    sortOrder,
+                    index
             );
 
             // 6. Send Data to JSP
             request.setAttribute("listOrders", list);
             request.setAttribute("endPage", endPage);
             request.setAttribute("tag", index); // "tag" is the active page number
-            
             // 7. Send Back Filters & Sort (So they stick in the UI)
             request.setAttribute("keyword", keyword);
             request.setAttribute("fromDate", fromDate);
@@ -111,20 +108,46 @@ public class AdminOrderServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         String path = request.getServletPath();
-        
+
         // CASE 3: Update Status (/admin/order/update)
         if (path.equals("/admin/order/update")) {
             try {
                 int orderId = Integer.parseInt(request.getParameter("orderId"));
-                int status = Integer.parseInt(request.getParameter("status"));
-                
+                int newStatus = Integer.parseInt(request.getParameter("status"));
+                String statusNote = request.getParameter("statusNote"); // Get the note from the form
                 OrderDAO dao = new OrderDAO();
-                dao.updateStatus(orderId, status);
+
+                // --- BACKEND SECURITY CHECK START ---
+                // 1. Fetch the current, true status from the database
+                // (Make sure you import your Order model if it isn't already!)
+                com.group2.bookstore.model.Order currentOrder = dao.getOrderById(orderId);
+
+                // 2. Block the update if it's already Completed (3) or Cancelled (0 or 4)
+                if (currentOrder != null && (currentOrder.getStatus() == 3 || currentOrder.getStatus() == 0 || currentOrder.getStatus() == 4)) {
+                    // Send them back to the detail page with a warning flag
+                    response.sendRedirect(request.getContextPath() + "/admin/order/detail?id=" + orderId + "&error=locked");
+                    return; // CRITICAL: This stops the code from reaching dao.updateStatus() below!
+                }
+                // --- BACKEND SECURITY CHECK END ---
+                // ... inside your doPost ...
+
                 
+
+                if (currentOrder != null && (currentOrder.getStatus() == 3 || currentOrder.getStatus() == 0 || currentOrder.getStatus() == 4)) {
+                    response.sendRedirect(request.getContextPath() + "/admin/order/detail?id=" + orderId + "&error=locked");
+                    return;
+                }
+
+// Pass the note to the DAO
+                dao.updateOrderStatusWithNote(orderId, newStatus, statusNote);
+                // 3. If the order is still Pending or Shipping, it's safe to update
+                
+
                 // Redirect back to the Detail page so admin can see the change immediately
-                response.sendRedirect(request.getContextPath() + "/admin/order/detail?id=" + orderId);
+                response.sendRedirect(request.getContextPath() + "/admin/order/detail?id=" + orderId + "&msg=updated");
+
             } catch (Exception e) {
                 e.printStackTrace();
                 response.sendRedirect(request.getContextPath() + "/admin/order");

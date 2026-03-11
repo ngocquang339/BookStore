@@ -1,0 +1,159 @@
+/* Layout chung 2 cột */
+.user-profile-layout {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+    font-family: Arial, sans-serif;
+}
+
+/* Sidebar bên trái */
+.sidebar {
+    width: 250px;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.profile-menu {
+    list-style: none;
+    padding: 0;
+}
+.profile-menu li {
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+}
+.profile-menu li.active a {
+    color: #c92127; /* Màu đỏ Fahasa */
+    font-weight: bold;
+}
+.profile-menu a {
+    text-decoration: none;
+    color: #333;
+    display: flex;
+    justify-content: space-between;
+}
+.badge {
+    background: #c92127;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 12px;
+}
+
+/* Khu vực chính (Nội dung) */
+.main-content {
+    flex: 1;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.wallet-title {
+    margin-top: 0;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+}
+.voucher-tabs {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #eee;
+}
+.voucher-tabs .tab {
+    padding: 10px 20px;
+    cursor: pointer;
+}
+.voucher-tabs .tab.active {
+    border-bottom: 2px solid #c92127;
+    color: #c92127;
+    font-weight: bold;
+}
+
+/* Lưới chứa các Voucher */
+.voucher-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 cột giống hình */
+    gap: 15px;
+}
+
+/* Thiết kế Thẻ Voucher */
+.voucher-card {
+    display: flex;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    height: 130px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.voucher-left {
+    width: 100px;
+    background-color: #28a745; /* Màu xanh Fahasa */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 30px;
+    border-right: 2px dashed #fff; /* Tạo nét đứt chia vé */
+}
+
+.voucher-right {
+    flex: 1;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: #fff;
+}
+
+.v-header {
+    display: flex;
+    justify-content: space-between;
+}
+.v-title {
+    font-weight: bold;
+    font-size: 15px;
+    color: #333;
+}
+.v-detail-link {
+    color: #007bff;
+    font-size: 12px;
+    text-decoration: none;
+}
+.v-condition {
+    font-size: 12px;
+    color: #777;
+    margin-top: 4px;
+}
+.v-code-box {
+    margin-top: 5px;
+}
+.v-code {
+    background: #f0f0f0;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #555;
+    border: 1px solid #ddd;
+}
+.v-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+.v-date {
+    font-size: 12px;
+    color: #007bff; /* Giống màu ngày tháng của Fahasa */
+}
+.btn-copy {
+    background: #007bff; /* Nút copy xanh dương */
+    color: white;
+    border: none;
+    padding: 6px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.3s;
+}
+.btn-copy:hover {
+    background: #0056b3;
+}

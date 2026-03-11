@@ -1,13 +1,15 @@
 package com.group2.bookstore.controller;
 
+import java.io.IOException;
+import java.util.List;
+
 import com.group2.bookstore.dal.CartDAO;
 import com.group2.bookstore.dal.UserDAO;
 import com.group2.bookstore.dal.BookDAO;
 import com.group2.bookstore.model.Book;
 import com.group2.bookstore.model.CartItem;
 import com.group2.bookstore.model.User;
-import java.io.IOException;
-import java.util.List;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -28,7 +30,7 @@ public class LoginServlet extends HttpServlet {
             if(currentUser != null){
                 roleId = currentUser.getRole();
             }
-             List<Book> list = dao.getRandomBook(roleId, 50);
+             List<Book> list = dao.getRandomBook(roleId, 20);
             request.setAttribute("suggestedBooks", list);
             request.getRequestDispatcher("view/Login.jsp").forward(request, response);
     }
@@ -104,7 +106,7 @@ public class LoginServlet extends HttpServlet {
                 response.sendRedirect("admin/dashboard");
             } 
             else if (role == 3) {
-                response.sendRedirect("dashboard"); // Trang quản lý đơn hàng
+                response.sendRedirect(request.getContextPath() + "/staff-dashboard");
 }
             else {
                 // Customer Role (Khách hàng) -> Về trang chủ

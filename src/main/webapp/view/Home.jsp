@@ -23,14 +23,77 @@
         }
         .admin-active { margin-top: 0; }
         
-        /* CSS sửa lỗi banner */
-        .banner-section { margin-bottom: 30px; }
-        .banner-top { display: flex; gap: 10px; margin-bottom: 10px; }
-        .banner-left { width: 66%; } .banner-left img { width: 100%; border-radius: 8px; }
-        .banner-right { width: 33%; display: flex; flex-direction: column; gap: 10px; }
-        .banner-right img { width: 100%; border-radius: 8px; }
-        .banner-bottom { display: flex; gap: 10px; justify-content: space-between; }
-        .banner-bottom img { width: 24%; border-radius: 8px; }
+        /* ==========================================
+   CSS BANNER CHUẨN (KHÔNG BỊ TRÀN, KHÔNG LỆCH)
+   ========================================== */
+        .banner-section { 
+            margin-bottom: 30px; 
+        }
+
+        /* --- Khối Trên --- */
+        .banner-top { 
+            display: flex; 
+            gap: 10px; 
+            margin-bottom: 10px; 
+            height: 340px; /* CHỐT CỨNG CHIỀU CAO ĐỂ KHÔNG BỊ TRÀN XUỐNG DƯỚI */
+        }
+
+        /* Cột Trái */
+        .banner-left { 
+            width: 66%; 
+            height: 100%;
+        } 
+        .banner-left img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            border-radius: 8px; 
+        }
+
+        /* Cột Phải */
+        .banner-right { 
+            width: 34%; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px; 
+            height: 100%;
+        }
+        .right-item {
+            flex: 1; /* Tự động chia đôi chiều cao khoảng trống (mỗi ảnh 50%) */
+            display: block;
+            height: 100%; 
+            overflow: hidden; 
+            border-radius: 8px;
+        }
+        .right-item img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            display: block;
+        }
+
+        /* --- Khối Dưới --- */
+        .banner-bottom { 
+            display: flex; 
+            gap: 10px; 
+        }
+        .banner-bottom a {
+            flex: 1; /* 4 banner chia đều nhau */
+            display: block;
+        }
+        .banner-bottom img { 
+            width: 100%; 
+            height: 140px; 
+            object-fit: cover; 
+            border-radius: 8px; 
+        }
+
+        /* Hiệu ứng hover cho tất cả ảnh */
+        .banner-left img:hover, .right-item img:hover, .banner-bottom img:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            transition: all 0.2s ease;
+        }
     </style>
 </head>
 
@@ -63,7 +126,7 @@
                     </a>
                 </c:when>
                 <c:when test="${sessionScope.user.role == 3}">
-                    <a href="${pageContext.request.contextPath}/dashboard" style="background-color: #C92127; color: white; padding: 10px 20px; text-decoration: none; font-weight: bold; display: flex; align-items: center; transition: background-color 0.2s;">
+                    <a href="${pageContext.request.contextPath}/staff-dashboard" style="background-color: #C92127; color: white; padding: 10px 20px; text-decoration: none; font-weight: bold; display: flex; align-items: center; transition: background-color 0.2s;">
                         VÀO TRANG QUẢN LÝ SALE <i class="fa-solid fa-arrow-right ms-2"></i>
                     </a>
                 </c:when>
@@ -123,8 +186,13 @@
                         <img src="${pageContext.request.contextPath}/assets/image/Banner/Screenshot 2026-01-19 150229.png" alt="Banner Chính">
                     </div>
                     <div class="banner-right">
-                        <img src="${pageContext.request.contextPath}/assets/image/Banner/BannerRight1.jpg" alt="Banner Phụ 1">
-                        <img src="${pageContext.request.contextPath}/assets/image/Banner/BannerRight2.jpg" alt="Banner Phụ 2">
+                        <a href="${pageContext.request.contextPath}/vouchers" class="right-item">
+                            <img src="${pageContext.request.contextPath}/assets/image/Banner/Voucher.jpg" alt="Săn Voucher Khủng">
+                        </a>
+                        
+                        <a href="#" class="right-item">
+                            <img src="${pageContext.request.contextPath}/assets/image/Banner/BannerRight2.jpg" alt="Banner Phụ 2">
+                        </a>
                     </div>
                 </div>
                 <div class="banner-bottom">
@@ -160,7 +228,7 @@
                                 </div>
                             </div>
                         </div>
-                        <a href="#" class="fs-view-all">Xem tất cả <i class="fa-solid fa-chevron-right"></i></a>
+                        <a href="${pageContext.request.contextPath}/flash-sale" class="fs-view-all">Xem tất cả <i class="fa-solid fa-chevron-right"></i></a>
                     </div>
 
                     <div class="fs-body">

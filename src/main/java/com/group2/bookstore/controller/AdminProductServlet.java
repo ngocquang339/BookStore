@@ -77,26 +77,8 @@ public class AdminProductServlet extends HttpServlet {
     request.setAttribute("tag", index); // Current page
     request.setAttribute("endPage", endPage); // Total pages
 
-            // 7. Get Data for Current Page
-            
-
-            // 8. Send Data to JSP
-            request.setAttribute("listBooks", list);
-            request.setAttribute("listCategories", categories);
-            request.setAttribute("endPage", endPage);
-            request.setAttribute("tag", index);
-
-            // Send back filters so they stick in the URL/Search bar
-            request.setAttribute("searchKeyword", keyword);
-            request.setAttribute("searchCid", cidRaw);
-            request.setAttribute("sortBy", sortBy);
-            request.setAttribute("sortOrder", sortOrder);
-
-            request.getRequestDispatcher("/view/admin/manage-products.jsp").forward(request, response);
-        }
-        CategoryDAO catDao = new CategoryDAO();
-        request.setAttribute("listCategories", catDao.getCategories());
     request.getRequestDispatcher("/view/admin/manage-products.jsp").forward(request, response);
+}
 
         if (path.equals("/admin/product/add")) {
             CategoryDAO categoryDAO = new CategoryDAO();
