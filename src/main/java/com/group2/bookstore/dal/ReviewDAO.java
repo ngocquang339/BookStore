@@ -199,7 +199,7 @@ public class ReviewDAO extends DBContext {
     }
 
     // 2. SỬA HÀM CŨ: Đổi tên thành getFilteredReviews và nhận thêm tham số bookId
-    public List<Review> getFilteredReviews(int starValue, int bookId) {
+    public List<Review> getFilteredReviews(int starValue, int bookId, int userId) {
         List<Review> list = new ArrayList<>();
 
         // Dùng Trick "WHERE 1=1" để dễ dàng cộng chuỗi điều kiện
@@ -219,6 +219,7 @@ public class ReviewDAO extends DBContext {
         if (bookId > 0) {
             sql.append(" AND r.book_id = ? ");
         }
+        if (userId > 0) { sql.append(" AND r.user_id = ? "); }
         sql.append(" ORDER BY r.create_at DESC");
 
         try (Connection conn = getConnection();
@@ -231,7 +232,7 @@ public class ReviewDAO extends DBContext {
             if (bookId > 0) {
                 ps.setInt(paramIndex++, bookId);
             }
-
+            if (userId > 0) { ps.setInt(paramIndex++, userId); }
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     Review r = new Review();

@@ -33,8 +33,11 @@ public class StaffReviewServlet extends HttpServlet {
         }
         String star = request.getParameter("star");
         String bookIdStr = request.getParameter("bookId");
+        String userIdStr = request.getParameter("userId");
         int starValue = 0;
         int bookId = 0;
+        int userId = 0;
+
         if (star != null && !star.isEmpty() && !star.equals("all")) {
             try {
                 starValue = Integer.parseInt(star);
@@ -51,15 +54,22 @@ public class StaffReviewServlet extends HttpServlet {
                 bookId = 0;
             }
         }
+        if (userIdStr != null && !userIdStr.isEmpty()) {
+            try {
+                userId = Integer.parseInt(userIdStr);
+            } catch (Exception e) {
+            }
+        }
         // 2. Gọi DAO để lấy dữ liệu
         ReviewDAO reviewDAO = new ReviewDAO();
-        List<Review> listReviews = reviewDAO.getFilteredReviews(starValue, bookId);
+        List<Review> listReviews = reviewDAO.getFilteredReviews(starValue, bookId, userId);
         List<Review> listBooks = reviewDAO.getDistinctReviewedBooks();
 
         // 3. Đẩy dữ liệu sang JSP
         request.setAttribute("listReviews", listReviews);
         request.setAttribute("selectedStar", (starValue == 0) ? "" : String.valueOf(starValue));
         request.setAttribute("selectedBookId", (bookId == 0) ? "" : String.valueOf(bookId));
+        request.setAttribute("selectedUserId", (userId == 0) ? "" : String.valueOf(userId));
         request.setAttribute("listBooks", listBooks);
 
         // 4. Chuyển hướng sang file JSP

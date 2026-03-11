@@ -70,14 +70,21 @@
         <body>
             <div class="container-fluid py-4 px-5">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h2 class="fw-bold brand-color mb-1"><i class="fa-solid fa-users-viewfinder me-2"></i>Hỗ trợ
-                            Khách hàng</h2>
-                        <p class="text-muted mb-0">Tra cứu thông tin liên hệ và giải quyết khiếu nại</p>
+                    <div class="d-flex align-items-center gap-4">
+                        <a href="${pageContext.request.contextPath}/staff-dashboard"
+                            class="btn btn-danger rounded-pill px-4 shadow-sm" style="transition: 0.3s;">
+                            <i class="fa-solid fa-chart-line me-2"></i> Về Dashboard
+                        </a>
+
+                        <div class="border-start border-2 border-secondary ps-4">
+                            <h2 class="fw-bold brand-color mb-1"><i class="fa-solid fa-comments me-2"></i>Quản lý khách hàng</h2>
+                            <p class="text-muted mb-0">Theo dõi và phản hồi trải nghiệm của khách hàng</p>
+                        </div>
                     </div>
+
                     <a href="${pageContext.request.contextPath}/home"
-                        class="btn btn-outline-secondary rounded-pill px-4">
-                        <i class="fa-solid fa-arrow-left me-2"></i>Về Trang chủ
+                        class="btn btn-outline-secondary rounded-pill px-4 hover-brand">
+                        <i class="fa-solid fa-arrow-left me-2"></i> Về Trang chủ
                     </a>
                 </div>
 
