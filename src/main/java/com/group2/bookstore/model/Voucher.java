@@ -12,6 +12,7 @@ public class Voucher {
     private Timestamp endDate;
     private int usageLimit;
     private int status;
+    private Double maxDiscount;
 
     // Constructors
     public Voucher() {
@@ -56,4 +57,6 @@ public class Voucher {
     
     public int getStatus() { return status; }
     public void setStatus(int status) { this.status = status; }
+    public Double getMaxDiscount() { return maxDiscount; }
+    public void setMaxDiscount(Double maxDiscount) { this.maxDiscount = maxDiscount; }
 }

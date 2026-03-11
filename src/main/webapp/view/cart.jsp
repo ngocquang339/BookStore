@@ -112,7 +112,11 @@
                                                      alt="${item.book.title}"
                                                      onerror="this.src='https://placehold.co/80x100'">
                                                 <div>
-                                                    <div class="product-title">${item.book.title}</div>
+                                                    <div class="product-title">
+    <a href="${pageContext.request.contextPath}/detail?pid=${item.book.id}" style="text-decoration: none; color: inherit;">
+        ${item.book.title}
+    </a>
+</div>
                                                     <div style="font-size: 14px; color: #555;">
                                                         <fmt:formatNumber value="${item.book.price}" type="currency" currencySymbol="₫"/>
                                                     </div>

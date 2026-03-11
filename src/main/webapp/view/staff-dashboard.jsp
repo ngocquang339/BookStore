@@ -76,6 +76,11 @@
                     </div>
 
                     <h2 style="margin-top: 40px; margin-bottom: 20px; color: #333;">Chức năng nghiệp vụ</h2>
+                    <a href="${pageContext.request.contextPath}/vouchers-management" class="admin-card">
+                        <i class="fa-solid fa-ticket" style="color: #e83e8c;"></i>
+                        <h3>Quản lý Mã giảm giá</h3>
+                        <p>Tạo mới, theo dõi trạng thái và quản lý các mã khuyến mãi</p>
+                    </a>
 
                     <div class="card-grid">
 

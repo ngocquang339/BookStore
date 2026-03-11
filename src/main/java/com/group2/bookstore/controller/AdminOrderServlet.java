@@ -141,7 +141,7 @@ public class AdminOrderServlet extends HttpServlet {
                 }
 
 // Pass the note to the DAO
-                dao.updateOrderStatusWithNote(orderId, newStatus, statusNote);
+                dao.updateStatus(orderId, newStatus, statusNote);
                 // 3. If the order is still Pending or Shipping, it's safe to update
                 
 

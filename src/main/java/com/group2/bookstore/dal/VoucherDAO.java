@@ -16,9 +16,8 @@ public class VoucherDAO extends DBContext { // Giả sử nhóm bạn dùng DBCo
     // =====================================================================
     public List<Voucher> getAllActiveVouchers() {
         List<Voucher> list = new ArrayList<>();
-        // Chỉ lấy những mã: Đang bật (status=1), còn hạn (end_date >= hiện tại) và còn lượt dùng (>0)
-        String sql = "SELECT * FROM Vouchers WHERE status = 1 AND end_date >= GETDATE() AND usage_limit > 0";
-        
+        // Chỉ lấy những mã: Đang bật (status=1), còn hạn (end_date >= hiện tại) và còn lượt dùng (>0)  
+               String sql = "SELECT * FROM Vouchers WHERE status = 1 AND start_date <= GETDATE() AND end_date >= GETDATE() AND usage_limit > 0";    
         try (Connection conn = getConnection(); 
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -178,6 +177,73 @@ public class VoucherDAO extends DBContext { // Giả sử nhóm bạn dùng DBCo
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    // 6. DÀNH CHO STAFF: LẤY TẤT CẢ VOUCHER (Kể cả hết hạn/hết lượt)
+   
+    public List<Voucher> getAllVouchersForStaff() {
+        List<Voucher> list = new ArrayList<>();
+      String sql = "SELECT * FROM Vouchers ORDER BY voucher_id DESC";
+        try (Connection conn = getConnection(); 
+             PreparedStatement ps = conn.prepareStatement(sql); 
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Voucher v = new Voucher();
+                v.setId(rs.getInt("voucher_id"));
+                v.setCode(rs.getString("code"));
+                v.setDiscountAmount(rs.getDouble("discount_amount")); // Nếu null trong DB sẽ tự thành 0.0
+                v.setDiscountPercent(rs.getInt("discount_percent"));  // Nếu null trong DB sẽ tự thành 0
+                v.setMinOrderValue(rs.getDouble("min_order_value"));
+                v.setStartDate(rs.getTimestamp("start_date"));
+                v.setEndDate(rs.getTimestamp("end_date"));
+                v.setUsageLimit(rs.getInt("usage_limit"));
+                v.setMaxDiscount(rs.getDouble("max_discount"));
+                v.setStatus(rs.getInt("status"));
+                list.add(v);
+            }
+        } catch (Exception e) { 
+            e.printStackTrace(); 
+        }
+        return list;
+    }
+
+    // =====================================================================
+    // 7. DÀNH CHO STAFF: THÊM MỚI VOUCHER
+    // =====================================================================
+    public void addVoucherForStaff(Voucher v) {
+        // CẬP NHẬT 1: Thêm max_discount vào câu SQL (Giờ là 8 dấu chấm hỏi)
+        String sql = "INSERT INTO Vouchers (code, discount_amount, discount_percent, min_order_value, start_date, end_date, usage_limit, max_discount, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, v.getCode().toUpperCase());
+            
+            if (v.getDiscountAmount() > 0) {
+                ps.setDouble(2, v.getDiscountAmount());
+            } else {
+                ps.setNull(2, java.sql.Types.DOUBLE);
+            }
+            
+            if (v.getDiscountPercent() > 0) {
+                ps.setInt(3, v.getDiscountPercent());
+            } else {
+                ps.setNull(3, java.sql.Types.INTEGER);
+            }
+            
+            ps.setDouble(4, v.getMinOrderValue());
+            ps.setTimestamp(5, v.getStartDate());
+            ps.setTimestamp(6, v.getEndDate());
+            ps.setInt(7, v.getUsageLimit());
+            
+            // CẬP NHẬT 2: Truyền max_discount vào vị trí số 8
+            if (v.getMaxDiscount() > 0) {
+                ps.setDouble(8, v.getMaxDiscount());
+            } else {
+                ps.setNull(8, java.sql.Types.DOUBLE);
+            }
+            
+            ps.executeUpdate();
+        } catch (Exception e) { 
+            e.printStackTrace(); 
         }
     }
 }
