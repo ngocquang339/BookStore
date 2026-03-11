@@ -218,12 +218,12 @@ public class OrderDAO extends DBContext {
         }
         return list;
     }
-    public void updateOrderStatus(int orderId, int newStatus) {
-        String sql = "UPDATE Orders SET status = ? WHERE order_id = ?";
+    // public void updateOrderStatus(int orderId, int newStatus) {
+    //     String sql = "UPDATE Orders SET status = ? WHERE order_id = ?";
 
     // Upgraded method to include the note!
-//     public void updateStatus(int orderId, int status, String note) {
-//         String sql = "UPDATE Orders SET status = ?, status_note = ? WHERE order_id = ?";
+    public void updateStatus(int orderId, int status, String note) {
+        String sql = "UPDATE Orders SET status = ?, status_note = ? WHERE order_id = ?";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, status);

@@ -86,6 +86,12 @@
                 <p>Xem biểu đồ và xuất file Excel báo cáo cuối ngày</p>
             </a>
 
+            <a href="${pageContext.request.contextPath}/vouchers-management" class="admin-card">
+                <i class="fa-solid fa-ticket" style="color: #e83e8c;"></i>
+                <h3>Quản lý Mã giảm giá</h3>
+                <p>Tạo mới, theo dõi trạng thái và quản lý các mã khuyến mãi</p>
+            </a>
+
             <a href="${pageContext.request.contextPath}/staff/reviews" class="admin-card">
                 <i class="fa-solid fa-comments" style="color: #fd7e14;"></i>
                 <h3>Phản hồi Khách hàng</h3>

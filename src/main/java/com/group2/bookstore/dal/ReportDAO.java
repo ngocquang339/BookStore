@@ -51,7 +51,7 @@ public class ReportDAO extends DBContext {
                 if (status == 1) counts[0] = rs.getInt("count");      // Pending -> Index 0
                 else if (status == 2) counts[1] = rs.getInt("count"); // Shipping -> Index 1
                 else if (status == 3) counts[2] = rs.getInt("count"); // Completed -> Index 2
-                else if (status == 0) counts[3] = rs.getInt("count"); // Cancelled -> Index 3
+                else if (status == 4) counts[3] = rs.getInt("count"); // Cancelled -> Index 3
             }
         } catch (Exception e) { e.printStackTrace(); }
         return counts;
