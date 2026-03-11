@@ -16,9 +16,8 @@ public class VoucherDAO extends DBContext { // Giả sử nhóm bạn dùng DBCo
     // =====================================================================
     public List<Voucher> getAllActiveVouchers() {
         List<Voucher> list = new ArrayList<>();
-        // Chỉ lấy những mã: Đang bật (status=1), còn hạn (end_date >= hiện tại) và còn lượt dùng (>0)
-        String sql = "SELECT * FROM Vouchers WHERE status = 1 AND start_date <= GETDATE() AND end_date >= GETDATE() AND usage_limit > 0";
-        
+        // Chỉ lấy những mã: Đang bật (status=1), còn hạn (end_date >= hiện tại) và còn lượt dùng (>0)  
+               String sql = "SELECT * FROM Vouchers WHERE status = 1 AND start_date <= GETDATE() AND end_date >= GETDATE() AND usage_limit > 0";    
         try (Connection conn = getConnection(); 
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -180,12 +179,12 @@ public class VoucherDAO extends DBContext { // Giả sử nhóm bạn dùng DBCo
             e.printStackTrace();
         }
     }
-    // =====================================================================
+
     // 6. DÀNH CHO STAFF: LẤY TẤT CẢ VOUCHER (Kể cả hết hạn/hết lượt)
-    // =====================================================================
+   
     public List<Voucher> getAllVouchersForStaff() {
         List<Voucher> list = new ArrayList<>();
-        String sql = "SELECT * FROM Vouchers ORDER BY voucher_id DESC";
+      String sql = "SELECT * FROM Vouchers ORDER BY voucher_id DESC";
         try (Connection conn = getConnection(); 
              PreparedStatement ps = conn.prepareStatement(sql); 
              ResultSet rs = ps.executeQuery()) {

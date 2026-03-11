@@ -44,6 +44,7 @@ public class EditStatusController extends HttpServlet {
         } catch (Exception e) {
             // ĐÃ SỬA
             resp.sendRedirect(req.getContextPath() + "/orders-management"); 
+            return; // Thêm chốt chặn an toàn
         }
     }
 
@@ -55,14 +56,29 @@ public class EditStatusController extends HttpServlet {
             int newStatus = Integer.parseInt(req.getParameter("newStatus"));
 
             OrderDAO dao = new OrderDAO();
-            dao.updateStatus(orderId, newStatus);
+            
+            // 1. HỨNG KẾT QUẢ TỪ DAO (Hàm chuẩn đã update check kho)
+            boolean isSuccess = dao.updateOrderStatus(orderId, newStatus);
 
-            // ĐÃ SỬA: Cập nhật xong thì đá về lại đúng bảng danh sách đơn hàng
+            // 2. DỰA VÀO KẾT QUẢ ĐỂ BÁO LỖI HOẶC THÀNH CÔNG
+            if (isSuccess) {
+                req.getSession().setAttribute("successMsg", "Cập nhật trạng thái đơn hàng #" + orderId + " thành công!");
+            } else {
+                // Báo lỗi cho Admin biết lý do không cập nhật được
+                req.getSession().setAttribute("errorMsg", "Cập nhật thất bại! Đơn hàng này có thể đã ở trạng thái Đã Hủy từ trước.");
+            }
+
+            // 3. ĐIỀU HƯỚNG: Cập nhật xong thì đá về lại đúng bảng danh sách đơn hàng
             resp.sendRedirect(req.getContextPath() + "/orders-management");
+            return; // <--- CHỐT CHẶN BẮT BUỘC ĐỂ KHÔNG BỊ LỖI COMMITTED
+            
         } catch (Exception e) {
             e.printStackTrace();
-            // ĐÃ SỬA
+            req.getSession().setAttribute("errorMsg", "Lỗi hệ thống: Tham số không hợp lệ.");
+            
+            // Đá về trang quản lý nếu có lỗi try-catch
             resp.sendRedirect(req.getContextPath() + "/orders-management");
+            return; // <--- CHỐT CHẶN
         }
     }
 }
