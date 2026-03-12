@@ -108,8 +108,20 @@
                             </td>
                             
                             <td class="text-center">
-                                <button class="btn btn-sm btn-outline-primary" title="Sửa mã"><i class="fa-solid fa-pen"></i></button>
-                            </td>
+                                <div class="d-flex justify-content-center gap-2">
+                                <button class="btn btn-sm btn-outline-primary" title="Sửa mã">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+        
+                                <button class="btn btn-sm btn-outline-info" title="Xem thống kê">
+                                    <i class="fa-solid fa-chart-column"></i>
+                                </button>
+
+                                <a href="${pageContext.request.contextPath}/vouchers-management?action=delete&id=${v.id}" class="btn btn-sm btn-outline-danger" title="Xóa mã" onclick="return confirm('Bạn có chắc chắn muốn xóa mã giảm giá [ ${v.code} ] này không? Hành động này không thể hoàn tác!');">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                    </a>
+                                </div>
+                                </td>
                         </tr>
                     </c:forEach>
                     

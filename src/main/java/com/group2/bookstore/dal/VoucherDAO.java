@@ -246,4 +246,27 @@ public class VoucherDAO extends DBContext { // Giả sử nhóm bạn dùng DBCo
             e.printStackTrace(); 
         }
     }
+    // =====================================================================
+    // 8. DÀNH CHO STAFF: XÓA VOUCHER
+    // =====================================================================
+    public void deleteVoucher(int id) {
+        String sqlDeleteWallet = "DELETE FROM User_Vouchers WHERE voucher_id = ?";
+        String sqlDeleteMain = "DELETE FROM Vouchers WHERE voucher_id = ?";
+        
+        try (Connection conn = getConnection()) {
+            // 1. Dọn dẹp mã này trong ví của khách hàng trước (nếu có ai lỡ lưu)
+            try (PreparedStatement ps1 = conn.prepareStatement(sqlDeleteWallet)) {
+                ps1.setInt(1, id);
+                ps1.executeUpdate();
+            }
+            
+            // 2. Xóa mã gốc trong kho quản lý
+            try (PreparedStatement ps2 = conn.prepareStatement(sqlDeleteMain)) {
+                ps2.setInt(1, id);
+                ps2.executeUpdate();
+            }
+        } catch (Exception e) { 
+            e.printStackTrace(); 
+        }
+    }
 }

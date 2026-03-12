@@ -28,9 +28,22 @@ public class VoucherController extends HttpServlet {
         }
 
         VoucherDAO dao = new VoucherDAO();
-        // Dùng hàm vừa thêm mới ở bước 1
+
+        // NẮM BẮT YÊU CẦU TỪ NÚT BẤM (Xóa mã)
+        String action = req.getParameter("action");
+        if ("delete".equals(action)) {
+            String idParam = req.getParameter("id");
+            if (idParam != null && !idParam.isEmpty()) {
+                int voucherId = Integer.parseInt(idParam);
+                dao.deleteVoucher(voucherId); // Gọi hàm xóa
+            }
+            // Xóa xong thì load lại đúng trang này để cập nhật bảng
+            resp.sendRedirect(req.getContextPath() + "/vouchers-management");
+            return;
+        }
+
+        // Nếu không có yêu cầu xóa thì tải danh sách mã như bình thường
         List<Voucher> list = dao.getAllVouchersForStaff();
-        
         req.setAttribute("vouchers", list);
         req.getRequestDispatcher("/view/voucher-management.jsp").forward(req, resp);
     }
