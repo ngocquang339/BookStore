@@ -18,6 +18,8 @@ public class Order {
     private String phoneNumber;
     private String paymentMethod;
     private String statusNote;
+    private String fullName;
+    
 
     // Optional: Helper field to show User's name in Admin Panel
     private String userName;
