@@ -203,12 +203,12 @@
                 </div>
                 <div class="payment-option d-flex align-items-center mb-3">
                     <input type="radio" name="paymentMethod" value="COD" id="cod" class="form-check-input me-3" checked>
-                    <img src="https://cdn0.fahasa.com/skin/frontend/ma_mobile/default/images/payment_icon/cashondelivery.png" alt="COD" width="40" class="me-2 border rounded p-1">
+                    <img src="${pageContext.request.contextPath}/assets/image/PaymentMethod/COD.jpg" alt="COD" width="40" class="me-2 border rounded p-1">
                     <label for="cod" style="cursor: pointer;">Thanh toán bằng tiền mặt khi nhận hàng</label>
                 </div>
                 <div class="payment-option d-flex align-items-center mt-2">
                     <input type="radio" name="paymentMethod" value="VNPAY" id="vnpay" class="form-check-input me-3">
-                    <img src="https://vnpay.vn/s1/statics.vnpay.vn/2023/9/06ncktiwd6dc1694418189687.png" alt="VNPAY" width="40" class="me-2 border rounded p-1" style="object-fit: contain;">
+                    <img src="${pageContext.request.contextPath}/assets/image/PaymentMethod/VNPAY.jpg" alt="VNPAY" width="40" class="me-2 border rounded p-1" style="object-fit: contain;">
                     <label for="vnpay" style="cursor: pointer;">Thanh toán qua VNPAY</label>
                 </div>
             </div>

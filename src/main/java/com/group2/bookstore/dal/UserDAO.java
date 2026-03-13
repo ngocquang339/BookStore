@@ -263,6 +263,22 @@ u.setFullname(rs.getString("fullname"));
         }
     }
 
+    // Hàm kiểm tra trùng số điện thoại (Bản siêu nhẹ & chống lỗi)
+    public boolean isPhoneExist(String phone) {
+        String sql = "SELECT 1 FROM Users WHERE phone_number = ?";
+        try {
+            PreparedStatement st = getConnection().prepareStatement(sql);
+            st.setString(1, phone);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                return true; // Báo hiệu: SỐ ĐÃ TỒN TẠI
+            }
+        } catch (Exception e) {
+            e.printStackTrace(); // In lỗi đỏ ra console nếu có
+        }
+        return false; // KHÔNG TỒN TẠI
+    }
+
     // 3. CHECK IF USERNAME EXISTS (Prevent duplicates)
     public boolean checkUsernameExists(String username) {
         String sql = "SELECT user_id FROM Users WHERE username = ?";

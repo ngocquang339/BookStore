@@ -86,8 +86,9 @@ public class RegisterServlet extends HttpServlet{
             session.setAttribute("otp", otp);           // Lưu mã OTP chuẩn
             session.setAttribute("otpCreationTime", System.currentTimeMillis()); // Lưu thời gian để check hết hạn
 
-            // 5. Chuyển hướng sang trang Nhập mã xác thực
-            response.sendRedirect("view/verify-otp.jsp");
+            // Bật cờ chuyển sang bước nhập OTP và ném lại về trang register.jsp
+            request.setAttribute("showOtpStep", "true");
+            request.getRequestDispatcher("view/Register.jsp").forward(request, response);
         }
         else{
             if(us != null){

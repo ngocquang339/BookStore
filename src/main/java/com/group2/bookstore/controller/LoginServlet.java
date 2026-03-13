@@ -30,7 +30,7 @@ public class LoginServlet extends HttpServlet {
             if(currentUser != null){
                 roleId = currentUser.getRole();
             }
-             List<Book> list = dao.getRandomBook(roleId, 20);
+            List<Book> list = dao.getRandomBook(roleId, 20);
             request.setAttribute("suggestedBooks", list);
             request.getRequestDispatcher("view/Login.jsp").forward(request, response);
     }

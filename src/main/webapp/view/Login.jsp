@@ -8,6 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng nhập - MINDBOOK</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/home.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* Khởi tạo font chữ và nền cơ bản */
@@ -383,62 +384,50 @@
     </div>
 
     <div id="forgotPasswordModal" class="custom-modal-overlay">
-    <div class="custom-modal-box">
-        <h2 class="modal-title">KHÔI PHỤC MẬT KHẨU</h2>
-        
-        <form id="forgotPasswordForm" action="change-password" method="POST">
-            <input type="hidden" name="flag" value="1">
-            <div class="modal-form-group">
-                <label>Email</label>
-                <div class="input-with-action">
-                    <input type="email" id="resetEmail" name="email" placeholder="Nhập email của bạn..." required>
-                    <a href="javascript:void(0);" id="btnSendOtp" class="btn-inside-input" onclick="sendOTP()">Gửi mã OTP</a>
-                    <i class="fa-solid fa-circle-check success-icon" id="emailSuccessIcon"></i>
+        <div class="custom-modal-box">
+            <h2 class="modal-title">KHÔI PHỤC MẬT KHẨU</h2>
+            
+            <form id="forgotPasswordForm" action="change-password" method="POST">
+                <input type="hidden" name="flag" value="1">
+                <div class="modal-form-group">
+                    <label>Email</label>
+                    <div class="input-with-action">
+                        <input type="email" id="resetEmail" name="email" placeholder="Nhập email của bạn..." required>
+                        <a href="javascript:void(0);" id="btnSendOtp" class="btn-inside-input" onclick="sendOTP()">Gửi mã OTP</a>
+                        <i class="fa-solid fa-circle-check success-icon" id="emailSuccessIcon"></i>
+                    </div>
+                    <span class="success-text" id="emailSuccessText">OTP đã được gửi qua Email</span>
                 </div>
-                <span class="success-text" id="emailSuccessText">OTP đã được gửi qua Email</span>
-            </div>
 
-            <div class="modal-form-group">
-                <label>Mã xác nhận OTP</label>
-                <div class="input-with-action">
-                    <input type="text" id="otpCode" name="otp" placeholder="6 ký tự" required disabled maxlength="6" oninput="checkOTP(this.value)">
-                    <i class="fa-solid fa-circle-check success-icon" id="otpSuccessIcon"></i>
+                <div class="modal-form-group">
+                    <label>Mã xác nhận OTP</label>
+                    <div class="input-with-action">
+                        <input type="text" id="otpCode" name="otp" placeholder="6 ký tự" required disabled maxlength="6" oninput="checkOTP(this.value)">
+                        <i class="fa-solid fa-circle-check success-icon" id="otpSuccessIcon"></i>
+                    </div>
+                    <span class="success-text" id="otpSuccessText">OTP hợp lệ</span>
                 </div>
-                <span class="success-text" id="otpSuccessText">OTP hợp lệ</span>
-            </div>
 
-            <div class="modal-form-group">
-                <label>Mật khẩu mới</label>
-                <div class="input-with-action">
-                    <input type="password" id="newPassword" name="newPassword" placeholder="Nhập mật khẩu mới..." required disabled>
-                    <a href="javascript:void(0);" id="btnTogglePwd" class="btn-inside-input" style="color: #2b78e4;" onclick="togglePassword()">Hiện</a>
+                <div class="modal-form-group">
+                    <label>Mật khẩu mới</label>
+                    <div class="input-with-action">
+                        <input type="password" id="newPassword" name="newPassword" placeholder="Nhập mật khẩu mới..." required disabled>
+                        <a href="javascript:void(0);" id="btnTogglePwd" class="btn-inside-input" style="color: #2b78e4;" onclick="togglePassword()">Hiện</a>
+                    </div>
                 </div>
-            </div>
 
-            <div class="modal-actions">
-                <button type="submit" id="btnSubmitReset" class="btn-confirm-modal" disabled>Xác nhận</button>
-                <button type="button" class="btn-back-modal" onclick="closePhoneModal()">Trở về</button>
-            </div>
-        </form>
+                <div class="modal-actions">
+                    <button type="submit" id="btnSubmitReset" class="btn-confirm-modal" disabled>Xác nhận</button>
+                    <button type="button" class="btn-back-modal" onclick="closePhoneModal()">Trở về</button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 
     <jsp:include page="component/suggested-books.jsp" />
     <jsp:include page="component/footer.jsp" />
 
     <script>
-        function togglePassword() {
-            var passwordInput = document.getElementById("password");
-            var toggleText = document.querySelector(".toggle-password");
-            
-            if (passwordInput.type === "password") {
-                passwordInput.type = "text";
-                toggleText.textContent = "Ẩn"; 
-            } else {
-                passwordInput.type = "password";
-                toggleText.textContent = "Hiện"; 
-            }
-        }
 
         // Hàm mở Modal và Reset lại trắng tinh như mới
     function openPhoneModal() {
@@ -452,61 +441,88 @@
     }
 
     // ----------------------------------------------------
-    // BƯỚC 1: XỬ LÝ GỬI EMAIL
+    // BƯỚC 1: XỬ LÝ GỬI EMAIL (BẰNG AJAX THẬT)
     // ----------------------------------------------------
     function sendOTP() {
         let emailInput = document.getElementById("resetEmail");
         let emailValue = emailInput.value.trim();
         
-        // Validate sơ bộ
         if (emailValue === "") {
             alert("Vui lòng nhập Email trước khi lấy mã!");
             return;
         }
         
-        // === GIẢ LẬP GỌI API GỬI EMAIL THÀNH CÔNG ===
-        // 1. Đổi UI ô Email sang trạng thái thành công
-        document.getElementById("btnSendOtp").style.display = "none"; // Ẩn chữ Gửi OTP
-        document.getElementById("emailSuccessIcon").style.display = "block"; // Hiện tích xanh
-        document.getElementById("emailSuccessText").style.display = "block"; // Hiện text dưới
-        emailInput.classList.add("input-success");
-        emailInput.readOnly = true; // Khóa không cho sửa Email nữa
+        let btnSend = document.getElementById("btnSendOtp");
+        btnSend.innerText = "Đang gửi...";
+        btnSend.style.pointerEvents = "none"; // Tránh bấm nhiều lần
+        
+        // Gửi ngầm (AJAX) email xuống Server để Server gửi thư đi
+        fetch('${pageContext.request.contextPath}/forgot-password-api', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'action=send&email=' + encodeURIComponent(emailValue)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // Thành công -> Đổi giao diện
+                btnSend.style.display = "none";
+                document.getElementById("emailSuccessIcon").style.display = "block";
+                document.getElementById("emailSuccessText").style.display = "block";
+                emailInput.classList.add("input-success");
+                emailInput.readOnly = true;
 
-        // 2. MỞ KHÓA Ô OTP cho phép nhập
-        let otpInput = document.getElementById("otpCode");
-        otpInput.disabled = false;
-        otpInput.focus(); // Nhảy con trỏ chuột xuống ô OTP luôn
+                // Mở khóa ô nhập OTP
+                let otpInput = document.getElementById("otpCode");
+                otpInput.disabled = false;
+                otpInput.focus();
+            } else {
+                // Thất bại (VD: Email không tồn tại)
+                alert(data.message || "Không thể gửi email, vui lòng thử lại.");
+                btnSend.innerText = "Gửi mã OTP";
+                btnSend.style.pointerEvents = "auto";
+            }
+        })
+        .catch(err => {
+            alert("Lỗi kết nối đến máy chủ.");
+            btnSend.innerText = "Gửi mã OTP";
+            btnSend.style.pointerEvents = "auto";
+        });
     }
 
     // ----------------------------------------------------
-    // BƯỚC 2: XỬ LÝ NHẬP VÀ KIỂM TRA OTP
+    // BƯỚC 2: XỬ LÝ NHẬP VÀ KIỂM TRA OTP (BẰNG AJAX THẬT)
     // ----------------------------------------------------
     function checkOTP(value) {
-        // Chỉ kiểm tra khi user nhập đủ 6 số
         if (value.length === 6) {
+            let emailValue = document.getElementById("resetEmail").value.trim();
             
-            // === GIẢ LẬP OTP ĐÚNG LÀ "123456" ===
-            // (Sau này bạn thay bằng AJAX gọi về Java Servlet để check nhé)
-            if (value === "123456") { 
-                
-                let otpInput = document.getElementById("otpCode");
-                
-                // 1. Đổi UI ô OTP sang trạng thái thành công
-                document.getElementById("otpSuccessIcon").style.display = "block";
-                document.getElementById("otpSuccessText").style.display = "block";
-                otpInput.classList.add("input-success");
-                otpInput.readOnly = true; // Khóa ô OTP lại
+            // Gửi ngầm OTP khách nhập xuống Server để Server so sánh
+            fetch('${pageContext.request.contextPath}/forgot-password-api', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'action=verify&email=' + encodeURIComponent(emailValue) + '&otp=' + value
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    let otpInput = document.getElementById("otpCode");
+                    
+                    // Thành công -> Đổi UI
+                    document.getElementById("otpSuccessIcon").style.display = "block";
+                    document.getElementById("otpSuccessText").style.display = "block";
+                    otpInput.classList.add("input-success");
+                    otpInput.readOnly = true;
 
-                // 2. MỞ KHÓA Ô MẬT KHẨU MỚI & NÚT XÁC NHẬN
-                let pwdInput = document.getElementById("newPassword");
-                pwdInput.disabled = false;
-                pwdInput.focus();
-                
-                document.getElementById("btnSubmitReset").disabled = false;
-
-            } else {
-                alert("Mã OTP không chính xác. (Mẹo: Nhập thử 123456)");
-            }
+                    // Mở khóa ô mật khẩu mới
+                    let pwdInput = document.getElementById("newPassword");
+                    pwdInput.disabled = false;
+                    pwdInput.focus();
+                    document.getElementById("btnSubmitReset").disabled = false;
+                } else {
+                    alert("Mã OTP không chính xác hoặc đã hết hạn!");
+                }
+            });
         }
     }
 
