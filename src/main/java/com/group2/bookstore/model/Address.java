@@ -13,7 +13,8 @@ public class Address {
     private String zipCode;
     private boolean isDefaultBilling;
     private boolean isDefaultShipping;
-
+    private int districtId;
+    private String wardCode;
     // Constructor rỗng
     public Address() {
     }
@@ -86,4 +87,9 @@ public class Address {
     public boolean isDefaultShipping() { return isDefaultShipping; }
     
     public void setDefaultShipping(boolean defaultShipping) { isDefaultShipping = defaultShipping; }
+    public int getDistrictId() { return districtId; }
+    public void setDistrictId(int districtId) { this.districtId = districtId; }
+    public String getWardCode() { return wardCode; }
+    public void setWardCode(String wardCode) { this.wardCode = wardCode; }
+
 }

@@ -234,7 +234,7 @@ u.setFullname(rs.getString("fullname"));
                 User u = new User();
                 u.setId(rs.getInt("user_id"));
                 u.setUsername(rs.getString("username"));
-u.setFullname(rs.getString("fullname"));
+                u.setFullname(rs.getString("fullname"));
                 u.setEmail(rs.getString("email"));
                 u.setPhone_number(rs.getString("phone_number"));
                 u.setRole(rs.getInt("role"));

@@ -54,7 +54,8 @@ public class VerifyOtpServlet extends HttpServlet {
             } else {
                 request.setAttribute("otpError", "Mã OTP đã hết hạn! Vui lòng lấy mã mới.");
                 request.setAttribute("showOtpStep", "true");
-                request.getRequestDispatcher("view/register.jsp").forward(request, response);
+                request.setAttribute("activeTab", "register");
+                request.getRequestDispatcher("view/Login.jsp").forward(request, response);
             }
             return; // Chặn không cho chạy tiếp xuống dưới
         }
@@ -69,8 +70,9 @@ public class VerifyOtpServlet extends HttpServlet {
                 request.getRequestDispatcher("view/UserProfile.jsp").forward(request, response);
             } else {
                 request.setAttribute("otpError", "Mã xác thực không đúng!");
-                request.setAttribute("showOtpStep", "true"); 
-                request.getRequestDispatcher("view/register.jsp").forward(request, response);
+                request.setAttribute("showOtpStep", "true");
+                request.setAttribute("activeTab", "register");
+                request.getRequestDispatcher("view/Login.jsp").forward(request, response);
             }
             return;
         }

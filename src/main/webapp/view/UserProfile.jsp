@@ -378,7 +378,9 @@
         // Hợp nhất tất cả logic cần chạy khi load trang vào đây
     window.onload = function() {
         
+        // =========================================================
         // --- PHẦN 1: Kiểm tra mở lại Modal Email (Sau khi submit sai OTP) ---
+        // =========================================================
         var shouldOpenEmail = "${requestScope.openVerifyEmail}"; 
         if (shouldOpenEmail === "true") {
             openEmailModal();
@@ -386,32 +388,32 @@
             // 1. Điền lại Email đang gõ dở
             var pendingEmail = "${requestScope.pendingEmail}";
             if (pendingEmail) {
-                // SỬA ID Ở ĐÂY: Trỏ vào newEmailInputAjax
                 var emailInput = document.getElementById("newEmailInputAjax");
                 if(emailInput) {
                     emailInput.value = pendingEmail;
-                    // Vì trước đó đã gửi mail thành công nên ta khóa luôn ô email lại cho đẹp
-                    emailInput.readOnly = true;
-                    emailInput.style.backgroundColor = "#f8fff9";
-                    emailInput.style.borderColor = "#28a745";
+                    // Đảm bảo ô nhập mở khóa bình thường
+                    emailInput.readOnly = false;
+                    emailInput.style.backgroundColor = "#fff";
+                    emailInput.style.borderColor = "#ddd";
                 }
                 
-                // Đồng thời hiện nút "Đã gửi" xanh lên (giống hiệu ứng lúc vừa fetch xong)
+                // Đảm bảo nút "Gửi mã OTP" sẵn sàng để bấm lại ngay
                 let btn = document.getElementById("btnSendOTPAjax");
                 if(btn) {
-                    btn.innerHTML = '<i class="fa-solid fa-check"></i> Đã gửi';
-                    btn.style.color = "#28a745";
-                    btn.style.pointerEvents = "none";
+                    btn.innerHTML = 'Gửi mã OTP';
+                    btn.style.color = "#0d6efd";
+                    btn.style.pointerEvents = "auto";
                 }
             }
 
             // 2. Focus vào ô OTP cho khách nhập lại
-            // SỬA ID Ở ĐÂY: Trỏ vào otpCodeEmailAjax
             var otpInput = document.getElementById("otpCodeEmailAjax");
             if(otpInput) otpInput.focus();
         }
 
-        // --- PHẦN 2: Kiểm tra mở lại Modal Phone (Giữ nguyên không đụng tới) ---
+        // =========================================================
+        // --- PHẦN 2: Kiểm tra mở lại Modal Phone ---
+        // =========================================================
         var shouldOpenPhone = "${requestScope.openVerifyPhone}";
         if (shouldOpenPhone === "true") { 
             openPhoneModal(); 

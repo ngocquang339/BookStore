@@ -482,15 +482,20 @@
                 <h3 style="font-size: 16px; margin-top: 0; margin-bottom: 15px; color: #333;">Thông tin vận chuyển</h3>
                 
                <div style="font-size: 14px; margin-bottom: 15px;">
-                    Giao hàng đến <strong>Phường Bến Nghé, Quận 1, Hồ Chí Minh</strong> 
+                    Giao hàng đến <strong id="displayAddressText">Phường Bến Nghé, Quận 1, Hồ Chí Minh</strong> 
                     <a href="javascript:void(0)" onclick="openAddressModal()" style="color: #0d8de7; text-decoration: none; margin-left: 10px;">Thay đổi</a>
                 </div>
                 
                 <div style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 25px;">
                     <i class="fa-solid fa-truck-fast" style="color: #00b14f; font-size: 18px; margin-top: 2px;"></i>
                     <div>
-                        <div style="font-weight: bold; font-size: 15px; margin-bottom: 5px; color: #333;">Giao hàng tiêu chuẩn</div>
-                        <div style="font-size: 13px; color: #555;">Dự kiến giao <strong>Thứ hai - 23/02</strong></div>
+                        <div style="font-weight: bold; font-size: 15px; margin-bottom: 5px; color: #333;">
+                            Giao hàng tiêu chuẩn 
+                            <span style="color: #ccc; margin: 0 8px;">|</span> 
+                            Phí ship: <span id="displayShippingFee" style="color: #C92127;">...</span>
+                        </div>
+                        
+                        <div style="font-size: 13px; color: #555;" id="expectedDeliveryText">Dự kiến giao <strong>...</strong></div>
                     </div>
                 </div>
 
@@ -1560,93 +1565,6 @@
         });
     }
 
-    $(document).ready(function() {
-        const $province = $("#provinceSelect");
-        const $district = $("#districtSelect");
-        const $ward = $("#wardSelect");
-        
-        let localData = [];
-
-        fetch('https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json')
-            .then(response => response.json())
-            .then(data => {
-                localData = data; 
-                let options = '<option value="">Chọn tỉnh/thành Phố</option>';
-                data.forEach(item => {
-                    // ĐÃ SỬA: Dùng dấu + để cộng chuỗi, Tomcat sẽ không cướp mất dữ liệu nữa
-                    options += '<option value="' + item.Id + '">' + item.Name + '</option>';
-                });
-                $province.html(options);
-            })
-            .catch(err => console.error("Lỗi tải dữ liệu địa giới:", err));
-
-        $province.change(function() {
-            let idProv = $(this).val();
-            $district.html('<option value="">Chọn quận/huyện</option>');
-            $ward.html('<option value="">Chọn phường/xã</option>');
-
-            if (idProv !== "") {
-                let prov = localData.find(p => p.Id === idProv);
-                if (prov && prov.Districts) {
-                    let options = '<option value="">Chọn quận/huyện</option>';
-                    prov.Districts.forEach(item => {
-                        // ĐÃ SỬA: Dùng dấu + để cộng chuỗi
-                        options += '<option value="' + item.Id + '">' + item.Name + '</option>';
-                    });
-                    $district.html(options);
-                }
-            }
-        });
-
-        $district.change(function() {
-            let idProv = $province.val();
-            let idDist = $(this).val();
-            $ward.html('<option value="">Chọn phường/xã</option>');
-
-            if (idProv !== "" && idDist !== "") {
-                let prov = localData.find(p => p.Id === idProv);
-                if (prov) {
-                    let dist = prov.Districts.find(d => d.Id === idDist);
-                    if (dist && dist.Wards) {
-                        let options = '<option value="">Chọn phường/xã</option>';
-                        dist.Wards.forEach(item => {
-                            // ĐÃ SỬA: Dùng dấu + để cộng chuỗi
-                            options += '<option value="' + item.Id + '">' + item.Name + '</option>';
-                        });
-                        $ward.html(options);
-                    }
-                }
-            }
-        });
-    });
-
-    // 4. HÀM BẤM NÚT XÁC NHẬN
-    function confirmAddress() {
-        if (!$(".btn-confirm").hasClass("ready")) {
-            return; 
-        }
-        let isNewAddress = document.querySelector('input[name="address_type"][value="new"]').checked;
-        
-        if (isNewAddress) {
-            // Lấy tên chữ (chứ không phải ID số) của Tỉnh, Huyện, Xã
-            let provText = $("#provinceSelect option:selected").text();
-            let distText = $("#districtSelect option:selected").text();
-            let wardText = $("#wardSelect option:selected").text();
-
-            if(provText === 'Chọn tỉnh/thành Phố' || distText === 'Chọn quận/huyện' || wardText === 'Chọn phường/xã') {
-                alert("Vui lòng chọn đầy đủ địa chỉ!");
-                return;
-            }
-
-            let fullAddress = wardText + ", " + distText + ", " + provText;
-            
-            // Tìm chỗ in địa chỉ ngoài màn hình (Bạn cần cấp id="displayAddress" cho thẻ <strong> ở ngoài HTML nhé)
-            $("#displayAddress").text(fullAddress);
-        }
-        
-        closeAddressModal();
-    }
-
     function addToCartAjax() {
         let bookId = document.querySelector('input[name="id"]').value;
         let qty = document.getElementById("qtyInput").value;
@@ -2517,6 +2435,204 @@
             }
         }
     });
+    // =================================================================
+// 1. CẤU HÌNH API GHN (Hệ thống thật)
+// =================================================================
+const GHN_TOKEN = '79a7c86a-1ef8-11f1-a3ea-4e2619480a9f'; 
+const GHN_SHOP_ID = 6322897; 
+const SHOP_DISTRICT_ID = 3440; 
+const GHN_URL = 'https://online-gateway.ghn.vn/shiip/public-api/master-data';
+
+let isProvinceLoaded = false;
+
+// =================================================================
+// 2. HÀM MỞ & ĐÓNG MODAL CỦA BẠN
+// =================================================================
+function openAddressModal() {
+    // Hiển thị modal
+    document.getElementById('addressModalOverlay').style.display = 'flex'; // Hoặc 'block' tùy CSS của bạn
+    
+    // Gọi API tải Tỉnh/Thành phố (Chỉ gọi 1 lần để đỡ lag)
+    if (!isProvinceLoaded) {
+        loadGHNProvinces();
+        isProvinceLoaded = true;
+    }
+}
+
+function closeAddressModal() {
+    document.getElementById('addressModalOverlay').style.display = 'none';
+}
+
+// =================================================================
+// 3. XỬ LÝ SỰ KIỆN KHI BẤM "XÁC NHẬN"
+// =================================================================
+function confirmAddress() {
+    // Xem người dùng đang chọn Radio button nào
+    let addressType = document.querySelector('input[name="address_type"]:checked').value;
+    
+    let toDistrictId = null;
+    let toWardCode = null;
+    let displayText = "";
+
+    if (addressType === 'existing') {
+        // NẾU CHỌN ĐỊA CHỈ CÓ SẴN (Phường Bến Nghé, Quận 1, HCM)
+        // Đây là mã cứng của GHN cho Quận 1 - P.Bến Nghé
+        toDistrictId = 1442; 
+        toWardCode = "20101"; 
+        displayText = "Phường Bến Nghé, Quận 1, Hồ Chí Minh";
+    } else {
+        // NẾU CHỌN ĐỊA CHỈ MỚI TỪ DROPDOWN
+        toDistrictId = $('#districtSelect').find(':selected').data('id');
+        toWardCode = $('#wardSelect').find(':selected').data('code');
+        
+        let cityName = $('#provinceSelect').val();
+        let districtName = $('#districtSelect').val();
+        let wardName = $('#wardSelect').val();
+
+        if (!toDistrictId || !toWardCode) {
+            alert("Vui lòng chọn đầy đủ Tỉnh/Huyện/Xã!");
+            return;
+        }
+        displayText = wardName + ", " + districtName + ", " + cityName;
+    }
+
+    // Đóng Modal
+    closeAddressModal();
+
+    // Thay đổi text hiển thị trên giao diện chi tiết SP
+    document.getElementById('displayAddressText').innerText = displayText;
+    
+    // Đổi hiển thị phí ship thành Loading...
+    document.getElementById('displayShippingFee').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+    document.getElementById('expectedDeliveryText').innerHTML = 'Dự kiến giao: <strong>Đang tính toán...</strong>';
+
+    // Gọi API tính tiền và ngày giao
+    calculateQuickShippingGHN(toDistrictId, toWardCode);
+}
+
+// =================================================================
+// 4. API TẢI TỈNH / HUYỆN / XÃ VÀO DROPDOWN
+// =================================================================
+$(document).ready(function() {
+    const $city = $("#provinceSelect");
+    const $district = $("#districtSelect");
+    const $ward = $("#wardSelect");
+
+    // Lắng nghe sự thay đổi TỈNH -> Tải HUYỆN
+    $city.change(function() {
+        let provinceId = $(this).find(':selected').data('id');
+        $district.html('<option value="" selected disabled>Đang tải dữ liệu...</option>');
+        $ward.html('<option value="" selected disabled>Chọn phường/xã</option>');
+
+        if (provinceId) {
+            fetch(GHN_URL + '/district?province_id=' + provinceId, { headers: { 'token': GHN_TOKEN } })
+            .then(res => res.json())
+            .then(data => {
+                if (data.code === 200 && data.data) {
+                    let options = '<option value="" selected disabled>Chọn quận/huyện</option>';
+                    data.data.forEach(item => {
+                        options += '<option value="' + item.DistrictName + '" data-id="' + item.DistrictID + '">' + item.DistrictName + '</option>';
+                    });
+                    $district.html(options);
+                }
+            });
+        }
+    });
+
+    // Lắng nghe sự thay đổi HUYỆN -> Tải XÃ
+    $district.change(function() {
+        let districtId = $(this).find(':selected').data('id');
+        $ward.html('<option value="" selected disabled>Đang tải dữ liệu...</option>');
+
+        if (districtId) {
+            fetch(GHN_URL + '/ward?district_id=' + districtId, { headers: { 'token': GHN_TOKEN } })
+            .then(res => res.json())
+            .then(data => {
+                if (data.code === 200 && data.data) {
+                    let options = '<option value="" selected disabled>Chọn phường/xã</option>';
+                    data.data.forEach(item => {
+                        options += '<option value="' + item.WardName + '" data-code="' + item.WardCode + '">' + item.WardName + '</option>';
+                    });
+                    $ward.html(options);
+                }
+            });
+        }
+    });
+});
+
+function loadGHNProvinces() {
+    fetch(GHN_URL + '/province', { headers: { 'token': GHN_TOKEN } })
+    .then(res => res.json())
+    .then(data => {
+        if (data.code === 200 && data.data) {
+            let options = '<option value="" selected disabled>Chọn tỉnh/thành phố</option>';
+            data.data.forEach(item => {
+                options += '<option value="' + item.ProvinceName + '" data-id="' + item.ProvinceID + '">' + item.ProvinceName + '</option>';
+            });
+            $("#provinceSelect").html(options); 
+        }
+    })
+    .catch(err => console.error("Lỗi API Tỉnh GHN:", err));
+}
+
+// =================================================================
+// 5. HÀM TÍNH TOÁN PHÍ SHIP VÀ THỜI GIAN ĐỘC LẬP
+// =================================================================
+async function calculateQuickShippingGHN(toDistrictId, toWardCode) {
+    try {
+        // GỌI LẤY PHÍ SHIP
+        const feeRes = await fetch('https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'token': GHN_TOKEN },
+            body: JSON.stringify({
+                "service_type_id": 2, 
+                "from_district_id": SHOP_DISTRICT_ID,
+                "to_district_id": parseInt(toDistrictId),
+                "to_ward_code": String(toWardCode),
+                "weight": 500, // Khối lượng quyển sách (500g)
+                "length": 20, "width": 15, "height": 10 
+            })
+        });
+        const feeData = await feeRes.json();
+        if(feeData.code === 200) {
+            const feeFormatted = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(feeData.data.total);
+            document.getElementById('displayShippingFee').innerText = feeFormatted;
+        }
+
+        // GỌI API LẤY THỜI GIAN GIAO HÀNG
+        const timeRes = await fetch('https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/leadtime', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'token': GHN_TOKEN, 'ShopId': String(GHN_SHOP_ID) },
+            body: JSON.stringify({
+                "from_district_id": SHOP_DISTRICT_ID,
+                "to_district_id": parseInt(toDistrictId),
+                "to_ward_code": String(toWardCode),
+                "service_type_id": 2 // <--- THÊM DÒNG NÀY ĐỂ GHN BIẾT LÀ GIAO TIÊU CHUẨN
+            })
+        });
+        const timeData = await timeRes.json();
+        
+        if(timeData.code === 200) {
+            let leadTimeUnix = timeData.data.leadtime;
+            
+            // CODE BẢO HIỂM: Nếu GHN lỗi trả về 0 hoặc null, tự động cộng 3 ngày từ hôm nay
+            if (!leadTimeUnix || leadTimeUnix === 0) {
+                leadTimeUnix = Math.floor(Date.now() / 1000) + (3 * 24 * 60 * 60);
+            }
+
+            const dateObj = new Date(leadTimeUnix * 1000);
+            const days = ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'];
+            const dayName = days[dateObj.getDay()];
+            const dateString = String(dateObj.getDate()).padStart(2, '0') + '/' + String(dateObj.getMonth() + 1).padStart(2, '0');
+            
+            document.getElementById('expectedDeliveryText').innerHTML = "Dự kiến giao: <strong>" + dayName + " - " + dateString + "</strong>";
+        }
+
+    } catch (error) {
+        console.error("Lỗi Fetch Detail:", error);
+        document.getElementById('displayShippingFee').innerText = "Không tính được phí";
+    }
+}
     </script>
 </body>
 </html>

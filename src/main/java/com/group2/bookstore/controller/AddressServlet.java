@@ -14,7 +14,6 @@ import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.List;
 
-// Bổ sung thêm "/edit-address" vào mảng urlPatterns
 @WebServlet(name = "AddressServlet", urlPatterns = {"/address", "/add-address", "/edit-address"})
 public class AddressServlet extends HttpServlet {
 
@@ -44,7 +43,6 @@ public class AddressServlet extends HttpServlet {
                     Address address = addressDAO.getAddressById(addressId, user.getId());
                     
                     if (address != null) {
-                        // KHÔNG CẦN CẮT CHUỖI NỮA! Truyền thẳng object address sang JSP
                         request.setAttribute("address", address);
                         request.getRequestDispatcher("view/edit-address.jsp").forward(request, response);
                     } else {
@@ -55,7 +53,6 @@ public class AddressServlet extends HttpServlet {
                     response.sendRedirect("address");
                 }
             }
-            // 1.2 - BỔ SUNG THÊM: Nếu action=delete -> Xử lý xóa địa chỉ
             // 1.2 - BỔ SUNG THÊM: Nếu action=delete -> Xử lý xóa địa chỉ
             else if ("delete".equals(action)) {
                 try {
@@ -82,7 +79,6 @@ public class AddressServlet extends HttpServlet {
                 } else {
                     response.sendRedirect("address");  // Về trang quản lý địa chỉ mặc định
                 }
-                // ----------------------------------------------
             }
             // 1.3 - Nếu không có action -> Hiển thị danh sách Sổ địa chỉ (Mặc định)
             else {
@@ -90,7 +86,6 @@ public class AddressServlet extends HttpServlet {
                 request.setAttribute("listAddresses", listAddresses);
                 request.getRequestDispatcher("view/address-book.jsp").forward(request, response);
             } 
-            // 1.2 - Nếu không có action -> Hiển thị danh sách Sổ địa chỉ (Mặc định)
         } 
         // 2. NẾU LÀ TRANG THÊM ĐỊA CHỈ MỚI
         else if ("/add-address".equals(path)) {
@@ -120,7 +115,9 @@ public class AddressServlet extends HttpServlet {
         String path = request.getServletPath();
         AddressDAO addressDAO = new AddressDAO();
 
-        // XỬ LÝ 1: SUBMIT FORM THÊM ĐỊA CHỈ (Code cũ của bạn)
+        // =========================================================
+        // XỬ LÝ 1: SUBMIT FORM THÊM ĐỊA CHỈ
+        // =========================================================
         if ("/add-address".equals(path)) {
             try {
                 String fullName = request.getParameter("fullName");
@@ -131,9 +128,14 @@ public class AddressServlet extends HttpServlet {
                 String ward = request.getParameter("ward");
                 String addressDetail = request.getParameter("addressDetail");
                 String zipCode = request.getParameter("zipCode");
-
+                
                 boolean isDefaultBilling = request.getParameter("isDefaultBilling") != null;
                 boolean isDefaultShipping = request.getParameter("isDefaultShipping") != null;
+
+                // --- LẤY MÃ GHN TỪ THẺ HIDDEN INPUT ---
+                String districtIdStr = request.getParameter("districtIdGHN");
+                int districtIdGHN = (districtIdStr != null && !districtIdStr.isEmpty()) ? Integer.parseInt(districtIdStr) : 0;
+                String wardCodeGHN = request.getParameter("wardCodeGHN");
 
                 Address address = new Address();
                 address.setUserId(user.getId());
@@ -147,6 +149,10 @@ public class AddressServlet extends HttpServlet {
                 address.setZipCode(zipCode);
                 address.setDefaultBilling(isDefaultBilling);
                 address.setDefaultShipping(isDefaultShipping);
+                
+                // --- SET MÃ GHN VÀO OBJECT ---
+                address.setDistrictId(districtIdGHN);
+                address.setWardCode(wardCodeGHN);
 
                 boolean isSuccess = addressDAO.insertAddress(address);
 
@@ -164,17 +170,16 @@ public class AddressServlet extends HttpServlet {
             }
             String source = request.getParameter("source");
 
-            // ================= ĐIỀU HƯỚNG THÔNG MINH =================
             if ("checkout".equals(source)) {
-                // Nếu form được gửi từ Modal ở trang Thanh toán -> Trả về trang Thanh toán
                 response.sendRedirect(request.getContextPath() + "/checkout"); 
             } else {
-                // Nếu form được gửi từ trang Quản lý tài khoản bình thường -> Trả về trang Địa chỉ
                 response.sendRedirect(request.getContextPath() + "/address"); 
             }
         }
         
-        // XỬ LÝ 2: SUBMIT FORM SỬA ĐỊA CHỈ (CODE MỚI THÊM)
+        // =========================================================
+        // XỬ LÝ 2: SUBMIT FORM SỬA ĐỊA CHỈ
+        // =========================================================
         else if ("/edit-address".equals(path)) {
             try {
                 int addressId = Integer.parseInt(request.getParameter("addressId"));
@@ -186,6 +191,11 @@ public class AddressServlet extends HttpServlet {
                 String addressDetail = request.getParameter("addressDetail");
                 boolean isDefaultShipping = request.getParameter("isDefaultShipping") != null;
 
+                // --- LẤY MÃ GHN TỪ THẺ HIDDEN INPUT ---
+                String districtIdStr = request.getParameter("districtIdGHN");
+                int districtIdGHN = (districtIdStr != null && !districtIdStr.isEmpty()) ? Integer.parseInt(districtIdStr) : 0;
+                String wardCodeGHN = request.getParameter("wardCodeGHN");
+
                 Address address = addressDAO.getAddressById(addressId, user.getId());
                 if (address != null) {
                     address.setFullName(fullName);
@@ -195,6 +205,10 @@ public class AddressServlet extends HttpServlet {
                     address.setWard(ward);
                     address.setAddressDetail(addressDetail);
                     address.setDefaultShipping(isDefaultShipping);
+                    
+                    // --- SET MÃ GHN VÀO OBJECT ---
+                    address.setDistrictId(districtIdGHN);
+                    address.setWardCode(wardCodeGHN);
 
                     boolean isSuccess = addressDAO.updateAddress(address);
 
@@ -212,14 +226,12 @@ public class AddressServlet extends HttpServlet {
                 session.setAttribute("status", "error");
             }
 
-            // --- ĐOẠN CODE MỚI ĐỂ CHUYỂN HƯỚNG ĐÚNG CHỖ ---
             String source = request.getParameter("source");
             if ("checkout".equals(source)) {
-                response.sendRedirect("checkout"); // Sửa ở checkout thì về checkout
+                response.sendRedirect("checkout"); 
             } else {
-                response.sendRedirect("address");  // Sửa ở address thì về address
+                response.sendRedirect("address");  
             }
-            // ----------------------------------------------
         }
     }
 }
