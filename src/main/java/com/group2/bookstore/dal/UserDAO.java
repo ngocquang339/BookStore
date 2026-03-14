@@ -31,7 +31,6 @@ public class UserDAO extends DBContext {
                         rs.getString("fullname"),
                         rs.getInt("role"),
                         rs.getString("phone_number"),
-                        rs.getString("address"),
                         rs.getInt("status"));
                 return u;
             }
@@ -79,7 +78,6 @@ public class UserDAO extends DBContext {
                         rs.getString("fullname"),
                         rs.getInt("role"),
                         rs.getString("phone_number"),
-                        rs.getString("address"),
                         rs.getInt("status"));
             }
         } catch (Exception e) {
@@ -104,7 +102,6 @@ public class UserDAO extends DBContext {
                         rs.getString("fullname"),
                         rs.getInt("role"),
                         rs.getString("phone_number"),
-                        rs.getString("address"),
                         rs.getInt("status"));
             }
         } catch (Exception e) {
@@ -240,7 +237,6 @@ public class UserDAO extends DBContext {
                     u.setFullname(rs.getString("fullname"));
                     u.setEmail(rs.getString("email"));
                     u.setPhone_number(rs.getString("phone_number"));
-                    u.setAddress(rs.getString("address"));
                     u.setRole(rs.getInt("role"));
                     u.setStatus(rs.getInt("status"));
                     list.add(u);
@@ -257,8 +253,11 @@ public class UserDAO extends DBContext {
     public User getUserById(int id) {
         String sql = "SELECT * FROM Users WHERE user_id = ?";
         try (Connection conn = getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+             
             ps.setInt(1, id);
+            
+            // Sử dụng thêm try-with-resources cho ResultSet để chống rò rỉ bộ nhớ
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     User u = new User();
@@ -267,9 +266,9 @@ public class UserDAO extends DBContext {
                     u.setFullname(rs.getString("fullname"));
                     u.setEmail(rs.getString("email"));
                     u.setPhone_number(rs.getString("phone_number"));
-                    u.setAddress(rs.getString("address"));
                     u.setRole(rs.getInt("role"));
                     u.setStatus(rs.getInt("status"));
+                    u.setCreateAt(rs.getTimestamp("create_at"));
                     return u;
                 }
             }
@@ -293,6 +292,22 @@ public class UserDAO extends DBContext {
             e.printStackTrace();
             return false;
         }
+    }
+
+    // Hàm kiểm tra trùng số điện thoại (Bản siêu nhẹ & chống lỗi)
+    public boolean isPhoneExist(String phone) {
+        String sql = "SELECT 1 FROM Users WHERE phone_number = ?";
+        try {
+            PreparedStatement st = getConnection().prepareStatement(sql);
+            st.setString(1, phone);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                return true; // Báo hiệu: SỐ ĐÃ TỒN TẠI
+            }
+        } catch (Exception e) {
+            e.printStackTrace(); // In lỗi đỏ ra console nếu có
+        }
+        return false; // KHÔNG TỒN TẠI
     }
 
     // 3. CHECK IF USERNAME EXISTS (Prevent duplicates)

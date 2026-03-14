@@ -43,18 +43,6 @@ public class ReviewDAO extends DBContext {
         return list;
     }
 
-    // 2. Xóa đánh giá (Dành cho Staff)
-    public void deleteReview(int reviewId) {
-        String sql = "DELETE FROM Review WHERE review_id = ?";
-        try (Connection conn = getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, reviewId);
-            ps.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     // --- ĐÃ NÂNG CẤP: NHẬN THAM SỐ INT VÀ CHỐNG RÒ RỈ RAM ---
     public List<Review> getReviewsByStar(int starValue) {
         List<Review> list = new ArrayList<>();
@@ -105,6 +93,34 @@ public class ReviewDAO extends DBContext {
         return list;
     }
 
+    // Hàm 1: Lưu đánh giá mới và TRẢ VỀ ID CỦA ĐÁNH GIÁ ĐÓ
+    public int insertReview(int userId, int bookId, int rating, String comment) {
+        String sql = "INSERT INTO Review (user_id, book_id, rating, comment) VALUES (?, ?, ?, ?)";
+        
+        // Thêm Statement.RETURN_GENERATED_KEYS để lấy ID sau khi Insert
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)) {
+            
+            ps.setInt(1, userId);
+            ps.setInt(2, bookId);
+            ps.setInt(3, rating);
+            ps.setString(4, comment); 
+            
+            int affectedRows = ps.executeUpdate();
+            if (affectedRows > 0) {
+                // Lấy cái ID vừa được sinh ra trong Database
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        return rs.getInt(1); // Trả về review_id mới
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1; // Trả về -1 nếu thất bại
+    }
+
     public void updateStaffReply(int reviewId, String replyText) {
         String sql = "UPDATE Review SET staff_reply = ? WHERE review_id = ?";
         try (Connection conn = getConnection();
@@ -115,26 +131,6 @@ public class ReviewDAO extends DBContext {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    // Hàm 1: Lưu đánh giá mới vào Database
-    public boolean insertReview(int userId, int bookId, int rating, String comment) {
-        String sql = "INSERT INTO Review (user_id, book_id, rating, comment) VALUES (?, ?, ?, ?)";
-
-        try (Connection conn = getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setInt(1, userId);
-            ps.setInt(2, bookId);
-            ps.setInt(3, rating);
-            ps.setString(4, comment);
-
-            return ps.executeUpdate() > 0;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
     }
 
     // Hàm 2: Lấy danh sách đánh giá của 1 cuốn sách (kèm tên người đánh giá)
@@ -173,6 +169,167 @@ public class ReviewDAO extends DBContext {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return list;
+    }
+
+    // =======================================================================
+    // CẬP NHẬT BÌNH LUẬN (Khóa bảo mật bằng userId)
+    // =======================================================================
+    public boolean updateReview(int reviewId, int userId, int rating, String comment) {
+        // Đã sửa 'Reviews' thành 'Review' và 'id' thành 'review_id'
+        String sql = "UPDATE Review SET rating = ?, comment = ? WHERE review_id = ? AND user_id = ?";
+        
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, rating);
+            ps.setString(2, comment);
+            ps.setInt(3, reviewId);
+            ps.setInt(4, userId); 
+            
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // =======================================================================
+    // XÓA BÌNH LUẬN 
+    // =======================================================================
+    public boolean deleteReview(int reviewId, int userId) {
+        // Đã sửa 'Reviews' thành 'Review' và 'id' thành 'review_id'
+        String sql = "DELETE FROM Review WHERE review_id = ? AND user_id = ?";
+        
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, reviewId);
+            ps.setInt(2, userId); 
+            
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    // =======================================================================
+    // TỐ CÁO BÌNH LUẬN
+    // =======================================================================
+    public boolean reportReview(int reviewId, int userId, String reason) {
+        String sql = "INSERT INTO Reported_Reviews (review_id, user_id, reason) VALUES (?, ?, ?)";
+        
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, reviewId);
+            ps.setInt(2, userId);
+            ps.setString(3, reason);
+            
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // Lấy danh sách bình luận của 1 User (Có kèm tên sách)
+    public List<Review> getReviewsByUserId(int userId) {
+        System.out.println("=== DEBUG: BẮT ĐẦU CHẠY HÀM getReviewsByUserId ===");
+        System.out.println("=== DEBUG: ID của User đang đăng nhập: " + userId);
+        
+        List<Review> list = new ArrayList<>();
+        // JOIN với bảng Books để lấy tiêu đề sách
+        String sql = "SELECT r.*, b.title AS book_title " +
+                     "FROM Review r " +
+                     "JOIN Books b ON r.book_id = b.book_id " +
+                     "WHERE r.user_id = ? " +
+                     "ORDER BY r.create_at DESC";
+        
+        System.out.println("=== DEBUG: Câu lệnh SQL chuẩn bị chạy: " + sql);             
+                     
+        try (Connection conn = getConnection()) {
+            System.out.println("=== DEBUG: Đã kết nối Database thành công!");
+            
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setInt(1, userId);
+                System.out.println("=== DEBUG: Đã nạp userId vào SQL, chuẩn bị executeQuery...");
+                
+                try (ResultSet rs = ps.executeQuery()) {
+                    System.out.println("=== DEBUG: Đã chạy SQL thành công, bắt đầu đọc dữ liệu (while loop)...");
+                    int count = 0;
+                    
+                    while (rs.next()) {
+                        count++;
+                        System.out.println("=== DEBUG: Đang đọc bình luận thứ " + count + " (review_id = " + rs.getInt("review_id") + ")");
+                        
+                        Review r = new Review();
+                        r.setReviewId(rs.getInt("review_id"));
+                        r.setBookId(rs.getInt("book_id"));
+                        r.setUserId(rs.getInt("user_id"));
+                        r.setRating(rs.getInt("rating"));
+                        r.setComment(rs.getString("comment"));
+                        r.setCreateAt(rs.getDate("create_at"));
+                        
+                        // Đọc tên sách
+                        r.setBookTitle(rs.getString("book_title")); 
+                        
+                        list.add(r);
+                    }
+                    System.out.println("=== DEBUG: Đã đọc xong! Tổng số bình luận lấy được: " + count);
+                }
+            }
+        } catch (Exception e) { 
+            System.err.println("=== DEBUG PHÁT HIỆN LỖI TRONG DAO: " + e.getMessage());
+            e.printStackTrace(); 
+        }
+        
+        System.out.println("=== DEBUG: KẾT THÚC HÀM VÀ TRẢ VỀ LIST (Size = " + list.size() + ") ===");
+        return list;
+    }
+
+    // 1. Hàm đếm tổng số bình luận của user (Để tính số trang)
+    public int getTotalReviewsByUserId(int userId) {
+        String sql = "SELECT COUNT(*) FROM Review WHERE user_id = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    // 2. Hàm lấy bình luận có phân trang (Chỉ lấy ví dụ từ dòng X đến dòng Y)
+    public List<Review> getReviewsByUserIdPaging(int userId, int page, int pageSize) {
+        List<Review> list = new ArrayList<>();
+        int offset = (page - 1) * pageSize; // Tính toán vị trí bỏ qua
+
+        // SQL Server dùng OFFSET và FETCH NEXT để phân trang
+        String sql = "SELECT r.*, b.title AS book_title " +
+                     "FROM Review r " +
+                     "JOIN Books b ON r.book_id = b.book_id " +
+                     "WHERE r.user_id = ? " +
+                     "ORDER BY r.create_at DESC " +
+                     "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+                     
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setInt(2, offset);   // Bỏ qua bao nhiêu dòng
+            ps.setInt(3, pageSize); // Lấy bao nhiêu dòng tiếp theo
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Review r = new Review();
+                    r.setReviewId(rs.getInt("review_id"));
+                    r.setBookId(rs.getInt("book_id"));
+                    r.setUserId(rs.getInt("user_id"));
+                    r.setRating(rs.getInt("rating"));
+                    r.setComment(rs.getString("comment"));
+                    r.setCreateAt(rs.getDate("create_at"));
+                    r.setBookTitle(rs.getString("book_title")); 
+                    list.add(r);
+                }
+            }
+        } catch (Exception e) { e.printStackTrace(); }
         return list;
     }
 
@@ -219,11 +376,15 @@ public class ReviewDAO extends DBContext {
         if (bookId > 0) {
             sql.append(" AND r.book_id = ? ");
         }
-        if (userId > 0) { sql.append(" AND r.user_id = ? "); }
+        // Lọc theo User
+        if (userId > 0) { 
+            sql.append(" AND r.user_id = ? "); 
+        }
+        
         sql.append(" ORDER BY r.create_at DESC");
 
         try (Connection conn = getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
 
             int paramIndex = 1; // Biến đếm vị trí dấu ?
             if (starValue >= 1 && starValue <= 5) {
@@ -232,26 +393,35 @@ public class ReviewDAO extends DBContext {
             if (bookId > 0) {
                 ps.setInt(paramIndex++, bookId);
             }
-            if (userId > 0) { ps.setInt(paramIndex++, userId); }
+            if (userId > 0) { 
+                ps.setInt(paramIndex++, userId); 
+            }
+            
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     Review r = new Review();
+                    
+                    // Gộp toàn bộ các trường cần lấy vào đây
                     r.setReviewId(rs.getInt("review_id"));
                     r.setUserId(rs.getInt("user_id"));
                     r.setBookId(rs.getInt("book_id"));
                     r.setRating(rs.getInt("rating"));
                     r.setComment(rs.getString("comment"));
                     r.setCreateAt(rs.getDate("create_at"));
+                    
+                    // Các trường lấy từ bảng JOIN
                     r.setUsername(rs.getString("username"));
                     r.setEmail(rs.getString("email"));
                     r.setBookTitle(rs.getString("book_title"));
                     r.setStaffReply(rs.getString("staff_reply"));
+                    
                     list.add(r);
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception e) { 
+            e.printStackTrace(); 
         }
+        
         return list;
     }
 }
