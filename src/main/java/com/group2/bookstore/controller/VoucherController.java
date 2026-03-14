@@ -28,21 +28,40 @@ public class VoucherController extends HttpServlet {
         }
 
         VoucherDAO dao = new VoucherDAO();
-
-        // NẮM BẮT YÊU CẦU TỪ NÚT BẤM (Xóa mã)
         String action = req.getParameter("action");
+        
+        // 1. XỬ LÝ CHUYỂN HƯỚNG SANG TRANG THÊM MỚI
+        if ("add".equals(action)) {
+            req.getRequestDispatcher("/view/add-voucher.jsp").forward(req, resp);
+            return;
+        }
+
+        // 2. XỬ LÝ XÓA VOUCHER
         if ("delete".equals(action)) {
             String idParam = req.getParameter("id");
             if (idParam != null && !idParam.isEmpty()) {
                 int voucherId = Integer.parseInt(idParam);
-                dao.deleteVoucher(voucherId); // Gọi hàm xóa
+                dao.deleteVoucher(voucherId); 
             }
-            // Xóa xong thì load lại đúng trang này để cập nhật bảng
             resp.sendRedirect(req.getContextPath() + "/vouchers-management");
             return;
         }
 
-        // Nếu không có yêu cầu xóa thì tải danh sách mã như bình thường
+        // 3. XỬ LÝ XEM THỐNG KÊ (Trả về JSON cho AJAX)
+        if ("analytics".equals(action)) {
+            String idParam = req.getParameter("id");
+            if (idParam != null && !idParam.isEmpty()) {
+                int voucherId = Integer.parseInt(idParam);
+                int[] stats = dao.getVoucherStats(voucherId);
+                
+                resp.setContentType("application/json");
+                resp.setCharacterEncoding("UTF-8");
+                resp.getWriter().write("{\"saved\":" + stats[0] + ", \"used\":" + stats[1] + "}");
+            }
+            return; 
+        }
+
+        // 4. MẶC ĐỊNH: TẢI DANH SÁCH VOUCHER RA BẢNG
         List<Voucher> list = dao.getAllVouchersForStaff();
         req.setAttribute("vouchers", list);
         req.getRequestDispatcher("/view/voucher-management.jsp").forward(req, resp);
@@ -61,16 +80,16 @@ public class VoucherController extends HttpServlet {
         String endDateStr = req.getParameter("endDate") + " 23:59:59";
         Timestamp startDate = Timestamp.valueOf(startDateStr);
         Timestamp endDate = Timestamp.valueOf(endDateStr);
-        String maxDiscountRaw=req.getParameter("maxDiscount");
+        String maxDiscountRaw = req.getParameter("maxDiscount");
 
         Voucher v = new Voucher();
         v.setCode(code);
         
-        // Dựa vào lựa chọn của Staff để gán đúng thuộc tính
+        // Gán thuộc tính tùy theo loại giảm giá
         if (discountType == 1) {
             v.setDiscountAmount(discountValue);
             v.setDiscountPercent(0);
-            v.setMaxDiscount(null); // Giảm tiền mặt thì không có tối đa
+            v.setMaxDiscount(0.0); // Giảm tiền mặt thì không có tối đa
         } else {
             v.setDiscountPercent((int) discountValue);
             v.setDiscountAmount(0);
@@ -87,7 +106,7 @@ public class VoucherController extends HttpServlet {
         VoucherDAO dao = new VoucherDAO();
         dao.addVoucherForStaff(v);
 
-        // Load lại trang sau khi thêm thành công
+        // Lưu thành công thì quay về trang danh sách
         resp.sendRedirect(req.getContextPath() + "/vouchers-management");
     }
 }

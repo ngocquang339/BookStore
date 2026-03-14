@@ -269,4 +269,26 @@ public class VoucherDAO extends DBContext { // Giả sử nhóm bạn dùng DBCo
             e.printStackTrace(); 
         }
     }
+    // =====================================================================
+    // 9. DÀNH CHO STAFF: XEM THỐNG KÊ VOUCHER
+    // =====================================================================
+    public int[] getVoucherStats(int voucherId) {
+        int[] stats = {0, 0}; // Index 0: Lượt đã lưu, Index 1: Lượt đã dùng
+        
+        // Đếm tổng số người đã lưu và đếm số người có is_used = 1
+        String sql = "SELECT COUNT(*) as total_saved, SUM(CASE WHEN is_used = 1 THEN 1 ELSE 0 END) as total_used FROM User_Vouchers WHERE voucher_id = ?";
+        
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, voucherId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    stats[0] = rs.getInt("total_saved");
+                    stats[1] = rs.getInt("total_used");
+                }
+            }
+        } catch (Exception e) { 
+            e.printStackTrace(); 
+        }
+        return stats;
+    }
 }
