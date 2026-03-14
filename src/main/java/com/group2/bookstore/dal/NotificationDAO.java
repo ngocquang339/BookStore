@@ -94,7 +94,7 @@ public class NotificationDAO extends DBContext {
                     n.setMessage(rs.getString("message"));
                     n.setLink(rs.getString("link"));
                     n.setIsRead(rs.getBoolean("is_read")); // Trong SQL Server kiểu BIT lấy ra bằng getBoolean
-                    n.setCreatedAt(rs.getTimestamp("create_at"));
+                    n.setCreatedAt(rs.getTimestamp("created_at"));
                     list.add(n);
                 }
             }

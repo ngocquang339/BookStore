@@ -23,7 +23,7 @@ public class NotificationServlet extends HttpServlet {
             try {
                 int notifId = Integer.parseInt(request.getParameter("notifId"));
                 NotificationDAO dao = new NotificationDAO();
-                dao.markAsRead(notifId);
+                dao.markAsReaded(notifId);
                 response.getWriter().write("{\"success\": true}");
             } catch (Exception e) {
                 response.getWriter().write("{\"success\": false}");
