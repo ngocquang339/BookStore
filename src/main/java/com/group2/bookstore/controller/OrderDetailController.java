@@ -53,4 +53,20 @@ public class OrderDetailController extends HttpServlet {
             resp.sendRedirect("dashboard");
         }
     }
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        try {
+            int orderId = Integer.parseInt(req.getParameter("orderId"));
+            String staffNote = req.getParameter("staffNote");
+            
+            OrderDAO dao = new OrderDAO();
+            dao.updateStaffNote(orderId, staffNote);
+            
+            // Lưu xong thì load lại đúng trang chi tiết đó
+            resp.sendRedirect("order-detail?id=" + orderId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            resp.sendRedirect("orders-management");
+        }
+    }
 }
