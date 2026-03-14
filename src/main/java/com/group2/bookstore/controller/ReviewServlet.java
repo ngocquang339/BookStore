@@ -24,31 +24,71 @@ public class ReviewServlet extends HttpServlet {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
         
-        // Trạng thái 401 (Unauthorized): Chưa đăng nhập
         if (user == null) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); 
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
         try {
             int bookId = Integer.parseInt(request.getParameter("pid"));
-            int rating = Integer.parseInt(request.getParameter("rating"));
-            String comment = request.getParameter("comment");
-
+            String action = request.getParameter("action");
             ReviewDAO reviewDAO = new ReviewDAO();
-            boolean isSuccess = reviewDAO.insertReview(user.getId(), bookId, rating, comment);
-            
-            if (isSuccess) {
-                // Trạng thái 200 (OK): Thành công
-                response.setStatus(HttpServletResponse.SC_OK); 
+
+            if ("update".equals(action)) {
+                // XỬ LÝ SỬA BÌNH LUẬN BẰNG AJAX
+                int reviewId = Integer.parseInt(request.getParameter("reviewId"));
+                int rating = Integer.parseInt(request.getParameter("rating"));
+                String comment = request.getParameter("comment");
+                
+                boolean isUpdated = reviewDAO.updateReview(reviewId, user.getId(), rating, comment); 
+                
+                // Trả về JSON thay vì chuyển trang
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().write("{\"success\": " + isUpdated + "}");
+
+            } else if ("delete".equals(action)) {
+                // XỬ LÝ XÓA BÌNH LUẬN BẰNG AJAX
+                int reviewId = Integer.parseInt(request.getParameter("reviewId"));
+                
+                boolean isDeleted = reviewDAO.deleteReview(reviewId, user.getId()); 
+                
+                // Trả về JSON thay vì chuyển trang
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().write("{\"success\": " + isDeleted + "}");
+
+            }else if ("report".equals(action)) {
+                // XỬ LÝ TỐ CÁO BÌNH LUẬN BẰNG AJAX
+                int reviewId = Integer.parseInt(request.getParameter("reviewId"));
+                String reason = request.getParameter("reason");
+                
+                boolean isReported = reviewDAO.reportReview(reviewId, user.getId(), reason); 
+                
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().write("{\"success\": " + isReported + "}");
+
             } else {
-                // Trạng thái 400 (Bad Request): Lỗi không lưu được
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST); 
+                // XỬ LÝ ĐĂNG BÌNH LUẬN MỚI
+                int rating = Integer.parseInt(request.getParameter("rating"));
+                String comment = request.getParameter("comment");
+
+                // Lấy ID mới từ DAO
+                int newReviewId = reviewDAO.insertReview(user.getId(), bookId, rating, comment);
+                
+                if (newReviewId > 0) {
+                    // TRẢ VỀ CHUỖI JSON CHỨA ID MỚI CHO JAVASCRIPT
+                    response.setContentType("application/json");
+                    response.setCharacterEncoding("UTF-8");
+                    response.getWriter().write("{\"success\": true, \"reviewId\": " + newReviewId + "}");
+                } else {
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST); 
+                }
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            // Trạng thái 500 (Internal Server Error): Lỗi code/database
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR); 
         }
     }

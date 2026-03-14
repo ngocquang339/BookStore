@@ -35,6 +35,35 @@
             </div>
         </div>
 
+        <div style="background-color: white; border-radius: 8px; padding: 15px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+            <form action="${pageContext.request.contextPath}/collection-detail" method="GET" class="d-flex flex-wrap gap-3 align-items-center m-0">
+                
+                <input type="hidden" name="id" value="${collection.id}">
+
+                <div style="flex: 1; min-width: 250px;">
+                    <div class="input-group">
+                        <span class="input-group-text" style="background: white; border-right: none; color: #C92127;">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </span>
+                        <input type="text" class="form-control" name="search" value="${paramSearch}" placeholder="Tìm tên sách trong bộ sưu tập này..." style="border-left: none; box-shadow: none;">
+                    </div>
+                </div>
+
+                <div style="width: 220px;">
+                    <select name="sort" class="form-select" onchange="this.form.submit()" style="cursor: pointer; box-shadow: none;">
+                        <option value="newest" ${paramSort == 'newest' ? 'selected' : ''}>⏳ Mới thêm gần đây</option>
+                        <option value="price_asc" ${paramSort == 'price_asc' ? 'selected' : ''}>📈 Giá: Thấp đến Cao</option>
+                        <option value="price_desc" ${paramSort == 'price_desc' ? 'selected' : ''}>📉 Giá: Cao xuống Thấp</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn text-white fw-bold px-4" style="background-color: #C92127;">Lọc</button>
+                
+                <c:if test="${not empty paramSearch or paramSort != 'newest'}">
+                    <a href="${pageContext.request.contextPath}/collection-detail?id=${collection.id}" class="btn btn-light border text-muted">Xóa lọc</a>
+                </c:if>
+            </form>
+        </div>
         <div style="background-color: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
             
             <c:choose>

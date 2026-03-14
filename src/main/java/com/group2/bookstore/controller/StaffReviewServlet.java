@@ -2,11 +2,14 @@ package com.group2.bookstore.controller;
 
 import com.group2.bookstore.dal.ReviewDAO;
 import com.group2.bookstore.model.Review;
+import com.group2.bookstore.model.User;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -17,12 +20,14 @@ public class StaffReviewServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         if ("/staff/delete-review".equals(request.getServletPath())) {
+            HttpSession session = request.getSession();
+            User user = (User) session.getAttribute("user");
             String idRaw = request.getParameter("id");
             if (idRaw != null) {
                 try {
                     int reviewId = Integer.parseInt(idRaw);
                     ReviewDAO dao = new ReviewDAO();
-                    dao.deleteReview(reviewId); // Xóa khỏi Database
+                    dao.deleteReview(reviewId, user.getId()); // Xóa khỏi Database
                 } catch (NumberFormatException e) {
                     e.printStackTrace();
                 }

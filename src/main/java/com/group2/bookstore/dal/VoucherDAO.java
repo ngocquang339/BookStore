@@ -80,11 +80,12 @@ public class VoucherDAO extends DBContext { // Giả sử nhóm bạn dùng DBCo
         
         // Dùng INNER JOIN để lôi cả thông tin của cái Voucher ra
         // Chỉ lấy những mã chưa dùng (is_used = 0) và chưa hết hạn
+        // ĐÃ SỬA: Lấy TẤT CẢ voucher, ưu tiên xếp cái chưa dùng lên trên cùng
         String sql = "SELECT uv.*, v.code, v.discount_amount, v.discount_percent, v.min_order_value, v.end_date " +
                      "FROM User_Vouchers uv " +
                      "INNER JOIN Vouchers v ON uv.voucher_id = v.voucher_id " +
-                     "WHERE uv.user_id = ? AND uv.is_used = 0 AND v.end_date >= GETDATE() " +
-                     "ORDER BY uv.saved_date DESC";
+                     "WHERE uv.user_id = ? " +
+                     "ORDER BY uv.is_used ASC, v.end_date DESC, uv.saved_date DESC";
                      
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {

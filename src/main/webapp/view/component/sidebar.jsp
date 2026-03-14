@@ -30,17 +30,17 @@
 
         <a href="${pageContext.request.contextPath}/update-profile" 
            class="menu-item <%= currentPath.contains("UserProfile") || currentPath.contains("update-profile") ? "active" : "" %>">
-            <span style="margin-left: 30px;">Hồ sơ cá nhân</span>
+            <span style="margin-left: 20px;"><i class="fa-regular fa-address-card fa-fw me-1"></i> Hồ sơ cá nhân</span>
         </a>
 
         <a href="${pageContext.request.contextPath}/address" 
            class="menu-item <%= currentPath.contains("address") ? "active" : "" %>"> 
-            <span style="margin-left: 30px;">Sổ địa chỉ</span>
+            <span style="margin-left: 20px;"><i class="fa-solid fa-location-dot fa-fw me-1"></i> Sổ địa chỉ</span>
         </a>
 
         <a href="${pageContext.request.contextPath}/change-password" 
            class="menu-item <%= currentPath.contains("ChangePassword") || currentPath.contains("change-password") ? "active" : "" %>">
-            <span style="margin-left: 30px;">Đổi mật khẩu</span>
+            <span style="margin-left: 20px;"><i class="fa-solid fa-lock fa-fw me-1"></i> Đổi mật khẩu</span>
         </a>
 
         <hr style="margin: 10px 0; border-top: 1px solid #eee;">
@@ -50,14 +50,30 @@
             <i class="fa-solid fa-receipt"></i> Đơn hàng của tôi
         </a>
         
-        <a href="${pageContext.request.contextPath}/user/voucher-wallet" class="menu-item">
+        <a href="${pageContext.request.contextPath}/user/voucher-wallet" 
+           class="menu-item <%= currentPath.contains("voucher") ? "active" : "" %>">
             <i class="fa-solid fa-ticket"></i> Ví Voucher <span style="background:red; color:white; font-size:10px; padding: 2px 5px; border-radius:10px; margin-left:5px;">18</span>
         </a>
 
-        <a href="${pageContext.request.contextPath}/my-collections" class="menu-item">
-            <i class="fa-solid fa-ticket"></i> Bộ sưu tập của tôi <span style="background:red; color:white; font-size:10px; padding: 2px 5px; border-radius:10px; margin-left:5px;">18</span>
+        <a href="${pageContext.request.contextPath}/my-collections" 
+           class="menu-item <%= currentPath.contains("collection") ? "active" : "" %>">
+            <i class="fa-solid fa-bookmark"></i> Bộ sưu tập của tôi <span style="background:red; color:white; font-size:10px; padding: 2px 5px; border-radius:10px; margin-left:5px;">18</span>
         </a>
 
+        <a href="${pageContext.request.contextPath}/support" 
+           class="menu-item <%= currentPath.contains("support") ? "active" : "" %>">
+            <i class="fa-solid fa-headset"></i> Trung tâm Hỗ trợ
+        </a>
+
+        <a href="${pageContext.request.contextPath}/notifications" 
+           class="menu-item <%= currentPath.contains("notifications") ? "active" : "" %>">
+            <i class="fa-regular fa-bell"></i> Thông báo của tôi
+        </a>
+        
+        <a href="${pageContext.request.contextPath}/my-comments" 
+           class="menu-item <%= currentPath.contains("my-comments") ? "active" : "" %>">
+            <i class="fa-regular fa-comment-dots"></i> Bình luận của tôi
+        </a>
         <a href="${pageContext.request.contextPath}/logout" class="menu-item" style="color: #666;">
             <i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất
         </a>
