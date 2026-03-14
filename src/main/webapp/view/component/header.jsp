@@ -26,168 +26,193 @@
             /* Adjust this box-shadow to match your current design */
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
+            /* This class will be added by JavaScript when the user scrolls down */
+            .header.header-hidden {
+                transform: translateY(-100%);
+            }
 
-        /* This class will be added by JavaScript when the user scrolls down */
-        .header.header-hidden {
-            /* Moves the header up by its own height. 
-            Adjust -160px if your header is taller or shorter. */
-            transform: translateY(-100%);
-        }
+            /* TIÊU ĐỀ CÁC CỘT */
+            .filter-group h4 {
+                font-size: 15px;
+                font-weight: 700;
+                color: #333;
+                margin-bottom: 15px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
 
-        /* TIÊU ĐỀ CÁC CỘT */
-        .filter-group h4 {
-            font-size: 15px;
-            font-weight: 700;
-            color: #333;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .filter-group h4 i {
-            color: #C92127; /* Màu đỏ thương hiệu cho icon */
-        }
+            .filter-group h4 i {
+                color: #C92127;
+                /* Màu đỏ thương hiệu cho icon */
+            }
 
-        /* 1. KHOẢNG GIÁ */
-        .price-inputs {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .price-inputs input {
-            width: 100%;
-            padding: 10px 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            outline: none;
-            font-size: 14px;
-            transition: 0.3s;
-        }
-        .price-inputs input:focus {
-            border-color: #C92127;
-            box-shadow: 0 0 0 3px rgba(201, 33, 39, 0.1);
-        }
+            /* 1. KHOẢNG GIÁ */
+            .price-inputs {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
 
-        /* 2. THỂ LOẠI - MA THUẬT ẨN RADIO NẰM Ở ĐÂY */
-        .category-list {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        .category-item {
-            cursor: pointer;
-            display: block;
-        }
-        .category-item input[type="radio"] {
-            display: none; /* ẨN HOÀN TOÀN Ô TRÒN RADIO */
-        }
-        .category-item .cat-name {
-            display: block;
-            padding: 8px 10px;
-            color: #555;
-            font-size: 14px;
-            border-radius: 6px;
-            transition: all 0.3s ease; /* Chuyển động mượt */
-            position: relative;
-        }
-        /* HIỆU ỨNG HOVER (DI CHUỘT) */
-        .category-item:hover .cat-name {
-            color: #C92127;
-            transform: translateX(6px); /* Dịch chuyển sang phải 6px */
-            background-color: #fdf5f5; /* Nền đỏ cực nhạt */
-        }
-        /* HIỆU ỨNG KHI ĐƯỢC CHỌN (CLICK VÀO) */
-        .category-item input[type="radio"]:checked + .cat-name {
-            color: #C92127;
-            font-weight: 700;
-            background-color: #fcebeb;
-        }
-        .category-item input[type="radio"]:checked + .cat-name::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 15%;
-            height: 70%;
-            width: 3px;
-            background-color: #C92127;
-            border-radius: 4px;
-        }
+            .price-inputs input {
+                width: 100%;
+                padding: 10px 15px;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                outline: none;
+                font-size: 14px;
+                transition: 0.3s;
+            }
 
-        /* 3. SẮP XẾP & SELECT */
-        .filter-select {
-    width: 100%;
-            padding: 10px 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            outline: none;
-            font-size: 14px;
-            color: #333;
-            cursor: pointer;
-            transition: 0.3s;
-            appearance: auto;
-        }
-        .filter-select:hover { border-color: #C92127; }
+            .price-inputs input:focus {
+                border-color: #C92127;
+                box-shadow: 0 0 0 3px rgba(201, 33, 39, 0.1);
+            }
 
-        /* NÚT BẤM (BUTTONS) */
-        .filter-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 15px;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px dashed #eee;
-        }
-        .btn-reset {
-            background: transparent;
-            border: none;
-            color: #777;
-            font-weight: 600;
-            cursor: pointer;
-            padding: 10px 20px;
-            transition: 0.3s;
-        }
-        .btn-reset:hover { color: #333; text-decoration: underline; }
-        
-        .btn-apply {
-            background: #C92127;
-            color: white;
-            border: none;
-            padding: 10px 30px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(201, 33, 39, 0.3);
-            transition: 0.3s;
-        }
-        .btn-apply:hover {
-            background: #a91b21;
-            transform: translateY(-2px); /* Hiệu ứng nút nảy lên */
-            box-shadow: 0 6px 15px rgba(201, 33, 39, 0.4);
-        }
+            /* 2. THỂ LOẠI - MA THUẬT ẨN RADIO NẰM Ở ĐÂY */
+            .category-list {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
 
-        /* XÂY CÂY CẦU TÀNG HÌNH NỐI DROPDOWN VỚI NÚT BẤM */
-        .filter-dropdown::before {
-            content: '';
-            position: absolute;
-            top: -15px; /* Kéo cây cầu dịch lên trên lấp kín khoảng hở 10px */
-            left: 0;
-            width: 100%;
-            height: 15px;
-            background: transparent; /* Tàng hình (trong suốt) */
-        }
-    </style>
+            .category-item {
+                cursor: pointer;
+                display: block;
+            }
+
+            .category-item input[type="radio"] {
+                display: none;
+                /* ẨN HOÀN TOÀN Ô TRÒN RADIO */
+            }
+
+            .category-item .cat-name {
+                display: block;
+                padding: 8px 10px;
+                color: #555;
+                font-size: 14px;
+                border-radius: 6px;
+                transition: all 0.3s ease;
+                /* Chuyển động mượt */
+                position: relative;
+            }
+
+            /* HIỆU ỨNG HOVER (DI CHUỘT) */
+            .category-item:hover .cat-name {
+                color: #C92127;
+                transform: translateX(6px);
+                /* Dịch chuyển sang phải 6px */
+                background-color: #fdf5f5;
+                /* Nền đỏ cực nhạt */
+            }
+
+            /* HIỆU ỨNG KHI ĐƯỢC CHỌN (CLICK VÀO) */
+            .category-item input[type="radio"]:checked+.cat-name {
+                color: #C92127;
+                font-weight: 700;
+                background-color: #fcebeb;
+            }
+
+            .category-item input[type="radio"]:checked+.cat-name::before {
+                content: '';
+                position: absolute;
+                left: 0;
+                top: 15%;
+                height: 70%;
+                width: 3px;
+                background-color: #C92127;
+                border-radius: 4px;
+            }
+
+            /* 3. SẮP XẾP & SELECT */
+            .filter-select {
+                width: 100%;
+                padding: 10px 15px;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                outline: none;
+                font-size: 14px;
+                color: #333;
+                cursor: pointer;
+                transition: 0.3s;
+                appearance: auto;
+            }
+
+            .filter-select:hover {
+                border-color: #C92127;
+            }
+
+            /* NÚT BẤM (BUTTONS) */
+            .filter-actions {
+                display: flex;
+                justify-content: flex-end;
+                gap: 15px;
+                margin-top: 30px;
+                padding-top: 20px;
+                border-top: 1px dashed #eee;
+            }
+
+            .btn-reset {
+                background: transparent;
+                border: none;
+                color: #777;
+                font-weight: 600;
+                cursor: pointer;
+                padding: 10px 20px;
+                transition: 0.3s;
+            }
+
+            .btn-reset:hover {
+                color: #333;
+                text-decoration: underline;
+            }
+
+            .btn-apply {
+                background: #C92127;
+                color: white;
+                border: none;
+                padding: 10px 30px;
+                border-radius: 8px;
+                font-weight: bold;
+                cursor: pointer;
+                box-shadow: 0 4px 10px rgba(201, 33, 39, 0.3);
+                transition: 0.3s;
+            }
+
+            .btn-apply:hover {
+                background: #a91b21;
+                transform: translateY(-2px);
+                /* Hiệu ứng nút nảy lên */
+                box-shadow: 0 6px 15px rgba(201, 33, 39, 0.4);
+            }
+
+            /* XÂY CÂY CẦU TÀNG HÌNH NỐI DROPDOWN VỚI NÚT BẤM */
+            .filter-dropdown::before {
+                content: '';
+                position: absolute;
+                top: -15px;
+                /* Kéo cây cầu dịch lên trên lấp kín khoảng hở 10px */
+                left: 0;
+                width: 100%;
+                height: 15px;
+                background: transparent;
+                /* Tàng hình (trong suốt) */
+            }
+        </style>
+
 
     <header class="main-header">
-        <div class="container">
+        <div class="container" style="display: flex; align-items: center; gap: 20px; justify-content: space-between;">
+            
             <div class="logo">
                 <a href="${pageContext.request.contextPath}/home" style="text-decoration: none;">
                     <span style="color: #C92127; font-weight: 900; font-size: 28px;">MIND</span><span style="color: #333; font-weight: 900; font-size: 28px;">BOOK</span>
                 </a>
             </div>
 
-            <div class="filter-wrapper">
+            <div class="filter-wrapper" style="position: relative;">
                 <div class="filter-trigger" style="cursor: pointer; display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border: 1px solid #ddd; border-radius: 8px; background: white; font-weight: 600; color: #333;">
                     <i class="fa-solid fa-filter" style="color: #C92127;"></i>
                     <span>Bộ lọc tìm kiếm</span>
@@ -197,57 +222,30 @@
                 <div class="filter-dropdown">
                     <form action="${pageContext.request.contextPath}/search" method="get">
                         <input type="hidden" name="txt" value="${param.txt}">
-                        
+
                         <div class="filter-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px;">
                             
                             <div class="filter-group">
-    <h4><i class="fa-solid fa-tags"></i> Khoảng giá</h4>
+                                <h4><i class="fa-solid fa-tags"></i> Khoảng giá</h4>
                                 <div class="price-inputs">
                                     <input type="number" name="minPrice" placeholder="Từ (đ)" min="0">
                                     <span style="color: #999;">-</span>
                                     <input type="number" name="maxPrice" placeholder="Đến (đ)" min="0">
                                 </div>
                             </div>
-                            
+
                             <div class="filter-group">
                                 <h4><i class="fa-solid fa-book"></i> Thể loại</h4>
                                 <div class="category-list">
-                                    <label class="category-item">
-                                        <input type="radio" name="cid" value="" checked>
-                                        <span class="cat-name">Tất cả thể loại</span>
-                                    </label>
-                                    <label class="category-item">
-                                        <input type="radio" name="cid" value="1">
-                                        <span class="cat-name">Văn học</span>
-                                    </label>
-                                    <label class="category-item">
-                                        <input type="radio" name="cid" value="6">
-                                        <span class="cat-name">Kinh tế</span>
-                                    </label>
-                                    <label class="category-item">
-                                        <input type="radio" name="cid" value="11">
-                                        <span class="cat-name">Kỹ năng sống</span>
-                                    </label>
-                                    <label class="category-item">
-                                        <input type="radio" name="cid" value="16">
-                                        <span class="cat-name">Nuôi dạy con</span>
-                                    </label>
-                                    <label class="category-item">
-                                        <input type="radio" name="cid" value="21">
-                                        <span class="cat-name">Sách thiếu nhi</span>
-                                    </label>
-                                    <label class="category-item">
-                                        <input type="radio" name="cid" value="26">
-                                        <span class="cat-name">Tiểu sử - Hồi kí</span>
-                                    </label>
-                                    <label class="category-item">
-                                        <input type="radio" name="cid" value="31">
-                                        <span class="cat-name">Giáo khoa - Tham khảo</span>
-                                    </label>
-                                    <label class="category-item">
-                                        <input type="radio" name="cid" value="36">
-    <span class="cat-name">Ngoại ngữ</span>
-                                    </label>
+                                    <label class="category-item"><input type="radio" name="cid" value="" checked><span class="cat-name">Tất cả thể loại</span></label>
+                                    <label class="category-item"><input type="radio" name="cid" value="1"><span class="cat-name">Văn học</span></label>
+                                    <label class="category-item"><input type="radio" name="cid" value="6"><span class="cat-name">Kinh tế</span></label>
+                                    <label class="category-item"><input type="radio" name="cid" value="11"><span class="cat-name">Kỹ năng sống</span></label>
+                                    <label class="category-item"><input type="radio" name="cid" value="16"><span class="cat-name">Nuôi dạy con</span></label>
+                                    <label class="category-item"><input type="radio" name="cid" value="21"><span class="cat-name">Sách thiếu nhi</span></label>
+                                    <label class="category-item"><input type="radio" name="cid" value="26"><span class="cat-name">Tiểu sử - Hồi kí</span></label>
+                                    <label class="category-item"><input type="radio" name="cid" value="31"><span class="cat-name">Giáo khoa - Tham khảo</span></label>
+                                    <label class="category-item"><input type="radio" name="cid" value="36"><span class="cat-name">Ngoại ngữ</span></label>
                                 </div>
                             </div>
                             
@@ -271,7 +269,6 @@
                                     </span>
                                 </label>
                             </div>
-                            
                         </div>
                         
                         <div class="filter-actions">
@@ -282,15 +279,11 @@
                 </div>
             </div>
 
-            <div class="search-box">
-                <%-- 1. BỌC VIỀN VÀ BO GÓC Ở NGAY THẺ FORM NGOÀI CÙNG --%>
+            <div class="search-box" style="flex: 1;">
                 <form action="search" method="get" style="display: flex; width: 100%; border: 1.5px solid #e0e0e0; border-radius: 8px; overflow: hidden; align-items: stretch;">
-                    
-                    <%-- 2. Ô INPUT: Bỏ hết viền và bo góc, chỉ để lại padding --%>
                     <input type="text" name="txt" placeholder="Tìm kiếm sách, tác giả..." value="${searchKeyword}" 
                            style="flex: 1; border: none; padding: 10px 15px; outline: none; font-size: 14px;">
                     
-                    <%-- 3. NÚT SEARCH: Bỏ bo góc, nó sẽ tự động lấp đầy phần bên phải --%>
                     <button type="submit" 
                             style="background: #C92127; border: none; color: white; padding: 0 25px; cursor: pointer; transition: 0.2s;"
                             onmouseover="this.style.background='#a91b21'" 
@@ -300,22 +293,18 @@
                 </form>
             </div>
 
-            <div class="header-icons">
-                <%-- ICON THÔNG BÁO CÓ SỐ LƯỢNG --%>
-                <div class="icon-item dropdown" style="position: relative; cursor: pointer;" data-bs-toggle="dropdown">
+            <div class="header-icons" style="display: flex; align-items: center; gap: 20px;">
+                
+                <div class="icon-item dropdown" style="position: relative; cursor: pointer; display: flex; flex-direction: column; align-items: center;" data-bs-toggle="dropdown">
                     <i class="fa-regular fa-bell" style="font-size: 20px;"></i>
-                    
-                    <%-- Chấm đỏ hiển thị số lượng --%>
                     <c:if test="${unreadCount > 0}">
                         <span class="position-absolute translate-middle badge rounded-pill bg-danger" 
-                            style="top: 5px; right: -10px; font-size: 10px; padding: 3px 6px;">
+                            style="top: 5px; right: -5px; font-size: 10px; padding: 3px 6px;">
                             ${unreadCount > 99 ? '99+' : unreadCount}
                         </span>
                     </c:if>
-                    
                     <span>Thông báo</span>
                     
-                    <%-- Box Dropdown hiển thị List thông báo --%>
                     <ul class="dropdown-menu dropdown-menu-end shadow-lg" style="width: 360px; max-height: 450px; overflow-y: auto; padding: 0; border: none;">
                         <li class="p-3 fw-bold border-bottom" style="background-color: #fcfcfc; position: sticky; top: 0; z-index: 10;">
                             <i class="fa-regular fa-bell me-2 text-danger"></i>Thông báo của bạn
@@ -330,7 +319,6 @@
                             </c:when>
                             <c:otherwise>
                                 <c:forEach var="n" items="${notifList}">
-                                    <%-- Logic màu sắc: Chưa đọc = Xanh nhạt, Đã đọc = Trắng/Mờ --%>
                                     <li style="border-bottom: 1px solid #f5f5f5;">
                                         <a class="dropdown-item px-3 py-3 d-flex align-items-start" 
                                         href="javascript:void(0);" 
@@ -353,7 +341,6 @@
                             </c:otherwise>
                         </c:choose>
                         
-                        <%-- Nút Xem tất cả (Đã fix lỗi Bootstrap nuốt click) --%>
                         <li class="p-3 text-center border-top" 
                             style="position: sticky; bottom: 0; background: #f9f9f9; cursor: pointer; transition: 0.2s;"
                             onmouseover="this.style.backgroundColor='#f0f0f0'"
@@ -370,12 +357,11 @@
                     </ul>
                 </div>
 
-                <a href="${pageContext.request.contextPath}/cart" class="icon-item" style="text-decoration: none; color: inherit;">
-                    <i class="fa-solid fa-cart-shopping"></i>
+                <a href="${pageContext.request.contextPath}/cart" class="icon-item" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center;">
+                    <i class="fa-solid fa-cart-shopping" style="font-size: 20px;"></i>
                     <span>Giỏ hàng (<span id="cartTotal">${sessionScope.cart != null ? sessionScope.cart.size() : 0}</span>)</span>
                 </a>
-
-                <div class="icon-item user-account">
+<div class="icon-item user-account">
                     <a href="${pageContext.request.contextPath}${sessionScope.user != null ? '/update-profile' : '/login'}" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center;">
                         <i class="fa-regular fa-user" style="font-size: 20px;"></i>
                         <span>Tài khoản</span>
@@ -411,10 +397,9 @@
                                 <h6 class="dropdown-header text-uppercase fw-bold text-primary px-3" style="font-size: 0.75rem; letter-spacing: 0.5px;">
                                     <i class="fa-solid fa-briefcase me-1"></i> Nghiệp vụ Sale
                                 </h6>
-    <a href="${pageContext.request.contextPath}/staff/customers" class="dropdown-item py-2 fw-bold" style="color: #0d6efd;">
+                                <a href="${pageContext.request.contextPath}/staff/customers" class="dropdown-item py-2 fw-bold" style="color: #0d6efd;">
                                     <i class="fa-solid fa-users-viewfinder me-2" style="width: 20px; text-align: center;"></i> Hỗ trợ Khách hàng
                                 </a>
-                                
                                 <a href="${pageContext.request.contextPath}/staff/reviews" class="dropdown-item py-2 fw-bold" style="color: #ffc107;">
                                     <i class="fa-regular fa-comments me-2" style="width: 20px; text-align: center;"></i> Quản lý Đánh giá
                                 </a>

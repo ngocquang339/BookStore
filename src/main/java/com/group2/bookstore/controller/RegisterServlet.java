@@ -28,14 +28,15 @@ public class RegisterServlet extends HttpServlet{
         String phone = request.getParameter("phone_number");
         String re_p = request.getParameter("re_pass");
 
+        // Giữ lại dữ liệu đã nhập trên form
         request.setAttribute("fullname", fn);
         request.setAttribute("username", u);
         request.setAttribute("email", e);
         request.setAttribute("phone_number", phone);
 
-        if (u == null || u.trim().isEmpty() || p == null || p.trim().isEmpty() || e.length() > 100 ||e.trim().isEmpty() || e == null || phone == null || phone.trim().isEmpty() || fn == null || fn.trim().isEmpty()){
+        // --- BƯỚC 1: KIỂM TRA ĐẦU VÀO (VALIDATION) ---
+        if (u == null || u.trim().isEmpty() || p == null || p.trim().isEmpty() || e == null || e.trim().isEmpty() || e.length() > 100 || phone == null || phone.trim().isEmpty() || fn == null || fn.trim().isEmpty()){
             request.setAttribute("mess", "Thông tin không hợp lệ!");
-            // THÊM DÒNG NÀY ĐỂ BÁO CHO TRANG JSP BIẾT PHẢI MỞ TAB ĐĂNG KÝ
             request.setAttribute("activeTab", "register");
             request.getRequestDispatcher("view/Login.jsp").forward(request, response);
             return;
@@ -43,21 +44,20 @@ public class RegisterServlet extends HttpServlet{
 
         if((fn != null && fn.length() > 50) || (u != null && u.length() > 50)){
             request.setAttribute("mess", "Tên quá dài");
-            // THÊM DÒNG NÀY ĐỂ BÁO CHO TRANG JSP BIẾT PHẢI MỞ TAB ĐĂNG KÝ
             request.setAttribute("activeTab", "register");
             request.getRequestDispatcher("view/Login.jsp").forward(request, response);
+            return; // Phải có return để dừng code chạy tiếp
         }
 
         if((p != null && p.length() > 100) || (re_p != null && re_p.length() > 100)){
             request.setAttribute("mess", "Mật khẩu quá dài");
-            // THÊM DÒNG NÀY ĐỂ BÁO CHO TRANG JSP BIẾT PHẢI MỞ TAB ĐĂNG KÝ
             request.setAttribute("activeTab", "register");
             request.getRequestDispatcher("view/Login.jsp").forward(request, response);
+            return; 
         }
 
         if (!e.contains("@")) {
             request.setAttribute("mess", "Email không hợp lệ (phải chứa ký tự @)!");
-            // THÊM DÒNG NÀY ĐỂ BÁO CHO TRANG JSP BIẾT PHẢI MỞ TAB ĐĂNG KÝ
             request.setAttribute("activeTab", "register");
             request.getRequestDispatcher("view/Login.jsp").forward(request, response);
             return;
@@ -65,59 +65,58 @@ public class RegisterServlet extends HttpServlet{
 
         if(phone.matches(".*[a-zA-Z].*") || phone.length() > 10){
             request.setAttribute("mess", "Số điện thoại không hợp lệ");
-            // THÊM DÒNG NÀY ĐỂ BÁO CHO TRANG JSP BIẾT PHẢI MỞ TAB ĐĂNG KÝ
-            request.setAttribute("activeTab", "register");
-            request.getRequestDispatcher("view/Login.jsp").forward(request, response);
-        }
-
-        if (re_p != null && !p.equals(re_p)) {
-            request.setAttribute("mess", "Mật khẩu nhập lại không khớp!");
-            // THÊM DÒNG NÀY ĐỂ BÁO CHO TRANG JSP BIẾT PHẢI MỞ TAB ĐĂNG KÝ
             request.setAttribute("activeTab", "register");
             request.getRequestDispatcher("view/Login.jsp").forward(request, response);
             return;
         }
 
+        if (re_p != null && !p.equals(re_p)) {
+            request.setAttribute("mess", "Mật khẩu nhập lại không khớp!");
+            request.setAttribute("activeTab", "register");
+            request.getRequestDispatcher("view/Login.jsp").forward(request, response);
+            return;
+        }
+
+        // --- BƯỚC 2: KIỂM TRA TRÙNG LẶP DATABASE ---
         UserDAO userdao = new UserDAO();
         
-        // 1. Kiểm tra trùng Username
+        // 2.1 Kiểm tra trùng Username
         User existingUser = userdao.checkUserExist(u);
         if (existingUser != null) {
             request.setAttribute("mess", "Tên đăng nhập đã được sử dụng!");
             request.setAttribute("activeTab", "register");
             request.getRequestDispatcher("view/Login.jsp").forward(request, response);
-            return; // Dừng luôn, không chạy xuống check email nữa
+            return; 
         }
         
-        // 2. Kiểm tra trùng Email
+        // 2.2 Kiểm tra trùng Email
         User existingEmail = userdao.checkEmailExist(e);
         if (existingEmail != null) {
             request.setAttribute("mess", "Email này đã được đăng ký cho một tài khoản khác!");
             request.setAttribute("activeTab", "register");
             request.getRequestDispatcher("view/Login.jsp").forward(request, response);
-            return; // Dừng luôn, không gửi OTP
+            return; 
         }
 
-        // ========================================================
-        // 3. NẾU VƯỢT QUA HẾT MỌI BÀI TEST -> TẠO VÀ GỬI OTP
-        // ========================================================
+        // --- BƯỚC 3: TẠO VÀ GỬI OTP KHI MỌI THỨ HỢP LỆ ---
         String otp = EmailUtility.getRandomOTP();
 
-        // Gửi Email (Có thể mất 2-3 giây)
+        // Gửi Email
         EmailUtility.sendEmail(e, otp);
 
         // Lưu thông tin tạm vào Session 
         HttpSession session = request.getSession();
+        
+        // 👉 ĐÃ SỬA LỖI TẠI ĐÂY: Hàm khởi tạo này có 5 tham số kiểu String (Khớp với file User.java)
         User tempUser = new User(u, p, e, fn, phone); 
         
         session.setAttribute("tempUser", tempUser); 
         session.setAttribute("otp", otp);           
-        session.setAttribute("otp_time", System.currentTimeMillis()); 
+        session.setAttribute("otp_time", System.currentTimeMillis()); // Hoặc otpCreationTime tùy logic Check OTP của bạn
 
-        // Bật cờ chuyển sang bước nhập OTP
+        // Bật cờ chuyển sang bước nhập OTP (Giữ lại giao diện cũ hoặc popup của bạn)
         request.setAttribute("showOtpStep", "true");
         request.setAttribute("activeTab", "register");
         request.getRequestDispatcher("view/Login.jsp").forward(request, response);
-
     }
 }
