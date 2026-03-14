@@ -79,16 +79,16 @@
 
                     <div class="card-grid">
 
-                        <a href="${pageContext.request.contextPath}/vouchers-management" class="admin-card">
-                            <i class="fa-solid fa-ticket" style="color: #e83e8c;"></i>
-                            <h3>Quản lý Mã giảm giá</h3>
-                            <p>Tạo mới, theo dõi trạng thái và quản lý các mã khuyến mãi</p>
-                        </a>
-
                         <a href="${pageContext.request.contextPath}/orders-management" class="admin-card">
                             <i class="fa-solid fa-list-check" style="color: #17a2b8;"></i>
                             <h3>Quản lý Đơn hàng</h3>
                             <p>Xem danh sách, duyệt đơn và cập nhật trạng thái giao hàng</p>
+                        </a>
+
+                        <a href="${pageContext.request.contextPath}/vouchers-management" class="admin-card">
+                            <i class="fa-solid fa-ticket" style="color: #e83e8c;"></i>
+                            <h3>Quản lý Mã giảm giá</h3>
+                            <p>Tạo mới, theo dõi trạng thái và quản lý các mã khuyến mãi</p>
                         </a>
 
                         <a href="${pageContext.request.contextPath}/staff/reports" class="admin-card">
@@ -108,6 +108,12 @@
                             <h3>Hỗ trợ Khách hàng</h3>
                             <p>Tra cứu thông tin liên hệ, lịch sử và giải quyết khiếu nại</p>
                         </a>
+
+                        <a href="${pageContext.request.contextPath}/view/chat-management.jsp" class="admin-card">
+                            <i class="fa-brands fa-rocketchat" style="color: #6610f2;"></i>
+                            <h3>Quản lý Live Chat</h3>
+                        <p>Tương tác, tư vấn và hỗ trợ khách hàng theo thời gian thực</p>
+                        </a>    
 
                     </div>
                 </main>

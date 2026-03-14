@@ -27,71 +27,62 @@
    CSS BANNER CHUẨN (KHÔNG BỊ TRÀN, KHÔNG LỆCH)
    ========================================== */
         .banner-section { 
-            margin-bottom: 30px; 
+            margin-bottom: 30px;
         }
 
         /* --- Khối Trên --- */
         .banner-top { 
-            display: flex; 
-            gap: 10px; 
+            display: flex; gap: 10px; 
             margin-bottom: 10px; 
             height: 340px; /* CHỐT CỨNG CHIỀU CAO ĐỂ KHÔNG BỊ TRÀN XUỐNG DƯỚI */
         }
 
         /* Cột Trái */
         .banner-left { 
-            width: 66%; 
-            height: 100%;
+            width: 66%; height: 100%;
         } 
         .banner-left img { 
-            width: 100%; 
-            height: 100%; 
+            width: 100%; height: 100%; 
             object-fit: cover; 
             border-radius: 8px; 
         }
 
         /* Cột Phải */
         .banner-right { 
-            width: 34%; 
-            display: flex; 
+            width: 34%; display: flex; 
             flex-direction: column; 
             gap: 10px; 
             height: 100%;
         }
         .right-item {
             flex: 1; /* Tự động chia đôi chiều cao khoảng trống (mỗi ảnh 50%) */
-            display: block;
-            height: 100%; 
+            display: block; height: 100%; 
             overflow: hidden; 
             border-radius: 8px;
         }
         .right-item img { 
-            width: 100%; 
-            height: 100%; 
+            width: 100%; height: 100%; 
             object-fit: cover; 
             display: block;
         }
 
         /* --- Khối Dưới --- */
         .banner-bottom { 
-            display: flex; 
-            gap: 10px; 
+            display: flex; gap: 10px; 
         }
         .banner-bottom a {
             flex: 1; /* 4 banner chia đều nhau */
             display: block;
         }
         .banner-bottom img { 
-            width: 100%; 
-            height: 140px; 
+            width: 100%; height: 140px; 
             object-fit: cover; 
             border-radius: 8px; 
         }
 
         /* Hiệu ứng hover cho tất cả ảnh */
         .banner-left img:hover, .right-item img:hover, .banner-bottom img:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
+            opacity: 0.9; transform: translateY(-2px);
             transition: all 0.2s ease;
         }
     </style>
@@ -99,22 +90,21 @@
 
 <body class="${sessionScope.user != null && sessionScope.user.role == 1 ? 'admin-active' : ''}">
     <%-- KIỂM TRA QUYỀN VÀ HIỂN THỊ TOP BAR CHO ADMIN/SALE --%>
-<%-- KIỂM TRA QUYỀN VÀ HIỂN THỊ TOP BAR CHO ADMIN/SALE --%>
 <c:if test="${sessionScope.user != null and (sessionScope.user.role == 1 or sessionScope.user.role == 3)}">
     <div style="background-color: #343a40; color: white; font-size: 13px; display: flex; justify-content: space-between; align-items: stretch; z-index: 1000; position: relative;">
         <div style="padding: 10px 15px; display: flex; align-items: center;">
-            <span style="color: #ffc107; font-weight: bold; margin-right: 8px;">
+             <span style="color: #ffc107; font-weight: bold; margin-right: 8px;">
                 <c:choose>
                     <c:when test="${sessionScope.user.role == 1}">CHẾ ĐỘ QUẢN TRỊ VIÊN:</c:when>
                     <c:when test="${sessionScope.user.role == 3}">CHẾ ĐỘ NHÂN VIÊN:</c:when>
                 </c:choose>
-            </span>
+             </span>
             
             <span>Xin chào, ${sessionScope.user.username} 
                 <c:choose>
                     <c:when test="${sessionScope.user.role == 1}"></c:when>
                     <c:when test="${sessionScope.user.role == 3}"></c:when>
-                </c:choose>
+                 </c:choose>
             </span>
         </div>
         
@@ -149,7 +139,7 @@
 
     <jsp:include page="component/header.jsp" />
 
-    <%-- SỬA LỖI 2: Gộp tất cả vào 1 thẻ MAIN duy nhất --%>
+    <%-- Gộp tất cả vào 1 thẻ MAIN duy nhất --%>
     <main class="main-content container" style="margin-top: 20px;">
         
         <%-- TRƯỜNG HỢP A: ĐANG TÌM KIẾM (Có kết quả search) --%>
@@ -370,7 +360,6 @@
             hours = hours < 10 ? "0" + hours : hours;
             minutes = minutes < 10 ? "0" + minutes : minutes;
             seconds = seconds < 10 ? "0" + seconds : seconds;
-
             // Kiểm tra xem element có tồn tại không trước khi gán để tránh lỗi
             if(document.getElementById("hours")) {
                 document.getElementById("hours").innerHTML = hours;
@@ -399,7 +388,6 @@
 
     // Lấy tổng số sách từ Server (JSP) truyền vào biến JS
     const totalItems = parseInt('${flashSaleBooks != null ? flashSaleBooks.size() : 0}');
-
     function moveSlide(direction) {
         const track = document.getElementById('fsTrack');
         const nextBtn = document.getElementById('fsNextBtn');
@@ -407,10 +395,8 @@
 
         // Nếu không tìm thấy element thì dừng lại (tránh lỗi console)
         if (!track || !nextBtn || !prevBtn) return;
-
         // Tính toán vị trí slide mới
         currentSlide += direction;
-
         // Giới hạn:
         // Max slide = Tổng số sách - Số sách hiển thị (Ví dụ: 10 - 5 = 5)
         // Nghĩa là chỉ cần trượt thêm 5 nấc là hết sách.
@@ -424,10 +410,8 @@
         // Mỗi cuốn sách chiếm 20% chiều rộng (100% / 5 cuốn)
         // Dịch chuyển = Số thứ tự slide * 20%
         const translateValue = -(currentSlide * 20);
-        
         // Thực hiện CSS Transform để trượt
         track.style.transform = "translateX(" + translateValue + "%)";
-
         // Ẩn hiện nút bấm thông minh
         // Nếu ở đầu (0) -> Ẩn nút Trái
         prevBtn.style.visibility = (currentSlide === 0) ? 'hidden' : 'visible';
@@ -456,6 +440,112 @@
             if(prevBtn) prevBtn.style.display = 'none';
         }
     });
-</script>
-</body>
+    </script>
+
+    <style>
+        .chat-widget-btn {
+            position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px;
+            border-radius: 50%; background: #1e74b6; color: white; display: flex;
+            align-items: center; justify-content: center; font-size: 28px; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 9999; transition: transform 0.3s ease;
+        }
+        .chat-widget-btn:hover { transform: scale(1.1); }
+        .chat-window {
+            position: fixed; bottom: 100px; right: 30px; width: 350px; height: 480px;
+            background: white; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            display: none; flex-direction: column; z-index: 9999; overflow: hidden; font-family: Arial, sans-serif;
+        }
+        .chat-header { background: #1e74b6; color: white; padding: 15px; display: flex; align-items: center; justify-content: space-between; }
+        .chat-header img { width: 45px; height: 45px; border-radius: 50%; border: 2px solid white; margin-right: 12px; object-fit: cover; }
+        .chat-body { flex: 1; padding: 15px; overflow-y: auto; background: #f8f9fa; display: flex; flex-direction: column; gap: 12px; }
+        .chat-message { max-width: 80%; padding: 10px 15px; border-radius: 18px; font-size: 14px; line-height: 1.4; }
+        .chat-message.bot { background: white; color: black; align-self: flex-start; border-bottom-left-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .chat-message.user { background: #1e74b6; color: white; align-self: flex-end; border-bottom-right-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .chat-footer { padding: 12px; border-top: 1px solid #eee; background: white; display: flex; align-items: center; }
+        .chat-footer input { flex: 1; border: none; outline: none; padding: 10px 15px; border-radius: 20px; background: #f1f1f1; margin-right: 10px; }
+        .chat-footer button { background: none; border: none; color: #1e74b6; font-size: 22px; cursor: pointer; padding: 0 5px; }
+        .chat-footer button:hover { color: #15558d; }
+    </style>
+
+    <div class="chat-widget-btn" onclick="toggleChat()"><i class="fa-solid fa-comment-dots"></i></div>
+
+    <div class="chat-window" id="chatWindow">
+        <div class="chat-header">
+            <div class="d-flex align-items-center">
+                <img src="https://ui-avatars.com/api/?name=Staff&background=ffffff&color=1e74b6" alt="Avatar">
+                <div>
+                    <h6 class="mb-0 fw-bold">BookStore Support</h6>
+                    <small style="font-size: 12px; opacity: 0.9;">Chúng tôi có thể giúp gì cho bạn?</small>
+                </div>
+            </div>
+            <i class="fa-solid fa-chevron-down" style="cursor: pointer; font-size: 20px;" onclick="toggleChat()"></i>
+        </div>
+        
+        <div class="chat-body" id="chatBody">
+            <div class="chat-message bot">Chào bạn, bạn đang tìm sách thể loại gì, mình tư vấn cho nhé? 😊</div>
+        </div>
+        
+        <div class="chat-footer">
+            <input type="text" id="chatInput" placeholder="Nhập tin nhắn..." onkeypress="handleKeyPress(event)">
+            <button onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <script>
+        function toggleChat() {
+            const chatWindow = document.getElementById('chatWindow');
+            if (chatWindow.style.display === 'flex') {
+                chatWindow.style.display = 'none';
+            } else {
+                chatWindow.style.display = 'flex';
+                document.getElementById('chatInput').focus();
+            }
+        }
+
+        // --- ĐỊNH DANH KHÁCH HÀNG ---
+        let customerName = "${sessionScope.user != null ? sessionScope.user.username : ''}";
+        if (customerName === '') {
+            // Nếu chưa đăng nhập, cấp cho họ 1 mã vãng lai ngẫu nhiên lưu vào máy
+            customerName = localStorage.getItem('guestChatName');
+            if (!customerName) {
+                customerName = "Khách_" + Math.floor(Math.random() * 10000);
+                localStorage.setItem('guestChatName', customerName);
+            }
+        }
+
+        const wsUrl = "ws://" + window.location.host + "${pageContext.request.contextPath}/livechat";
+        const websocket = new WebSocket(wsUrl);
+
+        // Nhận tin từ Staff
+        websocket.onmessage = function(event) {
+            const chatBody = document.getElementById('chatBody');
+            const data = event.data;
+            if(data.startsWith("STAFF|||")) {
+                const content = data.split("|||")[1];
+                chatBody.innerHTML += '<div class="chat-message bot">' + content + '</div>';
+                chatBody.scrollTop = chatBody.scrollHeight;
+            }
+        };
+
+        // Gửi tin lên Server
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            const chatBody = document.getElementById('chatBody');
+
+            if (message) {
+                chatBody.innerHTML += '<div class="chat-message user">' + message + '</div>';
+                chatBody.scrollTop = chatBody.scrollHeight;
+                
+                // Gửi theo chuẩn: CUST|||Tên|||Nội dung
+                websocket.send("CUST|||" + customerName + "|||" + message);
+                input.value = '';
+            }
+        }
+
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') sendMessage();
+        }
+    </script>
+    </body>
 </html>
