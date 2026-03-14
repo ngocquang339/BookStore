@@ -77,7 +77,8 @@
                         </a>
 
                         <div class="border-start border-2 border-secondary ps-4">
-                            <h2 class="fw-bold brand-color mb-1"><i class="fa-solid fa-comments me-2"></i>Quản lý khách hàng</h2>
+                            <h2 class="fw-bold brand-color mb-1"><i class="fa-solid fa-comments me-2"></i>Quản lý khách
+                                hàng</h2>
                             <p class="text-muted mb-0">Theo dõi và phản hồi trải nghiệm của khách hàng</p>
                         </div>
                     </div>
@@ -101,6 +102,10 @@
                                         class="form-control border-start-0 ps-0"
                                         placeholder="Nhập ID, tên, email hoặc SĐT...">
                                     <button type="submit" class="btn btn-brand px-4">Tìm kiếm</button>
+                                    <button type="button" class="btn btn-warning fw-bold px-4 shadow-sm"
+                                        data-bs-toggle="modal" data-bs-target="#marketingModal">
+                                        <i class="fa-solid fa-envelopes-bulk me-2"></i> Gửi Mail Marketing
+                                    </button>
                                 </div>
                             </div>
 
@@ -235,6 +240,89 @@
                 </div>
             </div>
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+            <div class="modal fade" id="marketingModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content bg-dark border-secondary shadow-lg">
+                        <div class="modal-header border-secondary">
+                            <h5 class="modal-title fw-bold text-warning"><i class="fa-solid fa-bullhorn me-2"></i>Chiến
+                                dịch Email Marketing</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                        </div>
+
+                        <form action="${pageContext.request.contextPath}/staff/send-marketing" method="post"
+                            enctype="multipart/form-data">
+                            <div class="modal-body p-4 text-light">
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold text-muted">Gửi đến Tệp khách hàng:</label>
+                                        <select name="targetGroup"
+                                            class="form-select bg-dark text-light border-secondary">
+                                            <option value="all">Tất cả khách hàng (Newsletter)</option>
+                                            <option value="vip">Chỉ khách hàng VIP (Đã mua > 5tr)</option>
+                                            <option value="inactive">Khách hàng ngủ đông (Không mua 3 tháng)</option>
+                                            <option value="cart_abandon">Khách hàng bỏ quên giỏ hàng</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold text-muted">Mẫu Email có sẵn:</label>
+                                        <select name="emailTemplate"
+                                            class="form-select bg-dark text-light border-secondary">
+                                            <option value="custom">-- Tự soạn thảo mới --</option>
+                                            <option value="sale_10">Thông báo Sale mùng 10/10</option>
+                                            <option value="happy_bday">Chúc mừng sinh nhật tháng này</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold text-muted">Chủ đề (Subject):</label>
+                                    <input type="text" name="subject"
+                                        class="form-control bg-dark text-light border-secondary"
+                                        placeholder="VD: [MindBook] Siêu Sale Giữa Tháng giảm 50%!" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold text-muted">Nội dung (HTML allowed):</label>
+                                    <textarea name="content" class="form-control bg-dark text-light border-secondary"
+                                        rows="6" placeholder="Kính gửi quý khách hàng,..." required></textarea>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold text-muted">Đính kèm Banner (Ảnh):</label>
+                                        <input type="file" name="bannerImage"
+                                            class="form-control bg-dark text-light border-secondary" accept="image/*">
+                                    </div>
+                                    <div class="col-md-6 d-flex flex-column justify-content-end">
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" id="trackOpen"
+                                                name="trackOpen" checked>
+                                            <label class="form-check-label text-muted" for="trackOpen">Theo dõi lượt mở
+                                                Email (Tracking)</label>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="scheduleSend"
+                                                name="scheduleSend">
+                                            <label class="form-check-label text-muted" for="scheduleSend">Lên lịch gửi
+                                                (Gửi vào 8h sáng mai)</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer border-secondary">
+                                <button type="button" class="btn btn-secondary rounded-pill px-4"
+                                    data-bs-dismiss="modal">Hủy</button>
+                                <button type="submit" class="btn btn-warning rounded-pill px-4 fw-bold text-dark">
+                                    <i class="fa-regular fa-paper-plane me-2"></i> Khởi chạy Chiến dịch
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </body>
 
         </html>

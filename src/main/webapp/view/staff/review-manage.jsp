@@ -79,57 +79,122 @@
 
                 <div class="card shadow-sm border-0">
                     <div class="card-body p-4">
-                        <div class="row mb-4 bg-dark p-3 rounded-3 align-items-center mx-0 border border-secondary">
+                        <div class="row mb-4 bg-dark p-3 rounded-3 align-items-end mx-0 border border-secondary gap-3">
                             <form action="${pageContext.request.contextPath}/staff/reviews" method="get"
-                                class="d-flex align-items-center gap-3 w-100 m-0 p-0">
-                                <div class="fw-bold text-danger" style="white-space: nowrap;"><i
-                                        class="fa-solid fa-filter me-2"></i>Bộ lọc:</div>
+                                class="row g-3 align-items-end w-100 m-0 p-0">
 
-                                <select name="bookId"
-                                    class="form-select bg-dark text-light border-secondary shadow-none"
-                                    style="max-width: 400px;" onchange="this.form.submit()">
-                                    <option value="all">-- Tất cả sản phẩm --</option>
-                                    <c:forEach items="${listBooks}" var="b">
-                                        <option value="${b.bookId}" ${selectedBook==b.bookId ? 'selected' : '' }>
-                                            <c:out value="${b.bookTitle}" />
-                                        </option>
-                                    </c:forEach>
-                                </select>
+                                <div class="col-md-12 mb-2">
+                                    <div class="fw-bold text-danger"><i class="fa-solid fa-filter me-2"></i>Bộ lọc Nâng
+                                        cao:</div>
+                                </div>
 
-                                <select name="star" class="form-select bg-dark text-light border-secondary shadow-none"
-                                    style="width: 200px;" onchange="this.form.submit()">
-                                    <option value="all">-- Tất cả số sao --</option>
-                                    <option value="5" ${selectedStar=='5' ? 'selected' : '' }>⭐⭐⭐⭐⭐ (5 Sao)</option>
-                                    <option value="4" ${selectedStar=='4' ? 'selected' : '' }>⭐⭐⭐⭐ (4 Sao)</option>
-                                    <option value="3" ${selectedStar=='3' ? 'selected' : '' }>⭐⭐⭐ (3 Sao)</option>
-                                    <option value="2" ${selectedStar=='2' ? 'selected' : '' }>⭐⭐ (2 Sao)</option>
-                                    <option value="1" ${selectedStar=='1' ? 'selected' : '' }>⭐ (1 Sao)</option>
-                                </select>
+                                <div class="col-md-3">
+                                    <label class="form-label text-muted small mb-1">Sản phẩm</label>
+                                    <select name="bookId"
+                                        class="form-select bg-dark text-light border-secondary shadow-none">
+                                        <option value="all">-- Tất cả sản phẩm --</option>
+                                        <c:forEach items="${listBooks}" var="b">
+                                            <option value="${b.bookId}" ${selectedBook==b.bookId ? 'selected' : '' }>
+                                                <c:out value="${b.bookTitle}" />
+                                            </option>
+                                        </c:forEach>
+                                    </select>
+                                </div>
 
-                                <a href="${pageContext.request.contextPath}/staff/reviews"
-                                    class="btn btn-outline-secondary ms-auto text-light">
-                                    <i class="fa-solid fa-rotate-right me-1"></i> Làm mới
-                                </a>
+                                <div class="col-md-2">
+                                    <label class="form-label text-muted small mb-1">Đánh giá</label>
+                                    <select name="star"
+                                        class="form-select bg-dark text-light border-secondary shadow-none">
+                                        <option value="all">- Tất cả số sao -</option>
+                                        <option value="5" ${selectedStar=='5' ? 'selected' : '' }>⭐⭐⭐⭐⭐ (5 Sao)</option>
+                                        <option value="4" ${selectedStar=='4' ? 'selected' : '' }>⭐⭐⭐⭐ (4 Sao)</option>
+                                        <option value="3" ${selectedStar=='3' ? 'selected' : '' }>⭐⭐⭐ (3 Sao)</option>
+                                        <option value="2" ${selectedStar=='2' ? 'selected' : '' }>⭐⭐ (2 Sao)</option>
+                                        <option value="1" ${selectedStar=='1' ? 'selected' : '' }>⭐ (1 Sao)</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-2">
+                                    <label class="form-label text-muted small mb-1">Từ ngày</label>
+                                    <input type="date" name="fromDate" value="${param.fromDate}"
+                                        class="form-control bg-dark text-light border-secondary shadow-none">
+                                </div>
+
+                                <div class="col-md-2">
+                                    <label class="form-label text-muted small mb-1">Đến ngày</label>
+                                    <input type="date" name="toDate" value="${param.toDate}"
+                                        class="form-control bg-dark text-light border-secondary shadow-none">
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label class="form-label text-muted small mb-1">Trạng thái Shop</label>
+                                    <select name="replyStatus"
+                                        class="form-select bg-dark text-light border-secondary shadow-none">
+                                        <option value="all" ${param.replyStatus=='all' || empty param.replyStatus
+                                            ? 'selected' : '' }>Tất cả</option>
+                                        <option value="replied" ${param.replyStatus=='replied' ? 'selected' : '' }>Đã
+                                            phản hồi</option>
+                                        <option value="pending" ${param.replyStatus=='pending' ? 'selected' : '' }>Chờ
+                                            phản hồi</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-8 mt-3">
+                                    <input type="text" name="commentKeyword" value="${param.commentKeyword}"
+                                        class="form-control bg-dark text-light border-secondary shadow-none"
+                                        placeholder="Nhập từ khóa nội dung bình luận cần tìm...">
+                                </div>
+
+                                <div class="col-md-4 mt-3 d-flex gap-2">
+                                    <button type="submit" class="btn btn-danger w-50"><i
+                                            class="fa-solid fa-magnifying-glass"></i> Lọc</button>
+                                    <a href="${pageContext.request.contextPath}/staff/reviews"
+                                        class="btn btn-outline-secondary w-50 text-light"><i
+                                            class="fa-solid fa-rotate-right"></i> Mặc định</a>
+                                </div>
                             </form>
                         </div>
-                        <c:if test="${not empty selectedUserId}">
-                            <div
-                                class="alert alert-warning d-flex justify-content-between align-items-center mb-3 shadow-sm border-0">
-                                <div>
-                                    <i class="fa-solid fa-clock-rotate-left text-danger me-2 fs-5"></i>
-                                    <span class="text-dark">Đang hiển thị lịch sử bình luận của Khách hàng ID: <strong
-                                            class="text-danger">#${selectedUserId}</strong></span>
+
+                        <form id="bulkForm" action="${pageContext.request.contextPath}/staff/mass-delete-reviews"
+                            method="POST">
+
+                            <div class="d-flex justify-content-between align-items-center mb-3 mt-4">
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                        onclick="submitMassDelete()">
+                                        <i class="fa-solid fa-trash-can me-1"></i> Xóa các mục đã chọn
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-warning"
+                                        onclick="submitMassSpam()">
+                                        <i class="fa-solid fa-ban me-1"></i> Đánh dấu Spam
+                                    </button>
                                 </div>
-                                <a href="${pageContext.request.contextPath}/staff/reviews"
-                                    class="btn btn-sm btn-outline-danger rounded-pill bg-white fw-bold">
-                                    <i class="fa-solid fa-xmark me-1"></i> Thoát Lịch sử
-                                </a>
+                                <button type="button" class="btn btn-sm btn-success" onclick="exportToExcel()">
+                                    <i class="fa-solid fa-file-excel me-1"></i> Xuất Báo Cáo Excel
+                                </button>
                             </div>
-                        </c:if>
+                            <c:if test="${not empty selectedUserId}">
+                                <div
+                                    class="alert alert-warning d-flex justify-content-between align-items-center mb-3 shadow-sm border-0">
+                                    <div>
+                                        <i class="fa-solid fa-clock-rotate-left text-danger me-2 fs-5"></i>
+                                        <span class="text-dark">Đang hiển thị lịch sử bình luận của Khách hàng ID:
+                                            <strong class="text-danger">#${selectedUserId}</strong></span>
+                                    </div>
+                                    <a href="${pageContext.request.contextPath}/staff/reviews"
+                                        class="btn btn-sm btn-outline-danger rounded-pill bg-white fw-bold">
+                                        <i class="fa-solid fa-xmark me-1"></i> Thoát Lịch sử
+                                    </a>
+                                </div>
+                            </c:if>
                             <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
+                                <table class="table table-hover align-middle mb-0" id="reviewTable">
                                     <thead>
                                         <tr>
+                                            <th class="ps-4" style="width: 40px;">
+                                                <input class="form-check-input border-secondary" type="checkbox"
+                                                    id="selectAll">
+                                            </th>
                                             <th class="ps-4" style="width: 140px;">
                                                 <div class="dropdown">
                                                     <span class="dropdown-toggle text-dark" role="button"
@@ -164,7 +229,10 @@
                                     <tbody>
                                         <c:forEach items="${listReviews}" var="r">
                                             <tr id="comment-${r.reviewId}">
-
+                                                <td class="ps-4 align-middle">
+                                                    <input class="form-check-input border-secondary review-checkbox"
+                                                        type="checkbox" name="reviewIds" value="${r.reviewId}">
+                                                </td>
                                                 <td class="ps-4 align-middle text-muted fw-bold">#${r.reviewId}</td>
 
                                                 <td class="align-middle">
@@ -249,61 +317,161 @@
                                     </tbody>
                                 </table>
                             </div>
-                        </div>
+                        </form>
                     </div>
                 </div>
-                <div class="modal fade" id="replyModal" tabindex="-1" aria-labelledby="replyModalLabel"
-                    aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header bg-danger text-white">
-                                <h5 class="modal-title" id="replyModalLabel"><i class="fa-solid fa-reply me-2"></i>Phản
-                                    hồi
-                                    đánh giá</h5>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
+            </div>
+            <div class="modal fade" id="replyModal" tabindex="-1" aria-labelledby="replyModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header bg-danger text-white">
+                            <h5 class="modal-title" id="replyModalLabel"><i class="fa-solid fa-reply me-2"></i>Phản
+                                hồi
+                                đánh giá</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                        </div>
+                        <form action="${pageContext.request.contextPath}/staff/reviews" method="post">
+                            <div class="modal-body">
+                                <input type="hidden" id="modalReviewId" name="reviewId">
+
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small">Khách hàng: <strong id="modalUsername"
+                                            class="text-dark"></strong></label>
+                                    <div class="p-3 bg-light rounded fst-italic border" id="modalComment"></div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="replyText" class="form-label fw-bold">Nhập câu trả lời của
+                                        Shop:</label>
+                                    <textarea class="form-control shadow-none border-secondary" id="replyText"
+                                        name="replyText" rows="4" placeholder="Cảm ơn bạn đã mua hàng..."
+                                        required></textarea>
+                                </div>
                             </div>
-                            <form action="${pageContext.request.contextPath}/staff/reviews" method="post">
-                                <div class="modal-body">
-                                    <input type="hidden" id="modalReviewId" name="reviewId">
-
-                                    <div class="mb-3">
-                                        <label class="form-label text-muted small">Khách hàng: <strong
-                                                id="modalUsername" class="text-dark"></strong></label>
-                                        <div class="p-3 bg-light rounded fst-italic border" id="modalComment"></div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="replyText" class="form-label fw-bold">Nhập câu trả lời của
-                                            Shop:</label>
-                                        <textarea class="form-control shadow-none border-secondary" id="replyText"
-                                            name="replyText" rows="4" placeholder="Cảm ơn bạn đã mua hàng..."
-                                            required></textarea>
-                                    </div>
-                                </div>
-                                <div class="modal-footer bg-light">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy
-                                        bỏ</button>
-                                    <button type="submit" class="btn btn-danger"><i
-                                            class="fa-solid fa-paper-plane me-1"></i> Gửi phản hồi</button>
-                                </div>
-                            </form>
-                        </div>
+                            <div class="modal-footer bg-light">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy
+                                    bỏ</button>
+                                <button type="submit" class="btn btn-danger"><i
+                                        class="fa-solid fa-paper-plane me-1"></i> Gửi phản hồi</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
-                <script>
-                    function setReplyData(btn) {
-                        // Rút xuất dữ liệu từ các thẻ data-* của nút vừa bấm
-                        let id = btn.getAttribute('data-id');
-                        let username = btn.getAttribute('data-user');
-                        let comment = btn.getAttribute('data-comment');
+            </div>
+            <script>
+                function setReplyData(btn) {
+                    // Rút xuất dữ liệu từ các thẻ data-* của nút vừa bấm
+                    let id = btn.getAttribute('data-id');
+                    let username = btn.getAttribute('data-user');
+                    let comment = btn.getAttribute('data-comment');
 
-                        // Gắn vào Popup Modal
-                        document.getElementById('modalReviewId').value = id;
-                        document.getElementById('modalUsername').innerText = username;
-                        document.getElementById('modalComment').innerText = '"' + comment + '"';
+                    // Gắn vào Popup Modal
+                    document.getElementById('modalReviewId').value = id;
+                    document.getElementById('modalUsername').innerText = username;
+                    document.getElementById('modalComment').innerText = '"' + comment + '"';
+                }
+                // Xử lý nút Chọn tất cả / Bỏ chọn tất cả
+                document.getElementById('selectAll').addEventListener('change', function () {
+                    let checkboxes = document.querySelectorAll('.review-checkbox');
+                    for (let checkbox of checkboxes) {
+                        checkbox.checked = this.checked;
                     }
-                </script>
-                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+                });
+
+                // Xử lý nút "XÓA HÀNG LOẠT"
+                function submitMassDelete() {
+                    let checkedBoxes = document.querySelectorAll('.review-checkbox:checked');
+                    if (checkedBoxes.length === 0) {
+                        alert('Vui lòng tích chọn ít nhất 1 bình luận để xóa!');
+                        return;
+                    }
+                    if (confirm('NGUY HIỂM: Bạn có chắc chắn muốn xóa vĩnh viễn ' + checkedBoxes.length + ' bình luận đã chọn không?')) {
+                        let form = document.getElementById('bulkForm');
+                        form.action = "${pageContext.request.contextPath}/staff/mass-delete-reviews"; // Bẻ lái về Servlet Xóa
+                        form.submit();
+                    }
+                }
+
+                // Xử lý nút "ĐÁNH DẤU SPAM"
+                function submitMassSpam() {
+                    let checkedBoxes = document.querySelectorAll('.review-checkbox:checked');
+                    if (checkedBoxes.length === 0) {
+                        alert('Vui lòng tích chọn ít nhất 1 bình luận để đánh dấu Spam!');
+                        return;
+                    }
+                    if (confirm('CẢNH BÁO: Đánh dấu Spam sẽ ẩn vĩnh viễn nội dung của ' + checkedBoxes.length + ' bình luận này. Bạn có chắc chắn?')) {
+                        let form = document.getElementById('bulkForm');
+                        form.action = "${pageContext.request.contextPath}/staff/mark-spam-reviews"; // Bẻ lái về Servlet Spam
+                        form.submit();
+                    }
+                }
+                // ==========================================
+                // TÍNH NĂNG XUẤT EXCEL BẰNG JAVASCRIPT
+                // ==========================================
+                function exportToExcel() {
+                    // 1. Lấy bảng gốc trên màn hình
+                    let table = document.getElementById("reviewTable");
+                    if (!table) return;
+
+                    // 2. Clone (nhân bản) bảng để không làm hỏng giao diện web khi xử lý
+                    let cloneTable = table.cloneNode(true);
+
+                    // 3. Dọn dẹp dữ liệu thừa: Xóa cột Checkbox (cột 0) và cột Hành động (cột cuối)
+                    let rows = cloneTable.rows;
+                    for (let i = 0; i < rows.length; i++) {
+                        rows[i].deleteCell(-1); // Xóa cột cuối (Nút trả lời/Xóa)
+                        rows[i].deleteCell(0);  // Xóa cột đầu (Checkbox)
+
+                        // 4. Biến icon Ngôi sao thành chữ (để Excel đọc được)
+                        if (i > 0) { // Bỏ qua dòng tiêu đề
+                            // Cột đánh giá hiện tại là cột số 3
+                            let starCell = rows[i].cells[3];
+                            if (starCell) {
+                                // Đếm số icon sao vàng (fa-solid)
+                                let solidStars = starCell.querySelectorAll('.fa-solid.fa-star').length;
+                                starCell.innerText = solidStars + " Sao";
+                                starCell.style.fontWeight = "bold";
+                                starCell.style.color = "#ffc107";
+                            }
+                        }
+                    }
+
+                    // 5. Bọc bảng bằng cấu trúc HTML chuẩn của Microsoft Excel (Chống lỗi font Tiếng Việt)
+                    let template = `
+                            <html xmlns:o="urn:schemas-microsoft-com:office:office" 
+                                  xmlns:x="urn:schemas-microsoft-com:office:excel" 
+                                  xmlns="http://www.w3.org/TR/REC-html40">
+                            <head>
+                                <meta charset="UTF-8">
+                                </head>
+                            <body>
+                                <h2 style="color: #C92127; text-align: center; font-family: Arial;">BÁO CÁO CHI TIẾT ĐÁNH GIÁ SẢN PHẨM</h2>
+                                <table border="1" style="border-collapse: collapse; width: 100%; font-family: Arial;">
+                                    {table_content}
+                                </table>
+                            </body>
+                            </html>
+                        `;
+
+                    // Ghép code bảng đã dọn dẹp vào template
+                    let htmlContext = template.replace('{table_content}', cloneTable.innerHTML);
+
+                    // 6. Mã hóa File sang Base64 và tự động kích hoạt tải xuống
+                    let base64 = window.btoa(unescape(encodeURIComponent(htmlContext)));
+                    let downloadLink = document.createElement("a");
+                    downloadLink.href = 'data:application/vnd.ms-excel;base64,' + base64;
+
+                    // Gắn ngày giờ vào tên file
+                    let date = new Date();
+                    let dateStr = date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear();
+                    downloadLink.download = "Bao_Cao_Danh_Gia_" + dateStr + ".xls";
+
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+                }
+            </script>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         </body>
 
         </html>

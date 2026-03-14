@@ -10,7 +10,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet(name = "StaffReviewServlet", urlPatterns = { "/staff/reviews", "/staff/delete-review" })
+@WebServlet(name = "StaffReviewServlet", urlPatterns = { "/staff/reviews", "/staff/delete-review",
+        "/staff/mass-delete-reviews", "/staff/mark-spam-reviews" })
 public class StaffReviewServlet extends HttpServlet {
 
     @Override
@@ -34,6 +35,10 @@ public class StaffReviewServlet extends HttpServlet {
         String star = request.getParameter("star");
         String bookIdStr = request.getParameter("bookId");
         String userIdStr = request.getParameter("userId");
+        String fromDate = request.getParameter("fromDate");
+        String toDate = request.getParameter("toDate");
+        String replyStatus = request.getParameter("replyStatus");
+        String commentKeyword = request.getParameter("commentKeyword");
         int starValue = 0;
         int bookId = 0;
         int userId = 0;
@@ -62,7 +67,8 @@ public class StaffReviewServlet extends HttpServlet {
         }
         // 2. Gọi DAO để lấy dữ liệu
         ReviewDAO reviewDAO = new ReviewDAO();
-        List<Review> listReviews = reviewDAO.getFilteredReviews(starValue, bookId, userId);
+        List<Review> listReviews = reviewDAO.getFilteredReviews(starValue, bookId, userId, fromDate, toDate,
+                replyStatus, commentKeyword);
         List<Review> listBooks = reviewDAO.getDistinctReviewedBooks();
 
         // 3. Đẩy dữ liệu sang JSP
@@ -80,14 +86,43 @@ public class StaffReviewServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // Hỗ trợ gõ tiếng Việt có dấu không bị lỗi font
         request.setCharacterEncoding("UTF-8");
 
-        // 1. Lấy dữ liệu từ Popup Modal gửi lên
+        // Lấy đường dẫn URL để biết Form nào đang gọi
+        String path = request.getServletPath();
+
+        // ==========================================
+        // LUỒNG 1: XỬ LÝ NÚT BẤM "XÓA HÀNG LOẠT"
+        // ==========================================
+        if ("/staff/mass-delete-reviews".equals(path)) {
+            String[] reviewIds = request.getParameterValues("reviewIds");
+
+            if (reviewIds != null && reviewIds.length > 0) {
+                ReviewDAO dao = new ReviewDAO();
+                dao.deleteMultipleReviews(reviewIds);
+            }
+            response.sendRedirect(request.getContextPath() + "/staff/reviews");
+            return; // Xóa xong thì kết thúc luôn, không chạy xuống dưới nữa
+        }
+        // ==========================================
+        // LUỒNG 1.5: XỬ LÝ NÚT BẤM "ĐÁNH DẤU SPAM HÀNG LOẠT"
+        // ==========================================
+        if ("/staff/mark-spam-reviews".equals(path)) {
+            String[] reviewIds = request.getParameterValues("reviewIds");
+
+            if (reviewIds != null && reviewIds.length > 0) {
+                ReviewDAO dao = new ReviewDAO();
+                dao.markMultipleAsSpam(reviewIds); // Gọi hàm ẩn comment
+            }
+            response.sendRedirect(request.getContextPath() + "/staff/reviews");
+            return; // Xong thì kết thúc
+        }
+        // ==========================================
+        // LUỒNG 2: XỬ LÝ NÚT BẤM "TRẢ LỜI ĐÁNH GIÁ"
+        // ==========================================
         String reviewIdStr = request.getParameter("reviewId");
         String replyText = request.getParameter("replyText");
 
-        // 2. Gọi DAO để update xuống DB
         if (reviewIdStr != null && replyText != null && !replyText.trim().isEmpty()) {
             try {
                 int reviewId = Integer.parseInt(reviewIdStr);
@@ -98,7 +133,6 @@ public class StaffReviewServlet extends HttpServlet {
             }
         }
 
-        // 3. Update xong thì load lại trang Quản lý đánh giá
         response.sendRedirect(request.getContextPath() + "/staff/reviews");
     }
 }
