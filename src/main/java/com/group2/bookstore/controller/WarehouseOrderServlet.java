@@ -46,16 +46,16 @@ public class WarehouseOrderServlet extends HttpServlet {
         int viewId = parseIntSafe(request.getParameter("viewId"), 0);
 
         if (viewId > 0) {
-            // Đẩy dữ liệu sang JSP
-            request.setAttribute("orderDetails", dao.getOrderDetails(viewId));
-            request.setAttribute("selectedOrderId", viewId);
 
-            // Xử lý viewStatus an toàn
-            int viewStatus = parseIntSafe(request.getParameter("viewStatus"), 0);
-            if (viewStatus > 0) {
-                request.setAttribute("selectedOrderStatus", viewStatus);
-            }
-        }
+    request.setAttribute("orderDetails", dao.getOrderDetails(viewId));
+    request.setAttribute("customerInfo", dao.getOrderCustomerInfo(viewId));
+    request.setAttribute("selectedOrderId", viewId);
+
+    int viewStatus = parseIntSafe(request.getParameter("viewStatus"), 0);
+    if (viewStatus > 0) {
+        request.setAttribute("selectedOrderStatus", viewStatus);
+    }
+}
 
         // Lấy danh sách hiển thị
         request.setAttribute("orderList", dao.getOrdersForWarehouse(search, status));

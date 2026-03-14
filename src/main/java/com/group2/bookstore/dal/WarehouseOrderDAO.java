@@ -136,4 +136,31 @@ public class WarehouseOrderDAO extends DBContext {
             }
         }
     }
+    public Map<String, Object> getOrderCustomerInfo(int orderId) {
+    Map<String, Object> info = new HashMap<>();
+
+    String sql = "SELECT o.order_date, o.shipping_address, u.fullname, u.phone_number "
+               + "FROM Orders o "
+               + "JOIN Users u ON o.user_id = u.user_id "
+               + "WHERE o.order_id = ?";
+
+    try (Connection conn = getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        ps.setInt(1, orderId);
+        ResultSet rs = ps.executeQuery();
+
+        if (rs.next()) {
+            info.put("fullname", rs.getString("fullname"));
+            info.put("phone", rs.getString("phone_number"));
+            info.put("address", rs.getString("shipping_address"));
+            info.put("order_date", rs.getTimestamp("order_date"));
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return info;
+}
 }
