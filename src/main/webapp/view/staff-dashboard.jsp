@@ -108,6 +108,11 @@
                             <h3>Hỗ trợ Khách hàng</h3>
                             <p>Tra cứu thông tin liên hệ, lịch sử và giải quyết khiếu nại</p>
                         </a>
+                        <a href="${pageContext.request.contextPath}/staff/fpoint" class="admin-card">
+                            <i class="fa-solid fa-coins" style="color: #ffc107;"></i>
+                            <h3>Quản lý F-Point</h3>
+                            <p>Thao tác cộng/trừ điểm thưởng và xem lịch sử biến động của khách hàng</p>
+                        </a>
 
                         <a href="${pageContext.request.contextPath}/view/chat-management.jsp" class="admin-card">
                             <i class="fa-brands fa-rocketchat" style="color: #6610f2;"></i>

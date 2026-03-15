@@ -28,7 +28,7 @@ public class ReviewDAO extends DBContext {
                 r.setUserId(rs.getInt("user_id"));
                 r.setBookId(rs.getInt("book_id"));
                 r.setRating(rs.getInt("rating"));
-                r.setComment(rs.getString("comment"));
+                r.setComment(rs.getNString("comment"));
                 r.setCreateAt(rs.getDate("create_at"));
 
                 // Set dữ liệu từ bảng Users và Books
@@ -77,7 +77,7 @@ public class ReviewDAO extends DBContext {
                     r.setUserId(rs.getInt("user_id"));
                     r.setBookId(rs.getInt("book_id"));
                     r.setRating(rs.getInt("rating"));
-                    r.setComment(rs.getString("comment"));
+                    r.setComment(rs.getNString("comment"));
                     r.setCreateAt(rs.getDate("create_at"));
                     r.setUsername(rs.getString("username"));
                     r.setEmail(rs.getString("email"));
@@ -104,7 +104,7 @@ public class ReviewDAO extends DBContext {
             ps.setInt(1, userId);
             ps.setInt(2, bookId);
             ps.setInt(3, rating);
-            ps.setString(4, comment); 
+            ps.setNString(4, comment); 
             
             int affectedRows = ps.executeUpdate();
             if (affectedRows > 0) {
@@ -125,7 +125,7 @@ public class ReviewDAO extends DBContext {
         String sql = "UPDATE Review SET staff_reply = ? WHERE review_id = ?";
         try (Connection conn = getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, replyText);
+            ps.setNString(1, replyText);
             ps.setInt(2, reviewId);
             ps.executeUpdate();
         } catch (Exception e) {
@@ -181,7 +181,7 @@ public class ReviewDAO extends DBContext {
         
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, rating);
-            ps.setString(2, comment);
+            ps.setNString(2, comment);
             ps.setInt(3, reviewId);
             ps.setInt(4, userId); 
             
@@ -198,7 +198,7 @@ public class ReviewDAO extends DBContext {
     // XÓA BÌNH LUẬN 
     // =======================================================================
     public boolean deleteReview(int reviewId, int userId) {
-        // Đã sửa 'Reviews' thành 'Review' và 'id' thành 'review_id'
+        // Thủ công: dùng khi review owner xóa (bảo mật user-scoped)
         String sql = "DELETE FROM Review WHERE review_id = ? AND user_id = ?";
         
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -208,6 +208,18 @@ public class ReviewDAO extends DBContext {
             int rowsAffected = ps.executeUpdate();
             return rowsAffected > 0;
             
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // Dành cho staff/admin xóa review bất kỳ
+    public boolean deleteReviewById(int reviewId) {
+        String sql = "DELETE FROM Review WHERE review_id = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, reviewId);
+            return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -266,12 +278,7 @@ public class ReviewDAO extends DBContext {
                         r.setBookId(rs.getInt("book_id"));
                         r.setUserId(rs.getInt("user_id"));
                         r.setRating(rs.getInt("rating"));
-                        r.setComment(rs.getString("comment"));
-                        r.setCreateAt(rs.getDate("create_at"));
-                        
-                        // Đọc tên sách
-                        r.setBookTitle(rs.getString("book_title")); 
-                        
+                r.setComment(rs.getNString("comment"));
                         list.add(r);
                     }
                     System.out.println("=== DEBUG: Đã đọc xong! Tổng số bình luận lấy được: " + count);
@@ -323,7 +330,7 @@ public class ReviewDAO extends DBContext {
                     r.setBookId(rs.getInt("book_id"));
                     r.setUserId(rs.getInt("user_id"));
                     r.setRating(rs.getInt("rating"));
-                    r.setComment(rs.getString("comment"));
+                    r.setComment(rs.getNString("comment"));
                     r.setCreateAt(rs.getDate("create_at"));
                     r.setBookTitle(rs.getString("book_title")); 
                     list.add(r);
@@ -355,11 +362,10 @@ public class ReviewDAO extends DBContext {
         return list;
     }
 
-    // 2. SỬA HÀM CŨ: Đổi tên thành getFilteredReviews và nhận thêm tham số bookId
-    public List<Review> getFilteredReviews(int starValue, int bookId, int userId) {
+    // Nâng cấp hàm nhận thêm 4 tham số mới
+    public List<Review> getFilteredReviews(int starValue, int bookId, int userId, String fromDate, String toDate,
+            String replyStatus, String keyword) {
         List<Review> list = new ArrayList<>();
-
-        // Dùng Trick "WHERE 1=1" để dễ dàng cộng chuỗi điều kiện
         StringBuilder sql = new StringBuilder(
                 "SELECT r.review_id, r.user_id, r.book_id, r.rating, r.comment, r.create_at, r.staff_reply, " +
                         "u.username, u.email, b.title AS book_title " +
@@ -368,35 +374,56 @@ public class ReviewDAO extends DBContext {
                         "JOIN Books b ON r.book_id = b.book_id " +
                         "WHERE 1=1 ");
 
-        // Lọc theo Sao
+        // Dùng List để hứng tham số linh hoạt (Kỹ thuật ăn điểm LOC cực cao)
+        List<Object> parameters = new ArrayList<>();
+
         if (starValue >= 1 && starValue <= 5) {
             sql.append(" AND r.rating = ? ");
+            parameters.add(starValue);
         }
-        // Lọc theo Sách
         if (bookId > 0) {
             sql.append(" AND r.book_id = ? ");
+            parameters.add(bookId);
         }
-        // Lọc theo User
-        if (userId > 0) { 
-            sql.append(" AND r.user_id = ? "); 
+        if (userId > 0) {
+            sql.append(" AND r.user_id = ? ");
+            parameters.add(userId);
         }
-        
+
+        // LỌC THEO NGÀY
+        if (fromDate != null && !fromDate.trim().isEmpty()) {
+            sql.append(" AND CAST(r.create_at AS DATE) >= ? ");
+            parameters.add(fromDate);
+        }
+        if (toDate != null && !toDate.trim().isEmpty()) {
+            sql.append(" AND CAST(r.create_at AS DATE) <= ? ");
+            parameters.add(toDate);
+        }
+
+        // LỌC THEO TRẠNG THÁI PHẢN HỒI
+        if (replyStatus != null) {
+            if (replyStatus.equals("replied")) {
+                sql.append(" AND r.staff_reply IS NOT NULL AND DATALENGTH(r.staff_reply) > 0 ");
+            } else if (replyStatus.equals("pending")) {
+                sql.append(" AND (r.staff_reply IS NULL OR DATALENGTH(r.staff_reply) = 0) ");
+            }
+        }
+
+        // LỌC THEO TỪ KHÓA NỘI DUNG
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append(" AND r.comment LIKE ? ");
+            parameters.add("%" + keyword + "%");
+        }
+
         sql.append(" ORDER BY r.create_at DESC");
 
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql.toString())) {
 
-            int paramIndex = 1; // Biến đếm vị trí dấu ?
-            if (starValue >= 1 && starValue <= 5) {
-                ps.setInt(paramIndex++, starValue);
+            // Set toàn bộ tham số tự động
+            for (int i = 0; i < parameters.size(); i++) {
+                ps.setObject(i + 1, parameters.get(i));
             }
-            if (bookId > 0) {
-                ps.setInt(paramIndex++, bookId);
-            }
-            if (userId > 0) { 
-                ps.setInt(paramIndex++, userId); 
-            }
-            
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     Review r = new Review();
@@ -406,14 +433,14 @@ public class ReviewDAO extends DBContext {
                     r.setUserId(rs.getInt("user_id"));
                     r.setBookId(rs.getInt("book_id"));
                     r.setRating(rs.getInt("rating"));
-                    r.setComment(rs.getString("comment"));
+                    r.setComment(rs.getNString("comment"));
                     r.setCreateAt(rs.getDate("create_at"));
                     
                     // Các trường lấy từ bảng JOIN
                     r.setUsername(rs.getString("username"));
                     r.setEmail(rs.getString("email"));
                     r.setBookTitle(rs.getString("book_title"));
-                    r.setStaffReply(rs.getString("staff_reply"));
+                    r.setStaffReply(rs.getNString("staff_reply"));
                     
                     list.add(r);
                 }
@@ -423,5 +450,64 @@ public class ReviewDAO extends DBContext {
         }
         
         return list;
+    }
+
+    // HÀM MỚI: Xóa nhiều đánh giá cùng lúc
+    public void deleteMultipleReviews(String[] reviewIds) {
+        if (reviewIds == null || reviewIds.length == 0)
+            return;
+
+        // Tạo chuỗi truy vấn có dạng: DELETE FROM Review WHERE review_id IN (?, ?, ?)
+        StringBuilder sql = new StringBuilder("DELETE FROM Review WHERE review_id IN (");
+        for (int i = 0; i < reviewIds.length; i++) {
+            sql.append("?");
+            if (i < reviewIds.length - 1)
+                sql.append(",");
+        }
+        sql.append(")");
+
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+
+            // Gắn giá trị ID vào từng dấu chấm hỏi
+            for (int i = 0; i < reviewIds.length; i++) {
+                ps.setInt(i + 1, Integer.parseInt(reviewIds[i]));
+            }
+            ps.executeUpdate(); // Bóp cò xóa toàn bộ
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    //ánh dấu Spam và ẩn nội dung
+    public void markMultipleAsSpam(String[] reviewIds) {
+        if (reviewIds == null || reviewIds.length == 0)
+            return;
+
+        // Đặt dấu ? cho nội dung comment để ép JDBC tự xử lý Unicode
+        StringBuilder sql = new StringBuilder("UPDATE Review SET comment = ? WHERE review_id IN (");
+        for (int i = 0; i < reviewIds.length; i++) {
+            sql.append("?");
+            if (i < reviewIds.length - 1)
+                sql.append(",");
+        }
+        sql.append(")");
+
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+
+            // Set tham số số 1: Truyền trực tiếp chuỗi Tiếng Việt vào
+            ps.setNString(1, "[Nội dung đã bị ẩn do vi phạm tiêu chuẩn cộng đồng]");
+
+            // Set các tham số ID bắt đầu từ vị trí số 2
+            for (int i = 0; i < reviewIds.length; i++) {
+                ps.setInt(i + 2, Integer.parseInt(reviewIds[i]));
+            }
+            ps.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

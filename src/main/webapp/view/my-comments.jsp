@@ -147,7 +147,7 @@
                                         
                                         <div class="comment-content">
                                             <i class="fa-solid fa-quote-left text-muted me-2" style="opacity: 0.3;"></i>
-                                            ${c.comment}
+                                            <c:out value="${c.comment}" />
                                         </div>
                                     </div>
                                 </c:forEach>
