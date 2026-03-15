@@ -20,6 +20,7 @@ public class Order {
     private String statusNote;
     private String fullName;
     
+    private String staffNote;
 
     // Optional: Helper field to show User's name in Admin Panel
     private String userName;
@@ -134,4 +135,10 @@ public class Order {
     public void setStatusNote(String statusNote) {
         this.statusNote = statusNote;
     }
+    public String getStaffNote() {
+    return staffNote;
+}
+public void setStaffNote(String staffNote) {
+    this.staffNote = staffNote;
+}
 }

@@ -20,44 +20,57 @@ public class SaleController extends HttpServlet {
         HttpSession session = req.getSession();
         User user = (User) session.getAttribute("user");
 
+        // Chỉ cho phép Sale Staff (Role = 3) truy cập
         if (user == null || user.getRole() != 3) { 
             resp.sendRedirect(req.getContextPath() + "/login"); 
             return;
         }
 
         OrderDAO dao = new OrderDAO();
-        List<Order> listOrders;
         
-        // 1. Nhận các tham số từ giao diện
+        // 1. Nhận các tham số tìm kiếm và sắp xếp
         String sortBy = req.getParameter("sortBy");
         String sortOrder = req.getParameter("sortOrder");
         String searchQuery = req.getParameter("searchQuery"); 
         
         if (sortBy == null) sortBy = "date";
         if (sortOrder == null) sortOrder = "desc";
-        if (searchQuery == null) searchQuery = ""; // Tránh lỗi null khi mới vào trang
+        if (searchQuery == null) searchQuery = ""; 
 
-        // 2. Lấy dữ liệu kèm theo từ khóa tìm kiếm
+        // 2. Nhận tham số phân trang (Mặc định là trang 1)
+        String pageRaw = req.getParameter("page");
+        int page = (pageRaw == null || pageRaw.isEmpty()) ? 1 : Integer.parseInt(pageRaw);
+        int pageSize = 10;
+
+        // 3. XỬ LÝ LỌC TRẠNG THÁI VÀ GỌI HÀM DAO GỘP
         String statusRaw = req.getParameter("status");
-        if (statusRaw == null || statusRaw.equals("all")) {
-            listOrders = dao.getAllOrdersBySale(sortBy, sortOrder, searchQuery);
-            req.setAttribute("currentStatus", "all");
-        } else {
-            int status = Integer.parseInt(statusRaw);
-            listOrders = dao.getOrdersByStatus(status, sortBy, sortOrder, searchQuery);
-            req.setAttribute("currentStatus", status);
-        }
+        // Quy ước: Nếu không chọn gì hoặc chọn "all" thì gán status = -1 để DAO hiểu là lấy tất cả
+        int status = (statusRaw == null || statusRaw.equals("all")) ? -1 : Integer.parseInt(statusRaw);
         
+        List<Order> listOrders = dao.getOrdersBySalePaginated(status, sortBy, sortOrder, searchQuery, page);
+        int totalOrders = dao.countOrdersBySale(status, searchQuery);
+        
+        // 4. Tính toán số trang để vẽ dãy nút bấm 1, 2, 3...
+        int endPage = totalOrders / pageSize;
+        if (totalOrders % pageSize != 0) {
+            endPage++;
+        }
+
+        // 5. Lấy dữ liệu thống kê tổng quan trong ngày
         double[] todaySummary = dao.getTodaySummary();
         req.setAttribute("todayTotalOrders", (int) todaySummary[0]);
         req.setAttribute("todayPending", (int) todaySummary[1]);
         req.setAttribute("todayRevenue", todaySummary[2]);
 
-        // 3. Đẩy dữ liệu về lại JSP
+        // 6. Đẩy toàn bộ dữ liệu và trạng thái hiện tại về JSP
+        // Dùng toán tử 3 ngôi để trả lại chữ "all" cho giao diện nhận diện đúng tab màu xanh
+        req.setAttribute("currentStatus", status == -1 ? "all" : status);
         req.setAttribute("currentSortBy", sortBy);
         req.setAttribute("currentSortOrder", sortOrder);
         req.setAttribute("currentSearch", searchQuery); 
         req.setAttribute("orders", listOrders);
+        req.setAttribute("currentPage", page);
+        req.setAttribute("endPage", endPage);
         
         req.getRequestDispatcher("/view/dashboard.jsp").forward(req, resp);
     }

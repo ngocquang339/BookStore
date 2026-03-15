@@ -12,6 +12,20 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/profile.css"> 
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/home.css">
 </head>
+
+<style>
+        /* Hiệu ứng xám xịt cho Voucher đã dùng / hết hạn */
+        .disabled-voucher {
+            opacity: 0.6;
+            filter: grayscale(100%); /* Biến toàn bộ màu mè thành trắng đen */
+        }
+        .btn-disabled {
+            background: #ccc !important;
+            color: #666 !important;
+            cursor: not-allowed !important;
+            border: none !important;
+        }
+    </style>
 <body>
     <jsp:include page="component/header.jsp" />
 
@@ -34,8 +48,17 @@
                         <div class="empty-wallet">Ví của bạn hiện chưa có mã giảm giá nào.</div>
                     </c:when>
                     <c:otherwise>
+                        <%-- Lấy thời gian hiện tại của hệ thống để so sánh Hạn sử dụng --%>
+                        <jsp:useBean id="now" class="java.util.Date"/>
+
                         <c:forEach items="${wallet}" var="uv">
-                            <div class="voucher-card">
+                            
+                            <%-- BIẾN KIỂM TRA TRẠNG THÁI --%>
+                            <c:set var="isExpired" value="${uv.voucher.endDate.time lt now.time}" />
+                            <c:set var="isDisabled" value="${uv.used or isExpired}" />
+
+                            <%-- NẾU BỊ DISABLE THÌ GẮN THÊM CLASS 'disabled-voucher' --%>
+                            <div class="voucher-card ${isDisabled ? 'disabled-voucher' : ''}">
                                 <div class="voucher-left">
                                     <div class="ticket-icon">🎟️</div>
                                 </div>
@@ -65,11 +88,24 @@
                                     
                                     <div class="v-footer">
                                         <div class="v-date">HSD: <fmt:formatDate value="${uv.voucher.endDate}" pattern="dd/MM/yyyy"/></div>
-                                        <button class="btn-copy" onclick="copyCode('${uv.voucher.code}')">Copy mã</button>
+                                        
+                                        <%-- ĐỔI NÚT DỰA VÀO TRẠNG THÁI --%>
+                                        <c:choose>
+                                            <c:when test="${uv.used}">
+                                                <button class="btn-copy btn-disabled" disabled>Đã dùng</button>
+                                            </c:when>
+                                            <c:when test="${isExpired}">
+                                                <button class="btn-copy btn-disabled" disabled>Hết hạn</button>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <button class="btn-copy" onclick="copyCode('${uv.voucher.code}')">Copy mã</button>
+                                            </c:otherwise>
+                                        </c:choose>
+                                        
                                     </div>
                                 </div>
                             </div>
-                            </c:forEach>
+                        </c:forEach>
                     </c:otherwise>
                 </c:choose>
             </div>

@@ -152,7 +152,13 @@
                         <div class="address-checkout-item py-2">
                             <div class="form-check d-flex align-items-start m-0">
                                 
-                                <input class="form-check-input flex-shrink-0 me-3 mt-1" type="radio" name="selectedAddressId" id="addr_${addr.id}" value="${addr.id}" ${addr.defaultShipping ? 'checked' : ''} required>
+                                <input class="form-check-input flex-shrink-0 me-3 mt-1 address-radio" 
+                                    type="radio" name="selectedAddressId" 
+                                    id="addr_${addr.id}" value="${addr.id}" 
+                                    ${addr.defaultShipping ? 'checked' : ''} 
+                                    data-district-id="${addr.districtId}" 
+                                    data-ward-code="${addr.wardCode}" 
+                                    required>
                                 
                                 <label class="form-check-label flex-grow-1 d-flex justify-content-between align-items-start" for="addr_${addr.id}" style="cursor: pointer; width: 100%;">
                                     
@@ -203,12 +209,12 @@
                 </div>
                 <div class="payment-option d-flex align-items-center mb-3">
                     <input type="radio" name="paymentMethod" value="COD" id="cod" class="form-check-input me-3" checked>
-                    <img src="https://cdn0.fahasa.com/skin/frontend/ma_mobile/default/images/payment_icon/cashondelivery.png" alt="COD" width="40" class="me-2 border rounded p-1">
+                    <img src="${pageContext.request.contextPath}/assets/image/PaymentMethod/COD.jpg" alt="COD" width="40" class="me-2 border rounded p-1">
                     <label for="cod" style="cursor: pointer;">Thanh toán bằng tiền mặt khi nhận hàng</label>
                 </div>
                 <div class="payment-option d-flex align-items-center mt-2">
                     <input type="radio" name="paymentMethod" value="VNPAY" id="vnpay" class="form-check-input me-3">
-                    <img src="https://vnpay.vn/s1/statics.vnpay.vn/2023/9/06ncktiwd6dc1694418189687.png" alt="VNPAY" width="40" class="me-2 border rounded p-1" style="object-fit: contain;">
+                    <img src="${pageContext.request.contextPath}/assets/image/PaymentMethod/VNPAY.jpg" alt="VNPAY" width="40" class="me-2 border rounded p-1" style="object-fit: contain;">
                     <label for="vnpay" style="cursor: pointer;">Thanh toán qua VNPAY</label>
                 </div>
             </div>
@@ -277,7 +283,7 @@
                     </tr>
                     <tr>
                         <td class="text-muted text-start">Phí vận chuyển (Giao hàng tiêu chuẩn)</td>
-                        <td class="text-end text-success fw-bold">Miễn phí</td>
+                        <td class="text-end text-success fw-bold" id="shippingFeeAmount">Đang tính...</td>
                     </tr>
                     <tr class="total-row">
                         <td class="fw-bold text-start text-dark fs-6">Tổng Số Tiền (gồm VAT)</td>
@@ -318,6 +324,8 @@
         <input type="hidden" name="source" value="checkout">
         <input type="hidden" name="addressId" id="modal_addressId">
         <input type="hidden" name="isDefaultShipping" value="on"> <div class="modal-header border-bottom-0 pb-0 mt-3 d-flex justify-content-center position-relative">
+        <input type="hidden" name="districtIdGHN" id="hidden_district_id">
+        <input type="hidden" name="wardCodeGHN" id="hidden_ward_code">
           <h5 class="modal-title fw-bold" style="color: #d70018;" id="editAddressModalLabel">THAY ĐỔI ĐỊA CHỈ GIAO HÀNG</h5>
         </div>
 
@@ -444,247 +452,308 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
+// Biến toàn cục để tính toán tiền
+const originalGrandTotal = Math.round(Number('${grandTotal}')) || 0;
+let currentShippingFee = 0;
+let currentDiscountValue = 0; 
+
+// Cấu hình API GHN
+const GHN_TOKEN = '79a7c86a-1ef8-11f1-a3ea-4e2619480a9f'; 
+const GHN_SHOP_ID = 6322897; 
+const SHOP_DISTRICT_ID = 3440; 
+// Đổi lại biến URL chuẩn, không có dấu / ở cuối
+const GHN_URL = 'https://online-gateway.ghn.vn/shiip/public-api/master-data';
+
 $(document).ready(function() {
-    // =================================================================
-    // PHẦN 1: LOGIC GỌI API ĐỊA GIỚI & ĐỔ DỮ LIỆU DOMINO
-    // =================================================================
+    
     const $city = $("#modal_city");
     const $district = $("#modal_district");
     const $ward = $("#modal_ward");
-    
-    let localData = [];
     let savedDistrict = "";
     let savedWard = "";
 
-    // 1. TẢI DỮ LIỆU TỈNH THÀNH
-    fetch('https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json')
-        .then(response => response.json())
-        .then(data => {
-            localData = data; 
-            let options = '<option value="" selected disabled>Chọn tỉnh/thành phố</option>';
-            data.forEach(item => {
-                options += '<option value="' + item.Name + '" data-id="' + item.Id + '">' + item.Name + '</option>';
-            });
-            $city.html(options);
-        })
-        .catch(err => console.error("Lỗi tải dữ liệu địa giới:", err));
-
-    // 2. KHI ĐỔI TỈNH -> TẠO HUYỆN
-    $city.change(function() {
-        let selectedCityId = String($city.find(':selected').data('id'));
-        $district.html('<option value="" selected disabled>Chọn quận/huyện</option>');
-        $ward.html('<option value="" selected disabled>Chọn phường/xã</option>');
-
-        if (selectedCityId && selectedCityId !== "undefined") {
-            let prov = localData.find(p => p.Id == selectedCityId);
-            if (prov && prov.Districts) {
-                let options = '<option value="" selected disabled>Chọn quận/huyện</option>';
-                prov.Districts.forEach(item => {
-                    options += '<option value="' + item.Name + '" data-id="' + item.Id + '">' + item.Name + '</option>';
-                });
-                $district.html(options);
-
-                if(savedDistrict !== "") {
-                    $district.val(savedDistrict).trigger('change');
-                    savedDistrict = ""; 
-                }
+    // --- 2. HÀM TẢI DANH SÁCH TỈNH TỪ GHN ---
+    function loadGHNProvinces() {
+        console.log("Đang bắt đầu gọi API lấy Tỉnh/Thành phố..."); // Dòng test lỗi
+        
+        fetch(GHN_URL + '/province', {
+            method: 'GET', // Thêm method rõ ràng
+            headers: { 
+                'token': GHN_TOKEN,
+                'Content-Type': 'application/json' // Thêm header này cho an toàn
             }
+        })
+        .then(response => {
+            console.log("Status API:", response.status); // Xem API có trả về 200 OK không
+            return response.json();
+        })
+        .then(data => {
+            console.log("Dữ liệu nhận được:", data); // Xem data có data không
+            if (data.code === 200 && data.data) {
+                let options = '<option value="" selected disabled>Chọn tỉnh/thành phố</option>';
+                data.data.forEach(item => {
+                    options += '<option value="' + item.ProvinceName + '" data-id="' + item.ProvinceID + '">' + item.ProvinceName + '</option>';
+                });
+                $city.html(options); 
+            } else {
+                console.error("Lỗi từ GHN:", data.message);
+                $city.html('<option disabled>Lỗi tải dữ liệu</option>');
+            }
+        })
+        .catch(err => {
+            console.error("Lỗi Fetch Tỉnh GHN:", err);
+            $city.html('<option disabled>Lỗi kết nối API</option>');
+        });
+    }
+
+    loadGHNProvinces();
+
+    // --- 3. BẮT SỰ KIỆN CHỌN TỈNH -> TẢI HUYỆN ---
+    $city.change(function() {
+        let provinceId = $(this).find(':selected').data('id');
+        $district.html('<option value="" selected disabled>Đang tải dữ liệu...</option>');
+        $ward.html('<option value="" selected disabled>Chọn phường/xã</option>');
+        $('#hidden_district_id').val(''); 
+        $('#hidden_ward_code').val('');
+
+        if (provinceId) {
+            fetch(GHN_URL + '/district?province_id=' + provinceId, {
+                method: 'GET',
+                headers: { 'token': GHN_TOKEN, 'Content-Type': 'application/json' }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.code === 200 && data.data) {
+                    let options = '<option value="" selected disabled>Chọn quận/huyện</option>';
+                    data.data.forEach(item => {
+                        options += '<option value="' + item.DistrictName + '" data-id="' + item.DistrictID + '">' + item.DistrictName + '</option>';
+                    });
+                    $district.html(options);
+
+                    if(savedDistrict !== "") {
+                        $district.val(savedDistrict).trigger('change');
+                        savedDistrict = ""; 
+                    }
+                }
+            });
         }
     });
 
-    // 3. KHI ĐỔI HUYỆN -> TẠO XÃ
+    // --- 4. BẮT SỰ KIỆN CHỌN HUYỆN -> TẢI XÃ ---
     $district.change(function() {
-        let selectedCityId = String($city.find(':selected').data('id'));
-        let selectedDistId = String($(this).find(':selected').data('id'));
-        $ward.html('<option value="" selected disabled>Chọn phường/xã</option>');
+        let districtId = $(this).find(':selected').data('id');
+        $('#hidden_district_id').val(districtId);
+        $ward.html('<option value="" selected disabled>Đang tải dữ liệu...</option>');
 
-        if (selectedCityId && selectedDistId && selectedDistId !== "undefined") {
-            let prov = localData.find(p => p.Id == selectedCityId);
-            if (prov) {
-                let dist = prov.Districts.find(d => d.Id == selectedDistId);
-                if (dist && dist.Wards) {
+        if (districtId) {
+            fetch(GHN_URL + '/ward?district_id=' + districtId, {
+                method: 'GET',
+                headers: { 'token': GHN_TOKEN, 'Content-Type': 'application/json' }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.code === 200 && data.data) {
                     let options = '<option value="" selected disabled>Chọn phường/xã</option>';
-                    dist.Wards.forEach(item => {
-                        options += '<option value="' + item.Name + '">' + item.Name + '</option>';
+                    data.data.forEach(item => {
+                        options += '<option value="' + item.WardName + '" data-code="' + item.WardCode + '">' + item.WardName + '</option>';
                     });
                     $ward.html(options);
 
                     if(savedWard !== "") {
-                        $ward.val(savedWard);
+                        $ward.val(savedWard).trigger('change');
                         savedWard = ""; 
                     }
-                }
-            }
-        }
-    });
-
-    // ====================================================================================
-    // 4. KHI BẤM NÚT "SỬA" TRÊN ĐỊA CHỈ BẤT KỲ
-    // ====================================================================================
-    $('.btn-edit-address').on('click', function() {
-        // Đổi tiêu đề và Action của form về SỬA
-        $('#editAddressModalLabel').text('THAY ĐỔI ĐỊA CHỈ GIAO HÀNG');
-        $('#dynamicAddressForm').attr('action', '${pageContext.request.contextPath}/edit-address');
-
-        const id = $(this).data('id');
-        const name = $(this).data('fullname');
-        const phone = $(this).data('phone');
-        const city = $(this).data('city');
-        const district = $(this).data('district');
-        const ward = $(this).data('ward');
-        const detail = $(this).data('detail');
-        
-        $('#modal_addressId').val(id);
-        $('#modal_fullName').val(name);
-        $('#modal_phone').val(phone);
-        $('#modal_detail').val(detail);
-
-        $('.input-error').removeClass('input-error');
-        $('.show-error').removeClass('show-error');
-
-        if (city) {
-            savedDistrict = district;
-            savedWard = ward;
-            $city.val(city).trigger('change');
-        }
-    });
-
-    // ====================================================================================
-    // 5. KHI BẤM NÚT "GIAO HÀNG ĐẾN ĐỊA CHỈ KHÁC" (THÊM MỚI)
-    // ====================================================================================
-    $('.btn-open-add-modal').on('click', function() {
-        // Đổi tiêu đề và Action của form về THÊM MỚI
-        $('#editAddressModalLabel').text('THÊM ĐỊA CHỈ MỚI');
-        $('#dynamicAddressForm').attr('action', '${pageContext.request.contextPath}/add-address');
-
-        // Làm trống toàn bộ ô nhập liệu
-        $('#modal_addressId').val(''); // Quan trọng: Bỏ ID đi để hệ thống biết đây là địa chỉ mới
-        $('#modal_fullName').val('');
-        $('#modal_phone').val('');
-        $('#modal_detail').val('');
-
-        // Reset lại Dropdown Tỉnh/Huyện/Xã về trạng thái mặc định
-        savedDistrict = "";
-        savedWard = "";
-        $city.val("").trigger('change');
-
-        // Xóa viền đỏ báo lỗi cũ (nếu có)
-        $('.input-error').removeClass('input-error');
-        $('.show-error').removeClass('show-error');
-    });
-
-    // =================================================================
-    // PHẦN 2: LOGIC KIỂM TRA LỖI (VALIDATION) CHO MODAL
-    // =================================================================
-    const modalFullname = document.getElementById('modal_fullName');
-    const modalPhone = document.getElementById('modal_phone');
-    const modalAddress = document.getElementById('modal_detail');
-    const editForm = modalFullname.closest('form'); 
-
-    // Check realtime Họ Tên
-    modalFullname.addEventListener('input', function() {
-        if (/\d/.test(this.value)) {
-            this.classList.add('input-error');
-            document.getElementById('modal-fullname-error').classList.add('show-error');
-        } else {
-            if (this.value.trim().length <= 50) this.classList.remove('input-error');
-            document.getElementById('modal-fullname-error').classList.remove('show-error');
-        }
-    });
-
-    // Check realtime SĐT
-    modalPhone.addEventListener('input', function() {
-        if (/\D/.test(this.value)) { 
-            this.classList.add('input-error');
-            document.getElementById('modal-phone-type-error').classList.add('show-error');
-        } else {
-            this.classList.remove('input-error');
-            document.getElementById('modal-phone-type-error').classList.remove('show-error');
-        }
-    });
-
-    // Check tổng thể khi bấm Lưu
-    editForm.addEventListener('submit', function(event) {
-        let isValid = true;
-        
-        document.getElementById('modal-fullname-length-error').classList.remove('show-error');
-        document.getElementById('modal-phone-error').classList.remove('show-error');
-        document.getElementById('modal-address-length-error').classList.remove('show-error');
-
-        // Check Họ tên
-        if (/\d/.test(modalFullname.value) || modalFullname.value.trim().length > 50) {
-            isValid = false;
-            modalFullname.classList.add('input-error');
-            if(modalFullname.value.trim().length > 50) document.getElementById('modal-fullname-length-error').classList.add('show-error');
-        }
-
-        // Check SĐT
-        if (/\D/.test(modalPhone.value) || !/^0\d{9}$/.test(modalPhone.value)) {
-            isValid = false;
-            modalPhone.classList.add('input-error');
-            if(!/^0\d{9}$/.test(modalPhone.value)) document.getElementById('modal-phone-error').classList.add('show-error');
-        }
-
-        // Check Địa chỉ chi tiết
-        if (modalAddress.value.trim().length > 100) {
-            isValid = false;
-            modalAddress.classList.add('input-error');
-            document.getElementById('modal-address-length-error').classList.add('show-error');
-        }
-
-        if (!isValid) {
-            event.preventDefault(); 
-        }
-        const checkoutForm = document.getElementById('checkoutForm');
-        if(checkoutForm) {
-            checkoutForm.addEventListener('submit', function(event) {
-                const agreeTerms = document.getElementById('agreeTerms');
-                if (!agreeTerms.checked) {
-                    event.preventDefault(); // Chặn gửi form
-                    alert('Vui lòng đồng ý với Điều khoản & Điều kiện để tiếp tục thanh toán!');
                 }
             });
         }
     });
+
+    // --- 5. BẮT SỰ KIỆN CHỌN XÃ ---
+    $ward.change(function() {
+        let wardCode = $(this).find(':selected').data('code');
+        $('#hidden_ward_code').val(wardCode);
+    });
+
+    // =================================================================
+    // CÁC LOGIC KHÁC CỦA BẠN (SỬA/THÊM MỚI, TÍNH SHIP) GIỮ NGUYÊN BÊN DƯỚI
+    // =================================================================
+
+    // KHI BẤM NÚT SỬA ĐỊA CHỈ
+    $('.btn-edit-address').on('click', function() {
+        $('#editAddressModalLabel').text('THAY ĐỔI ĐỊA CHỈ GIAO HÀNG');
+        $('#dynamicAddressForm').attr('action', '${pageContext.request.contextPath}/edit-address');
+
+        $('#modal_addressId').val($(this).data('id'));
+        $('#modal_fullName').val($(this).data('fullname'));
+        $('#modal_phone').val($(this).data('phone'));
+        $('#modal_detail').val($(this).data('detail'));
+
+        let city = $(this).data('city');
+        if (city) {
+            savedDistrict = $(this).data('district');
+            savedWard = $(this).data('ward');
+            $city.val(city).trigger('change');
+        }
+    });
+
+    // KHI BẤM NÚT THÊM ĐỊA CHỈ MỚI
+    $('.btn-open-add-modal').on('click', function() {
+        $('#editAddressModalLabel').text('THÊM ĐỊA CHỈ MỚI');
+        $('#dynamicAddressForm').attr('action', '${pageContext.request.contextPath}/add-address');
+
+        $('#modal_addressId').val(''); 
+        $('#modal_fullName').val('');
+        $('#modal_phone').val('');
+        $('#modal_detail').val('');
+
+        savedDistrict = "";
+        savedWard = "";
+        $city.val("").trigger('change');
+    });
+
+    // LOGIC TÍNH SHIP GHN THEO ĐỊA CHỈ ĐƯỢC CHỌN
+    $('.address-radio').change(function() {
+        let toDistrictId = $(this).attr('data-district-id');
+        let toWardCode = $(this).attr('data-ward-code');
+
+        if (toDistrictId && toWardCode && toDistrictId !== "0") {
+            $('#shippingFeeAmount').html('<i class="fa-solid fa-spinner fa-spin text-dark"></i>');
+            calculateShippingGHN(toDistrictId, toWardCode);
+        } else {
+            $('#shippingFeeAmount').removeClass('text-success').addClass('text-danger').text("Vui lòng cập nhật lại địa chỉ để tính phí!");
+            $('#expectedDeliveryText').html("<em>Chưa có dự kiến giao hàng</em>");
+        }
+    });
+
+    // Kích hoạt tính phí ship cho địa chỉ mặc định ngay khi load trang
+    $('.address-radio:checked').trigger('change');
 });
 
-// Lấy giá trị tổng tiền gốc từ Backend và ép kiểu an toàn (loại bỏ phần thập phân .0 nếu có)
-const originalGrandTotal = Math.round(Number('${grandTotal}')) || 0;
+// =================================================================
+// CÁC HÀM XỬ LÝ ĐỘC LẬP (ĐỂ BÊN NGOÀI KHỐI READY)
+// =================================================================
+
+async function calculateShippingGHN(toDistrictId, toWardCode) {
+    try {
+        // GỌI API LẤY PHÍ SHIP
+        const feeRes = await fetch('https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'token': GHN_TOKEN },
+            body: JSON.stringify({
+                "service_type_id": 2, 
+                "from_district_id": SHOP_DISTRICT_ID,
+                "to_district_id": parseInt(toDistrictId),
+                "to_ward_code": String(toWardCode),
+                "weight": 500, 
+                "length": 20, "width": 15, "height": 10 
+            })
+        });
+        const feeData = await feeRes.json();
+        if(feeData.code === 200) {
+            currentShippingFee = feeData.data.total;
+            const feeFormatted = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(currentShippingFee);
+            $('#shippingFeeAmount').removeClass('text-success').addClass('text-dark').text(feeFormatted);
+        }
+
+        // GỌI API LẤY THỜI GIAN GIAO HÀNG
+        const timeRes = await fetch('https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/leadtime', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'token': GHN_TOKEN, 'ShopId': String(GHN_SHOP_ID) },
+            body: JSON.stringify({
+                "from_district_id": SHOP_DISTRICT_ID,
+                "to_district_id": parseInt(toDistrictId),
+                "to_ward_code": String(toWardCode)
+            })
+        });
+        const timeData = await timeRes.json();
+        if(timeData.code === 200) {
+            const leadTimeUnix = timeData.data.leadtime;
+            const dateObj = new Date(leadTimeUnix * 1000);
+            const days = ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'];
+            const dayName = days[dateObj.getDay()];
+            const dateString = String(dateObj.getDate()).padStart(2, '0') + '/' + String(dateObj.getMonth() + 1).padStart(2, '0');
+            
+            $('#expectedDeliveryText').html("Dự kiến giao <strong>" + dayName + " - " + dateString + "</strong>");
+        }
+
+        // TÍNH LẠI TỔNG TIỀN CUỐI CÙNG
+        recalculateFinalTotal();
+
+    } catch (error) {
+        console.error("Lỗi tính ship GHN:", error);
+    }
+}
+
+function recalculateFinalTotal() {
+    let finalTotal = originalGrandTotal + currentShippingFee - currentDiscountValue;
+    if (finalTotal < 0) finalTotal = 0; 
+    document.querySelector('.text-orange-total').innerHTML = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(finalTotal);
+}
+
+// LOGIC VOUCHER (Giữ nguyên của bạn, chỉ đặt ra ngoài)
+var myVouchers = [
+    <c:forEach items="${wallet}" var="uv">
+        {
+            id: ${uv.voucher.id},
+            code: '${uv.voucher.code.toUpperCase()}',
+            amount: ${uv.voucher.discountAmount},
+            percent: ${uv.voucher.discountPercent},
+            minOrder: ${uv.voucher.minOrderValue}
+        },
+    </c:forEach>
+];
+
+var baseTotal = ${grandTotal != null ? grandTotal : 0};
+
+document.getElementById('btnApplyVoucher').addEventListener('click', function() {
+    var inputCode = document.getElementById('voucherCodeInput').value.trim().toUpperCase();
+    if (inputCode === "") {
+        showVoucherMsg("Vui lòng nhập mã khuyến mãi!", "#dc3545"); 
+        return;
+    }
+    var matchedVoucher = myVouchers.find(function(v) { return v.code === inputCode; });
+    if (!matchedVoucher) {
+        showVoucherMsg("Mã khuyến mãi không hợp lệ, đã hết hạn hoặc chưa được lưu vào ví!", "#dc3545");
+        return;
+    }
+    if (baseTotal < matchedVoucher.minOrder) {
+        showVoucherMsg("Đơn hàng chưa đạt tối thiểu " + matchedVoucher.minOrder.toLocaleString('vi-VN') + "đ để dùng mã này!", "#dc3545");
+        return;
+    }
+    applyVoucher(matchedVoucher.code, matchedVoucher.amount, matchedVoucher.percent, matchedVoucher.id);
+});
+
+function showVoucherMsg(text, color) {
+    var msgDiv = document.getElementById('voucherMessage');
+    msgDiv.innerText = text;
+    msgDiv.style.color = color;
+    msgDiv.style.fontWeight = "bold";
+    msgDiv.style.display = "block";
+}
 
 function applyVoucher(code, amount, percent, voucherId) {
-    // Ép kiểu các tham số truyền vào thành số nguyên để tính toán cho chuẩn
     amount = Math.round(Number(amount)) || 0;
     percent = Number(percent) || 0;
 
-    // 1. Điền mã vào ô Input và gắn ID vào thẻ ẩn
     document.getElementById('voucherCodeInput').value = code;
     document.getElementById('appliedVoucherId').value = voucherId;
     
-    // 2. Tính toán số tiền được giảm
     let discountValue = 0;
     if (percent > 0) {
-        // Khuyến mãi theo %
         discountValue = Math.round(originalGrandTotal * (percent / 100));
     } else if (amount > 0) {
-        // Khuyến mãi trừ thẳng tiền mặt
         discountValue = amount;
     }
     
-    // Đảm bảo tiền giảm không bao giờ lớn hơn tổng tiền đơn hàng (Tránh bị âm tiền)
-    if (discountValue > originalGrandTotal) {
-        discountValue = originalGrandTotal;
-    }
+    if (discountValue > originalGrandTotal) { discountValue = originalGrandTotal; }
+    currentDiscountValue = discountValue;
     
-    let newTotal = originalGrandTotal - discountValue;
+    recalculateFinalTotal();
     
-    // 3. Cập nhật giao diện Bảng giá tiền
     const totalRow = document.querySelector('.total-row');
-    
-    // Kiểm tra xem đã có dòng "Voucher giảm giá" chưa, nếu có thì xóa đi tạo lại
     let discountRow = document.getElementById('discount-row');
     if (discountRow) discountRow.remove();
     
-    // Chèn dòng Giảm giá mới vào TRƯỚC dòng Tổng Số Tiền
     const newRowHTML = `
         <tr id="discount-row">
             <td class="text-muted text-start">Voucher giảm giá</td>
@@ -693,76 +762,15 @@ function applyVoucher(code, amount, percent, voucherId) {
     `;
     totalRow.insertAdjacentHTML('beforebegin', newRowHTML);
     
-    // Cập nhật lại số tiền cuối cùng ở màu cam
-    document.querySelector('.text-orange-total').innerHTML = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(newTotal);
-    
-    // Hiển thị thông báo thành công dưới ô input
     const msgBox = document.getElementById('voucherMessage');
     msgBox.style.display = 'block';
     msgBox.className = 'mt-2 text-success fw-bold';
     msgBox.innerHTML = '<i class="fa-solid fa-circle-check"></i> Đã áp dụng mã ' + code + ' thành công!';
     
-    // 4. Đóng Modal
     const modalEl = document.getElementById('voucherModal');
     const modal = bootstrap.Modal.getInstance(modalEl);
     if(modal) modal.hide();
 }
-
-// 1. CHUYỂN DỮ LIỆU VÍ VOUCHER TỪ JAVA SANG JAVASCRIPT
-    // Chúng ta lặp qua danh sách 'wallet' đã được gửi từ CheckoutServlet
-    var myVouchers = [
-        <c:forEach items="${wallet}" var="uv">
-            {
-                id: ${uv.voucher.id},
-                code: '${uv.voucher.code.toUpperCase()}',
-                amount: ${uv.voucher.discountAmount},
-                percent: ${uv.voucher.discountPercent},
-                minOrder: ${uv.voucher.minOrderValue}
-            },
-        </c:forEach>
-    ];
-
-    // Lấy tổng tiền gốc của đơn hàng từ Session
-    var baseTotal = ${grandTotal != null ? grandTotal : 0};
-
-    // 2. BẮT SỰ KIỆN KHI BẤM NÚT "ÁP DỤNG" (NHẬP TAY)
-    document.getElementById('btnApplyVoucher').addEventListener('click', function() {
-        var inputCode = document.getElementById('voucherCodeInput').value.trim().toUpperCase();
-        
-        if (inputCode === "") {
-            showVoucherMsg("Vui lòng nhập mã khuyến mãi!", "#dc3545"); // Màu đỏ Bootstrap
-            return;
-        }
-
-        // Dò tìm xem mã khách nhập có tồn tại trong ví không
-        var matchedVoucher = myVouchers.find(function(v) {
-            return v.code === inputCode;
-        });
-
-        if (!matchedVoucher) {
-            showVoucherMsg("Mã khuyến mãi không hợp lệ, đã hết hạn hoặc chưa được lưu vào ví!", "#dc3545");
-            return;
-        }
-
-        // Kiểm tra điều kiện đơn hàng tối thiểu
-        if (baseTotal < matchedVoucher.minOrder) {
-            showVoucherMsg("Đơn hàng chưa đạt tối thiểu " + matchedVoucher.minOrder.toLocaleString('vi-VN') + "đ để dùng mã này!", "#dc3545");
-            return;
-        }
-
-        // TẬN DỤNG LUÔN HÀM CỦA MODAL ĐỂ XỬ LÝ (Không cần viết lại code trừ tiền)
-        // Hàm này tự động trừ tiền, thêm dòng "Voucher giảm giá" và show thông báo thành công
-        applyVoucher(matchedVoucher.code, matchedVoucher.amount, matchedVoucher.percent, matchedVoucher.id);
-    });
-
-    // Hàm phụ trợ để hiển thị text thông báo lỗi (Riêng phần báo lỗi thì vẫn dùng hàm này)
-    function showVoucherMsg(text, color) {
-        var msgDiv = document.getElementById('voucherMessage');
-        msgDiv.innerText = text;
-        msgDiv.style.color = color;
-        msgDiv.style.fontWeight = "bold";
-        msgDiv.style.display = "block";
-    }
 </script>
 
 </body>

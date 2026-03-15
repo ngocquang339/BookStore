@@ -31,26 +31,37 @@ public class CollectionDetailServlet extends HttpServlet {
 
         try {
             int collectionId = Integer.parseInt(request.getParameter("id"));
-            CollectionDAO dao = new CollectionDAO();
             
-            // 1. Lấy thông tin cơ bản của bộ sưu tập đó (Tên, màu sắc...)
+            // Hứng tham số Tìm kiếm & Sắp xếp từ URL
+            String search = request.getParameter("search");
+            String sort = request.getParameter("sort");
+            
+            // Khởi tạo giá trị mặc định nếu khách mới vào lần đầu
+            if (search == null) search = "";
+            if (sort == null) sort = "newest";
+
+            CollectionDAO dao = new CollectionDAO();
             Collection collection = dao.getCollectionById(collectionId);
             
-            // Bảo mật: Nếu bộ sưu tập không tồn tại, hoặc nó là Private nhưng người xem không phải chủ nhân
             if (collection == null || (!collection.isPublic() && collection.getUserId() != user.getId())) {
                 response.sendRedirect(request.getContextPath() + "/my-collections");
                 return;
             }
 
-            // 2. Lấy danh sách Sách nằm trong bộ sưu tập này
-            List<Book> books = dao.getBooksByCollectionId(collectionId);
+            // GỌI HÀM DAO MỚI ĐÃ NÂNG CẤP (Truyền thêm search và sort)
+            List<Book> books = dao.getBooksByCollectionId(collectionId, search, sort);
             
             request.setAttribute("collection", collection);
             request.setAttribute("booksInCollection", books);
             
+            // Giữ lại trạng thái trên giao diện để nó không bị mất chữ khi load lại trang
+            request.setAttribute("paramSearch", search);
+            request.setAttribute("paramSort", sort);
+            
             request.getRequestDispatcher("view/CollectionDetail.jsp").forward(request, response);
             
         } catch (Exception e) {
+            e.printStackTrace();
             response.sendRedirect(request.getContextPath() + "/my-collections");
         }
     }

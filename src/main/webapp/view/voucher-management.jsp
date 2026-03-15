@@ -108,8 +108,20 @@
                             </td>
                             
                             <td class="text-center">
-                                <button class="btn btn-sm btn-outline-primary" title="Sửa mã"><i class="fa-solid fa-pen"></i></button>
-                            </td>
+                                <div class="d-flex justify-content-center gap-2">
+                                <button class="btn btn-sm btn-outline-primary" title="Sửa mã">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+        
+                                <button class="btn btn-sm btn-outline-info" title="Xem thống kê" onclick="showAnalytics('${v.id}', '${v.code}')">
+            <i class="fa-solid fa-chart-column"></i>
+        </button>
+
+                                <a href="${pageContext.request.contextPath}/vouchers-management?action=delete&id=${v.id}" class="btn btn-sm btn-outline-danger" title="Xóa mã" onclick="return confirm('Bạn có chắc chắn muốn xóa mã giảm giá [ ${v.code} ] này không? Hành động này không thể hoàn tác!');">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                    </a>
+                                </div>
+                                </td>
                         </tr>
                     </c:forEach>
                     
@@ -191,6 +203,28 @@
         </div>
     </div>
 
+    <div class="modal fade" id="analyticsModal" tabindex="-1">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-chart-pie me-2"></i>Thống kê mã <span id="statCode" class="text-warning"></span></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <div class="mb-3">
+                        <h1 class="text-primary fw-bold display-4" id="statSaved"><i class="fa-solid fa-spinner fa-spin fa-sm"></i></h1>
+                        <p class="text-muted mb-0 fw-bold">Lượt khách đã lưu vào ví</p>
+                    </div>
+                    <hr class="w-75 mx-auto">
+                    <div>
+                        <h1 class="text-success fw-bold display-4" id="statUsed"><i class="fa-solid fa-spinner fa-spin fa-sm"></i></h1>
+                        <p class="text-muted mb-0 fw-bold">Lượt đã sử dụng thành công</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
@@ -208,6 +242,33 @@
                 maxDiscountInput.value = ''; 
             }
         });
+
+        // Xử lý hiện Popup thống kê Voucher bằng AJAX
+        function showAnalytics(id, code) {
+            // Đổi tên mã trên tiêu đề và reset số liệu thành icon loading
+            document.getElementById('statCode').innerText = code;
+            document.getElementById('statSaved').innerHTML = '<i class="fa-solid fa-spinner fa-spin fa-sm"></i>';
+            document.getElementById('statUsed').innerHTML = '<i class="fa-solid fa-spinner fa-spin fa-sm"></i>';
+            
+            // Hiện Modal lên màn hình
+            let myModal = new bootstrap.Modal(document.getElementById('analyticsModal'));
+            myModal.show();
+            
+            // Gọi ngầm xuống Controller để lấy dữ liệu (Không làm giật/tải lại trang)
+            let url = "${pageContext.request.contextPath}/vouchers-management?action=analytics&id=" + id;
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    // Cập nhật con số thật vào giao diện
+                    document.getElementById('statSaved').innerText = data.saved;
+                    document.getElementById('statUsed').innerText = data.used;
+                })
+                .catch(error => {
+                    console.error('Lỗi lấy thống kê:', error);
+                    document.getElementById('statSaved').innerText = "Lỗi";
+                    document.getElementById('statUsed').innerText = "Lỗi";
+                });
+        }
     </script>
 </body>
 </html>

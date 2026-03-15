@@ -79,7 +79,8 @@ public class OrderDAO extends DBContext {
                 o.setTotalAmount(rs.getDouble("total_amount"));
                 o.setStatus(rs.getInt("status"));
                 o.setShippingAddress(rs.getString("shipping_address"));
-                o.setPhoneNumber(rs.getString("phone_number"));
+                o.setPhoneNumber(rs.getString("phone_number")); 
+                o.setStaffNote(rs.getString("staff_note")); // Lộc thêm
                 
                 // ==============================================================
                 // [MỚI THÊM] - Lấy thông tin Voucher và số tiền giảm giá
@@ -895,4 +896,93 @@ public class OrderDAO extends DBContext {
             e.printStackTrace();
         }
     }
+
+    // =========================================================================
+    // CÁC HÀM PHỤC VỤ PHÂN TRANG (PAGINATION) DÀNH CHO SALE STAFF - ĐÃ GỘP
+    // =========================================================================
+    
+    // 1. Hàm Đếm tổng số đơn (Gộp cả có lọc và không lọc)
+    public int countOrdersBySale(int status, String searchQuery) {
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM Orders WHERE (receiver_name LIKE ? OR phone_number LIKE ?)");
+        
+        // Nếu status != -1 thì nối thêm điều kiện lọc trạng thái vào SQL
+        if (status != -1) {
+            sql.append(" AND status = ?");
+        }
+        
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            String searchPattern = "%" + searchQuery + "%";
+            ps.setString(1, searchPattern);
+            ps.setString(2, searchPattern);
+            
+            if (status != -1) {
+                ps.setInt(3, status);
+            }
+            
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1);
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    // 2. Hàm Lấy 10 đơn hàng (Gộp cả có lọc và không lọc)
+    public List<Order> getOrdersBySalePaginated(int status, String sortBy, String sortOrder, String searchQuery, int page) {
+        List<Order> list = new ArrayList<>();
+        String col = "order_date";
+        if ("name".equals(sortBy)) col = "receiver_name";
+        if ("total".equals(sortBy)) col = "total_amount";
+        String order = "asc".equalsIgnoreCase(sortOrder) ? "ASC" : "DESC";
+
+        StringBuilder sql = new StringBuilder("SELECT * FROM Orders WHERE (receiver_name LIKE ? OR phone_number LIKE ?)");
+        
+        // Nối điều kiện trạng thái nếu có
+        if (status != -1) {
+            sql.append(" AND status = ?");
+        }
+        
+        // Nối phần Sắp xếp và Phân trang vào cuối
+        sql.append(" ORDER BY ").append(col).append(" ").append(order)
+           .append(" OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY");
+        
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            String searchPattern = "%" + searchQuery + "%";
+            ps.setString(1, searchPattern);
+            ps.setString(2, searchPattern);
+            
+            // Dùng biến paramIndex để theo dõi vị trí dấu chấm hỏi (?)
+            int paramIndex = 3; 
+            if (status != -1) {
+                ps.setInt(paramIndex, status);
+                paramIndex++; // Tăng vị trí lên 1 nếu có dùng status
+            }
+            
+            ps.setInt(paramIndex, (page - 1) * 10);
+            
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Order o = new Order();
+                o.setId(rs.getInt("order_id"));
+                o.setUserId(rs.getInt("user_id"));
+                o.setUserName(rs.getString("receiver_name")); 
+                o.setPhoneNumber(rs.getString("phone_number"));
+                o.setShippingAddress(rs.getString("shipping_address"));
+                o.setOrderDate(rs.getTimestamp("order_date"));
+                o.setTotalAmount(rs.getDouble("total_amount"));
+                o.setStatus(rs.getInt("status"));
+                list.add(o);
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return list;
+    }
+    // HÀM LƯU GHI CHÚ NỘI BỘ
+public void updateStaffNote(int orderId, String note) {
+    String sql = "UPDATE Orders SET staff_note = ? WHERE order_id = ?";
+    try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setString(1, note);
+        ps.setInt(2, orderId);
+        ps.executeUpdate();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
 }
