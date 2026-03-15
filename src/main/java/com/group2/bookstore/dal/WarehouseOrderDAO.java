@@ -92,48 +92,16 @@ public class WarehouseOrderDAO extends DBContext {
         }
     }
 
-    // 4. SHIP ORDER (Quan trọng: Dùng Transaction để trừ kho và đổi trạng thái)
     public void shipOrder(int orderId) throws Exception {
-        String updateStatusSql = "UPDATE Orders SET status = ? WHERE order_id = ?";
-        String deductStockSql = "UPDATE Books SET stock_quantity = stock_quantity - ? WHERE book_id = ?";
-        String getDetailsSql = "SELECT book_id, quantity FROM OrderDetails WHERE order_id = ?";
 
-        Connection conn = null;
-        try {
-            conn = getConnection();
-            conn.setAutoCommit(false); // Bắt đầu Transaction
+        String sql = "UPDATE Orders SET status = 4 WHERE order_id = ?";
 
-            // B1. Cập nhật trạng thái thành SHIPPING (4)
-            try (PreparedStatement psStatus = conn.prepareStatement(updateStatusSql)) {
-                psStatus.setInt(1, OrderStatus.SHIPPING);
-                psStatus.setInt(2, orderId);
-                psStatus.executeUpdate();
-            }
+        try (
+                Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            // B2. Lấy chi tiết đơn hàng và trừ tồn kho
-            try (PreparedStatement psGet = conn.prepareStatement(getDetailsSql);
-                    PreparedStatement psStock = conn.prepareStatement(deductStockSql)) {
-
-                psGet.setInt(1, orderId);
-                ResultSet rs = psGet.executeQuery();
-                while (rs.next()) {
-                    psStock.setInt(1, rs.getInt("quantity"));
-                    psStock.setInt(2, rs.getInt("book_id"));
-                    psStock.addBatch(); // Gom lệnh để thực thi nhanh hơn
-                }
-                psStock.executeBatch(); // Thực thi trừ kho
-            }
-
-            conn.commit(); // Thành công thì lưu toàn bộ
-        } catch (Exception e) {
-            if (conn != null)
-                conn.rollback(); // Lỗi thì hoàn tác toàn bộ
-            throw new Exception("Lỗi xuất kho: " + e.getMessage());
-        } finally {
-            if (conn != null) {
-                conn.setAutoCommit(true);
-                conn.close();
-            }
+            ps.setInt(1, orderId);
+            ps.executeUpdate();
         }
     }
 
@@ -164,4 +132,59 @@ public class WarehouseOrderDAO extends DBContext {
 
         return info;
     }
+
+    public void confirmPicking(int orderId) throws Exception {
+
+        Connection conn = null;
+
+        try {
+            conn = getConnection();
+            conn.setAutoCommit(false);
+
+            String sqlGetItems = "SELECT book_id, quantity FROM OrderDetails WHERE order_id = ?";
+
+            PreparedStatement psGet = conn.prepareStatement(sqlGetItems);
+            psGet.setInt(1, orderId);
+
+            ResultSet rs = psGet.executeQuery();
+
+            String sqlUpdateStock = "UPDATE Books SET stock_quantity = stock_quantity - ? WHERE book_id = ?";
+
+            PreparedStatement psStock = conn.prepareStatement(sqlUpdateStock);
+
+            while (rs.next()) {
+
+                int bookId = rs.getInt("book_id");
+                int quantity = rs.getInt("quantity");
+
+                psStock.setInt(1, quantity);
+                psStock.setInt(2, bookId);
+                psStock.addBatch();
+            }
+
+            psStock.executeBatch();
+
+            String sqlUpdateOrder = "UPDATE Orders SET status = 3 WHERE order_id = ?";
+
+            PreparedStatement psOrder = conn.prepareStatement(sqlUpdateOrder);
+            psOrder.setInt(1, orderId);
+            psOrder.executeUpdate();
+
+            conn.commit();
+
+        } catch (Exception e) {
+
+            if (conn != null)
+                conn.rollback();
+            throw e;
+
+        } finally {
+
+            if (conn != null) {
+                conn.setAutoCommit(true);
+                conn.close();
+            }
+        }
+    }
+
 }
