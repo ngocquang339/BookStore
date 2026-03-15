@@ -14,10 +14,10 @@ public class PickingServlet extends HttpServlet {
             throws ServletException, IOException {
 
         int orderId = Integer.parseInt(request.getParameter("orderId"));
-
         WarehouseOrderDAO dao = new WarehouseOrderDAO();
 
         request.setAttribute("orderInfo", dao.getOrderCustomerInfo(orderId));
+        // ĐỔI SANG DÙNG HÀM MỚI Ở ĐÂY:
         request.setAttribute("pickingItems", dao.getOrderDetails(orderId));
         request.setAttribute("orderId", orderId);
 
