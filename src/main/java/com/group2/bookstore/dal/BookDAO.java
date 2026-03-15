@@ -333,6 +333,8 @@ public class BookDAO extends DBContext {
                 
                 try { b.setCategoryName(rs.getString("category_name")); } catch (Exception e) {}
                 try { b.setActive(rs.getBoolean("is_active")); } catch (Exception e) {}
+                try { b.setLocationCode(rs.getString("location_code")); } catch (Exception e) {}
+
                 
                 list.add(b);
             }

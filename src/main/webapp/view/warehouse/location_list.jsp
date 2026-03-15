@@ -32,22 +32,28 @@
                     </div>
                 </c:if>
 
-                <div class="mb-3 d-flex justify-content-between align-items-center">
-                    <div>
-                        <a href="dashboard" class="btn btn-outline-secondary me-2">
-                            <i class="fa-solid fa-arrow-left"></i> Dashboard
-                        </a>
-                        <h3 class="d-inline-block m-0 text-info">
-                            <i class="fa-solid fa-map-location-dot"></i> Thiết Lập Vị Trí Kho
-                        </h3>
-                    </div>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+
+                    <!-- LEFT -->
+                    <a href="dashboard" class="btn btn-outline-secondary">
+                        <i class="fa-solid fa-arrow-left"></i> Dashboard
+                    </a>
+
+                    <!-- CENTER -->
+                    <h4 class="fw-bold text-info m-0 text-center">
+                        <i class="fa-solid fa-map-location-dot me-2"></i>
+                        Thiết Lập Vị Trí Kho
+                    </h4>
+
+                    <!-- RIGHT -->
                     <button class="btn btn-info text-white" data-bs-toggle="modal" data-bs-target="#addModal">
                         <i class="fa-solid fa-plus"></i> Thêm Vị Trí
                     </button>
+
                 </div>
 
                 <!-- ===== FILTER THEO KHU (THÊM MỚI) ===== -->
-                <div class="mb-3">
+                <div class="mb-3 p-3 bg-white rounded shadow-sm">
                     <form method="get" action="location" class="row g-2 align-items-center">
                         <div class="col-auto">
                             <label class="col-form-label fw-semibold">Filter theo Khu:</label>

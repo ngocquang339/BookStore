@@ -67,9 +67,23 @@
                         </div>
                         <c:remove var="successMessage" scope="session" />
                     </c:if>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
 
-                    <h3 class="mb-4 fw-bold">Quản Lý Xuất Kho & Đơn Hàng</h3>
+                        <!-- LEFT -->
+                        <a href="dashboard" class="btn btn-outline-secondary">
+                            <i class="fa-solid fa-arrow-left"></i> Dashboard
+                        </a>
 
+                        <!-- CENTER -->
+                        <h4 class="fw-bold text-danger m-0 text-center">
+                            <i class="fa-solid fa-clipboard-check me-2"></i>
+                            Quản Lý Xuất Kho & Đơn Hàng
+                        </h4>
+
+                        <!-- RIGHT (để trống cho cân layout) -->
+                        <div style="width:120px;"></div>
+
+                    </div>
                     <div class="card card-custom mb-4">
                         <form action="${pageContext.request.contextPath}/warehouse/orders" method="GET"
                             class="row g-3 align-items-end">

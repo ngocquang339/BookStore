@@ -36,7 +36,6 @@ public class InventoryServlet extends HttpServlet {
         // =========================================================
         // 1. GỌI DAO LẤY DANH SÁCH (Từ nhánh main)
         // =========================================================
-        // ĐÃ SỬA: Truyền biến cid vào hàm thay vì số 0
         List<Book> list = dao.getBooks(keyword, cid, author, publisher, 0, 999999999, "book_id", "DESC", true);
 
         // =========================================================

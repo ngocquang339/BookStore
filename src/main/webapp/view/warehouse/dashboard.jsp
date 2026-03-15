@@ -48,7 +48,7 @@
 
             <div class="col-md-4">
                 <div class="card p-4 shadow-sm h-100 border-danger">
-                    <h4 class="text-danger"><i class="fas fa-clipboard-check"></i> Purchase Orders</h4>
+                    <h4 class="text-danger"><i class="fas fa-clipboard-check"></i> View Sale Order and Picking List</h4>
                     <p>Xem đơn hàng xuất kho, nhặt hàng (Picking) và giao vận chuyển.</p>
                     <a href="${pageContext.request.contextPath}/warehouse/orders" class="btn btn-danger mt-auto">Truy cập</a>
                 </div>
