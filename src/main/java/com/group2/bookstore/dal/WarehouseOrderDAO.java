@@ -59,23 +59,35 @@ public class WarehouseOrderDAO extends DBContext {
     // 2. Lấy chi tiết đơn hàng (Dùng để hiển thị lên Modal)
     public List<Map<String, Object>> getOrderDetails(int orderId) {
         List<Map<String, Object>> list = new ArrayList<>();
-        String sql = "SELECT b.title, od.quantity, od.price " +
-                "FROM OrderDetails od JOIN Books b ON od.book_id = b.book_id " +
-                "WHERE od.order_id = ?";
+
+        String sql = "SELECT b.title, od.quantity, od.price, wl.location_code " +
+                "FROM OrderDetails od " +
+                "JOIN Books b ON od.book_id = b.book_id " +
+                "LEFT JOIN Warehouse_Locations wl ON b.location_id = wl.location_id " +
+                "WHERE od.order_id = ? " +
+                "ORDER BY wl.zone, wl.rack, wl.shelf";
+
         try (Connection conn = getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setInt(1, orderId);
             ResultSet rs = ps.executeQuery();
+
             while (rs.next()) {
                 Map<String, Object> detail = new HashMap<>();
+
                 detail.put("title", rs.getString("title"));
                 detail.put("quantity", rs.getInt("quantity"));
                 detail.put("price", rs.getDouble("price"));
+                detail.put("location_code", rs.getString("location_code")); // thêm dòng này
+
                 list.add(detail);
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return list;
     }
 
