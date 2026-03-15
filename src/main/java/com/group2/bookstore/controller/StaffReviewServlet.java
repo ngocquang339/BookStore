@@ -2,11 +2,14 @@ package com.group2.bookstore.controller;
 
 import com.group2.bookstore.dal.ReviewDAO;
 import com.group2.bookstore.model.Review;
+import com.group2.bookstore.model.User;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -17,21 +20,52 @@ public class StaffReviewServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+        response.setContentType("text/html;charset=UTF-8");
         if ("/staff/delete-review".equals(request.getServletPath())) {
             String idRaw = request.getParameter("id");
+            String message = "";
+            String messageType = "success";
             if (idRaw != null) {
                 try {
                     int reviewId = Integer.parseInt(idRaw);
                     ReviewDAO dao = new ReviewDAO();
-                    dao.deleteReview(reviewId); // Xóa khỏi Database
+                    boolean deleted = dao.deleteReviewById(reviewId); // Staff/Admin xóa review bất kỳ
+                    if (deleted) {
+                        message = "Xóa bình luận thành công.";
+                    } else {
+                        messageType = "danger";
+                        message = "Không tìm thấy bình luận hoặc đã có lỗi khi xóa.";
+                    }
                 } catch (NumberFormatException e) {
+                    messageType = "danger";
+                    message = "ID bình luận không hợp lệ.";
                     e.printStackTrace();
                 }
+            } else {
+                messageType = "warning";
+                message = "Thiếu tham số ID bình luận.";
             }
+
+            HttpSession session = request.getSession();
+            session.setAttribute("reviewMessage", message);
+            session.setAttribute("reviewMessageType", messageType);
+
             // Xóa xong thì load lại trang danh sách đánh giá
             response.sendRedirect(request.getContextPath() + "/staff/reviews");
             return; // Kết thúc luôn, không chạy phần code hiển thị bên dưới nữa
         }
+        // Lấy feedback từ phiên để hiển thị thông báo sau khi thực hiện xóa
+        HttpSession session = request.getSession();
+        String reviewMessage = (String) session.getAttribute("reviewMessage");
+        String reviewMessageType = (String) session.getAttribute("reviewMessageType");
+        if (reviewMessage != null) {
+            request.setAttribute("reviewMessage", reviewMessage);
+            request.setAttribute("reviewMessageType", reviewMessageType != null ? reviewMessageType : "success");
+            session.removeAttribute("reviewMessage");
+            session.removeAttribute("reviewMessageType");
+        }
+
         String star = request.getParameter("star");
         String bookIdStr = request.getParameter("bookId");
         String userIdStr = request.getParameter("userId");
@@ -87,6 +121,7 @@ public class StaffReviewServlet extends HttpServlet {
             throws ServletException, IOException {
 
         request.setCharacterEncoding("UTF-8");
+        response.setContentType("text/html;charset=UTF-8");
 
         // Lấy đường dẫn URL để biết Form nào đang gọi
         String path = request.getServletPath();

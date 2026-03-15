@@ -33,18 +33,34 @@ public class SearchServlet extends HttpServlet {
         String priceFrom_raw = request.getParameter("minPrice");
         String priceTo_raw = request.getParameter("maxPrice");
         String author = request.getParameter("author");
-        String publisher = request.getParameter("publisher"); // Thêm Publisher
+        String publisher = request.getParameter("publisher");
         String sortBy = request.getParameter("sort");
-        String sortOrder = "";
+        
+        // --- PHẦN PHÂN TRANG ---
+        String indexPage = request.getParameter("index");
+        int index = 1; // Mặc định là trang 1
+        int pageSize = 20; // Bạn có thể chỉnh số lượng sách mỗi trang ở đây (ví dụ 12)
+        
+        try {
+            if (indexPage != null && !indexPage.isEmpty()) {
+                index = Integer.parseInt(indexPage);
+            }
+        } catch (NumberFormatException e) {
+            index = 1;
+        }
+
         // 3. Xử lý dữ liệu (tránh null)
         txtSearch = (txtSearch == null) ? "" : txtSearch.trim();
         author = (author == null) ? "" : author.trim();
         publisher = (publisher == null) ? "" : publisher.trim();
         sortBy = (sortBy == null) ? "" : sortBy.trim();
+        String sortOrder = "ASC";
         
         int cid = 0;
         double priceFrom = 0;
         double priceTo = 0;
+
+        // Xử lý Sort logic
         if(sortBy.equals("price_asc")){
             sortBy = "price";
             sortOrder = "ASC";
@@ -61,35 +77,44 @@ public class SearchServlet extends HttpServlet {
             sortBy = "book_id";
             sortOrder = "DESC";
         }
+
         try {
             if (cid_raw != null && !cid_raw.isEmpty()) cid = Integer.parseInt(cid_raw);
             if (priceFrom_raw != null && !priceFrom_raw.isEmpty()) priceFrom = Double.parseDouble(priceFrom_raw);
             if (priceTo_raw != null && !priceTo_raw.isEmpty()) priceTo = Double.parseDouble(priceTo_raw);
         } catch (NumberFormatException e) {
-            // Nếu lỗi ép kiểu số thì giữ mặc định là 0
+            // Giữ mặc định 0
         }
 
-        // 4. Kiểm tra quyền Admin (Để truyền vào hàm getBooks)
+        // 4. Kiểm tra quyền Admin
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
         boolean isAdmin = false;
-        int roldeId = 0;
+        int roleId = 0;
         if (user != null) {
-            if(user.getRole() == 1){
-                isAdmin = true;
-            } // Giả sử Role 1 là Admin
-            else{
-                roldeId = user.getRole();
-            }
+            if(user.getRole() == 1) isAdmin = true;
+            roleId = user.getRole();
         }
+
         // 5. Gọi DAO
         BookDAO bookDAO = new BookDAO();
         CategoryDAO catDAO = new CategoryDAO();
 
-        // Gọi hàm getBooks (9 tham số) khớp với BookDAO mới của bạn
-        List<Book> listBooks = bookDAO.getBooks(txtSearch, cid, author, publisher, priceFrom, priceTo, sortBy, sortOrder, isAdmin);
-        List<Book> randomBooks = bookDAO.getRandomBook(roldeId, 50);
-        // Lấy dữ liệu cho Dropdown bộ lọc
+        // --- LOGIC PHÂN TRANG CORE ---
+        // A. Đếm tổng số lượng sách dựa trên TẤT CẢ bộ lọc (dùng hàm count nâng cao của bạn)
+        int total = bookDAO.countBooks(txtSearch, cid, author, publisher, priceFrom, priceTo, isAdmin);
+        
+        // B. Tính trang cuối cùng
+        int endPage = total / pageSize;
+        if (total % pageSize != 0) {
+            endPage++;
+        }
+
+        // C. Lấy danh sách sách của trang hiện tại (Dùng Overload 3 trong DAO của bạn)
+        List<Book> listBooks = bookDAO.getBooks(txtSearch, cid, author, publisher, priceFrom, priceTo, sortBy, sortOrder, isAdmin, index, pageSize);
+        
+        // Dữ liệu bổ trợ
+        List<Book> randomBooks = bookDAO.getRandomBook(roleId, 10); // Lấy ít lại cho nhẹ trang
         List<Category> listCategories = catDAO.getCategories();
         List<String> listPublishers = bookDAO.getAllPublishers();
 
@@ -99,7 +124,12 @@ public class SearchServlet extends HttpServlet {
         request.setAttribute("listPublishers", listPublishers);
         request.setAttribute("suggestedBooks", randomBooks);
         
-        // 7. Lưu lại trạng thái bộ lọc (để form không bị reset)
+        // Gửi dữ liệu phân trang
+        request.setAttribute("endPage", endPage);
+        request.setAttribute("tag", index); // Trang hiện tại để active button
+        request.setAttribute("totalResult", total); // Hiển thị "Tìm thấy X kết quả"
+
+        // 7. Lưu lại trạng thái bộ lọc (để form và link phân trang không bị mất tham số)
         request.setAttribute("txtS", txtSearch);
         request.setAttribute("cid", cid);
         request.setAttribute("minPrice", (priceFrom > 0 ? priceFrom_raw : "")); 

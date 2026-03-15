@@ -17,20 +17,31 @@ public class StaffCustomerServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        UserDAO userDAO = new UserDAO();
-
-        // Lấy tham số từ URL do người dùng thao tác
+        // 1. Lấy toàn bộ tham số từ form CRM
         String keyword = request.getParameter("keyword");
-        String sort = request.getParameter("sort");
+        String memberTier = request.getParameter("memberTier");
+        String minSpendStr = request.getParameter("minSpend");
+        String maxSpendStr = request.getParameter("maxSpend");
 
-        List<User> listCustomers = userDAO.getCustomers(keyword, sort);
+        // 2. Xử lý an toàn cho kiểu số (Tránh lỗi sập web khi bỏ trống)
+        Double minSpend = null;
+        Double maxSpend = null;
+        try {
+            if (minSpendStr != null && !minSpendStr.trim().isEmpty())
+                minSpend = Double.parseDouble(minSpendStr);
+            if (maxSpendStr != null && !maxSpendStr.trim().isEmpty())
+                maxSpend = Double.parseDouble(maxSpendStr);
+        } catch (NumberFormatException e) {
+            // Nuốt lỗi êm ái nếu nhập chữ linh tinh
+        }
 
-        // Đẩy dữ liệu sang JSP
+        // 3. Gọi DAO "thần thánh" vừa viết
+        UserDAO dao = new UserDAO();
+        List<User> listCustomers = dao.getFilteredCustomers(keyword, memberTier, minSpend, maxSpend);
+
+        // 4. Trả dữ liệu về JSP
         request.setAttribute("listCustomers", listCustomers);
-
-        // Đẩy lại tham số để giữ trạng thái trên thanh Tìm kiếm và Ô chọn Sắp xếp
-        request.setAttribute("keyword", keyword);
-        request.setAttribute("sort", sort);
+        request.setAttribute("keyword", keyword); // Để ô input nhớ lại chữ đã nhập
 
         request.getRequestDispatcher("/view/staff/customer-manage.jsp").forward(request, response);
     }

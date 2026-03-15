@@ -80,11 +80,12 @@ public class VoucherDAO extends DBContext { // Giả sử nhóm bạn dùng DBCo
         
         // Dùng INNER JOIN để lôi cả thông tin của cái Voucher ra
         // Chỉ lấy những mã chưa dùng (is_used = 0) và chưa hết hạn
+        // ĐÃ SỬA: Lấy TẤT CẢ voucher, ưu tiên xếp cái chưa dùng lên trên cùng
         String sql = "SELECT uv.*, v.code, v.discount_amount, v.discount_percent, v.min_order_value, v.end_date " +
                      "FROM User_Vouchers uv " +
                      "INNER JOIN Vouchers v ON uv.voucher_id = v.voucher_id " +
-                     "WHERE uv.user_id = ? AND uv.is_used = 0 AND v.end_date >= GETDATE() " +
-                     "ORDER BY uv.saved_date DESC";
+                     "WHERE uv.user_id = ? " +
+                     "ORDER BY uv.is_used ASC, v.end_date DESC, uv.saved_date DESC";
                      
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -245,5 +246,50 @@ public class VoucherDAO extends DBContext { // Giả sử nhóm bạn dùng DBCo
         } catch (Exception e) { 
             e.printStackTrace(); 
         }
+    }
+    // =====================================================================
+    // 8. DÀNH CHO STAFF: XÓA VOUCHER
+    // =====================================================================
+    public void deleteVoucher(int id) {
+        String sqlDeleteWallet = "DELETE FROM User_Vouchers WHERE voucher_id = ?";
+        String sqlDeleteMain = "DELETE FROM Vouchers WHERE voucher_id = ?";
+        
+        try (Connection conn = getConnection()) {
+            // 1. Dọn dẹp mã này trong ví của khách hàng trước (nếu có ai lỡ lưu)
+            try (PreparedStatement ps1 = conn.prepareStatement(sqlDeleteWallet)) {
+                ps1.setInt(1, id);
+                ps1.executeUpdate();
+            }
+            
+            // 2. Xóa mã gốc trong kho quản lý
+            try (PreparedStatement ps2 = conn.prepareStatement(sqlDeleteMain)) {
+                ps2.setInt(1, id);
+                ps2.executeUpdate();
+            }
+        } catch (Exception e) { 
+            e.printStackTrace(); 
+        }
+    }
+    // =====================================================================
+    // 9. DÀNH CHO STAFF: XEM THỐNG KÊ VOUCHER
+    // =====================================================================
+    public int[] getVoucherStats(int voucherId) {
+        int[] stats = {0, 0}; // Index 0: Lượt đã lưu, Index 1: Lượt đã dùng
+        
+        // Đếm tổng số người đã lưu và đếm số người có is_used = 1
+        String sql = "SELECT COUNT(*) as total_saved, SUM(CASE WHEN is_used = 1 THEN 1 ELSE 0 END) as total_used FROM User_Vouchers WHERE voucher_id = ?";
+        
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, voucherId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    stats[0] = rs.getInt("total_saved");
+                    stats[1] = rs.getInt("total_used");
+                }
+            }
+        } catch (Exception e) { 
+            e.printStackTrace(); 
+        }
+        return stats;
     }
 }

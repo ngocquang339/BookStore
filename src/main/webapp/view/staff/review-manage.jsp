@@ -10,13 +10,52 @@
             <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
             <style>
+                :root {
+                    --bg-primary: #f4f6f9;
+                    --bg-card: #ffffff;
+                    --text-default: #212529;
+                    --border-default: #ced4da;
+                    --bg-filter: #ffffff;
+                }
+
                 body {
-                    background-color: #f4f6f9;
+                    background-color: var(--bg-primary);
+                    color: var(--text-default);
                     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                 }
 
                 .brand-color {
                     color: #C92127;
+                }
+
+                .bg-dark {
+                    background-color: var(--bg-card) !important;
+                    color: var(--text-default) !important;
+                }
+
+                .text-light {
+                    color: var(--text-default) !important;
+                }
+
+                .border-secondary {
+                    border-color: var(--border-default) !important;
+                }
+
+                .form-select.bg-dark,
+                .form-control.bg-dark,
+                .card.bg-dark,
+                .table.table-dark {
+                    background-color: var(--bg-card) !important;
+                    color: var(--text-default) !important;
+                    border-color: var(--border-default) !important;
+                }
+
+                .btn-outline-secondary,
+                .btn-light,
+                .btn-dark {
+                    color: #212529 !important;
+                    background-color: #ffffff !important;
+                    border-color: var(--border-default) !important;
                 }
 
                 .btn-brand {
@@ -158,7 +197,14 @@
                         <form id="bulkForm" action="${pageContext.request.contextPath}/staff/mass-delete-reviews"
                             method="POST">
 
-                            <div class="d-flex justify-content-between align-items-center mb-3 mt-4">
+                            <c:if test="${not empty reviewMessage}">
+                            <div class="alert alert-${reviewMessageType} alert-dismissible fade show" role="alert">
+                                ${reviewMessage}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        </c:if>
+
+                        <div class="d-flex justify-content-between align-items-center mb-3 mt-4">
                                 <div class="d-flex gap-2">
                                     <button type="button" class="btn btn-sm btn-outline-danger"
                                         onclick="submitMassDelete()">
