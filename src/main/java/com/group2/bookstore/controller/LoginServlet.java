@@ -65,7 +65,6 @@ public class LoginServlet extends HttpServlet {
             }
             // Đăng nhập thành công
             HttpSession session = request.getSession();
-            account.setPassword(null);
             session.setAttribute("user", account);
 
             // ============================================================
