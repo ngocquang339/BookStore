@@ -368,15 +368,19 @@
                         </c:if>
                     </c:forEach>
                 </div>
-                <form style="width: 100%; margin-top: 25px;">
+                <form action="${pageContext.request.contextPath}/add-to-cart" method="get" style="width: 100%; margin-top: 25px;">
                     <input type="hidden" name="id" value="${book.id}">
+                    <input type="hidden" name="purchase" value="1">
+                    <input type="hidden" name="quantity" id="hiddenPurchaseQty" value="1">
                     <div class="button-group" style="display: flex; gap: 15px; width: 100%;">
                         
                         <button type="button" onclick="addToCartAjax()" style="background: white; color: #C92127; border: 2px solid #C92127; padding: 12px 10px; font-weight: bold; font-size: 16px; cursor: pointer; border-radius: 8px; flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.3s;">
                             <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ
                         </button>
 
-                        <button type="button" style="background: #C92127; color: white; border: none; padding: 12px 10px; font-weight: bold; font-size: 16px; cursor: pointer; border-radius: 8px; flex: 1; display: flex; align-items: center; justify-content: center; transition: 0.3s;">
+                        <button type="submit" 
+                                onclick="document.getElementById('hiddenPurchaseQty').value = document.getElementById('qtyInput').value;" 
+                                style="background: #C92127; color: white; border: none; padding: 12px 10px; font-weight: bold; font-size: 16px; cursor: pointer; border-radius: 8px; flex: 1; display: flex; align-items: center; justify-content: center; transition: 0.3s;">
                             Mua ngay
                         </button>
 
@@ -499,34 +503,9 @@
                     </div>
                 </div>
 
-                <h3 style="font-size: 16px; margin-top: 0; margin-bottom: 15px; color: #333; display: flex; align-items: center; justify-content: space-between;">
-                    <span>Ưu đãi liên quan</span>
-                    <a href="#" style="font-size: 13px; color: #2489F4; font-weight: normal; text-decoration: none;">Xem thêm <i class="fa-solid fa-angle-right"></i></a>
-                </h3>
+                
 
-                <div style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 20px; border-bottom: 1px solid #f0f0f0;" class="coupon-scroll">
-                    
-                    <div style="border: 1px dashed #ccc; border-radius: 4px; display: flex; align-items: center; font-size: 13px; white-space: nowrap; overflow: hidden;">
-                        <div style="background: #F5A623; color: white; padding: 6px 8px;"><i class="fa-solid fa-certificate"></i></div>
-                        <div style="padding: 6px 10px; color: #333;">Mã giảm 10k - to...</div>
-                    </div>
-                    
-                    <div style="border: 1px dashed #ccc; border-radius: 4px; display: flex; align-items: center; font-size: 13px; white-space: nowrap; overflow: hidden;">
-                        <div style="background: #F5A623; color: white; padding: 6px 8px;"><i class="fa-solid fa-certificate"></i></div>
-                        <div style="padding: 6px 10px; color: #333;">Mã giảm 20k - to...</div>
-                    </div>
-
-                    <div style="border: 1px dashed #ccc; border-radius: 4px; display: flex; align-items: center; font-size: 13px; white-space: nowrap; overflow: hidden;">
-                        <div style="background: #2489F4; color: white; padding: 6px 8px;"><i class="fa-solid fa-credit-card"></i></div>
-                        <div style="padding: 6px 10px; color: #333;">Shopeepay: giảm...</div>
-                    </div>
-
-                    <div style="border: 1px dashed #ccc; border-radius: 4px; display: flex; align-items: center; font-size: 13px; white-space: nowrap; overflow: hidden;">
-                        <div style="background: #2489F4; color: white; padding: 6px 8px;"><i class="fa-solid fa-wallet"></i></div>
-                        <div style="padding: 6px 10px; color: #333;">Zalopay: giảm 20...</div>
-                    </div>
-
-                </div>
+                
 
                 <div style="display: flex; align-items: center; gap: 40px; margin-bottom: 10px;">
                     <span style="font-weight: bold; font-size: 15px; color: #333;">Số lượng:</span>

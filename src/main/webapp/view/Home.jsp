@@ -173,7 +173,7 @@
             <section class="banner-section">
                 <div class="banner-top">
                     <div class="banner-left">
-                        <img src="${pageContext.request.contextPath}/assets/image/Banner/Screenshot 2026-01-19 150229.png" alt="Banner Chính">
+                        <img src="${pageContext.request.contextPath}/assets/image/Banner/Conan.jpg" alt="Banner Chính">
                     </div>
                     <div class="banner-right">
                         <a href="${pageContext.request.contextPath}/vouchers" class="right-item">
