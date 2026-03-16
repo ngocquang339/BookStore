@@ -113,12 +113,16 @@
                             <h3>Quản lý F-Point</h3>
                             <p>Thao tác cộng/trừ điểm thưởng và xem lịch sử biến động của khách hàng</p>
                         </a>
-
+                        <a href="${pageContext.request.contextPath}/staff/tickets" class="admin-card">
+                            <i class="fa-solid fa-headset" style="color: #dc3545;"></i>
+                            <h3>Quản lý Khiếu nại</h3>
+                            <p>Tiếp nhận yêu cầu hỗ trợ, xử lý ticket và phản hồi trực tiếp cho khách hàng</p>
+                        </a>
                         <a href="${pageContext.request.contextPath}/view/chat-management.jsp" class="admin-card">
                             <i class="fa-brands fa-rocketchat" style="color: #6610f2;"></i>
                             <h3>Quản lý Live Chat</h3>
-                        <p>Tương tác, tư vấn và hỗ trợ khách hàng theo thời gian thực</p>
-                        </a>    
+                            <p>Tương tác, tư vấn và hỗ trợ khách hàng theo thời gian thực</p>
+                        </a>
 
                     </div>
                 </main>

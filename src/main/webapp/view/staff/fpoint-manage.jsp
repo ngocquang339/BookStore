@@ -60,10 +60,17 @@
             <body>
                 <jsp:include page="../component/header.jsp" />
                 <div class="border-start border-2 border-secondary ps-4">
-                    <h2 class="fw-bold text-warning mb-1"><i class="fa-solid fa-coins me-2"></i>Hệ thống F-Point</h2>
-                    <p class="text-muted mb-0 text-light">Thao tác cộng/trừ điểm thưởng cho khách hàng</p>
-                </div>
-                </div>
+                    <div class="d-flex align-items-center gap-4">
+                        <a href="${pageContext.request.contextPath}/staff-dashboard"
+                            class="btn btn-danger rounded-pill px-4 shadow-sm" style="transition: 0.3s;">
+                            <i class="fa-solid fa-chart-line me-2"></i> Về Dashboard
+                        </a>
+                    </div>
+                    <div class="border-start border-2 border-secondary ps-4">
+                        <h2 class="fw-bold text-warning mb-1"><i class="fa-solid fa-coins me-2"></i>Hệ thống F-Point
+                        </h2>
+                        <p class="text-muted mb-0 text-light">Thao tác cộng/trừ điểm thưởng cho khách hàng</p>
+                    </div>
                 </div>
 
                 <div class="row mb-5">
