@@ -1,7 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
     <%@ taglib prefix="c" uri="jakarta.tags.core" %>
         <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
-
             <!DOCTYPE html>
             <html lang="vi">
 
@@ -122,10 +121,13 @@
                                                                     value="${ticket.userId}">
 
                                                                 <div class="mb-3 p-3 bg-light rounded border">
-                                                                    <label class="fw-bold text-muted small mb-1">Khách
-                                                                        hàng viết:</label>
-                                                                    <p class="mb-0 text-dark">${ticket.ticketMessage}
-                                                                    </p>
+                                                                    <label class="fw-bold text-danger small mb-1">
+                                                                        Phân loại: ${ticket.issueType}
+                                                                    </label>
+                                                                    <p class="mb-0 text-dark fw-bold">Tiêu đề:
+                                                                        ${ticket.ticketSubject}</p>
+                                                                    <p class="mb-0 text-muted mt-2">Nội dung chi tiết
+                                                                        (Lý do): <br> ${ticket.ticketMessage}</p>
                                                                 </div>
 
                                                                 <div class="mb-3">
@@ -144,30 +146,28 @@
                                                                             : '' }>✅ Đã giải quyết (Resolved)</option>
                                                                     </select>
                                                                 </div>
-
                                                                 <div class="mb-3">
-                                                                    <label class="form-label fw-bold">Lời nhắn phản hồi
-                                                                        (Sẽ gửi thông báo cho User):</label>
+                                                                    <label class="form-label fw-bold">Lời nhắn phản
+                                                                        hồi(Sẽ gửi thông báo cho User):</label>
                                                                     <textarea name="adminReply" class="form-control"
-                                                                        rows="5"
-                                                                        placeholder="Chào bạn, hệ thống đã ghi nhận khiếu nại và tiến hành..."
+                                                                        rows="4"
+                                                                        placeholder="Chào bạn, hệ thống đã ghi nhận lý do trả hàng và đang tiến hành..."
                                                                         required>${ticket.adminReply}</textarea>
                                                                 </div>
                                                             </div>
                                                             <div class="modal-footer bg-light">
                                                                 <button type="button" class="btn btn-secondary"
                                                                     data-bs-dismiss="modal">Đóng</button>
-                                                                <button type="submit" class="btn btn-danger"><i
-                                                                        class="fa-solid fa-paper-plane me-2"></i>Lưu &
-                                                                    Bắn thông báo</button>
+                                                                <button type="submit" class="btn btn-danger">
+                                                                    <i class="fa-solid fa-paper-plane me-2"></i>Lưu &
+                                                                    Bắn thông báo
+                                                                </button>
                                                             </div>
                                                         </form>
-
                                                     </div>
                                                 </div>
                                             </div>
                                         </c:forEach>
-
                                         <c:if test="${empty listTickets}">
                                             <tr>
                                                 <td colspan="7" class="text-center text-muted py-4">Chưa có khiếu nại
@@ -180,7 +180,6 @@
                         </div>
                     </div>
                 </div>
-
                 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
             </body>
 
