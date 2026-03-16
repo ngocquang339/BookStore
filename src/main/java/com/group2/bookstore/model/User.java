@@ -17,6 +17,9 @@ public class User implements Serializable {
     // NEW FIELDS added to match Database
     private int status;         // 1=Active, 0=Banned (Mapped from [bit])
     private Timestamp createAt; // Mapped from [datetime]
+    private double totalSpend;
+    private String tags;
+    private int f_points;
 
     public User() {
     }
@@ -69,4 +72,10 @@ public class User implements Serializable {
 
     public Timestamp getCreateAt() { return createAt; }
     public void setCreateAt(Timestamp createAt) { this.createAt = createAt; }
+    public double getTotalSpend() { return totalSpend; }
+    public void setTotalSpend(double totalSpend) { this.totalSpend = totalSpend; }
+    public String getTags() { return tags; }
+    public void setTags(String tags) { this.tags = tags; }
+    public int getF_points() { return f_points; }
+    public void setF_points(int f_points) { this.f_points = f_points; }
 }

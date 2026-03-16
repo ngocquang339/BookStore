@@ -16,7 +16,11 @@ public class RegisterServlet extends HttpServlet{
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("view/Register.jsp").forward(request, response);
+        // 1. Gắn cờ báo hiệu cho file JSP biết là khách muốn vào thẳng form Đăng ký
+        request.setAttribute("activeTab", "register");
+        
+        // 2. Chuyển hướng sang giao diện Login.jsp (nơi chứa cả 2 form)
+        request.getRequestDispatcher("view/Login.jsp").forward(request, response);
     }
 
     @Override
