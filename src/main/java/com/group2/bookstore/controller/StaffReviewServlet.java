@@ -134,8 +134,22 @@ public class StaffReviewServlet extends HttpServlet {
 
             if (reviewIds != null && reviewIds.length > 0) {
                 ReviewDAO dao = new ReviewDAO();
-                dao.deleteMultipleReviews(reviewIds);
+                boolean isDeleted = dao.deleteMultipleReviews(reviewIds);
+
+                if (isDeleted) {
+                    request.getSession().setAttribute("reviewMessage",
+                            "Đã xóa vĩnh viễn " + reviewIds.length + " bình luận thành công!");
+                    request.getSession().setAttribute("reviewMessageType", "success");
+                } else {
+                    request.getSession().setAttribute("reviewMessage",
+                            "Lỗi: Không thể xóa. Vướng ràng buộc dữ liệu từ bảng khác.");
+                    request.getSession().setAttribute("reviewMessageType", "danger");
+                }
+            } else {
+                request.getSession().setAttribute("reviewMessage", "Chưa chọn bình luận nào để xóa.");
+                request.getSession().setAttribute("reviewMessageType", "warning");
             }
+
             response.sendRedirect(request.getContextPath() + "/staff/reviews");
             return; // Xóa xong thì kết thúc luôn, không chạy xuống dưới nữa
         }
