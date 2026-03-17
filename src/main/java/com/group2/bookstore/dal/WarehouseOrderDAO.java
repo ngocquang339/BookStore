@@ -246,7 +246,8 @@ public class WarehouseOrderDAO extends DBContext {
     }
 
     // 3. HÀM QUAN TRỌNG: Tạo mới Đơn nhập hàng & Chi tiết
-    public boolean createPurchaseOrder(int supplierId, int userId,String statusNote, String[] bookIds, String[] expectedQuantities,
+    public boolean createPurchaseOrder(int supplierId, int userId, String statusNote, String[] bookIds,
+            String[] expectedQuantities,
             String[] importPrices) {
         Connection conn = null;
         PreparedStatement psOrder = null;
@@ -269,10 +270,9 @@ public class WarehouseOrderDAO extends DBContext {
             }
 
             // 2. Insert Purchase Order + lấy ID (SQL Server chuẩn)
-            String sqlOrder = "INSERT INTO Purchase_Orders (supplier_id, user_id, order_date, total_quantity, total_amount, status) "
-                    +
-                    "OUTPUT INSERTED.purchase_order_id " +
-                    "VALUES (?, ?, GETDATE(), ?, ?, 0,?)";
+            String sqlOrder = "INSERT INTO Purchase_Orders (supplier_id, user_id, order_date, total_quantity, total_amount, status, status_note) "
+                    + "OUTPUT INSERTED.purchase_order_id "
+                    + "VALUES (?, ?, GETDATE(), ?, ?, 0, ?)";
 
             psOrder = conn.prepareStatement(sqlOrder);
             psOrder.setInt(1, supplierId);
