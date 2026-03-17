@@ -1,10 +1,14 @@
 package com.group2.bookstore.dal;
 
 import com.group2.bookstore.constant.OrderStatus;
-import com.group2.bookstore.model.Order; // Bạn hãy dùng Model Order tương ứng của dự án
+import com.group2.bookstore.model.Book;
+import com.group2.bookstore.model.PurchaseOrderDetail;
+import com.group2.bookstore.model.PurchaseOrder;
+import com.group2.bookstore.model.Supplier;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -197,5 +201,148 @@ public class WarehouseOrderDAO extends DBContext {
                 conn.close();
             }
         }
+    }
+
+    // DAO FOR PURCHASE ORDER
+
+    public List<Supplier> getAllActiveSuppliers() {
+        List<Supplier> list = new ArrayList<>();
+        String sql = "SELECT * FROM Suppliers WHERE is_active = 1";
+        try (Connection conn = new DBContext().getConnection(); // Thay bằng class kết nối DB của bạn
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Supplier s = new Supplier();
+                s.setId(rs.getInt("supplier_id"));
+                s.setName(rs.getString("supplier_name"));
+                // Set thêm các trường khác nếu cần...
+                list.add(s);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // 2. Lấy danh sách Sách để Warehouse chọn
+    public List<Book> getAllActiveBooks() {
+        List<Book> list = new ArrayList<>();
+        String sql = "SELECT * FROM Books WHERE is_active = 1";
+        try (Connection conn = new DBContext().getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Book b = new Book();
+                b.setId(rs.getInt("book_id"));
+                b.setTitle(rs.getString("title"));
+                b.setStockQuantity(rs.getInt("stock_quantity"));
+                b.setPrice(rs.getDouble("price")); // Giá bán (để tham khảo)
+                list.add(b);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // 3. HÀM QUAN TRỌNG: Tạo mới Đơn nhập hàng & Chi tiết
+    public boolean createPurchaseOrder(int supplierId, int userId,String statusNote, String[] bookIds, String[] expectedQuantities,
+            String[] importPrices) {
+        Connection conn = null;
+        PreparedStatement psOrder = null;
+        PreparedStatement psDetail = null;
+        ResultSet rs = null;
+        boolean isSuccess = false;
+
+        try {
+            conn = new DBContext().getConnection();
+            conn.setAutoCommit(false); // Bắt đầu Transaction
+
+            // 1. Tính tổng
+            int totalQuantity = 0;
+            double totalAmount = 0;
+            for (int i = 0; i < bookIds.length; i++) {
+                int qty = Integer.parseInt(expectedQuantities[i]);
+                double price = Double.parseDouble(importPrices[i]);
+                totalQuantity += qty;
+                totalAmount += (qty * price);
+            }
+
+            // 2. Insert Purchase Order + lấy ID (SQL Server chuẩn)
+            String sqlOrder = "INSERT INTO Purchase_Orders (supplier_id, user_id, order_date, total_quantity, total_amount, status) "
+                    +
+                    "OUTPUT INSERTED.purchase_order_id " +
+                    "VALUES (?, ?, GETDATE(), ?, ?, 0,?)";
+
+            psOrder = conn.prepareStatement(sqlOrder);
+            psOrder.setInt(1, supplierId);
+            psOrder.setInt(2, userId);
+            psOrder.setInt(3, totalQuantity);
+            psOrder.setDouble(4, totalAmount);
+            psOrder.setString(5, statusNote);
+
+            rs = psOrder.executeQuery();
+
+            int newOrderId = 0;
+            if (rs.next()) {
+                newOrderId = rs.getInt(1);
+            }
+
+            // 3. Insert chi tiết
+            if (newOrderId > 0) {
+                String sqlDetail = "INSERT INTO Purchase_Order_Details (purchase_order_id, book_id, expected_quantity, received_quantity, price) "
+                        +
+                        "VALUES (?, ?, ?, 0, ?)";
+
+                psDetail = conn.prepareStatement(sqlDetail);
+
+                for (int i = 0; i < bookIds.length; i++) {
+                    psDetail.setInt(1, newOrderId);
+                    psDetail.setInt(2, Integer.parseInt(bookIds[i]));
+                    psDetail.setInt(3, Integer.parseInt(expectedQuantities[i]));
+                    psDetail.setDouble(4, Double.parseDouble(importPrices[i]));
+                    psDetail.addBatch();
+                }
+
+                psDetail.executeBatch();
+
+                conn.commit();
+                isSuccess = true;
+            } else {
+                conn.rollback();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                if (conn != null)
+                    conn.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+            } catch (Exception e) {
+            }
+            try {
+                if (psOrder != null)
+                    psOrder.close();
+            } catch (Exception e) {
+            }
+            try {
+                if (psDetail != null)
+                    psDetail.close();
+            } catch (Exception e) {
+            }
+            try {
+                if (conn != null)
+                    conn.close();
+            } catch (Exception e) {
+            }
+        }
+
+        return isSuccess;
     }
 }

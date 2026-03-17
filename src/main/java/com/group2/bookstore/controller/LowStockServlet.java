@@ -1,34 +1,46 @@
 package com.group2.bookstore.controller;
 
 import com.group2.bookstore.dal.BookDAO;
+import com.group2.bookstore.dal.CategoryDAO;
 import com.group2.bookstore.model.Book;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.util.List;
 
-// Map đúng với href="low-stock" trong dashboard.jsp
 @WebServlet(name = "LowStockServlet", urlPatterns = {"/warehouse/low-stock"})
 public class LowStockServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         BookDAO dao = new BookDAO();
-        
-        // Cài đặt mức cảnh báo hết hàng là 10 (có thể đổi thành 5 hoặc 20 tùy nhóm)
-        int threshold = 15; 
-        
-        List<Book> list = dao.getLowStockBooks(threshold);
+        CategoryDAO cDao = new CategoryDAO();
+
+        // ===== FILTER =====
+        String keyword = request.getParameter("keyword");
+        String publisher = request.getParameter("publisher");
+        String categoryRaw = request.getParameter("categoryId");
+
+        int categoryId = 0;
+        try {
+            if (categoryRaw != null) {
+                categoryId = Integer.parseInt(categoryRaw);
+            }
+        } catch (Exception e) {}
+
+        int threshold = 15;
+
+        List<Book> list = dao.getLowStockBooks(keyword, categoryId, publisher, threshold);
+
+        request.setAttribute("listC", cDao.getAllCategories());
+        request.setAttribute("listP", dao.getAllPublishers());
 
         request.setAttribute("listB", list);
-        request.setAttribute("threshold", threshold);
-        
-        // Điều hướng sang file JSP mới
-        request.getRequestDispatcher("/view/warehouse/low_stock_list.jsp").forward(request, response);
+
+        request.getRequestDispatcher("/view/warehouse/low_stock_list.jsp")
+               .forward(request, response);
     }
 }
