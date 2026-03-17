@@ -34,6 +34,15 @@
                             <a href="dashboard" class="btn btn-outline-secondary me-2"><i
                                     class="fa-solid fa-arrow-left"></i> Dashboard</a>
                         </div>
+                        <div class="d-flex align-items-center gap-3 mb-4">
+
+                            <h3 class="fw-bold text-warning m-0">
+                                <i class="fa-solid fa-triangle-exclamation me-2"></i>
+                                Low Stock Books
+                            </h3>
+
+                        </div>
+
                         <a href="update-stock" class="btn btn-success"><i class="fa-solid fa-boxes-packing"></i> Nhập
                             hàng ngay</a>
                     </div>

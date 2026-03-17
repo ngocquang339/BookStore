@@ -10,6 +10,7 @@ import java.util.List;
 
 import com.group2.bookstore.model.Book;
 import com.group2.bookstore.model.BookImage;
+import com.group2.bookstore.model.CartItem;
 import com.group2.bookstore.model.Category;
 
 public class BookDAO extends DBContext {
@@ -250,13 +251,13 @@ public class BookDAO extends DBContext {
             double maxPrice, String sortBy, String sortOrder, boolean isAdmin, int index, int pageSize) {
         List<Book> list = new ArrayList<>();
 
+        // 1. TẠO BẢNG TẠM (CTE): Chỉ tìm ra "ID" của 20 cuốn sách thuộc trang hiện tại
         StringBuilder sql = new StringBuilder(
-                "SELECT b.*, c.category_name, l.location_code, " +
-                        "(SELECT TOP 1 bi.image_url FROM BookImages bi WHERE bi.book_id = b.book_id) AS cover_image " +
-                        "FROM Books b " +
-                        "LEFT JOIN Categories c ON b.category_id = c.category_id " +
-                        "LEFT JOIN Warehouse_Locations l ON b.location_id = l.location_id " +
-                        "WHERE 1=1 ");
+                "WITH PagedBooks AS ( " +
+                "   SELECT b.book_id " +
+                "   FROM Books b " +
+                "   LEFT JOIN Categories c ON b.category_id = c.category_id " +
+                "   WHERE 1=1 ");
         
         List<Object> params = new ArrayList<>();
 
@@ -265,15 +266,11 @@ public class BookDAO extends DBContext {
         if (keyword != null && !keyword.trim().isEmpty()) {
             sql.append(" AND ((LOWER(b.title) LIKE LOWER(?)) OR (LOWER(b.author) LIKE LOWER(?)) OR (LOWER(b.supplier) LIKE LOWER(?)) OR (LOWER(b.publisher) LIKE LOWER(?))) ");
             String searchParam = "%" + keyword.trim() + "%";
-            params.add(searchParam); // title
-            params.add(searchParam); // author
-            params.add(searchParam); // supplier
-            params.add(searchParam); // publisher
+            params.add(searchParam); params.add(searchParam); params.add(searchParam); params.add(searchParam);
         }
         if (cid > 0) {
             sql.append(" AND (b.category_id = ? OR c.parent_id = ?) ");
-            params.add(cid);
-            params.add(cid);
+            params.add(cid); params.add(cid);
         }
         if (author != null && !author.trim().isEmpty()) {
             sql.append(" AND LOWER(b.author) LIKE LOWER(?) ");
@@ -285,23 +282,36 @@ public class BookDAO extends DBContext {
         }
         if (maxPrice > 0) {
             sql.append(" AND b.price BETWEEN ? AND ? ");
-            params.add(minPrice);
-            params.add(maxPrice);
+            params.add(minPrice); params.add(maxPrice);
         } else if (minPrice > 0) {
             sql.append(" AND b.price >= ? ");
             params.add(minPrice);
         }
 
+        // --- XỬ LÝ SẮP XẾP ---
+        String orderClause = "";
         if (sortBy != null && !sortBy.isEmpty() && (sortBy.equals("price") || sortBy.equals("title")
                 || sortBy.equals("stock_quantity") || sortBy.equals("book_id"))) {
-            sql.append(" ORDER BY b.").append(sortBy).append("DESC".equalsIgnoreCase(sortOrder) ? " DESC" : " ASC");
+            orderClause = " ORDER BY b." + sortBy + ("DESC".equalsIgnoreCase(sortOrder) ? " DESC" : " ASC");
         } else if ("category_name".equals(sortBy)) {
-            sql.append(" ORDER BY c.category_name").append("DESC".equalsIgnoreCase(sortOrder) ? " DESC" : " ASC");
+            orderClause = " ORDER BY c.category_name" + ("DESC".equalsIgnoreCase(sortOrder) ? " DESC" : " ASC");
         } else {
-            sql.append(" ORDER BY b.book_id DESC");
+            orderClause = " ORDER BY b.book_id DESC";
         }
+        sql.append(orderClause);
 
-        sql.append(" OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+        // --- CẮT TRANG ---
+        sql.append(" OFFSET ? ROWS FETCH NEXT ? ROWS ONLY ");
+        sql.append(") "); // Kết thúc khối bảng tạm
+        
+        // 2. TRUY VẤN CHÍNH: Chỉ lấy thông tin nặng (như cover_image) cho đúng 20 cái ID ở trên
+        sql.append("SELECT b.*, c.category_name, l.location_code, " +
+                   "(SELECT TOP 1 bi.image_url FROM BookImages bi WHERE bi.book_id = b.book_id) AS cover_image " +
+                   "FROM PagedBooks pb " +
+                   "INNER JOIN Books b ON pb.book_id = b.book_id " +
+                   "LEFT JOIN Categories c ON b.category_id = c.category_id " +
+                   "LEFT JOIN Warehouse_Locations l ON b.location_id = l.location_id ");
+        sql.append(orderClause); // Sắp xếp lại lần nữa để đảm bảo thứ tự sau khi JOIN
 
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql.toString())) {
@@ -309,6 +319,7 @@ public class BookDAO extends DBContext {
             int paramIndex = 1;
             for (Object param : params) ps.setObject(paramIndex++, param);
 
+            // Truyền tham số cho OFFSET
             ps.setInt(paramIndex++, (index - 1) * pageSize);
             ps.setInt(paramIndex, pageSize);
 
@@ -330,9 +341,8 @@ public class BookDAO extends DBContext {
                 
                 try { b.setCategoryName(rs.getString("category_name")); } catch (Exception e) {}
                 try { b.setActive(rs.getBoolean("is_active")); } catch (Exception e) {}
-                
-                // If your teammate added a locationCode field to the Book model, 
-                // you might need to map it here. E.g., b.setLocationCode(rs.getString("location_code"));
+                try { b.setLocationCode(rs.getString("location_code")); } catch (Exception e) {}
+
                 
                 list.add(b);
             }
@@ -476,7 +486,7 @@ public class BookDAO extends DBContext {
         return 0;
     }
 
-    // Advanced Count
+    // Advanced Count (ĐÃ ĐƯỢC ĐỒNG BỘ LOGIC VỚI HÀM GETBOOKS)
     public int countBooks(String keyword, int cid, String author, String publisher, double minPrice, double maxPrice, boolean isAdmin) {
         StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM Books b ");
         sql.append("LEFT JOIN Categories c ON b.category_id = c.category_id ");
@@ -486,28 +496,43 @@ public class BookDAO extends DBContext {
 
         if (!isAdmin) sql.append(" AND b.is_active = 1 ");
         
+        // 1. Đồng bộ Keyword (Tìm cả title, author, supplier, publisher)
         if (keyword != null && !keyword.trim().isEmpty()) {
-            sql.append(" AND b.title LIKE ? ");
-            params.add("%" + keyword + "%");
+            sql.append(" AND ((LOWER(b.title) LIKE LOWER(?)) OR (LOWER(b.author) LIKE LOWER(?)) OR (LOWER(b.supplier) LIKE LOWER(?)) OR (LOWER(b.publisher) LIKE LOWER(?))) ");
+            String searchParam = "%" + keyword.trim() + "%";
+            params.add(searchParam); 
+            params.add(searchParam); 
+            params.add(searchParam); 
+            params.add(searchParam); 
         }
+        
+        // 2. Đồng bộ Category (Tính cả parent_id)
         if (cid > 0) {
-            // FIXED: Now checks both the direct category AND child categories
             sql.append(" AND (b.category_id = ? OR c.parent_id = ?) ");
             params.add(cid);
             params.add(cid);
         }
+        
+        // 3. Đồng bộ Tác giả (Bỏ phân biệt hoa thường)
         if (author != null && !author.trim().isEmpty()) {
-            sql.append(" AND b.author = ? ");
-            params.add(author);
+            sql.append(" AND LOWER(b.author) LIKE LOWER(?) ");
+            params.add("%" + author.trim() + "%");
         }
+        
+        // 4. Đồng bộ NXB (Bỏ phân biệt hoa thường)
         if (publisher != null && !publisher.trim().isEmpty()) {
-            sql.append(" AND b.publisher = ? ");
-            params.add(publisher);
+            sql.append(" AND LOWER(b.publisher) LIKE LOWER(?) ");
+            params.add("%" + publisher.trim() + "%");
         }
+        
+        // 5. Đồng bộ Khoảng giá
         if (maxPrice > 0) {
             sql.append(" AND b.price BETWEEN ? AND ? ");
             params.add(minPrice);
             params.add(maxPrice);
+        } else if (minPrice > 0) {
+            sql.append(" AND b.price >= ? ");
+            params.add(minPrice);
         }
 
         try (Connection conn = getConnection(); 
@@ -520,6 +545,7 @@ public class BookDAO extends DBContext {
         } catch (Exception e) { e.printStackTrace(); }
         return 0;
     }
+
 
     // ==========================================
     // --- CRUD OPERATIONS ---
@@ -745,4 +771,54 @@ public class BookDAO extends DBContext {
 
         return b;
     }
+
+    // Hàm dùng riêng cho việc thanh toán (Trừ kho hoặc Hoàn kho)
+    public void updateStockForCheckout(List<CartItem> cart, boolean isRestore) {
+        // Nếu isRestore = true -> Cộng lại kho (Khách hủy đơn)
+        // Nếu isRestore = false -> Trừ kho (Khách đang thanh toán)
+        String sql = isRestore 
+                ? "UPDATE Books SET stock_quantity = stock_quantity + ? WHERE book_id = ?"
+                : "UPDATE Books SET stock_quantity = stock_quantity - ? WHERE book_id = ?";
+
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement st = conn.prepareStatement(sql)) {
+            
+            // Tắt auto commit để chạy Transaction (Đảm bảo an toàn dữ liệu)
+            conn.setAutoCommit(false); 
+
+            for (CartItem item : cart) {
+                st.setInt(1, item.getQuantity()); // Lấy số lượng khách mua
+                st.setInt(2, item.getBook().getId()); // ID của cuốn sách
+                st.addBatch(); // Thêm vào hàng đợi
+            }
+
+            st.executeBatch(); // Thực thi một loạt các lệnh Update cùng lúc
+            conn.commit();     // Xác nhận lưu vào Database
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Lý tưởng nhất là log lỗi ở đây để theo dõi
+        }
+    }
+
+    public List<Book> getBooksByName(String name) {
+    List<Book> list = new ArrayList<>();
+    String sql = "SELECT * FROM Books WHERE title LIKE ?";
+
+    try (Connection conn = getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        ps.setString(1, "%" + name + "%");
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+            list.add(mapResultSetToBook(rs));
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return list;
+}
 }

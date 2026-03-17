@@ -46,20 +46,22 @@
                 </c:if>
 
                 <!-- HEADER -->
-                <div class="mb-3 d-flex justify-content-between align-items-center">
-                    <div>
-                        <a href="dashboard" class="btn btn-outline-secondary me-2">
-                            <i class="fa-solid fa-arrow-left"></i> Dashboard
-                        </a>
-                        <h3 class="d-inline-block m-0 text-success">
-                            <i class="fa-solid fa-truck-fast"></i> Nhà Cung Cấp
-                        </h3>
-                    </div>
+                <div class="d-flex justify-content-between align-items-center mb-4">
 
+                    <!-- LEFT -->
+                    <a href="dashboard" class="btn btn-outline-secondary">
+                        <i class="fa-solid fa-arrow-left"></i> Dashboard
+                    </a>
+
+                    <!-- CENTER TITLE -->
+                    <h4 class="fw-bold text-success m-0 text-center">
+                        <i class="fa-solid fa-truck-fast me-2"></i>
+                        Nhà Cung Cấp
+                    </h4>
+
+                    <!-- RIGHT BUTTON -->
                     <div>
-                        <!-- NÚT KHO LƯU TRỮ -->
-                        <button class="btn btn-dark me-2" data-bs-toggle="modal"
-                            data-bs-target="#archiveModal">
+                        <button class="btn btn-dark me-2" data-bs-toggle="modal" data-bs-target="#archiveModal">
                             <i class="fa-solid fa-box-archive"></i> Kho lưu trữ
                         </button>
 
@@ -67,6 +69,7 @@
                             <i class="fa-solid fa-plus"></i> Thêm mới
                         </button>
                     </div>
+
                 </div>
 
                 <!-- TABLE ACTIVE -->

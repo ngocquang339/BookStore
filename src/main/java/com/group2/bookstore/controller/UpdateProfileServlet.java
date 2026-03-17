@@ -43,7 +43,6 @@ public class UpdateProfileServlet extends HttpServlet{
         String newFullname = request.getParameter("fullname");
         String newEmail = request.getParameter("email");
         String newPhone = request.getParameter("phone_number");
-        String newAddress = request.getParameter("address");
 
         
         HttpSession session = request.getSession();

@@ -16,7 +16,11 @@ public class RegisterServlet extends HttpServlet{
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("view/Register.jsp").forward(request, response);
+        // 1. Gắn cờ báo hiệu cho file JSP biết là khách muốn vào thẳng form Đăng ký
+        request.setAttribute("activeTab", "register");
+        
+        // 2. Chuyển hướng sang giao diện Login.jsp (nơi chứa cả 2 form)
+        request.getRequestDispatcher("view/Login.jsp").forward(request, response);
     }
 
     @Override
@@ -28,77 +32,95 @@ public class RegisterServlet extends HttpServlet{
         String phone = request.getParameter("phone_number");
         String re_p = request.getParameter("re_pass");
 
+        // Giữ lại dữ liệu đã nhập trên form
         request.setAttribute("fullname", fn);
         request.setAttribute("username", u);
         request.setAttribute("email", e);
         request.setAttribute("phone_number", phone);
 
-        if (u == null || u.trim().isEmpty() || p == null || p.trim().isEmpty() || e.length() > 100 ||e.trim().isEmpty() || e == null || phone == null || phone.trim().isEmpty() || fn == null || fn.trim().isEmpty()){
+        // --- BƯỚC 1: KIỂM TRA ĐẦU VÀO (VALIDATION) ---
+        if (u == null || u.trim().isEmpty() || p == null || p.trim().isEmpty() || e == null || e.trim().isEmpty() || e.length() > 100 || phone == null || phone.trim().isEmpty() || fn == null || fn.trim().isEmpty()){
             request.setAttribute("mess", "Thông tin không hợp lệ!");
-            request.getRequestDispatcher("Register.jsp").forward(request, response);
+            request.setAttribute("activeTab", "register");
+            request.getRequestDispatcher("view/Login.jsp").forward(request, response);
             return;
         }
 
         if((fn != null && fn.length() > 50) || (u != null && u.length() > 50)){
             request.setAttribute("mess", "Tên quá dài");
-            request.getRequestDispatcher("view/Register.jsp").forward(request, response);
+            request.setAttribute("activeTab", "register");
+            request.getRequestDispatcher("view/Login.jsp").forward(request, response);
+            return; // Phải có return để dừng code chạy tiếp
         }
 
         if((p != null && p.length() > 100) || (re_p != null && re_p.length() > 100)){
             request.setAttribute("mess", "Mật khẩu quá dài");
-            request.getRequestDispatcher("view/Register.jsp").forward(request, response);
+            request.setAttribute("activeTab", "register");
+            request.getRequestDispatcher("view/Login.jsp").forward(request, response);
+            return; 
         }
 
         if (!e.contains("@")) {
             request.setAttribute("mess", "Email không hợp lệ (phải chứa ký tự @)!");
-            request.getRequestDispatcher("view/Register.jsp").forward(request, response);
+            request.setAttribute("activeTab", "register");
+            request.getRequestDispatcher("view/Login.jsp").forward(request, response);
             return;
         }
 
         if(phone.matches(".*[a-zA-Z].*") || phone.length() > 10){
             request.setAttribute("mess", "Số điện thoại không hợp lệ");
-            request.getRequestDispatcher("view/Register.jsp").forward(request, response);
+            request.setAttribute("activeTab", "register");
+            request.getRequestDispatcher("view/Login.jsp").forward(request, response);
+            return;
         }
 
         if (re_p != null && !p.equals(re_p)) {
             request.setAttribute("mess", "Mật khẩu nhập lại không khớp!");
-            request.getRequestDispatcher("view/Register.jsp").forward(request, response);
+            request.setAttribute("activeTab", "register");
+            request.getRequestDispatcher("view/Login.jsp").forward(request, response);
             return;
         }
 
+        // --- BƯỚC 2: KIỂM TRA TRÙNG LẶP DATABASE ---
         UserDAO userdao = new UserDAO();
-        User us = userdao.checkUserExist(u);
-        User us1 = userdao.checkEmailExist(e);
-        if(us == null && us1 == null){
-            // 2. Tạo mã OTP
-            String otp = EmailUtility.getRandomOTP();
-
-            // 3. Gửi Email (Có thể mất 2-3 giây)
-            EmailUtility.sendEmail(e, otp);
-
-            // 4. Lưu thông tin tạm vào Session (Chưa lưu vào DB vội)
-            HttpSession session = request.getSession();
-            
-            // Tạo đối tượng User tạm
-            User tempUser = new User(u, p, e, fn, phone); 
-            
-            session.setAttribute("tempUser", tempUser); // Lưu user chờ kích hoạt
-            session.setAttribute("otp", otp);           // Lưu mã OTP chuẩn
-            session.setAttribute("otpCreationTime", System.currentTimeMillis()); // Lưu thời gian để check hết hạn
-
-            // 5. Chuyển hướng sang trang Nhập mã xác thực
-            response.sendRedirect("view/verify-otp.jsp");
+        
+        // 2.1 Kiểm tra trùng Username
+        User existingUser = userdao.checkUserExist(u);
+        if (existingUser != null) {
+            request.setAttribute("mess", "Tên đăng nhập đã được sử dụng!");
+            request.setAttribute("activeTab", "register");
+            request.getRequestDispatcher("view/Login.jsp").forward(request, response);
+            return; 
         }
-        else{
-            if(us != null){
-                request.setAttribute("mess", "Tên đăng nhập đã tồn tại");
-                request.getRequestDispatcher("view/Register.jsp").forward(request, response);
-            }
-            else{
-                request.setAttribute("mess", "Email đã tồn tại");
-                request.getRequestDispatcher("view/Register.jsp").forward(request, response);
-            }
+        
+        // 2.2 Kiểm tra trùng Email
+        User existingEmail = userdao.checkEmailExist(e);
+        if (existingEmail != null) {
+            request.setAttribute("mess", "Email này đã được đăng ký cho một tài khoản khác!");
+            request.setAttribute("activeTab", "register");
+            request.getRequestDispatcher("view/Login.jsp").forward(request, response);
+            return; 
         }
 
+        // --- BƯỚC 3: TẠO VÀ GỬI OTP KHI MỌI THỨ HỢP LỆ ---
+        String otp = EmailUtility.getRandomOTP();
+
+        // Gửi Email
+        EmailUtility.sendEmail(e, otp);
+
+        // Lưu thông tin tạm vào Session 
+        HttpSession session = request.getSession();
+        
+        // 👉 ĐÃ SỬA LỖI TẠI ĐÂY: Hàm khởi tạo này có 5 tham số kiểu String (Khớp với file User.java)
+        User tempUser = new User(u, p, e, fn, phone); 
+        
+        session.setAttribute("tempUser", tempUser); 
+        session.setAttribute("otp", otp);           
+        session.setAttribute("otp_time", System.currentTimeMillis()); // Hoặc otpCreationTime tùy logic Check OTP của bạn
+
+        // Bật cờ chuyển sang bước nhập OTP (Giữ lại giao diện cũ hoặc popup của bạn)
+        request.setAttribute("showOtpStep", "true");
+        request.setAttribute("activeTab", "register");
+        request.getRequestDispatcher("view/Login.jsp").forward(request, response);
     }
 }

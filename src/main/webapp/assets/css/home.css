@@ -19,14 +19,6 @@
         max-width: 100%;
     }
 
-    /* 1. CSS CHO BANNER */
-    .top-banner img {
-        width: 100%;
-        height: auto;
-        display: block;
-        object-fit: cover;
-    }
-
     /* 2. CSS CHO HEADER */
     .main-header {
         background-color: #fff;
@@ -483,87 +475,12 @@
     border-top: 1px solid #eee; /* Đường kẻ mờ ngăn cách */
     margin-top: 5px;
 }
-    /*3. CSS CHO KHU VỰC BANNER (STYLE FAHASA)
-    ========================================= */
-
-    .banner-section {
-        margin-top: 20px; /* Cách header một đoạn */
-    }
-
-    /* --- Phần Trên (Banner to + 2 nhỏ) --- */
-    .banner-top {
-        display: flex;       /* Dàn hàng ngang */
-        gap: 10px;           /* Khoảng cách giữa cột trái và phải */
-        height: 320px;       /* Chiều cao cố định để ảnh khớp nhau */
-        margin-bottom: 10px; /* Cách hàng dưới 10px */
-    }
-
-    /* Cột Trái (68% chiều rộng) */
-    .banner-left {
-        flex: 2.1;           /* Chiếm phần lớn diện tích */
-        border-radius: 8px;
-        overflow: hidden;    /* Bo góc ảnh */
-    }
-
-    .banner-left img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;   /* Ảnh tự co giãn không bị méo */
-        display: block;
-    }
-
-    /* Cột Phải (32% chiều rộng) */
-    .banner-right {
-        flex: 0.9;           /* Chiếm phần nhỏ hơn */
-        display: flex;
-        flex-direction: column; /* Xếp dọc 2 ảnh */
-        gap: 10px;           /* Khoảng cách giữa 2 ảnh dọc */
-    }
-
-    .banner-right img {
-        width: 100%;
-        height: calc(50% - 5px); /* Mỗi ảnh cao 50% trừ đi khoảng cách gap */
-        object-fit: cover;
-        border-radius: 8px;
-        display: block;
-    }
-
-    /* --- Phần Dưới (4 Banner nhỏ) --- */
-    .banner-bottom {
-        display: flex;
-        gap: 10px;
-        justify-content: space-between; /* Dàn đều 4 ảnh ra 2 bên mép */
-    }
-
-    /* THÊM MỚI: Định hình kích thước cho thẻ a (Flex Item) */
-    .banner-bottom a {
-        flex: 1; /* Ép 4 thẻ a tự động chia đều nhau 100% chiều ngang */
-        display: block;
-    }
-
-    /* SỬA LẠI: Ảnh bung 100% theo chiều rộng của thẻ a */
-    .banner-bottom a img {
-        width: 100%;          
-        height: auto;
-        border-radius: 8px;
-        object-fit: cover;
-        display: block;
-        transition: transform 0.3s ease; 
-    }
-
-    /* Hiệu ứng hover nhẹ cho đẹp */
-    .banner-left img:hover, 
-    .banner-right img:hover, 
-    .banner-bottom img:hover {
-        opacity: 0.9;
-        cursor: pointer;
-    }
 
     /* Container chứa danh sách sách */
     .book-list {
         display: grid;
-        grid-template-columns: repeat(5, 1fr); /* 5 cột đều nhau */
-        gap: 20px; /* Khoảng cách giữa các ô */
+        grid-template-columns: repeat(5, 1fr); 
+        gap: 20px; 
         margin-top: 20px;
     }
 

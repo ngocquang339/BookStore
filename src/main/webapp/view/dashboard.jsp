@@ -17,19 +17,30 @@
     <div class="container-fluid mt-4 px-4">
         
         <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
-            <a href="${pageContext.request.contextPath}/home" class="btn btn-dark fw-bold d-flex align-items-center gap-2">
-                <i class="fa-solid fa-house"></i> Back to Shop
+            <a href="${pageContext.request.contextPath}/staff-dashboard" class="btn btn-dark fw-bold d-flex align-items-center gap-2">
+                <i class="fa-solid fa-house"></i> Back to Dashboard
             </a>
             <h2 class="text-primary m-0 fw-bold">BẢNG QUẢN LÝ ĐƠN HÀNG (SALE STAFF)</h2>
             <div style="width: 140px;"></div> 
         </div>
         
         <div class="row mb-3">
-            <div class="col-md-4">
-                <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Nhập SĐT khách cần hỗ trợ...">
-                    <button class="btn btn-primary"><i class="fa-solid fa-search"></i> Tìm kiếm</button>
-                </div>
+            <div class="col-md-5">
+                <form action="${pageContext.request.contextPath}/orders-management" method="GET" class="input-group shadow-sm">
+                    <input type="hidden" name="status" value="${currentStatus}">
+                    <input type="hidden" name="sortBy" value="${currentSortBy}">
+                    <input type="hidden" name="sortOrder" value="${currentSortOrder}">
+                    
+                    <input type="text" name="searchQuery" value="${currentSearch}" class="form-control border-primary" placeholder="Nhập tên hoặc SĐT khách hàng...">
+                    
+                    <button type="submit" class="btn btn-primary fw-bold"><i class="fa-solid fa-search"></i> Tìm kiếm</button>
+                    
+                    <c:if test="${not empty currentSearch}">
+                        <a href="${pageContext.request.contextPath}/orders-management?status=${currentStatus}" class="btn btn-outline-danger fw-bold" title="Xóa tìm kiếm">
+                            <i class="fa-solid fa-xmark"></i>
+                        </a>
+                    </c:if>
+                </form>
             </div>
         </div>
 
@@ -41,7 +52,7 @@
                         
                         <c:set var="nextDateOrder" value="${currentSortBy == 'date' && currentSortOrder == 'desc' ? 'asc' : 'desc'}" />
                         <th style="cursor: pointer; width: 12%;">
-                            <a href="?status=${currentStatus}&sortBy=date&sortOrder=${nextDateOrder}" class="text-white text-decoration-none d-flex justify-content-center align-items-center gap-1">
+                            <a href="?status=${currentStatus}&sortBy=date&sortOrder=${nextDateOrder}&searchQuery=${currentSearch}" class="text-white text-decoration-none d-flex justify-content-center align-items-center gap-1">
                                 Ngày đặt
                                 <c:choose>
                                     <c:when test="${currentSortBy == 'date' && currentSortOrder == 'asc'}"><i class="fa-solid fa-sort-up text-warning"></i></c:when>
@@ -53,7 +64,7 @@
                         
                         <c:set var="nextNameOrder" value="${currentSortBy == 'name' && currentSortOrder == 'desc' ? 'asc' : 'desc'}" />
                         <th style="cursor: pointer; width: 13%;">
-                            <a href="?status=${currentStatus}&sortBy=name&sortOrder=${nextNameOrder}" class="text-white text-decoration-none d-flex justify-content-center align-items-center gap-1">
+                            <a href="?status=${currentStatus}&sortBy=name&sortOrder=${nextNameOrder}&searchQuery=${currentSearch}" class="text-white text-decoration-none d-flex justify-content-center align-items-center gap-1">
                                 Khách hàng
                                 <c:choose>
                                     <c:when test="${currentSortBy == 'name' && currentSortOrder == 'asc'}"><i class="fa-solid fa-sort-up text-warning"></i></c:when>
@@ -68,7 +79,7 @@
                         
                         <c:set var="nextTotalOrder" value="${currentSortBy == 'total' && currentSortOrder == 'desc' ? 'asc' : 'desc'}" />
                         <th style="cursor: pointer; width: 12%;">
-                            <a href="?status=${currentStatus}&sortBy=total&sortOrder=${nextTotalOrder}" class="text-white text-decoration-none d-flex justify-content-center align-items-center gap-1">
+                            <a href="?status=${currentStatus}&sortBy=total&sortOrder=${nextTotalOrder}&searchQuery=${currentSearch}" class="text-white text-decoration-none d-flex justify-content-center align-items-center gap-1">
                                 Tổng tiền
                                 <c:choose>
                                     <c:when test="${currentSortBy == 'total' && currentSortOrder == 'asc'}"><i class="fa-solid fa-sort-up text-warning"></i></c:when>
@@ -84,8 +95,10 @@
                 </thead>
                 <tbody>
                     <c:forEach items="${orders}" var="o" varStatus="loop">
-                        <tr>
-                            <td class="text-center fw-bold">${loop.index + 1}</td>
+    <tr>
+        <c:set var="safePage" value="${empty currentPage ? 1 : currentPage}" />
+        
+        <td class="text-center fw-bold">${(safePage - 1) * 10 + loop.index + 1}</td>
 
                             <td class="text-center text-muted">
                                 <fmt:formatDate value="${o.orderDate}" pattern="dd/MM/yyyy HH:mm"/>
@@ -107,16 +120,25 @@
                             <td class="text-center">
                                 <c:choose>
                                     <c:when test="${o.status == 1}">
-                                        <span class="badge bg-warning text-dark px-2 py-2" style="width: 90px;">Chờ xử lý</span>
+                                        <span class="badge bg-secondary px-2 py-2" style="width: 130px;">Chờ xử lý</span>
                                     </c:when>
                                     <c:when test="${o.status == 2}">
-                                        <span class="badge bg-primary px-2 py-2" style="width: 90px;">Đang giao</span>
+                                        <span class="badge px-2 py-2" 
+                                            style="background:#8b5cf6; color:white; width:130px;">
+                                            Đang chuẩn bị hàng
+                                        </span>
                                     </c:when>
                                     <c:when test="${o.status == 3}">
-                                        <span class="badge bg-success px-2 py-2" style="width: 90px;">Hoàn thành</span>
+                                        <span class="badge bg-primary px-2 py-2" style="width: 130px;">Đã đóng gói</span>
                                     </c:when>
                                     <c:when test="${o.status == 4}">
-                                        <span class="badge bg-danger px-2 py-2" style="width: 90px;">Đã hủy</span>
+                                        <span class="badge bg-primary px-2 py-2" style="width: 130px;">Đang giao</span>
+                                    </c:when>
+                                    <c:when test="${o.status == 5}">
+                                        <span class="badge bg-success px-2 py-2" style="width: 130px;">Đã giao</span>
+                                    </c:when>
+                                    <c:when test="${o.status == 6}">
+                                        <span class="badge bg-danger px-2 py-2" style="width: 130px;">Đã hủy</span>
                                     </c:when>
                                 </c:choose>
                             </td>
@@ -137,13 +159,28 @@
                     <c:if test="${empty orders}">
                         <tr>
                             <td colspan="8" class="text-center py-4 text-muted">
-                                Không có đơn hàng nào để hiển thị.
+                                Không có đơn hàng nào phù hợp với tìm kiếm của bạn.
                             </td>
                         </tr>
                     </c:if>
                 </tbody>
             </table>
         </div>
+
+        <c:if test="${endPage > 1}">
+            <nav aria-label="Page navigation" class="mt-4 mb-2">
+                <ul class="pagination justify-content-center shadow-sm">
+                    <c:forEach begin="1" end="${endPage}" var="i">
+                        <li class="page-item ${currentPage == i ? 'active' : ''}">
+                            <a class="page-link fw-bold" href="?status=${currentStatus}&sortBy=${currentSortBy}&sortOrder=${currentSortOrder}&searchQuery=${currentSearch}&page=${i}">
+                                ${i}
+                            </a>
+                        </li>
+                    </c:forEach>
+                </ul>
+            </nav>
+        </c:if>
+
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

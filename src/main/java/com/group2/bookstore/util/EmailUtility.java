@@ -23,7 +23,7 @@ public class EmailUtility {
         props.put("mail.smtp.starttls.enable", "true"); // Enable TLS
 
         // 2. Tài khoản Gmail của bạn (Người gửi)
-        final String fromEmail = "quangakashi@gmail.com"; 
+        final String fromEmail = "quangakashi@gmail.com";
         final String password = "gkjy pimg ynqr ogur"; // KHÔNG PHẢI PASS ĐĂNG NHẬP
 
         // 3. Tạo phiên làm việc (Session)
@@ -51,6 +51,32 @@ public class EmailUtility {
         }
     }
 
+    public static void sendMarketingEmail(String toEmail, String subject, String body) throws MessagingException {
+        Properties props = new Properties();
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.port", "587");
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+
+        final String fromEmail = "quangakashi@gmail.com";
+        final String password = "gkjy pimg ynqr ogur";
+
+        Session session = Session.getInstance(props, new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(fromEmail, password);
+            }
+        });
+
+        Message msg = new MimeMessage(session);
+        msg.setFrom(new InternetAddress(fromEmail));
+        msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
+        msg.setSubject(subject);
+        msg.setText(body);
+
+        Transport.send(msg);
+    }
+
     // Hàm sinh mã OTP ngẫu nhiên 6 số
     public static String getRandomOTP() {
         Random rnd = new Random();
@@ -59,18 +85,17 @@ public class EmailUtility {
     }
 
     // ... keep your existing sendEmail and getRandomOTP methods ...
-
     // Thêm hàm mới: Gửi email từ chối trả hàng
     public static void sendRejectionEmail(String toEmail, String rejectionReason) {
         Properties props = new Properties();
-        props.put("mail.smtp.host", "smtp.gmail.com"); 
-        props.put("mail.smtp.port", "587"); 
-        props.put("mail.smtp.auth", "true"); 
-        props.put("mail.smtp.starttls.enable", "true"); 
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.port", "587");
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
 
         // Sử dụng lại tài khoản của bạn
-        final String fromEmail = "quangakashi@gmail.com"; 
-        final String password = "gkjy pimg ynqr ogur"; 
+        final String fromEmail = "quangakashi@gmail.com";
+        final String password = "gkjy pimg ynqr ogur";
 
         Session session = Session.getInstance(props, new Authenticator() {
             @Override
@@ -81,9 +106,9 @@ public class EmailUtility {
 
         try {
             Message msg = new MimeMessage(session);
-            
+
             // Bạn có thể đổi "BookStore Support" thành tên nhóm của bạn
-            msg.setFrom(new InternetAddress(fromEmail, "BookStore Support")); 
+            msg.setFrom(new InternetAddress(fromEmail, "BookStore Support"));
             msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
             msg.setSubject("Thông báo về yêu cầu trả hàng của bạn - BookStore");
 
@@ -115,12 +140,12 @@ public class EmailUtility {
     // Thêm hàm mới: Gửi email chấp nhận trả hàng (Đổi trả)
     public static void sendReplacementApprovalEmail(String toEmail, String adminNote) {
         Properties props = new Properties();
-        props.put("mail.smtp.host", "smtp.gmail.com"); 
-        props.put("mail.smtp.port", "587"); 
-        props.put("mail.smtp.auth", "true"); 
-        props.put("mail.smtp.starttls.enable", "true"); 
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.port", "587");
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
 
-        final String fromEmail = "quangakashi@gmail.com"; 
+        final String fromEmail = "quangakashi@gmail.com";
         final String password = "gkjy pimg ynqr ogur"; // Nhớ đổi mật khẩu này sau nhé!
 
         Session session = Session.getInstance(props, new Authenticator() {
@@ -132,7 +157,7 @@ public class EmailUtility {
 
         try {
             Message msg = new MimeMessage(session);
-            msg.setFrom(new InternetAddress(fromEmail, "BookStore Support")); 
+            msg.setFrom(new InternetAddress(fromEmail, "BookStore Support"));
             msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
             msg.setSubject("Yêu cầu trả hàng của bạn đã được phê duyệt! - BookStore");
 
@@ -164,12 +189,12 @@ public class EmailUtility {
     // Thêm hàm mới: Gửi email Yêu Cầu Hành Động (Status 2)
     public static void sendActionRequiredEmail(String toEmail, String adminNote) {
         Properties props = new Properties();
-        props.put("mail.smtp.host", "smtp.gmail.com"); 
-        props.put("mail.smtp.port", "587"); 
-        props.put("mail.smtp.auth", "true"); 
-        props.put("mail.smtp.starttls.enable", "true"); 
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.port", "587");
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
 
-        final String fromEmail = "quangakashi@gmail.com"; 
+        final String fromEmail = "quangakashi@gmail.com";
         final String password = "gkjy pimg ynqr ogur"; // Update this with your new app password
 
         Session session = Session.getInstance(props, new Authenticator() {
@@ -181,7 +206,7 @@ public class EmailUtility {
 
         try {
             Message msg = new MimeMessage(session);
-            msg.setFrom(new InternetAddress(fromEmail, "BookStore Support")); 
+            msg.setFrom(new InternetAddress(fromEmail, "BookStore Support"));
             msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
             msg.setSubject("Cần thêm thông tin cho yêu cầu trả hàng của bạn - BookStore");
 
@@ -212,12 +237,12 @@ public class EmailUtility {
     // Thêm hàm mới: Gửi email Hoàn Tiền Thành Công (Status 5 & 7)
     public static void sendRefundSuccessEmail(String toEmail, double refundAmount, boolean customerKeepsItem, String adminNote) {
         Properties props = new Properties();
-        props.put("mail.smtp.host", "smtp.gmail.com"); 
-        props.put("mail.smtp.port", "587"); 
-        props.put("mail.smtp.auth", "true"); 
-        props.put("mail.smtp.starttls.enable", "true"); 
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.port", "587");
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
 
-        final String fromEmail = "quangakashi@gmail.com"; 
+        final String fromEmail = "quangakashi@gmail.com";
         final String password = "gkjy pimg ynqr ogur"; // Update this with your App Password
 
         Session session = Session.getInstance(props, new Authenticator() {
@@ -229,18 +254,18 @@ public class EmailUtility {
 
         try {
             Message msg = new MimeMessage(session);
-            msg.setFrom(new InternetAddress(fromEmail, "BookStore Support")); 
+            msg.setFrom(new InternetAddress(fromEmail, "BookStore Support"));
             msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
             msg.setSubject("Hoàn tiền thành công cho yêu cầu trả hàng của bạn - BookStore");
 
             // Format số tiền (VD: 150000 -> 150,000đ)
             java.text.NumberFormat formatter = new java.text.DecimalFormat("#,###");
             String formattedAmount = formatter.format(refundAmount) + "đ";
-            
+
             // Xử lý thông báo về việc giữ lại hàng (Status 7 vs 5)
-            String itemInstruction = customerKeepsItem 
-                ? "<p style='color: #856404; background-color: #fff3cd; padding: 10px; border-radius: 4px;'><strong>Lưu ý:</strong> Bạn không cần phải gửi trả lại sản phẩm này. Hãy giữ lại hoặc xử lý theo ý muốn nhé.</p>" 
-                : "<p>Chúng tôi đã nhận được sản phẩm hoàn trả tại kho và hoàn tất thủ tục.</p>";
+            String itemInstruction = customerKeepsItem
+                    ? "<p style='color: #856404; background-color: #fff3cd; padding: 10px; border-radius: 4px;'><strong>Lưu ý:</strong> Bạn không cần phải gửi trả lại sản phẩm này. Hãy giữ lại hoặc xử lý theo ý muốn nhé.</p>"
+                    : "<p>Chúng tôi đã nhận được sản phẩm hoàn trả tại kho và hoàn tất thủ tục.</p>";
 
             // Tạo nội dung HTML chuyên nghiệp (Màu xanh ngọc cho giao dịch tiền tệ)
             String htmlContent = "<div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto;'>"
@@ -264,6 +289,57 @@ public class EmailUtility {
 
         } catch (Exception e) {
             System.out.println("Lỗi khi gửi mail 'Refund Success' tới: " + toEmail);
+            e.printStackTrace();
+        }
+    }
+
+    public static void sendStoreCreditEmail(String toEmail, double amount, String voucherCode, boolean customerKeepsItem, String note) {
+        // 1. SETUP SENDER CREDENTIALS (Use your real email and an APP PASSWORD, not your real password)
+        final String fromEmail = "quangakashi@gmail.com";
+        final String password = "gkjy pimg ynqr ogur";
+        // 2. CONFIGURE SMTP SERVER SETTINGS (Gmail)
+        Properties props = new Properties();
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.port", "587");
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+
+        // 3. CREATE A MAIL SESSION
+        Session session = Session.getInstance(props, new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(fromEmail, password);
+            }
+        });
+
+        try {
+            // 4. PREPARE THE EMAIL CONTENT
+            String subject = "Your Store Credit Voucher is Here!";
+            String itemStatus = customerKeepsItem ? "You may keep the original item." : "We have successfully received the returned item.";
+
+            String body = "<h3>Your Return has been Processed!</h3>"
+                    + "<p>" + itemStatus + "</p>"
+                    + "<p>As requested, we have issued your refund as Store Credit. You can use this code on your next purchase:</p>"
+                    + "<div style='background-color: #f8f9fa; padding: 15px; border: 2px dashed #C92127; text-align: center; font-size: 20px; font-weight: bold; margin: 20px 0;'>"
+                    + voucherCode
+                    + "</div>"
+                    + "<p><strong>Amount:</strong> " + String.format("%,.0f", amount) + "đ</p>"
+                    + "<p><strong>Expiration:</strong> 90 Days from today.</p>"
+                    + "<p>Note from Admin: " + (note != null && !note.isEmpty() ? note : "None") + "</p>"
+                    + "<p>This voucher has been automatically saved to your account wallet!</p>";
+
+            // 5. ASSEMBLE AND SEND THE MESSAGE
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(fromEmail));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
+            message.setSubject(subject);
+            message.setContent(body, "text/html; charset=UTF-8"); // Force HTML format
+
+            Transport.send(message);
+            System.out.println("[EMAIL SYSTEM] Store Credit email sent successfully to: " + toEmail);
+
+        } catch (Exception e) {
+            System.out.println("[EMAIL ERROR] Failed to send email to: " + toEmail);
             e.printStackTrace();
         }
     }

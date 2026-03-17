@@ -109,7 +109,7 @@
                                     <tr>
                                         <td class="text-center fw-bold text-muted">${b.id}</td>
                                         <td class="text-center">
-                                            <img src="${pageContext.request.contextPath}/assets/image/books/${b.imageUrl}"
+                                            <img src="${pageContext.request.contextPath}/${b.imageUrl}"
                                                 alt="book" style="width: 45px; height: 65px; object-fit: cover;"
                                                 onerror="this.src='https://placehold.co/45x65?text=Img'">
                                         </td>
