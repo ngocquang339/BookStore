@@ -33,151 +33,120 @@
                         <c:remove var="successMessage" scope="session" />
                     </c:if>
 
-                    <div class="card shadow-sm border-0">
-                        <div class="card-body p-0">
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
-                                    <thead class="table-light">
-                                        <tr class="text-uppercase text-muted" style="font-size: 13px;">
-                                            <th>Mã Ticket</th>
-                                            <th>User ID</th>
-                                            <th>Vấn đề</th>
-                                            <th>Tiêu đề</th>
-                                            <th>Ngày tạo</th>
-                                            <th>Trạng thái</th>
-                                            <th class="text-end">Hành động</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <c:forEach items="${listTickets}" var="ticket">
-                                            <tr>
-                                                <td class="fw-bold">
-                                                    <span
-                                                        class="badge bg-light text-secondary border border-secondary-subtle font-monospace px-2 py-1">
-                                                        TK-
-                                                        <fmt:formatNumber value="${ticket.ticketId}" pattern="00000" />
-                                                    </span>
-                                                </td>
-                                                <td>${ticket.userId}</td>
-                                                <td><span class="badge bg-secondary">${ticket.issueType}</span></td>
-                                                <td class="fw-bold"
-                                                    style="max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                                    ${ticket.ticketSubject}
-                                                </td>
-                                                <td>
-                                                    <fmt:formatDate value="${ticket.createdAt}"
-                                                        pattern="dd/MM/yyyy HH:mm" />
-                                                </td>
-                                                <td>
-                                                    <c:choose>
-                                                        <c:when test="${ticket.status == 'Pending'}">
-                                                            <span class="badge bg-warning text-dark"><i
-                                                                    class="fa-regular fa-clock me-1"></i>Chờ xử
-                                                                lý</span>
-                                                        </c:when>
-                                                        <c:when test="${ticket.status == 'Processing'}">
-                                                            <span class="badge bg-primary"><i
-                                                                    class="fa-solid fa-gear fa-spin me-1"></i>Đang xử
-                                                                lý</span>
-                                                        </c:when>
-                                                        <c:when test="${ticket.status == 'Resolved'}">
-                                                            <span class="badge bg-success"><i
-                                                                    class="fa-solid fa-check me-1"></i>Đã giải
-                                                                quyết</span>
-                                                        </c:when>
-                                                    </c:choose>
-                                                </td>
-                                                <td class="text-end">
-                                                    <button type="button" class="btn btn-sm btn-outline-danger fw-bold"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#replyModal${ticket.ticketId}">
-                                                        Xử lý / Trả lời
-                                                    </button>
-                                                </td>
-                                            </tr>
+                    <ul class="nav nav-tabs mb-4" id="staffTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active fw-bold text-danger" id="ticket-tab" data-bs-toggle="tab"
+                                data-bs-target="#ticket-pane" type="button" role="tab">
+                                <i class="fa-solid fa-comments me-1"></i> Quản lý Khiếu nại
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link fw-bold text-warning" id="return-tab" data-bs-toggle="tab"
+                                data-bs-target="#return-pane" type="button" role="tab">
+                                <i class="fa-solid fa-box-open me-1"></i> Duyệt Yêu cầu Trả hàng
+                            </button>
+                        </li>
+                    </ul>
 
-                                            <div class="modal fade" id="replyModal${ticket.ticketId}" tabindex="-1"
-                                                aria-hidden="true">
-                                                <div class="modal-dialog modal-lg">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header bg-danger text-white">
-                                                            <h5 class="modal-title">
-                                                                <i class="fa-solid fa-reply me-2"></i>Phản hồi Ticket
-                                                                <span class="text-warning">TK-
-                                                                    <fmt:formatNumber value="${ticket.ticketId}"
-                                                                        pattern="00000" />
-                                                                </span>
-                                                            </h5>
-                                                            <button type="button" class="btn-close btn-close-white"
-                                                                data-bs-dismiss="modal" aria-label="Close"></button>
-                                                        </div>
+                    <div class="tab-content" id="staffTabContent">
 
-                                                        <form action="${pageContext.request.contextPath}/staff/tickets"
-                                                            method="POST">
-                                                            <div class="modal-body">
-                                                                <input type="hidden" name="ticketId"
-                                                                    value="${ticket.ticketId}">
-                                                                <input type="hidden" name="userId"
-                                                                    value="${ticket.userId}">
-
-                                                                <div class="mb-3 p-3 bg-light rounded border">
-                                                                    <label class="fw-bold text-danger small mb-1">
-                                                                        Phân loại: ${ticket.issueType}
-                                                                    </label>
-                                                                    <p class="mb-0 text-dark fw-bold">Tiêu đề:
-                                                                        ${ticket.ticketSubject}</p>
-                                                                    <p class="mb-0 text-muted mt-2">Nội dung chi tiết
-                                                                        (Lý do): <br> ${ticket.ticketMessage}</p>
-                                                                </div>
-
-                                                                <div class="mb-3">
-                                                                    <label class="form-label fw-bold">Set Trạng thái
-                                                                        mới:</label>
-                                                                    <select name="status"
-                                                                        class="form-select border-danger">
-                                                                        <option value="Pending"
-                                                                            ${ticket.status=='Pending' ? 'selected' : ''
-                                                                            }>⏳ Chờ xử lý (Pending)</option>
-                                                                        <option value="Processing"
-                                                                            ${ticket.status=='Processing' ? 'selected'
-                                                                            : '' }>⚙️ Đang xử lý (Processing)</option>
-                                                                        <option value="Resolved"
-                                                                            ${ticket.status=='Resolved' ? 'selected'
-                                                                            : '' }>✅ Đã giải quyết (Resolved)</option>
-                                                                    </select>
-                                                                </div>
-                                                                <div class="mb-3">
-                                                                    <label class="form-label fw-bold">Lời nhắn phản
-                                                                        hồi(Sẽ gửi thông báo cho User):</label>
-                                                                    <textarea name="adminReply" class="form-control"
-                                                                        rows="4"
-                                                                        placeholder="Chào bạn, hệ thống đã ghi nhận lý do trả hàng và đang tiến hành..."
-                                                                        required>${ticket.adminReply}</textarea>
-                                                                </div>
-                                                            </div>
-                                                            <div class="modal-footer bg-light">
-                                                                <button type="button" class="btn btn-secondary"
-                                                                    data-bs-dismiss="modal">Đóng</button>
-                                                                <button type="submit" class="btn btn-danger">
-                                                                    <i class="fa-solid fa-paper-plane me-2"></i>Lưu &
-                                                                    Bắn thông báo
-                                                                </button>
-                                                            </div>
-                                                        </form>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </c:forEach>
-                                        <c:if test="${empty listTickets}">
-                                            <tr>
-                                                <td colspan="7" class="text-center text-muted py-4">Chưa có khiếu nại
-                                                    nào trong hệ thống.</td>
-                                            </tr>
-                                        </c:if>
-                                    </tbody>
-                                </table>
+                        <div class="tab-pane fade show active" id="ticket-pane" role="tabpanel" tabindex="0">
+                            <div class="card shadow-sm border-0">
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover align-middle mb-0">
+                                            <thead class="table-light">
+                                                <tr class="text-uppercase text-muted" style="font-size: 13px;">
+                                                    <th>Mã Ticket</th>
+                                                    <th>User ID</th>
+                                                    <th>Vấn đề</th>
+                                                    <th>Tiêu đề</th>
+                                                    <th>Ngày tạo</th>
+                                                    <th>Trạng thái</th>
+                                                    <th class="text-end">Hành động</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <c:forEach items="${listTickets}" var="ticket"> </c:forEach>
+                                                <c:if test="${empty listTickets}">
+                                                    <tr>
+                                                        <td colspan="7" class="text-center text-muted py-4">Chưa có
+                                                            khiếu nại nào trong hệ thống.</td>
+                                                    </tr>
+                                                </c:if>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+
+                        <div class="tab-pane fade" id="return-pane" role="tabpanel" tabindex="0">
+                            <div class="card shadow-sm border-0">
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover align-middle mb-0">
+                                            <thead class="table-light">
+                                                <tr class="text-uppercase text-muted" style="font-size: 13px;">
+                                                    <th>Mã Đơn Hàng</th>
+                                                    <th>User ID</th>
+                                                    <th>Ngày Yêu Cầu</th>
+                                                    <th>Tổng Tiền</th>
+                                                    <th>Trạng thái</th>
+                                                    <th class="text-end">Hành động</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <c:forEach items="${listReturnOrders}" var="order">
+                                                    <tr>
+                                                        <td class="fw-bold"><span
+                                                                class="badge bg-light text-secondary border border-secondary-subtle font-monospace px-2 py-1">OD-${order.id}</span>
+                                                        </td>
+                                                        <td>${order.userId}</td>
+                                                        <td>
+                                                            <fmt:formatDate value="${order.orderDate}"
+                                                                pattern="dd/MM/yyyy HH:mm" />
+                                                        </td>
+                                                        <td class="text-danger fw-bold">
+                                                            <fmt:formatNumber value="${order.totalAmount}"
+                                                                type="currency" currencySymbol="₫" />
+                                                        </td>
+                                                        <td><span class="badge bg-warning text-dark"><i
+                                                                    class="fa-solid fa-hourglass-half me-1"></i>Chờ
+                                                                duyệt trả hàng</span></td>
+                                                        <td class="text-end">
+                                                            <form
+                                                                action="${pageContext.request.contextPath}/staff/tickets"
+                                                                method="POST" style="margin: 0;">
+                                                                <input type="hidden" name="action"
+                                                                    value="approve_return">
+                                                                <input type="hidden" name="orderId" value="${order.id}">
+                                                                <input type="hidden" name="userId"
+                                                                    value="${order.userId}">
+
+                                                                <button type="submit"
+                                                                    class="btn btn-sm btn-success fw-bold"
+                                                                    onclick="return confirm('Xác nhận hoàn tiền và chuyển trạng thái đơn hàng #${order.id} thành Đã Hoàn Tiền?');">
+                                                                    <i class="fa-solid fa-check me-1"></i> Chấp nhận &
+                                                                    Hoàn tiền
+                                                                </button>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                </c:forEach>
+                                                <c:if test="${empty listReturnOrders}">
+                                                    <tr>
+                                                        <td colspan="6" class="text-center text-muted py-4">Không có yêu
+                                                            cầu trả hàng nào cần duyệt.</td>
+                                                    </tr>
+                                                </c:if>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
                 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
