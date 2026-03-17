@@ -81,9 +81,9 @@ public class OrderDAO extends DBContext {
                 o.setTotalAmount(rs.getDouble("total_amount"));
                 o.setStatus(rs.getInt("status"));
                 o.setShippingAddress(rs.getString("shipping_address"));
-                o.setPhoneNumber(rs.getString("phone_number"));
+                o.setPhoneNumber(rs.getString("phone_number")); 
                 o.setStaffNote(rs.getString("status_note")); // Lộc thêm
-
+                
                 // ==============================================================
                 // [MỚI THÊM] - Lấy thông tin Voucher và số tiền giảm giá
                 // ==============================================================
@@ -319,8 +319,7 @@ public class OrderDAO extends DBContext {
     // 3. LẤY ĐƠN HÀNG THEO TRẠNG THÁI (PHIÊN BẢN 3 THAM SỐ CỦA BẠN)
     // =========================================================================
     public List<Order> getOrdersByStatus(int status, String sortBy, String sortOrder) {
-        // Gọi thẳng vào hàm 4 tham số bên dưới bằng cách truyền searchQuery rỗng để tái
-        // sử dụng code
+        // Gọi thẳng vào hàm 4 tham số bên dưới bằng cách truyền searchQuery rỗng để tái sử dụng code
         return getOrdersByStatus(status, sortBy, sortOrder, "");
     }
 
@@ -398,7 +397,7 @@ public class OrderDAO extends DBContext {
                     return false;
                 }
             }
-
+            
             if (currentStatus == 6) {
                 System.out.println("LỖI: Đơn hàng " + orderId + " đã bị hủy trước đó!");
                 return false;

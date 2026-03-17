@@ -43,8 +43,8 @@ public class LoginServlet extends HttpServlet {
         String p = request.getParameter("password");
 
         // 1. Kiểm tra đầu vào rỗng
-        if (u == null || u.trim().isEmpty() || p == null || p.trim().isEmpty()) {
-            request.setAttribute("mess", "Không được để trống thông tin!");
+        if (u == null || u.trim().isEmpty() || p == null || p.trim().isEmpty() || u.contains(" ") || p.contains(" ") || u.length() < 1  || u.length() > 50|| p.length() < 3 || p.length() > 50) {
+            request.setAttribute("mess", "Thông tin không hợp lệ!");
             request.getRequestDispatcher("view/Login.jsp").forward(request, response);
             return;
         }
@@ -56,9 +56,11 @@ public class LoginServlet extends HttpServlet {
         if (account == null) {
             // Đăng nhập thất bại
             request.setAttribute("mess", "Thông tin đăng nhập không chính xác!");
+            System.out.println("===> DEBUG: Sai tài khoản hoặc mật khẩu!");
             request.getRequestDispatcher("view/Login.jsp").forward(request, response);
         } else {
-            if (account.getStatus() == 0) { // Giả sử 0 là trạng thái bị khóa
+            System.out.println("===> DEBUG: Đăng nhập thành công! Role của người này là: " + account.getRole());
+            if (account.getStatus() == 0) { 
                 request.setAttribute("mess", "Tài khoản của bạn đã bị khóa! Vui lòng liên hệ Admin để được hỗ trợ.");
                 request.getRequestDispatcher("view/Login.jsp").forward(request, response);
                 return; // Lập tức dừng hàm, đuổi ra ngoài không cho chạy tiếp xuống dưới

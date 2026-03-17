@@ -18,7 +18,9 @@ public class MyCommentsServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+        request.setCharacterEncoding("UTF-8");
+        response.setContentType("text/html;charset=UTF-8");
+
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
         if (user == null) {

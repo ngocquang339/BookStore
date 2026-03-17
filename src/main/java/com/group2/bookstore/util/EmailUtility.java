@@ -44,6 +44,32 @@ public class EmailUtility {
         }
     }
 
+    public static void sendMarketingEmail(String toEmail, String subject, String body) throws MessagingException {
+        Properties props = new Properties();
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.port", "587");
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+
+        final String fromEmail = "quangakashi@gmail.com";
+        final String password = "gkjy pimg ynqr ogur";
+
+        Session session = Session.getInstance(props, new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(fromEmail, password);
+            }
+        });
+
+        Message msg = new MimeMessage(session);
+        msg.setFrom(new InternetAddress(fromEmail));
+        msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
+        msg.setSubject(subject);
+        msg.setText(body);
+
+        Transport.send(msg);
+    }
+
     // Hàm sinh mã OTP ngẫu nhiên 6 số
     public static String getRandomOTP() {
         Random rnd = new Random();

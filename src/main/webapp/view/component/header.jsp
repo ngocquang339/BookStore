@@ -200,6 +200,10 @@
                 background: transparent;
                 /* Tàng hình (trong suốt) */
             }
+            /* Ép cụm Tài khoản tụt xuống một chút để thẳng hàng với Thông báo và Giỏ hàng */
+        header.main-header .icon-item.user-account {
+            transform: translateY(4px) !important; /* Bạn có thể tăng/giảm con số 3px này để căn cho chuẩn nhất với mắt bạn nhé */
+        }
         </style>
 
 
@@ -391,19 +395,6 @@
                             <a href="${pageContext.request.contextPath}/change-password" class="dropdown-item py-2">
                                 <i class="fa-solid fa-key text-secondary me-2" style="width: 20px; text-align: center;"></i> Đổi mật khẩu
                             </a>
-
-                            <c:if test="${sessionScope.user.role == 3}">
-                                <hr class="dropdown-divider my-2">
-                                <h6 class="dropdown-header text-uppercase fw-bold text-primary px-3" style="font-size: 0.75rem; letter-spacing: 0.5px;">
-                                    <i class="fa-solid fa-briefcase me-1"></i> Nghiệp vụ Sale
-                                </h6>
-                                <a href="${pageContext.request.contextPath}/staff/customers" class="dropdown-item py-2 fw-bold" style="color: #0d6efd;">
-                                    <i class="fa-solid fa-users-viewfinder me-2" style="width: 20px; text-align: center;"></i> Hỗ trợ Khách hàng
-                                </a>
-                                <a href="${pageContext.request.contextPath}/staff/reviews" class="dropdown-item py-2 fw-bold" style="color: #ffc107;">
-                                    <i class="fa-regular fa-comments me-2" style="width: 20px; text-align: center;"></i> Quản lý Đánh giá
-                                </a>
-                            </c:if>
 
                             <hr class="dropdown-divider mt-2 mb-1">
                             

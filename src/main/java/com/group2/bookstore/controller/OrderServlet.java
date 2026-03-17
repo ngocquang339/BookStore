@@ -17,13 +17,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-@WebServlet(name = "OrderServlet", urlPatterns = {"/my-orders"})
+@WebServlet(name = "OrderServlet", urlPatterns = { "/my-orders" })
 public class OrderServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-            
+
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
 
@@ -42,14 +42,28 @@ public class OrderServlet extends HttpServlet {
         // 3. GỌI DAO ĐỂ LẤY DỮ LIỆU
         OrderDAO orderDAO = new OrderDAO();
         // Gom 1 và 2 vào chung tab "Đang xử lý" của khách
-        int countProcessing = orderDAO.countOrdersByStatus(user.getId(), 1) + orderDAO.countOrdersByStatus(user.getId(), 2);
-        int countShipping = orderDAO.countOrdersByStatus(user.getId(), 3);   // [SỬA] Đang giao là 3
-        int countCompleted = orderDAO.countOrdersByStatus(user.getId(), 4);  // [SỬA] Hoàn tất là 4
-        int countCancelled = orderDAO.countOrdersByStatus(user.getId(), 5);  // [SỬA] Hủy là 5
-        
+        int countProcessing = orderDAO.countOrdersByStatus(user.getId(), 1)
+                + orderDAO.countOrdersByStatus(user.getId(), 2) + orderDAO.countOrdersByStatus(user.getId(), 3); // [SỬA]
+                                                                                                                 // Đang
+                                                                                                                 // xử
+                                                                                                                 // lý
+                                                                                                                 // là
+                                                                                                                 // 1, 2
+                                                                                                                 // và 3
+                                                                                                                 // (Chờ
+                                                                                                                 // duyệt,
+                                                                                                                 // Đã
+                                                                                                                 // duyệt,
+                                                                                                                 // Đóng
+                                                                                                                 // gói
+                                                                                                                 // xong)
+        int countShipping = orderDAO.countOrdersByStatus(user.getId(), 4); // [SỬA] Đang giao là 4
+        int countCompleted = orderDAO.countOrdersByStatus(user.getId(), 5); // [SỬA] Hoàn tất là 5
+        int countCancelled = orderDAO.countOrdersByStatus(user.getId(), 6); // [SỬA] Hủy là 6
+
         int countAll = countProcessing + countShipping + countCompleted + countCancelled;
         List<Order> listOrders = new ArrayList<>();
-        
+
         if ("all".equals(status)) {
             listOrders = orderDAO.getAllOrdersByUserId(user.getId());
         } else {
@@ -58,6 +72,9 @@ public class OrderServlet extends HttpServlet {
                 // Lấy cả 1 và 2 gộp lại cho tab Đang xử lý
                 listOrders.addAll(orderDAO.getOrdersByStatusForUser(user.getId(), 1));
                 listOrders.addAll(orderDAO.getOrdersByStatusForUser(user.getId(), 2));
+                listOrders.addAll(orderDAO.getOrdersByStatusForUser(user.getId(), 3)); // [SỬA] Thêm cả trạng thái 3 (Đã
+                                                                                       // đóng gói xong) vào tab Đang xử
+                                                                                       // lý
 
                 // THÊM ĐOẠN NÀY: Sắp xếp lại tổng thể danh sách vừa gộp (Mới nhất lên đầu)
                 java.util.Collections.sort(listOrders, new java.util.Comparator<Order>() {
@@ -69,10 +86,16 @@ public class OrderServlet extends HttpServlet {
                 });
             } else {
                 int dbStatus = -1;
-                switch (status) {    
-                    case "shipping": dbStatus = 3; break;   // [SỬA] 3
-                    case "completed": dbStatus = 4; break;  // [SỬA] 4
-                    case "cancelled": dbStatus = 5; break;  // [SỬA] 5
+                switch (status) {
+                    case "shipping":
+                        dbStatus = 4;
+                        break; // [SỬA] 4
+                    case "completed":
+                        dbStatus = 5;
+                        break; // [SỬA] 5
+                    case "cancelled":
+                        dbStatus = 6;
+                        break; // [SỬA] 6
                 }
                 listOrders = orderDAO.getOrdersByStatusForUser(user.getId(), dbStatus);
             }
@@ -82,7 +105,7 @@ public class OrderServlet extends HttpServlet {
         request.setAttribute("countShipping", countShipping);
         request.setAttribute("countCompleted", countCompleted);
         request.setAttribute("countCancelled", countCancelled);
-        
+
         request.setAttribute("listOrders", listOrders);
 
         // 4. Đẩy trạng thái hiện tại sang JSP để bôi đỏ cái Tab đang được chọn
@@ -95,7 +118,7 @@ public class OrderServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
 
@@ -112,18 +135,18 @@ public class OrderServlet extends HttpServlet {
             if ("cancel".equals(action) && orderIdStr != null) {
                 int orderId = Integer.parseInt(orderIdStr);
                 OrderDAO orderDAO = new OrderDAO();
-                
+
                 // Lấy thông tin đơn hàng hiện tại lên để kiểm tra
                 Order currentOrder = orderDAO.getOrderById(orderId);
-                
+
                 // Cực kỳ quan trọng: Chỉ cho phép hủy nếu đơn hàng thuộc về user này
                 // Và trạng thái đang là 1 (Chờ duyệt) hoặc 2 (Đã duyệt)
-                if (currentOrder != null && currentOrder.getUserId() == user.getId() 
-                    && (currentOrder.getStatus() == 1 || currentOrder.getStatus() == 2)) {
-                    
+                if (currentOrder != null && currentOrder.getUserId() == user.getId()
+                        && (currentOrder.getStatus() == 1 || currentOrder.getStatus() == 2)) {
+
                     // 1. Cập nhật trạng thái thành 5 (Đã hủy)
-                    boolean isCancelled = orderDAO.updateOrderStatus(orderId, 5); // [SỬA] 5 là trạng thái Hủy
-                    
+                    boolean isCancelled = orderDAO.updateOrderStatus(orderId, 6); // [SỬA] 6 là trạng thái Hủy
+
                     if (isCancelled) {
                         // ==============================================================
                         // [MỚI THÊM] - HOÀN LẠI VOUCHER VÀO VÍ KHÁCH HÀNG NẾU CÓ DÙNG
@@ -133,22 +156,70 @@ public class OrderServlet extends HttpServlet {
                             voucherDAO.refundVoucher(user.getId(), currentOrder.getVoucher_id());
                         }
                         // ==============================================================
-                        
+
                         // Set thông báo thành công
                         session.setAttribute("successMsg", "Đã hủy đơn hàng #" + orderId + " thành công!");
                     } else {
                         session.setAttribute("errorMsg", "Không thể hủy đơn hàng này. Vui lòng thử lại!");
                     }
                 } else {
-                    session.setAttribute("errorMsg", "Đơn hàng không tồn tại hoặc không thể hủy ở trạng thái hiện tại.");
+                    session.setAttribute("errorMsg",
+                            "Đơn hàng không tồn tại hoặc không thể hủy ở trạng thái hiện tại.");
                 }
+            }
+            // === LUỒNG 2: [MỚI] XỬ LÝ XÁC NHẬN ĐÃ NHẬN HÀNG ===
+            else if ("confirm_receive".equals(action) && orderIdStr != null) {
+                int orderId = Integer.parseInt(orderIdStr);
+                OrderDAO orderDAO = new OrderDAO();
+
+                Order currentOrder = orderDAO.getOrderById(orderId);
+
+                // Rào bảo mật: Chỉ cho phép xác nhận nếu đơn này của chính user đó
+                // VÀ trạng thái đang là 4 (Đang giao)
+                if (currentOrder != null && currentOrder.getUserId() == user.getId()
+                        && currentOrder.getStatus() == 4) {
+
+                    // Cập nhật trạng thái thành 5 (Hoàn tất / Đã giao)
+                    boolean isUpdated = orderDAO.updateOrderStatus(orderId, 5);
+
+                    if (isUpdated) {
+                        session.setAttribute("successMsg",
+                                "Cảm ơn bạn đã xác nhận! Đơn hàng #" + orderId + " đã hoàn tất.");
+                    } else {
+                        session.setAttribute("errorMsg", "Không thể cập nhật trạng thái đơn hàng. Vui lòng thử lại!");
+                    }
+                } else {
+                    session.setAttribute("errorMsg", "Yêu cầu không hợp lệ!");
+                }
+            }else if ("request_return".equals(action)) {
+                int orderId = Integer.parseInt(request.getParameter("orderId"));
+                String returnReason = request.getParameter("returnReason"); // Nếu bạn muốn lưu vào bảng ReturnRequests
+                String returnNote = request.getParameter("returnNote");
+                OrderDAO orderDAO = new OrderDAO();
+
+                // 1. Chuyển status đơn hàng thành 5 (Chờ duyệt trả hàng)
+                boolean isUpdated = orderDAO.updateOrderStatus(orderId, 5);
+
+                // (Tùy chọn) 2. Bạn có thể Insert reason và note vào bảng ReturnRequests trong
+                // DB ở đây
+                // returnRequestDao.insert(orderId, returnReason, returnNote);
+
+                if (isUpdated) {
+                    request.getSession().setAttribute("successMsg",
+                            "Đã gửi yêu cầu hoàn tiền cho đơn hàng #" + orderId + ". Vui lòng chờ phản hồi.");
+                }
+
+                // Load lại trang và nhảy sang tab Yêu cầu trả hàng (Status 5)
+                response.sendRedirect(request.getContextPath() + "/my-orders?status=return_pending");
+                return;
             }
         } catch (Exception e) {
             e.printStackTrace();
             session.setAttribute("errorMsg", "Có lỗi xảy ra trong quá trình xử lý!");
         }
 
-        // 3. Xong việc thì redirect ngược lại trang Lịch sử đơn hàng để nó tải lại danh sách mới
+        // 3. Xong việc thì redirect ngược lại trang Lịch sử đơn hàng để nó tải lại danh
+        // sách mới
         response.sendRedirect(request.getContextPath() + "/my-orders");
     }
 }

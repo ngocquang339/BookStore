@@ -305,33 +305,50 @@
                                                 </c:choose>
                                             </div>
                                             
-                                            <div class="order-actions text-end mt-3">
+                                            <div class="order-actions text-end mt-3" style="display: flex; justify-content: flex-end; gap: 10px;">
+
+                                                <div id="repurchase-data-${order.id}" style="display:none;">
+                                                    <c:forEach var="item" items="${order.details}">
+                                                        <input type="hidden" class="repurchase-book" data-id="${item.book.id}" data-qty="${item.quantity}">
+                                                    </c:forEach>
+                                                </div>
+
                                                 <c:choose>
                                                     <%-- TRƯỜNG HỢP 1: ĐƠN ĐANG CHỜ / ĐANG XỬ LÝ -> CHO PHÉP HỦY --%>
                                                     <c:when test="${order.status == 1 || order.status == 2}">
-                                                        <form action="${pageContext.request.contextPath}/my-orders" method="POST" style="display:inline;">
+                                                        <form action="${pageContext.request.contextPath}/my-orders" method="POST" style="margin: 0;">
                                                             <input type="hidden" name="action" value="cancel">
                                                             <input type="hidden" name="orderId" value="${order.id}">
                                                             <button type="submit" class="btn btn-outline-danger" style="padding: 8px 20px; font-size: 14px;" onclick="return confirm('Bạn chắc chắn muốn hủy đơn hàng này?');">Hủy đơn</button>
                                                         </form>
-                                                        <button class="btn btn-buy-again ms-2" style="padding: 8px 20px; font-size: 14px;">Mua lại</button>
+                                                        <!-- <button type="button" class="btn btn-buy-again" style="padding: 8px 20px; font-size: 14px; background: #C92127; color: white; border: none;" onclick="repurchaseOrder(${order.id})">Mua lại</button> -->
                                                     </c:when>
 
                                                     <%-- TRƯỜNG HỢP 2: ĐƠN ĐÃ GIAO (Hoàn tất) -> CHO PHÉP TRẢ HÀNG & MUA LẠI --%>
-                                                    <c:when test="${order.status == 4}">
+                                                    <c:when test="${order.status == 5}">
                                                         <button type="button" class="btn btn-outline-warning" 
                                                                 style="padding: 8px 20px; font-size: 14px; border-color: #f39c12; color: #e67e22;"
-                                                                data-bs-toggle="modal" 
-                                                                data-bs-target="#returnOrderModal"
-                                                                onclick="openReturnModal(${order.id})">
+                                                                data-bs-toggle="modal" data-bs-target="#returnOrderModal" onclick="openReturnModal(${order.id})">
                                                             Trả hàng / Hoàn tiền
                                                         </button>
-                                                        <button class="btn btn-buy-again ms-2" style="padding: 8px 20px; font-size: 14px;">Mua lại</button>
+                                                        <button type="button" class="btn btn-buy-again" style="padding: 8px 20px; font-size: 14px; background: #C92127; color: white; border: none;" onclick="repurchaseOrder(${order.id})">Mua lại</button>
                                                     </c:when>
-
-                                                    <%-- TRƯỜNG HỢP 3: CÁC TRẠNG THÁI CÒN LẠI (Đang giao, Đã hủy) -> CHỈ CHO MUA LẠI --%>
+                                                    <c:when test="${order.status == 4}">
+                                                        <form action="${pageContext.request.contextPath}/my-orders" method="POST" style="margin: 0;">
+                                                            <input type="hidden" name="action" value="confirm_receive">
+                                                            <input type="hidden" name="orderId" value="${order.id}">
+                                                            <button type="submit" class="btn btn-outline-success" 
+                                                                    style="padding: 8px 20px; font-size: 14px; border-color: #28a745; color: #28a745;" 
+                                                                    onclick="return confirm('Xác nhận bạn đã nhận được đơn hàng này?');">
+                                                                Đã nhận hàng
+                                                            </button>
+                                                        </form>
+                                                        
+                                                        <button type="button" class="btn btn-buy-again" style="padding: 8px 20px; font-size: 14px; background: #C92127; color: white; border: none;" onclick="repurchaseOrder(${order.id})">Mua lại</button>
+                                                    </c:when>
+                                                    <%-- TRƯỜNG HỢP 3: CÁC TRẠNG THÁI CÒN LẠI -> CHỈ CHO MUA LẠI --%>
                                                     <c:otherwise>
-                                                        <button class="btn btn-buy-again" style="padding: 8px 20px; font-size: 14px;">Mua lại</button>
+                                                        <button type="button" class="btn btn-buy-again" style="padding: 8px 20px; font-size: 14px; background: #C92127; color: white; border: none;" onclick="repurchaseOrder(${order.id})">Mua lại</button>
                                                     </c:otherwise>
                                                 </c:choose>
                                             </div>
@@ -358,7 +375,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
-      <form action="${pageContext.request.contextPath}/return-order" method="POST">
+      <form action="${pageContext.request.contextPath}/staff/tickets" method="POST">
         <div class="modal-body px-4">
           
           <input type="hidden" name="orderId" id="modal_returnOrderId" value="">
@@ -414,6 +431,29 @@
             // Tìm cái thẻ input ẩn trong Modal và gán ID đơn hàng vào đó
             document.getElementById('modal_returnOrderId').value = orderId;
         }
+
+        // Hàm Mua Lại (Chạy bất đồng bộ - Async)
+async function repurchaseOrder(orderId) {
+    // 1. Tìm cái kho dữ liệu ngầm của đơn hàng này
+    let items = document.querySelectorAll('#repurchase-data-' + orderId + ' .repurchase-book');
+    
+    if(items.length === 0) return;
+
+    // 2. Chạy vòng lặp lấy từng cuốn sách ném vào giỏ hàng
+    for (let item of items) {
+        let bookId = item.getAttribute('data-id');
+        let qty = item.getAttribute('data-qty');
+        
+        // Gọi API AddToCart bằng lệnh ajax ngầm (Giống hệt nút Thêm vào giỏ)
+        let url = "${pageContext.request.contextPath}/add-to-cart?id=" + bookId + "&quantity=" + qty + "&ajax=true";
+        
+        // Lệnh await giúp máy tính đợi thêm xong cuốn này mới thêm cuốn tiếp theo
+        await fetch(url);
+    }
+
+    // 3. Sau khi thêm TẤT CẢ sách xong xuôi -> Nhảy thẳng sang trang Giỏ hàng
+    window.location.href = '${pageContext.request.contextPath}/cart';
+}
     </script>
 </body>
 </html>

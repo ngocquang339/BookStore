@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.group2.bookstore.model.CustomerNote;
 import com.group2.bookstore.model.User;
 
 public class UserDAO extends DBContext {
@@ -249,15 +250,241 @@ public class UserDAO extends DBContext {
         return list;
     }
 
-    // Hàm lấy thông tin 1 User theo ID
+    // HÀM CẬP NHẬT SỐ DƯ F-POINT CHO USER
+    public boolean updateUserPoint(int userId, int newPoint) {
+        String sql = "UPDATE Users SET f_point = ? WHERE user_id = ?";
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, newPoint);
+            ps.setInt(2, userId);
+
+            int rowsUpdated = ps.executeUpdate();
+            return rowsUpdated > 0;
+
+        } catch (Exception e) {
+            System.err.println("Lỗi cập nhật điểm F-Point cho User: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // HÀM LỌC CRM NÂNG CAO (Fix lỗi không hiển thị Nhãn dán)
+    public List<User> getFilteredCustomers(String keyword, String memberTier, Double minSpend, Double maxSpend) {
+        List<User> list = new ArrayList<>();
+
+        // ĐÃ SỬA LỖI: Bổ sung thêm u.tags vào câu lệnh SQL
+        StringBuilder sql = new StringBuilder(
+                "SELECT * FROM (" +
+                        "   SELECT u.user_id, u.fullname, u.username, u.email, u.phone_number, u.status, u.tags, " +
+                        "          COALESCE((SELECT SUM(total_amount) FROM Orders o WHERE o.user_id = u.user_id AND o.status = 4), 0) AS total_spend "
+                        +
+                        "   FROM Users u " +
+                        "   WHERE u.role = 0 " +
+                        ") AS c WHERE 1=1 ");
+
+        List<Object> params = new ArrayList<>();
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append(
+                    " AND (c.fullname LIKE ? OR c.email LIKE ? OR c.phone_number LIKE ? OR CAST(c.user_id AS VARCHAR) = ?) ");
+            String kw = "%" + keyword + "%";
+            params.add(kw);
+            params.add(kw);
+            params.add(kw);
+            params.add(keyword);
+        }
+        if (minSpend != null) {
+            sql.append(" AND c.total_spend >= ? ");
+            params.add(minSpend);
+        }
+        if (maxSpend != null) {
+            sql.append(" AND c.total_spend <= ? ");
+            params.add(maxSpend);
+        }
+
+        if (memberTier != null && !memberTier.equals("all")) {
+            switch (memberTier) {
+                case "diamond":
+                    sql.append(" AND c.total_spend >= 10000000 ");
+                    break;
+                case "gold":
+                    sql.append(" AND c.total_spend >= 5000000 AND c.total_spend < 10000000 ");
+                    break;
+                case "silver":
+                    sql.append(" AND c.total_spend >= 1000000 AND c.total_spend < 5000000 ");
+                    break;
+                case "bronze":
+                    sql.append(" AND c.total_spend < 1000000 ");
+                    break;
+            }
+        }
+
+        sql.append(" ORDER BY c.user_id DESC");
+
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    User u = new User();
+                    u.setId(rs.getInt("user_id"));
+                    u.setFullname(rs.getString("fullname"));
+                    u.setUsername(rs.getString("username"));
+                    u.setEmail(rs.getString("email"));
+                    u.setPhone_number(rs.getString("phone_number"));
+                    u.setStatus(rs.getInt("status"));
+                    u.setTotalSpend(rs.getDouble("total_spend"));
+
+                    // THÊM DÒNG NÀY ĐỂ LẤY NHÃN DÁN LÊN WEB (Lỗi do thiếu dòng này)
+                    u.setTags(rs.getString("tags"));
+
+                    list.add(u);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // LƯU NHÃN DÁN CHO NHIỀU KHÁCH HÀNG CÙNG LÚC
+    public void updateCustomerTags(String userIdsStr, String tags) {
+        if (userIdsStr == null || userIdsStr.trim().isEmpty())
+            return;
+
+        String[] userIds = userIdsStr.split(",");
+        StringBuilder sql = new StringBuilder("UPDATE Users SET tags = ? WHERE user_id IN (");
+
+        for (int i = 0; i < userIds.length; i++) {
+            sql.append("?");
+            if (i < userIds.length - 1)
+                sql.append(",");
+        }
+        sql.append(")");
+
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+
+            ps.setNString(1, tags); // Lưu chuỗi tags (vd: "khach_si,boom_hang")
+            for (int i = 0; i < userIds.length; i++) {
+                ps.setInt(i + 2, Integer.parseInt(userIds[i].trim()));
+            }
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // HÀM LƯU GHI CHÚ NỘI BỘ CHO KHÁCH HÀNG
+    public void addInternalNotes(String userIdsStr, String channel, String noteContent, String followUpDate) {
+        if (userIdsStr == null || userIdsStr.trim().isEmpty())
+            return;
+
+        String[] userIds = userIdsStr.split(",");
+        String sql = "INSERT INTO Customer_Notes (user_id, contact_channel, note_content, follow_up_date) VALUES (?, ?, ?, ?)";
+
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            for (String idStr : userIds) {
+                ps.setInt(1, Integer.parseInt(idStr.trim()));
+                ps.setString(2, channel);
+                ps.setNString(3, noteContent); // setNString để hỗ trợ gõ Tiếng Việt có dấu
+
+                // Xử lý ngày hẹn gọi lại (nếu người dùng có chọn ngày)
+                if (followUpDate != null && !followUpDate.trim().isEmpty()) {
+                    ps.setDate(4, java.sql.Date.valueOf(followUpDate));
+                } else {
+                    ps.setNull(4, java.sql.Types.DATE);
+                }
+
+                ps.executeUpdate(); // Chạy lệnh lưu vào DB
+            }
+        } catch (Exception e) {
+            System.err.println("Lỗi khi lưu ghi chú: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    // HÀM LẤY LỊCH SỬ GHI CHÚ CỦA KHÁCH HÀNG
+    public List<CustomerNote> getCustomerNotes(int userId) {
+        List<CustomerNote> list = new ArrayList<>();
+        // Lấy ghi chú mới nhất lên đầu
+        String sql = "SELECT * FROM Customer_Notes WHERE user_id = ? ORDER BY create_at DESC";
+
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    CustomerNote n = new CustomerNote();
+                    n.setNoteId(rs.getInt("note_id"));
+                    n.setUserId(rs.getInt("user_id"));
+                    n.setContactChannel(rs.getString("contact_channel"));
+                    n.setNoteContent(rs.getString("note_content"));
+                    n.setFollowUpDate(rs.getDate("follow_up_date"));
+                    n.setCreateAt(rs.getTimestamp("create_at"));
+                    list.add(n);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // Hàm lấy email Khách hàng theo nhóm Marketing
+    public List<String> getMarketingEmails(String targetGroup) {
+        List<String> emails = new ArrayList<>();
+        StringBuilder sql = new StringBuilder(
+                "SELECT DISTINCT email FROM Users WHERE email IS NOT NULL AND email <> '' AND role = 0");
+
+        switch (targetGroup) {
+            case "vip":
+                sql.append(
+                        " AND (SELECT COALESCE(SUM(total_amount),0) FROM Orders o WHERE o.user_id = Users.user_id AND o.status = 4) >= 5000000");
+                break;
+            case "inactive":
+                sql.append(
+                        " AND (SELECT COALESCE(SUM(total_amount),0) FROM Orders o WHERE o.user_id = Users.user_id AND o.status = 4) < 1000000");
+                break;
+            case "cart_abandon":
+                // Khách bỏ giỏ hàng chưa có bảng chứa trạng thái; chọn những có order chưa hoàn
+                // thành và chưa hoàn tất
+                sql.append(
+                        " AND EXISTS (SELECT 1 FROM Cart c WHERE c.user_id = Users.user_id AND c.status = 'abandon')");
+                break;
+            case "all":
+            default:
+                break;
+        }
+
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql.toString());
+                ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                emails.add(rs.getString("email"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return emails;
+    }
+
+    // Hàm lấy thông tin 1 User theo ID (Phiên bản Fix chuẩn)
     public User getUserById(int id) {
         String sql = "SELECT * FROM Users WHERE user_id = ?";
         try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-             
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setInt(1, id);
-            
-            // Sử dụng thêm try-with-resources cho ResultSet để chống rò rỉ bộ nhớ
+
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     User u = new User();
@@ -268,7 +495,11 @@ public class UserDAO extends DBContext {
                     u.setPhone_number(rs.getString("phone_number"));
                     u.setRole(rs.getInt("role"));
                     u.setStatus(rs.getInt("status"));
-                    u.setCreateAt(rs.getTimestamp("create_at"));
+
+                    // Xử lý an toàn: Lấy thẳng chuỗi String từ DB để không bị lỗi Timestamp
+                    if (rs.getString("createAt") != null) {
+                        u.setCreateAt(rs.getTimestamp("createAt"));
+                    }
                     return u;
                 }
             }
