@@ -123,15 +123,21 @@
                                         <span class="badge bg-secondary px-2 py-2" style="width: 130px;">Chờ xử lý</span>
                                     </c:when>
                                     <c:when test="${o.status == 2}">
-                                        <span class="badge bg-warning text-dark px-2 py-2" style="width: 130px;">Đang chuẩn bị hàng</span>
+                                        <span class="badge px-2 py-2" 
+                                            style="background:#8b5cf6; color:white; width:130px;">
+                                            Đang chuẩn bị hàng
+                                        </span>
                                     </c:when>
                                     <c:when test="${o.status == 3}">
-                                        <span class="badge bg-primary px-2 py-2" style="width: 130px;">Đang giao</span>
+                                        <span class="badge bg-primary px-2 py-2" style="width: 130px;">Đã đóng gói</span>
                                     </c:when>
                                     <c:when test="${o.status == 4}">
-                                        <span class="badge bg-success px-2 py-2" style="width: 130px;">Đã giao</span>
+                                        <span class="badge bg-primary px-2 py-2" style="width: 130px;">Đang giao</span>
                                     </c:when>
                                     <c:when test="${o.status == 5}">
+                                        <span class="badge bg-success px-2 py-2" style="width: 130px;">Đã giao</span>
+                                    </c:when>
+                                    <c:when test="${o.status == 6}">
                                         <span class="badge bg-danger px-2 py-2" style="width: 130px;">Đã hủy</span>
                                     </c:when>
                                 </c:choose>

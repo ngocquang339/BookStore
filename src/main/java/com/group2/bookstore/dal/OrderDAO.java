@@ -80,7 +80,7 @@ public class OrderDAO extends DBContext {
                 o.setStatus(rs.getInt("status"));
                 o.setShippingAddress(rs.getString("shipping_address"));
                 o.setPhoneNumber(rs.getString("phone_number")); 
-                o.setStaffNote(rs.getString("staff_note")); // Lộc thêm
+                o.setStaffNote(rs.getString("status_note")); // Lộc thêm
                 
                 // ==============================================================
                 // [MỚI THÊM] - Lấy thông tin Voucher và số tiền giảm giá
@@ -376,7 +376,7 @@ public class OrderDAO extends DBContext {
                 }
             }
             
-            if (currentStatus == 5) {
+            if (currentStatus == 6) {
                 System.out.println("LỖI: Đơn hàng " + orderId + " đã bị hủy trước đó!");
                 return false; 
             }

@@ -200,6 +200,10 @@
                 background: transparent;
                 /* Tàng hình (trong suốt) */
             }
+            /* Ép cụm Tài khoản tụt xuống một chút để thẳng hàng với Thông báo và Giỏ hàng */
+        header.main-header .icon-item.user-account {
+            transform: translateY(4px) !important; /* Bạn có thể tăng/giảm con số 3px này để căn cho chuẩn nhất với mắt bạn nhé */
+        }
         </style>
 
 

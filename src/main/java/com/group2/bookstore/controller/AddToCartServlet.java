@@ -101,7 +101,7 @@ public class AddToCartServlet extends HttpServlet {
                         }
                         
                         CartItem newItem = new CartItem(book, quantity);
-                        cart.add(newItem);
+                        cart.add(0, newItem);
                         if (user != null) {
                             cartDao.addToCart(user.getId(), newItem);
                         }
@@ -109,6 +109,11 @@ public class AddToCartServlet extends HttpServlet {
                     
                     // Cập nhật lại session
                     session.setAttribute("cart", cart);
+                    String purchase = request.getParameter("purchase");
+                    if ("1".equals(purchase)) {
+                        response.sendRedirect("cart");
+                        return;
+                    }
 
                     // XỬ LÝ TRẢ VỀ CHO MÀN HÌNH
                     String isAjax = request.getParameter("ajax");

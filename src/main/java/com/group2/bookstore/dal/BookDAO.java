@@ -606,4 +606,25 @@ public class BookDAO extends DBContext {
             // Lý tưởng nhất là log lỗi ở đây để theo dõi
         }
     }
+
+    public List<Book> getBooksByName(String name) {
+    List<Book> list = new ArrayList<>();
+    String sql = "SELECT * FROM Books WHERE title LIKE ?";
+
+    try (Connection conn = getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        ps.setString(1, "%" + name + "%");
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+            list.add(mapResultSetToBook(rs));
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return list;
+}
 }

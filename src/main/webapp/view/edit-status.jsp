@@ -58,9 +58,6 @@
                                 <select name="newStatus" class="form-select border-primary fw-bold text-dark shadow-sm">
                                     <option value="1" ${order.status == 1 ? 'selected' : ''}>Chờ xử lý</option>
                                     <option value="2" ${order.status == 2 ? 'selected' : ''}>Đang chuẩn bị hàng</option>
-                                    <option value="3" ${order.status == 3 ? 'selected' : ''}>Đang giao</option>
-                                    <option value="4" ${order.status == 4 ? 'selected' : ''}>Đã giao</option>
-                                    <option value="5" ${order.status == 5 ? 'selected' : ''}>Đã hủy</option>
                                 </select>
                             </td>
 
