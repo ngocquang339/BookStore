@@ -65,6 +65,17 @@
                         </a>
                     </div>
                 </div>
+                <div class="col-md-4">
+                    <div class="card p-4 shadow-sm h-100 border-dark">
+                        <h4 class="text-dark">
+                            <i class="fas fa-clipboard-list"></i> Purchase Orders
+                        </h4>
+                        <p>Xem danh sách đơn nhập hàng và thực hiện nhập kho.</p>
+                        <a href="${pageContext.request.contextPath}/warehouse/view-po" class="btn btn-dark mt-auto">
+                            Truy cập
+                        </a>
+                    </div>
+                </div>
 
             </div>
             <div class="text-center mt-5 mb-5">
