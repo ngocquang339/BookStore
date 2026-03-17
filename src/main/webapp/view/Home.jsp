@@ -173,15 +173,17 @@
             <section class="banner-section">
                 <div class="banner-top">
                     <div class="banner-left">
-                        <img src="${pageContext.request.contextPath}/assets/image/Banner/Conan.jpg" alt="Banner Chính">
+                        <a href="${pageContext.request.contextPath}/conan">
+                            <img src="${pageContext.request.contextPath}/assets/image/Banner/Conan.jpg" alt="Banner Chính" style="cursor: pointer; width: 100%; border-radius: 8px; transition: 0.3s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+                        </a>
                     </div>
                     <div class="banner-right">
                         <a href="${pageContext.request.contextPath}/vouchers" class="right-item">
                             <img src="${pageContext.request.contextPath}/assets/image/Banner/Voucher.jpg" alt="Săn Voucher Khủng">
                         </a>
                         
-                        <a href="#" class="right-item">
-                            <img src="${pageContext.request.contextPath}/assets/image/Banner/BannerRight2.jpg" alt="Banner Phụ 2">
+                        <a href="${pageContext.request.contextPath}/onepiece" class="right-item">
+                            <img src="${pageContext.request.contextPath}/assets/image/Banner/OnepieceBanner.jpg" alt="Banner Phụ 2">
                         </a>
                     </div>
                 </div>

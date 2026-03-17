@@ -75,7 +75,6 @@
                                                 </c:otherwise>
                                             </c:choose>
                                         </div>
-                                        <a href="#" class="v-detail-link">Chi tiết</a>
                                     </div>
                                     
                                     <div class="v-condition">

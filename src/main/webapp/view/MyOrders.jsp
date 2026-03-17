@@ -325,7 +325,7 @@
                                                     </c:when>
 
                                                     <%-- TRƯỜNG HỢP 2: ĐƠN ĐÃ GIAO (Hoàn tất) -> CHO PHÉP TRẢ HÀNG & MUA LẠI --%>
-                                                    <c:when test="${order.status == 4}">
+                                                    <c:when test="${order.status == 5}">
                                                         <button type="button" class="btn btn-outline-warning" 
                                                                 style="padding: 8px 20px; font-size: 14px; border-color: #f39c12; color: #e67e22;"
                                                                 data-bs-toggle="modal" data-bs-target="#returnOrderModal" onclick="openReturnModal(${order.id})">
@@ -333,7 +333,19 @@
                                                         </button>
                                                         <button type="button" class="btn btn-buy-again" style="padding: 8px 20px; font-size: 14px; background: #C92127; color: white; border: none;" onclick="repurchaseOrder(${order.id})">Mua lại</button>
                                                     </c:when>
-
+                                                    <c:when test="${order.status == 4}">
+                                                        <form action="${pageContext.request.contextPath}/my-orders" method="POST" style="margin: 0;">
+                                                            <input type="hidden" name="action" value="confirm_receive">
+                                                            <input type="hidden" name="orderId" value="${order.id}">
+                                                            <button type="submit" class="btn btn-outline-success" 
+                                                                    style="padding: 8px 20px; font-size: 14px; border-color: #28a745; color: #28a745;" 
+                                                                    onclick="return confirm('Xác nhận bạn đã nhận được đơn hàng này?');">
+                                                                Đã nhận hàng
+                                                            </button>
+                                                        </form>
+                                                        
+                                                        <button type="button" class="btn btn-buy-again" style="padding: 8px 20px; font-size: 14px; background: #C92127; color: white; border: none;" onclick="repurchaseOrder(${order.id})">Mua lại</button>
+                                                    </c:when>
                                                     <%-- TRƯỜNG HỢP 3: CÁC TRẠNG THÁI CÒN LẠI -> CHỈ CHO MUA LẠI --%>
                                                     <c:otherwise>
                                                         <button type="button" class="btn btn-buy-again" style="padding: 8px 20px; font-size: 14px; background: #C92127; color: white; border: none;" onclick="repurchaseOrder(${order.id})">Mua lại</button>
