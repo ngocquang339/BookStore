@@ -35,6 +35,11 @@ public class ChangePasswordServlet extends HttpServlet {
         if ("1".equals(flag)) {
             String email = request.getParameter("email");
             String newPassword = request.getParameter("newPassword");
+            if(email == null || newPassword == null || email.isEmpty() || newPassword.isEmpty() || email.length() > 50 || newPassword.length() > 30){
+                request.setAttribute("error", "Vui lòng cung cấp thông tin hợp lệ!");
+                request.getRequestDispatcher("view/Login.jsp").forward(request, response);
+                return;
+            }
 
             // 1. Kiểm tra bảo mật: Bắt buộc phải có OTP hợp lệ trong Session
             String serverOtp = (String) session.getAttribute("forgot_otp_" + email);
@@ -62,7 +67,7 @@ public class ChangePasswordServlet extends HttpServlet {
             }
             
             // Đổi xong thì trả về trang Login kèm thông báo
-            request.getRequestDispatcher("view/Login.jsp").forward(request, response);
+            response.sendRedirect(request.getContextPath() + "/login");  //Thay đổi ở đây
             return; // KẾT THÚC NHÁNH QUÊN MẬT KHẨU
         }
 
@@ -81,6 +86,15 @@ public class ChangePasswordServlet extends HttpServlet {
         String currentPass = request.getParameter("currentPass");
         String newPass = request.getParameter("newPass");
         String confirmPass = request.getParameter("confirmPass");
+
+        if(currentPass == null || newPass == null || confirmPass == null ||
+           currentPass.isEmpty() || newPass.isEmpty() || confirmPass.isEmpty() ||
+           currentPass.length() > 50 || newPass.length() > 50 || confirmPass.length() > 50) {
+            session.setAttribute("mess", "Vui lòng cung cấp thông tin hợp lệ!");
+            session.setAttribute("status", "error");
+            response.sendRedirect(request.getContextPath() + "/change-password");
+            return;
+        }
         
         // 2. VALIDATE (Kiểm tra dữ liệu)
         String message = "";
@@ -102,7 +116,7 @@ public class ChangePasswordServlet extends HttpServlet {
 
             if (isUpdated) {
                 // Cập nhật lại password trong session để không phải đăng nhập lại
-                user.setPassword(newPass);
+                user.setPassword("");
                 session.setAttribute("user", user);
                 
                 message = "Đổi mật khẩu thành công!";
