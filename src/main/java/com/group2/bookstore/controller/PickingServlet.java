@@ -17,7 +17,6 @@ public class PickingServlet extends HttpServlet {
         WarehouseOrderDAO dao = new WarehouseOrderDAO();
 
         request.setAttribute("orderInfo", dao.getOrderCustomerInfo(orderId));
-        // ĐỔI SANG DÙNG HÀM MỚI Ở ĐÂY:
         request.setAttribute("pickingItems", dao.getOrderDetails(orderId));
         request.setAttribute("orderId", orderId);
 

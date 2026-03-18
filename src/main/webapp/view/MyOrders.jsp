@@ -375,7 +375,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
-      <form action="${pageContext.request.contextPath}/return-order" method="POST">
+      <form action="${pageContext.request.contextPath}/staff/tickets" method="POST">
         <div class="modal-body px-4">
           
           <input type="hidden" name="orderId" id="modal_returnOrderId" value="">

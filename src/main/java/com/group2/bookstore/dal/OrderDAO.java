@@ -22,7 +22,9 @@ public class OrderDAO extends DBContext {
                 + "JOIN Users u ON o.user_id = u.user_id "
                 + "ORDER BY o.order_date DESC";
 
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 Order o = new Order();
@@ -34,14 +36,14 @@ public class OrderDAO extends DBContext {
                 o.setStatus(rs.getInt("status"));
                 o.setShippingAddress(rs.getString("shipping_address"));
                 o.setPhoneNumber(rs.getString("phone_number"));
-                
+
                 // ==============================================================
                 // [MỚI THÊM] - Lấy thông tin Voucher và số tiền giảm giá
                 // ==============================================================
-                
+
                 // Lấy ID Voucher (Nếu trong SQL là NULL thì rs.getInt() sẽ tự động trả về số 0)
-                o.setVoucher_id(rs.getInt("voucher_id")); 
-                
+                o.setVoucher_id(rs.getInt("voucher_id"));
+
                 // Lấy số tiền giảm (Xử lý an toàn với BigDecimal)
                 java.math.BigDecimal dbDiscount = rs.getBigDecimal("discount_amount");
                 if (dbDiscount == null) {
@@ -84,8 +86,8 @@ public class OrderDAO extends DBContext {
                 // ==============================================================
                 // [MỚI THÊM] - Lấy thông tin Voucher và số tiền giảm giá
                 // ==============================================================
-                o.setVoucher_id(rs.getInt("voucher_id")); 
-                
+                o.setVoucher_id(rs.getInt("voucher_id"));
+
                 java.math.BigDecimal dbDiscount = rs.getBigDecimal("discount_amount");
                 if (dbDiscount == null) {
                     o.setDiscountAmount(java.math.BigDecimal.ZERO); // Mặc định là 0 nếu không xài mã
@@ -151,7 +153,8 @@ public class OrderDAO extends DBContext {
             e.printStackTrace();
         }
     }
-// =========================================================================
+
+    // =========================================================================
     // 1. HÀM TẠO ĐƠN HÀNG (PHIÊN BẢN CỦA BẠN - CÓ VOUCHER & TRỪ KHO)
     // =========================================================================
     // =========================================================================
@@ -241,7 +244,12 @@ public class OrderDAO extends DBContext {
             e.printStackTrace();
         } finally {
             if (cn != null) {
-                try { cn.setAutoCommit(true); cn.close(); } catch (Exception ex) { ex.printStackTrace(); }
+                try {
+                    cn.setAutoCommit(true);
+                    cn.close();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
             }
         }
         
@@ -262,12 +270,15 @@ public class OrderDAO extends DBContext {
     public List<Order> getOrdersByStatus(int status, String sortBy, String sortOrder, String searchQuery) {
         List<Order> list = new ArrayList<>();
         String col = "order_date";
-        if ("name".equals(sortBy)) col = "receiver_name"; 
-        if ("total".equals(sortBy)) col = "total_amount";
+        if ("name".equals(sortBy))
+            col = "receiver_name";
+        if ("total".equals(sortBy))
+            col = "total_amount";
         String order = "asc".equalsIgnoreCase(sortOrder) ? "ASC" : "DESC";
 
-        String sql = "SELECT * FROM Orders WHERE status = ? AND (receiver_name LIKE ? OR phone_number LIKE ?) ORDER BY " + col + " " + order;
-        
+        String sql = "SELECT * FROM Orders WHERE status = ? AND (receiver_name LIKE ? OR phone_number LIKE ?) ORDER BY "
+                + col + " " + order;
+
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             String searchPattern = "%" + (searchQuery == null ? "" : searchQuery) + "%";
             ps.setInt(1, status);
@@ -278,7 +289,7 @@ public class OrderDAO extends DBContext {
                 Order o = new Order();
                 o.setId(rs.getInt("order_id"));
                 o.setUserId(rs.getInt("user_id"));
-                o.setUserName(rs.getString("receiver_name")); 
+                o.setUserName(rs.getString("receiver_name"));
                 o.setPhoneNumber(rs.getString("phone_number"));
                 o.setShippingAddress(rs.getString("shipping_address"));
                 o.setOrderDate(rs.getTimestamp("order_date"));
@@ -286,13 +297,13 @@ public class OrderDAO extends DBContext {
                 o.setStatus(rs.getInt("status"));
                 list.add(o);
             }
-        } catch (Exception e) { 
-            e.printStackTrace(); 
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return list;
     }
     // public void updateOrderStatus(int orderId, int newStatus) {
-    //     String sql = "UPDATE Orders SET status = ? WHERE order_id = ?";
+    // String sql = "UPDATE Orders SET status = ? WHERE order_id = ?";
 
     // Upgraded method to include the note!
     public void updateStatus(int orderId, int status, String note) {
@@ -311,10 +322,10 @@ public class OrderDAO extends DBContext {
     // 6. CẬP NHẬT TRẠNG THÁI CÓ CHECK KHO (PHIÊN BẢN XỊN CỦA BẠN - TRẢ VỀ BOOLEAN)
     // =========================================================================
     public boolean updateOrderStatus(int orderId, int newStatus) {
-        Connection conn = null; 
+        Connection conn = null;
         try {
             conn = getConnection();
-            conn.setAutoCommit(false); 
+            conn.setAutoCommit(false);
 
             int currentStatus = -1;
             String sqlCheck = "SELECT status FROM Orders WHERE order_id = ?";
@@ -324,13 +335,13 @@ public class OrderDAO extends DBContext {
                 if (rs.next()) {
                     currentStatus = rs.getInt("status");
                 } else {
-                    return false; 
+                    return false;
                 }
             }
             
             if (currentStatus == 6) {
                 System.out.println("LỖI: Đơn hàng " + orderId + " đã bị hủy trước đó!");
-                return false; 
+                return false;
             }
 
             String sqlUpdateStatus = "UPDATE Orders SET status = ? WHERE order_id = ?";
@@ -342,29 +353,39 @@ public class OrderDAO extends DBContext {
 
             if (newStatus == 4) {
                 String sqlRollbackStock = "UPDATE b " +
-                                          "SET b.stock_quantity = b.stock_quantity + od.quantity " +
-                                          "FROM Books b " +
-                                          "INNER JOIN OrderDetails od ON b.book_id = od.book_id " +
-                                          "WHERE od.order_id = ?";
+                        "SET b.stock_quantity = b.stock_quantity + od.quantity " +
+                        "FROM Books b " +
+                        "INNER JOIN OrderDetails od ON b.book_id = od.book_id " +
+                        "WHERE od.order_id = ?";
                 try (PreparedStatement psStock = conn.prepareStatement(sqlRollbackStock)) {
                     psStock.setInt(1, orderId);
                     int stockRows = psStock.executeUpdate();
-                    System.out.println("Rollback Stock for Order ID: " + orderId + " (Đã hoàn lại " + stockRows + " đầu sách)");
+                    System.out.println(
+                            "Rollback Stock for Order ID: " + orderId + " (Đã hoàn lại " + stockRows + " đầu sách)");
                 }
             }
 
-            conn.commit(); 
+            conn.commit();
             return true;
-            
+
         } catch (Exception e) {
             if (conn != null) {
-                try { conn.rollback(); } catch (Exception ex) { ex.printStackTrace(); }
+                try {
+                    conn.rollback();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
             }
             e.printStackTrace();
             return false;
         } finally {
             if (conn != null) {
-                try { conn.setAutoCommit(true); conn.close(); } catch (Exception e) { e.printStackTrace(); }
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -385,7 +406,9 @@ public class OrderDAO extends DBContext {
             sql += "ORDER BY o.order_date " + ("asc".equals(sortOrder) ? "ASC" : "DESC");
         }
 
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 Order o = new Order();
                 o.setId(rs.getInt("order_id"));
@@ -406,7 +429,7 @@ public class OrderDAO extends DBContext {
 
     public int countOrders(String keyword, String fromDate, String toDate, String status) {
         StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM Orders o ");
-        sql.append("JOIN Users u ON o.user_id = u.user_id "); 
+        sql.append("JOIN Users u ON o.user_id = u.user_id ");
         sql.append("WHERE 1=1 ");
 
         List<Object> params = new ArrayList<>();
@@ -419,7 +442,8 @@ public class OrderDAO extends DBContext {
                 int searchId = -1;
                 try {
                     searchId = Integer.parseInt(searchKey);
-                } catch (NumberFormatException e) { }
+                } catch (NumberFormatException e) {
+                }
                 params.add(searchId);
             } else {
                 sql.append(" AND (CAST(o.order_id AS VARCHAR) LIKE ? OR u.username LIKE ? OR o.phone_number LIKE ?) ");
@@ -436,7 +460,7 @@ public class OrderDAO extends DBContext {
         }
         if (toDate != null && !toDate.isEmpty()) {
             sql.append(" AND o.order_date <= ? ");
-            params.add(toDate + " 23:59:59"); 
+            params.add(toDate + " 23:59:59");
         }
 
         if (status != null && !status.equals("All Statuses") && !status.isEmpty()) {
@@ -457,21 +481,22 @@ public class OrderDAO extends DBContext {
         }
         return 0;
     }
+
     public int countOrdersByStatus(int userId, int status) {
         // Nếu status = -1 thì đếm TẤT CẢ đơn hàng của user đó
         String sql = "SELECT COUNT(*) FROM Orders WHERE user_id = ?";
         if (status != -1) {
             sql += " AND status = ?";
         }
-        
+
         try (Connection conn = getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql)) {
-            
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setInt(1, userId);
             if (status != -1) {
                 ps.setInt(2, status);
             }
-            
+
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 return rs.getInt(1);
@@ -482,12 +507,13 @@ public class OrderDAO extends DBContext {
         return 0;
     }
 
-// 2. GET ORDERS (Sorted & Paginated)
+    // 2. GET ORDERS (Sorted & Paginated)
     public List<Order> getOrders(String keyword, String fromDate, String toDate, String status,
             String sortBy, String sortOrder, int index) {
         List<Order> list = new ArrayList<>();
 
-        // CHANGED: Select u.username. Removed u.phone (we will use o.phone_number instead)
+        // CHANGED: Select u.username. Removed u.phone (we will use o.phone_number
+        // instead)
         StringBuilder sql = new StringBuilder("SELECT o.*, u.username FROM Orders o ");
         sql.append("JOIN Users u ON o.user_id = u.user_id ");
         sql.append("WHERE 1=1 ");
@@ -596,16 +622,20 @@ public class OrderDAO extends DBContext {
         }
         return list;
     }
+
     public List<Order> getAllOrdersBySale(String sortBy, String sortOrder, String searchQuery) {
         List<Order> list = new ArrayList<>();
         String col = "order_date";
-        if ("name".equals(sortBy)) col = "receiver_name"; // Đổi cột sắp xếp thành receiver_name
-        if ("total".equals(sortBy)) col = "total_amount";
+        if ("name".equals(sortBy))
+            col = "receiver_name"; // Đổi cột sắp xếp thành receiver_name
+        if ("total".equals(sortBy))
+            col = "total_amount";
         String order = "asc".equalsIgnoreCase(sortOrder) ? "ASC" : "DESC";
 
         // Chỉ truy vấn trên bảng Orders, tìm kiếm theo receiver_name
-        String sql = "SELECT * FROM Orders WHERE (receiver_name LIKE ? OR phone_number LIKE ?) ORDER BY " + col + " " + order;
-        
+        String sql = "SELECT * FROM Orders WHERE (receiver_name LIKE ? OR phone_number LIKE ?) ORDER BY " + col + " "
+                + order;
+
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             String searchPattern = "%" + searchQuery + "%";
             ps.setString(1, searchPattern);
@@ -615,10 +645,10 @@ public class OrderDAO extends DBContext {
                 Order o = new Order();
                 o.setId(rs.getInt("order_id"));
                 o.setUserId(rs.getInt("user_id"));
-                
+
                 // Lấy receiver_name gán vào biến userName để file JSP hiển thị đúng
-                o.setUserName(rs.getString("receiver_name")); 
-                
+                o.setUserName(rs.getString("receiver_name"));
+
                 o.setPhoneNumber(rs.getString("phone_number"));
                 o.setShippingAddress(rs.getString("shipping_address"));
                 o.setOrderDate(rs.getTimestamp("order_date"));
@@ -626,27 +656,29 @@ public class OrderDAO extends DBContext {
                 o.setStatus(rs.getInt("status"));
                 list.add(o);
             }
-        } catch (Exception e) { 
-            e.printStackTrace(); 
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return list;
     }
+
     // Lấy thống kê doanh thu ngày hôm nay
     public double[] getTodaySummary() {
-        // Mảng chứa 3 giá trị: [0] Tổng số đơn, [1] Đơn chờ xử lý, [2] Doanh thu (Đơn đã hoàn thành status = 3)
+        // Mảng chứa 3 giá trị: [0] Tổng số đơn, [1] Đơn chờ xử lý, [2] Doanh thu (Đơn
+        // đã hoàn thành status = 3)
         double[] summary = new double[3];
-        
+
         String sql = "SELECT " +
-                     "COUNT(order_id) AS total_orders, " +
-                     "SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) AS pending_orders, " +
-                     "SUM(CASE WHEN status = 3 THEN total_amount ELSE 0 END) AS revenue " +
-                     "FROM Orders " +
-                     "WHERE CAST(order_date AS DATE) = CAST(GETDATE() AS DATE)";
-                     
+                "COUNT(order_id) AS total_orders, " +
+                "SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) AS pending_orders, " +
+                "SUM(CASE WHEN status = 3 THEN total_amount ELSE 0 END) AS revenue " +
+                "FROM Orders " +
+                "WHERE CAST(order_date AS DATE) = CAST(GETDATE() AS DATE)";
+
         try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-             
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
+
             if (rs.next()) {
                 summary[0] = rs.getDouble("total_orders");
                 summary[1] = rs.getDouble("pending_orders");
@@ -665,8 +697,8 @@ public class OrderDAO extends DBContext {
     // Hàm phụ: Tự động nạp OrderDetails (Chi tiết sách) vào cho một Order
     private void loadDetailsForOrder(Order order, Connection conn) {
         String sql = "SELECT od.*, b.title, b.image FROM OrderDetails od "
-                   + "JOIN Books b ON od.book_id = b.book_id "
-                   + "WHERE od.order_id = ?";
+                + "JOIN Books b ON od.book_id = b.book_id "
+                + "WHERE od.order_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, order.getId());
             try (ResultSet rs = ps.executeQuery()) {
@@ -687,7 +719,7 @@ public class OrderDAO extends DBContext {
 
                     details.add(od);
                 }
-                order.setDetails(details); 
+                order.setDetails(details);
             }
         } catch (Exception e) {
             System.out.println("Lỗi nạp sách cho Đơn hàng #" + order.getId() + ": " + e.getMessage());
@@ -698,10 +730,10 @@ public class OrderDAO extends DBContext {
     public List<Order> getAllOrdersByUserId(int userId) {
         List<Order> list = new ArrayList<>();
         String sql = "SELECT * FROM Orders WHERE user_id = ? ORDER BY order_date DESC";
-        
+
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, userId);
-            
+
             // BƯỚC 1: Lấy hết "vỏ hộp" đơn hàng và đóng ResultSet lại
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -711,12 +743,12 @@ public class OrderDAO extends DBContext {
                     o.setOrderDate(rs.getTimestamp("order_date"));
                     o.setTotalAmount(rs.getDouble("total_amount"));
                     o.setStatus(rs.getInt("status"));
-                    
+
                     // ==============================================================
                     // [MỚI THÊM] - Lấy thông tin Voucher để hiển thị lên Hóa Đơn
                     // ==============================================================
-                    o.setVoucher_id(rs.getInt("voucher_id")); 
-                    
+                    o.setVoucher_id(rs.getInt("voucher_id"));
+
                     java.math.BigDecimal dbDiscount = rs.getBigDecimal("discount_amount");
                     if (dbDiscount == null) {
                         o.setDiscountAmount(java.math.BigDecimal.ZERO);
@@ -724,16 +756,16 @@ public class OrderDAO extends DBContext {
                         o.setDiscountAmount(dbDiscount);
                     }
                     // ==============================================================
-                    
+
                     list.add(o);
                 }
             } // rs tự động được đóng ở đây!
-            
+
             // BƯỚC 2: Đường truyền đã rảnh, giờ mới chạy vòng lặp nhét sách vào hộp
             for (Order o : list) {
-                loadDetailsForOrder(o, conn); 
+                loadDetailsForOrder(o, conn);
             }
-            
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -744,11 +776,11 @@ public class OrderDAO extends DBContext {
     public List<Order> getOrdersByStatusForUser(int userId, int status) {
         List<Order> list = new ArrayList<>();
         String sql = "SELECT * FROM Orders WHERE user_id = ? AND status = ? ORDER BY order_date DESC";
-        
+
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, userId);
             ps.setInt(2, status);
-            
+
             // BƯỚC 1: Lấy hết "vỏ hộp"
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -758,12 +790,12 @@ public class OrderDAO extends DBContext {
                     o.setOrderDate(rs.getTimestamp("order_date"));
                     o.setTotalAmount(rs.getDouble("total_amount"));
                     o.setStatus(rs.getInt("status"));
-                    
+
                     // ==============================================================
                     // [MỚI THÊM] - Lấy thông tin Voucher để hiển thị lên Hóa Đơn
                     // ==============================================================
-                    o.setVoucher_id(rs.getInt("voucher_id")); 
-                    
+                    o.setVoucher_id(rs.getInt("voucher_id"));
+
                     java.math.BigDecimal dbDiscount = rs.getBigDecimal("discount_amount");
                     if (dbDiscount == null) {
                         o.setDiscountAmount(java.math.BigDecimal.ZERO);
@@ -771,16 +803,16 @@ public class OrderDAO extends DBContext {
                         o.setDiscountAmount(dbDiscount);
                     }
                     // ==============================================================
-                    
+
                     list.add(o);
                 }
             }
-            
+
             // BƯỚC 2: Đường truyền rảnh, nhét sách vào
             for (Order o : list) {
-                loadDetailsForOrder(o, conn); 
+                loadDetailsForOrder(o, conn);
             }
-            
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -793,21 +825,21 @@ public class OrderDAO extends DBContext {
     public void markVoucherAsUsed(int userId, int voucherId) {
         String sqlWallet = "UPDATE User_Vouchers SET is_used = 1 WHERE user_id = ? AND voucher_id = ?";
         String sqlGlobal = "UPDATE Vouchers SET usage_limit = usage_limit - 1 WHERE voucher_id = ?";
-        
+
         try (Connection conn = getConnection()) {
             conn.setAutoCommit(false); // Bắt đầu Transaction
             try (PreparedStatement ps1 = conn.prepareStatement(sqlWallet);
-                 PreparedStatement ps2 = conn.prepareStatement(sqlGlobal)) {
-                
+                    PreparedStatement ps2 = conn.prepareStatement(sqlGlobal)) {
+
                 // 1. Xóa vé trong ví
                 ps1.setInt(1, userId);
                 ps1.setInt(2, voucherId);
                 ps1.executeUpdate();
-                
+
                 // 2. Trừ kho chung
                 ps2.setInt(1, voucherId);
                 ps2.executeUpdate();
-                
+
                 conn.commit(); // Chốt lưu
             } catch (Exception e) {
                 conn.rollback(); // Nếu lỗi thì hoàn tác
@@ -824,21 +856,21 @@ public class OrderDAO extends DBContext {
     public void refundVoucher(int userId, int voucherId) {
         String sqlWallet = "UPDATE User_Vouchers SET is_used = 0 WHERE user_id = ? AND voucher_id = ?";
         String sqlGlobal = "UPDATE Vouchers SET usage_limit = usage_limit + 1 WHERE voucher_id = ?";
-        
+
         try (Connection conn = getConnection()) {
             conn.setAutoCommit(false);
             try (PreparedStatement ps1 = conn.prepareStatement(sqlWallet);
-                 PreparedStatement ps2 = conn.prepareStatement(sqlGlobal)) {
-                
+                    PreparedStatement ps2 = conn.prepareStatement(sqlGlobal)) {
+
                 // 1. Phục hồi vé trong ví
                 ps1.setInt(1, userId);
                 ps1.setInt(2, voucherId);
                 ps1.executeUpdate();
-                
+
                 // 2. Cộng trả lại kho chung
                 ps2.setInt(1, voucherId);
                 ps2.executeUpdate();
-                
+
                 conn.commit();
             } catch (Exception e) {
                 conn.rollback();
@@ -852,70 +884,78 @@ public class OrderDAO extends DBContext {
     // =========================================================================
     // CÁC HÀM PHỤC VỤ PHÂN TRANG (PAGINATION) DÀNH CHO SALE STAFF - ĐÃ GỘP
     // =========================================================================
-    
+
     // 1. Hàm Đếm tổng số đơn (Gộp cả có lọc và không lọc)
     public int countOrdersBySale(int status, String searchQuery) {
-        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM Orders WHERE (receiver_name LIKE ? OR phone_number LIKE ?)");
-        
+        StringBuilder sql = new StringBuilder(
+                "SELECT COUNT(*) FROM Orders WHERE (receiver_name LIKE ? OR phone_number LIKE ?)");
+
         // Nếu status != -1 thì nối thêm điều kiện lọc trạng thái vào SQL
         if (status != -1) {
             sql.append(" AND status = ?");
         }
-        
+
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql.toString())) {
             String searchPattern = "%" + searchQuery + "%";
             ps.setString(1, searchPattern);
             ps.setString(2, searchPattern);
-            
+
             if (status != -1) {
                 ps.setInt(3, status);
             }
-            
+
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) return rs.getInt(1);
-        } catch (Exception e) { e.printStackTrace(); }
+            if (rs.next())
+                return rs.getInt(1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return 0;
     }
 
     // 2. Hàm Lấy 10 đơn hàng (Gộp cả có lọc và không lọc)
-    public List<Order> getOrdersBySalePaginated(int status, String sortBy, String sortOrder, String searchQuery, int page) {
+    public List<Order> getOrdersBySalePaginated(int status, String sortBy, String sortOrder, String searchQuery,
+            int page) {
         List<Order> list = new ArrayList<>();
         String col = "order_date";
-        if ("name".equals(sortBy)) col = "receiver_name";
-        if ("total".equals(sortBy)) col = "total_amount";
+        if ("name".equals(sortBy))
+            col = "receiver_name";
+        if ("total".equals(sortBy))
+            col = "total_amount";
         String order = "asc".equalsIgnoreCase(sortOrder) ? "ASC" : "DESC";
 
-        StringBuilder sql = new StringBuilder("SELECT * FROM Orders WHERE (receiver_name LIKE ? OR phone_number LIKE ?)");
-        
+        StringBuilder sql = new StringBuilder(
+                "SELECT * FROM Orders WHERE (receiver_name LIKE ? OR phone_number LIKE ?)");
+
         // Nối điều kiện trạng thái nếu có
         if (status != -1) {
             sql.append(" AND status = ?");
         }
-        
+
         // Nối phần Sắp xếp và Phân trang vào cuối
         sql.append(" ORDER BY ").append(col).append(" ").append(order)
-           .append(" OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY");
-        
+                .append(" OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY");
+
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql.toString())) {
             String searchPattern = "%" + searchQuery + "%";
             ps.setString(1, searchPattern);
             ps.setString(2, searchPattern);
-            
+
             // Dùng biến paramIndex để theo dõi vị trí dấu chấm hỏi (?)
-            int paramIndex = 3; 
+            int paramIndex = 3;
             if (status != -1) {
                 ps.setInt(paramIndex, status);
                 paramIndex++; // Tăng vị trí lên 1 nếu có dùng status
             }
-            
+
             ps.setInt(paramIndex, (page - 1) * 10);
-            
+
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 Order o = new Order();
                 o.setId(rs.getInt("order_id"));
                 o.setUserId(rs.getInt("user_id"));
-                o.setUserName(rs.getString("receiver_name")); 
+                o.setUserName(rs.getString("receiver_name"));
                 o.setPhoneNumber(rs.getString("phone_number"));
                 o.setShippingAddress(rs.getString("shipping_address"));
                 o.setOrderDate(rs.getTimestamp("order_date"));
@@ -923,18 +963,21 @@ public class OrderDAO extends DBContext {
                 o.setStatus(rs.getInt("status"));
                 list.add(o);
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return list;
     }
+
     // HÀM LƯU GHI CHÚ NỘI BỘ
-public void updateStaffNote(int orderId, String note) {
-    String sql = "UPDATE Orders SET staff_note = ? WHERE order_id = ?";
-    try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-        ps.setString(1, note);
-        ps.setInt(2, orderId);
-        ps.executeUpdate();
-    } catch (Exception e) {
-        e.printStackTrace();
+    public void updateStaffNote(int orderId, String note) {
+        String sql = "UPDATE Orders SET staff_note = ? WHERE order_id = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, note);
+            ps.setInt(2, orderId);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-}
 }
