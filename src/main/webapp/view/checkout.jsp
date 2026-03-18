@@ -511,7 +511,7 @@ $(document).ready(function() {
     // --- 3. BẮT SỰ KIỆN CHỌN TỈNH -> TẢI HUYỆN ---
     $city.change(function() {
         let provinceId = $(this).find(':selected').data('id');
-        $district.html('<option value="" selected disabled>Đang tải dữ liệu...</option>');
+        $district.html('<option value="" selected disabled>Chọn quận/huyện</option>');
         $ward.html('<option value="" selected disabled>Chọn phường/xã</option>');
         $('#hidden_district_id').val(''); 
         $('#hidden_ward_code').val('');

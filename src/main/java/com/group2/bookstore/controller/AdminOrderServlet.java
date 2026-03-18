@@ -124,26 +124,18 @@ public class AdminOrderServlet extends HttpServlet {
                 // (Make sure you import your Order model if it isn't already!)
                 com.group2.bookstore.model.Order currentOrder = dao.getOrderById(orderId);
 
-                // 2. Block the update if it's already Completed (3) or Cancelled (0 or 4)
-                if (currentOrder != null && (currentOrder.getStatus() == 3 || currentOrder.getStatus() == 0 || currentOrder.getStatus() == 4)) {
-                    // Send them back to the detail page with a warning flag
+              
+                // Block the update if it's already Completed (4) or Cancelled (5)
+                if (currentOrder != null && (currentOrder.getStatus() == 4 || currentOrder.getStatus() == 5)) {
                     response.sendRedirect(request.getContextPath() + "/admin/order/detail?id=" + orderId + "&error=locked");
-                    return; // CRITICAL: This stops the code from reaching dao.updateStatus() below!
+                    return;
                 }
                 // --- BACKEND SECURITY CHECK END ---
                 // ... inside your doPost ...
 
-                
-
-                if (currentOrder != null && (currentOrder.getStatus() == 3 || currentOrder.getStatus() == 0 || currentOrder.getStatus() == 4)) {
-                    response.sendRedirect(request.getContextPath() + "/admin/order/detail?id=" + orderId + "&error=locked");
-                    return;
-                }
-
 // Pass the note to the DAO
                 dao.updateStatus(orderId, newStatus, statusNote);
                 // 3. If the order is still Pending or Shipping, it's safe to update
-                
 
                 // Redirect back to the Detail page so admin can see the change immediately
                 response.sendRedirect(request.getContextPath() + "/admin/order/detail?id=" + orderId + "&msg=updated");

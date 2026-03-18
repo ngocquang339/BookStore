@@ -31,8 +31,9 @@ public class StaffTicketServlet extends HttpServlet {
         // 2. DỮ LIỆU MỚI CHO TAB TRẢ HÀNG (Sử dụng hàm DAO của bạn)
         OrderDAO orderDao = new OrderDAO();
 
-        // Truyền status = 5, sortBy = "id" (hoặc "order_date" tuỳ DB của bạn), sortOrder = "DESC" để đơn mới lên đầu
-        List<Order> listReturnOrders = orderDao.getOrdersByStatus(5, "id", "DESC");
+        // Truyền status = 5, sortBy = "id" (hoặc "order_date" tuỳ DB của bạn),
+        // sortOrder = "DESC" để đơn mới lên đầu
+        List<Order> listReturnOrders = orderDao.getOrdersByStatus(7, "id", "DESC");
 
         request.setAttribute("listReturnOrders", listReturnOrders);
 
@@ -47,25 +48,42 @@ public class StaffTicketServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         String action = request.getParameter("action"); // Lấy biến phân loại hành động
 
-        if ("approve_return".equals(action)) {
-            // --- XỬ LÝ: STAFF DUYỆT TRẢ HÀNG (STATUS 5 -> 6) ---
+        if ("process_return".equals(action)) {
+            // --- XỬ LÝ: STAFF DUYỆT TRẢ HÀNG (CHẤP NHẬN HOẶC TỪ CHỐI) ---
             int orderId = Integer.parseInt(request.getParameter("orderId"));
             int userId = Integer.parseInt(request.getParameter("userId"));
+            String decision = request.getParameter("decision"); // Lấy giá trị từ ô select
 
             OrderDAO orderDao = new OrderDAO();
-            boolean isUpdated = orderDao.updateOrderStatus(orderId, 6);
+            NotificationDAO notifDao = new NotificationDAO();
 
-            if (isUpdated) {
-                // (Tùy chọn) Gửi thông báo cho User
-                NotificationDAO notifDao = new NotificationDAO();
-                notifDao.createNotification(userId,
-                        "Yêu cầu trả hàng cho đơn #" + orderId + " đã được chấp nhận và hoàn tiền!",
-                        "my-orders?status=returned");
-
-                request.getSession().setAttribute("successMessage",
-                        "Đã duyệt hoàn tiền thành công cho đơn hàng #" + orderId);
-            } else {
-                request.getSession().setAttribute("errorMessage", "Lỗi: Không thể cập nhật trạng thái đơn hàng.");
+            if ("accept".equals(decision)) {
+                // CHẤP NHẬN: Chuyển order status sang 6 (Đã Hủy / Hoàn tiền)
+                boolean isUpdated = orderDao.updateOrderStatus(orderId, 8);
+                
+                if (isUpdated) {
+                    notifDao.createNotification(userId,
+                            "Yêu cầu trả hàng cho đơn #" + orderId + " đã được CHẤP NHẬN và hoàn tiền!",
+                            "my-orders");
+                    request.getSession().setAttribute("successMessage",
+                            "Đã CHẤP NHẬN hoàn tiền cho đơn hàng #" + orderId);
+                } else {
+                    request.getSession().setAttribute("errorMessage", "Lỗi: Không thể cập nhật trạng thái đơn hàng.");
+                }
+                
+            } else if ("reject".equals(decision)) {
+                // TỪ CHỐI: Chuyển order status về lại 5 (Hoàn tất - Không cho trả nữa)
+                boolean isUpdated = orderDao.updateOrderStatus(orderId, 5);
+                
+                if (isUpdated) {
+                    notifDao.createNotification(userId,
+                            "Yêu cầu trả hàng cho đơn #" + orderId + " đã BỊ TỪ CHỐI bởi cửa hàng.",
+                            "my-orders");
+                    request.getSession().setAttribute("successMessage",
+                            "Đã TỪ CHỐI yêu cầu trả hàng của đơn #" + orderId);
+                } else {
+                    request.getSession().setAttribute("errorMessage", "Lỗi: Không thể cập nhật trạng thái đơn hàng.");
+                }
             }
 
         } else {

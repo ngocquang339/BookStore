@@ -1,13 +1,13 @@
 package com.group2.bookstore.dal;
 
-import com.group2.bookstore.model.UserVoucher;
-import com.group2.bookstore.model.Voucher;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.group2.bookstore.model.UserVoucher;
+import com.group2.bookstore.model.Voucher;
 
 public class VoucherDAO extends DBContext { // Giả sử nhóm bạn dùng DBContext để kết nối
 
@@ -181,7 +181,7 @@ public class VoucherDAO extends DBContext { // Giả sử nhóm bạn dùng DBCo
         }
     }
 
-    // 6. DÀNH CHO STAFF: LẤY TẤT CẢ VOUCHER (Kể cả hết hạn/hết lượt)
+     // 6. DÀNH CHO STAFF: LẤY TẤT CẢ VOUCHER (Kể cả hết hạn/hết lượt)
    
     public List<Voucher> getAllVouchersForStaff() {
         List<Voucher> list = new ArrayList<>();
@@ -292,4 +292,55 @@ public class VoucherDAO extends DBContext { // Giả sử nhóm bạn dùng DBCo
         }
         return stats;
     }
+
+    
+    public String generateRefundVoucher(int userId, double refundAmount) {
+    // Generate a secure, unique 8-character code like "REF-A1B2C3D4"
+    String voucherCode = "REF-" + java.util.UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+    
+    // We insert 0 for percent and min_order_value so it acts purely as cash!
+    // NOTE: I am assuming status = 1 means 'Active' in your database. Adjust if it uses text like 'Active'.
+    String sqlInsertVoucher = "INSERT INTO Vouchers " +
+                              "(code, discount_amount, discount_percent, min_order_value, start_date, end_date, usage_limit, status) " +
+                              "VALUES (?, ?, 0, 0, GETDATE(), DATEADD(DAY, 90, GETDATE()), 1, 1)";
+                              
+    String sqlLinkToUser = "INSERT INTO User_Vouchers (user_id, voucher_id, is_used, saved_date) VALUES (?, ?, 0, GETDATE())";
+    
+    try (Connection conn = getConnection()) {
+        conn.setAutoCommit(false);
+        
+        // 1. Create the global voucher
+        int newVoucherId = 0;
+        // Use Statement.RETURN_GENERATED_KEYS to grab the ID of the new voucher
+        try (PreparedStatement ps = conn.prepareStatement(sqlInsertVoucher, java.sql.Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, voucherCode);
+            ps.setDouble(2, refundAmount);
+            ps.executeUpdate();
+            
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    newVoucherId = rs.getInt(1);
+                }
+            }
+        }
+        
+        // 2. Lock it to the specific user's wallet
+        if (newVoucherId > 0) {
+            try (PreparedStatement ps2 = conn.prepareStatement(sqlLinkToUser)) {
+                ps2.setInt(1, userId);
+                ps2.setInt(2, newVoucherId);
+                ps2.executeUpdate();
+            }
+        }
+        
+        conn.commit();
+        return voucherCode; // Return the code so we can email it!
+        
+    } catch (Exception e) {
+        System.out.println("Failed to generate Store Credit Voucher!");
+        e.printStackTrace();
+    }
+    return null;
+}
+
 }

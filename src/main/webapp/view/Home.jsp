@@ -126,15 +126,15 @@
 </c:if>
 
     <%-- 2. THÔNG BÁO --%>
-    <c:if test="${not empty sessionScope.message}">
-        <div class="alert alert-${sessionScope.messageType} alert-dismissible fade show" role="alert" 
+    <c:if test="${not empty sessionScope.successMsg}">
+        <div class="alert alert-success alert-dismissible fade show" role="alert" 
              style="position: fixed; top: 60px; right: 20px; z-index: 9999; min-width: 300px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
             <i class="fa-solid fa-bell"></i> 
-            <strong>Thông báo:</strong> ${sessionScope.message}
+            <strong>Thông báo:</strong> ${sessionScope.successMsg}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-        <c:remove var="message" scope="session" />
-        <c:remove var="messageType" scope="session" />
+        <c:remove var="successMsg" scope="session" />
+        
     </c:if>
 
     <jsp:include page="component/header.jsp" />
@@ -548,6 +548,19 @@
         function handleKeyPress(e) {
             if (e.key === 'Enter') sendMessage();
         }
+        document.addEventListener("DOMContentLoaded", function() {
+                setTimeout(function() {
+                    let alertNode = document.getElementById('globalFlashAlert');
+                    if (alertNode && typeof bootstrap !== 'undefined') {
+                        // Sử dụng hàm của Bootstrap để hiệu ứng tắt mượt mà (fade out)
+                        let bsAlert = new bootstrap.Alert(alertNode);
+                        bsAlert.close();
+                    } else if (alertNode) {
+                        // Dự phòng nếu trang nào đó quên load file JS của Bootstrap
+                        alertNode.style.display = 'none';
+                    }
+                }, 3000); // 3000ms = 3 giây
+            });
     </script>
     </body>
 </html>

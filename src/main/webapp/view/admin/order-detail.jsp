@@ -41,36 +41,42 @@
                             </div>
 
                             <c:choose>
-                                <%-- 1. Lock the UI if the order is Completed (Status 3) --%>
-                                    <c:when test="${order.status == 3}">
-                                        <div style="margin-top: 20px; background-color: #d1e7dd; color: #0f5132; padding: 15px; border-radius: 8px; border: 1px solid #badbcc;">
-                                            <div><i class="fa-solid fa-lock"></i> This order is <strong>Completed</strong> and archived. The status can no longer be modified.</div>
-                                            
-                                            <%-- Safely display the note if it exists --%>
+                                <%-- 1. Lock the UI if the order is Completed (Status 4) --%>
+                                    <c:when test="${order.status == 4}">
+                                        <div
+                                            style="margin-top: 20px; background-color: #d1e7dd; color: #0f5132; padding: 15px; border-radius: 8px; border: 1px solid #badbcc;">
+                                            <div><i class="fa-solid fa-lock"></i> This order is
+                                                <strong>Completed</strong> and archived. The status can no longer be
+                                                modified.</div>
                                             <c:if test="${not empty order.statusNote}">
-                                                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #badbcc; font-size: 0.95em;">
-                                                    <strong><i class="fa-solid fa-comment-dots"></i> Note:</strong> ${order.statusNote}
+                                                <div
+                                                    style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #badbcc; font-size: 0.95em;">
+                                                    <strong><i class="fa-solid fa-comment-dots"></i> Note:</strong>
+                                                    ${order.statusNote}
                                                 </div>
                                             </c:if>
                                         </div>
                                     </c:when>
 
-                                    <%-- 2. Lock the UI if the order is Cancelled (Checking both 0 and 4 just in case!) --%>
-                                    <c:when test="${order.status == 0 || order.status == 4}">
-                                        <div style="margin-top: 20px; background-color: #f8d7da; color: #842029; padding: 15px; border-radius: 8px; border: 1px solid #f5c2c7;">
-                                            <div><i class="fa-solid fa-ban"></i> This order is <strong>Cancelled</strong> and archived. The status can no longer be modified.</div>
-                                            
-                                            <%-- Safely display the reason if it exists --%>
-                                            <c:if test="${not empty order.statusNote}">
-                                                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #f5c2c7; font-size: 0.95em;">
-                                                    <strong><i class="fa-solid fa-circle-exclamation"></i> Reason:</strong> ${order.statusNote}
-                                                </div>
-                                            </c:if>
-                                        </div>
-                                    </c:when>
+                                    <%-- 2. Lock the UI if the order is Cancelled (Status 5) --%>
+                                        <c:when test="${order.status == 5}">
+                                            <div
+                                                style="margin-top: 20px; background-color: #f8d7da; color: #842029; padding: 15px; border-radius: 8px; border: 1px solid #f5c2c7;">
+                                                <div><i class="fa-solid fa-ban"></i> This order is
+                                                    <strong>Cancelled</strong> and archived. The status can no longer be
+                                                    modified.</div>
+                                                <c:if test="${not empty order.statusNote}">
+                                                    <div
+                                                        style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #f5c2c7; font-size: 0.95em;">
+                                                        <strong><i class="fa-solid fa-circle-exclamation"></i>
+                                                            Reason:</strong> ${order.statusNote}
+                                                    </div>
+                                                </c:if>
+                                            </div>
+                                        </c:when>
 
-                                        <%-- 3. Show the update form only if the order is Pending or Shipping --%>
-
+                                        <%-- 3. Show the update form only if the order is Pending, Processing, or
+                                            Shipping --%>
                                             <c:otherwise>
                                                 <form action="${pageContext.request.contextPath}/admin/order/update"
                                                     method="post"
@@ -78,44 +84,41 @@
                                                     <input type="hidden" name="orderId" value="${order.id}">
                                                     <label style="font-weight:bold;">Update Order Status:</label>
 
-                                                    <%-- CRITICAL: Added id and onchange here --%>
-                                                        <select name="status" id="statusDropdown" class="status-select"
-                                                            onchange="toggleReasonField()">
-                                                            <option value="1" ${order.status==1 ? 'selected' : '' }>
-                                                                Pending
-                                                            </option>
-                                                            <option value="2" ${order.status==2 ? 'selected' : '' }>
-                                                                Shipping
-                                                            </option>
-                                                            <option value="3">Completed</option>
-                                                            <option value="0">Cancelled</option>
-                                                        </select>
+                                                    <select name="status" id="statusDropdown" class="status-select"
+                                                        onchange="toggleReasonField()">
+                                                        <option value="1" ${order.status==1 ? 'selected' : '' }>Pending
+                                                        </option>
+                                                        <option value="2" ${order.status==2 ? 'selected' : '' }>
+                                                            Processing</option>
+                                                        <option value="3" ${order.status==3 ? 'selected' : '' }>Shipping
+                                                        </option>
+                                                        <option value="4">Completed</option>
+                                                        <option value="5">Cancelled</option>
+                                                    </select>
 
-                                                        <%-- CRITICAL: The hidden reason box --%>
-                                                            <div id="reasonBox"
-                                                                style="display: none; margin-top: 15px;">
-                                                                <label style="font-weight:bold; color: #dc3545;">Reason
-                                                                    / Note (Required):</label>
-                                                                <textarea name="statusNote" id="statusNoteInput"
-                                                                    class="form-control" rows="3"
-                                                                    placeholder="Explain why this order is being completed or cancelled..."
-                                                                    style="width: 100%; margin-top: 5px; padding: 10px; border: 1px solid #ced4da; border-radius: 4px;"></textarea>
-                                                            </div>
+                                                    <%-- The hidden reason box --%>
+                                                        <div id="reasonBox" style="display: none; margin-top: 15px;">
+                                                            <label style="font-weight:bold; color: #dc3545;">Reason /
+                                                                Note (Required):</label>
+                                                            <textarea name="statusNote" id="statusNoteInput"
+                                                                class="form-control" rows="3"
+                                                                placeholder="Explain why this order is being completed or cancelled..."
+                                                                style="width: 100%; margin-top: 5px; padding: 10px; border: 1px solid #ced4da; border-radius: 4px;"></textarea>
+                                                        </div>
 
-                                                            <button type="submit" class="btn-update"
-                                                                style="margin-top: 15px; background-color: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">Update
-                                                                Status</button>
+                                                        <button type="submit" class="btn-update"
+                                                            style="margin-top: 15px; background-color: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">Update
+                                                            Status</button>
                                                 </form>
 
-                                                <%-- CRITICAL: The JavaScript to make it toggle --%>
+                                                <%-- CRITICAL: Updated JavaScript to match 4 and 5 --%>
                                                     <script>
                                                         function toggleReasonField() {
                                                             var dropdown = document.getElementById("statusDropdown");
                                                             var reasonBox = document.getElementById("reasonBox");
                                                             var reasonInput = document.getElementById("statusNoteInput");
 
-                                                            // Check for 3 (Completed) or 0 (Cancelled)
-                                                            if (dropdown.value === "3" || dropdown.value === "0") {
+                                                            if (dropdown.value === "4" || dropdown.value === "5") {
                                                                 reasonBox.style.display = "block";
                                                                 reasonInput.required = true;
                                                             } else {
@@ -159,7 +162,7 @@
 
                     </div>
                 </div>
-<%@ include file="admin-notifications.jsp"  %>
+                <%@ include file="admin-notifications.jsp" %>
             </body>
 
             </html>

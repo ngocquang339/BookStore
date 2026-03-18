@@ -5,6 +5,7 @@ public class Category {
     private String name;
     private String imageUrl;
     private String description; // Thêm cho khớp DB
+    private Integer parentId;
 
     public Category() {
     }
@@ -45,5 +46,13 @@ public class Category {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Integer getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Integer parentId) {
+        this.parentId = parentId;
     }
 }

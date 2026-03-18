@@ -145,6 +145,12 @@
                             <h3>Reports</h3>
                             <p>Sales statistics</p>
                         </a>
+
+                        <a href="${pageContext.request.contextPath}/admin/returns" class="admin-card">
+                            <i class="fa-solid fa-rotate-left"></i>
+                            <h3>Returns</h3>
+                            <p>Process refunds and damaged books</p>
+                        </a>
                     </div>
                 </main>
                 <%@ include file="admin-notifications.jsp" %>

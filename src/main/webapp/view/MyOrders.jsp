@@ -375,9 +375,9 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
-      <form action="${pageContext.request.contextPath}/staff/tickets" method="POST">
+      <form action="${pageContext.request.contextPath}/my-orders" method="POST">
         <div class="modal-body px-4">
-          
+          <input type="hidden" name="action" value="request_return">
           <input type="hidden" name="orderId" id="modal_returnOrderId" value="">
 
           <p class="fw-bold text-dark mb-3">Vui lòng chọn lý do trả hàng: <span class="text-danger">*</span></p>

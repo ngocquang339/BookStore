@@ -123,27 +123,23 @@
                 <div style="font-size: 28px; font-weight: 900; color: #C92127; margin-bottom: 20px; letter-spacing: 1px;">
                     MINDBOOK
                 </div>
-                <p><i class="fa-solid fa-location-dot"></i> <span><strong>Địa chỉ:</strong> Lầu 5, Tòa nhà Tri Thức, Quận 1, TP. Hồ Chí Minh</span></p>
+                <p><i class="fa-solid fa-location-dot"></i> <span><strong>Địa chỉ:</strong> Khu công nghệ cao Hòa Lạc, Hà Nội</span></p>
                 <p><i class="fa-solid fa-envelope"></i> <span><strong>Email:</strong> cskh@mindbook.com</span></p>
                 <p><i class="fa-solid fa-phone"></i> <span><strong>Hotline:</strong> 1900 1234 (8h00 - 21h00)</span></p>
                 
-                <h4 style="margin-top: 25px; margin-bottom: 10px;">Đăng ký nhận tin khuyến mãi</h4>
-                <form class="newsletter-box" action="#" method="post">
-                    <input type="email" placeholder="Nhập email của bạn..." required>
-                    <button type="submit">Đăng ký</button>
-                </form>
             </div>
 
-            <div class="footer-col">
-                <h4>Dịch vụ khách hàng</h4>
-                <ul>
-                    <li><a href="#"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Điều khoản sử dụng</a></li>
-                    <li><a href="#"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Chính sách bảo mật</a></li>
-                    <li><a href="#"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Chính sách đổi trả</a></li>
-                    <li><a href="#"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Phương thức thanh toán</a></li>
-                    <li><a href="#"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Phương thức vận chuyển</a></li>
-                </ul>
-            </div>
+<div class="footer-col">
+    <h4>Dịch vụ khách hàng</h4>
+    <ul>
+        <li><a href="${pageContext.request.contextPath}/terms"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Điều khoản sử dụng</a></li>
+        
+        <li><a href="#"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Chính sách bảo mật</a></li>
+        <li><a href="#"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Chính sách đổi trả</a></li>
+        <li><a href="#"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Phương thức thanh toán</a></li>
+        <li><a href="#"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Phương thức vận chuyển</a></li>
+    </ul>
+</div>
 
             <div class="footer-col">
                 <h4>Về MindBook</h4>
@@ -163,14 +159,6 @@
                     <li><a href="#"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Lịch sử mua hàng</a></li>
                     <li><a href="#"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Giỏ hàng</a></li>
                 </ul>
-
-                <h4>Kết nối với chúng tôi</h4>
-                <div class="footer-social">
-                    <a href="#" title="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-                    <a href="#" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
-                    <a href="#" title="YouTube"><i class="fa-brands fa-youtube"></i></a>
-                    <a href="#" title="Tiktok"><i class="fa-brands fa-tiktok"></i></a>
-                </div>
             </div>
 
         </div>
@@ -179,10 +167,14 @@
             <div>&copy; 2026 <strong>MindBook Store</strong>. Tất cả các quyền được bảo lưu.</div>
             <div style="display: flex; gap: 10px; align-items: center;">
                 <span style="font-weight: bold; color: #777;">Chấp nhận thanh toán:</span>
-                <i class="fa-brands fa-cc-visa" style="font-size: 24px; color: #1434CB;"></i>
-                <i class="fa-brands fa-cc-mastercard" style="font-size: 24px; color: #EB001B;"></i>
-                <i class="fa-brands fa-cc-paypal" style="font-size: 24px; color: #003087;"></i>
-                <i class="fa-solid fa-money-bill-wave" style="font-size: 24px; color: #00b14f;" title="Tiền mặt"></i>
+                <!-- COD -->
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <i class="fa-solid fa-money-bill-wave" style="font-size: 22px; color: #00b14f;"></i>
+                </div>
+                <!-- VNPay -->
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <img src="${pageContext.request.contextPath}/assets/image/PaymentMethod/VNPAY.jpg" alt="VNPay" style="height: 24px;">
+                </div>
             </div>
         </div>
     </div>
