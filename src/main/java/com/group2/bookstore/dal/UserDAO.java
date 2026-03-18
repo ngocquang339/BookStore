@@ -273,7 +273,6 @@ public class UserDAO extends DBContext {
     public List<User> getFilteredCustomers(String keyword, String memberTier, Double minSpend, Double maxSpend) {
         List<User> list = new ArrayList<>();
 
-        // ĐÃ SỬA LỖI: Bổ sung thêm u.tags vào câu lệnh SQL
         StringBuilder sql = new StringBuilder(
                 "SELECT * FROM (" +
                         "   SELECT u.user_id, u.fullname, u.username, u.email, u.phone_number, u.status, u.tags, " +
@@ -340,7 +339,6 @@ public class UserDAO extends DBContext {
                     u.setStatus(rs.getInt("status"));
                     u.setTotalSpend(rs.getDouble("total_spend"));
 
-                    // THÊM DÒNG NÀY ĐỂ LẤY NHÃN DÁN LÊN WEB (Lỗi do thiếu dòng này)
                     u.setTags(rs.getString("tags"));
 
                     list.add(u);
