@@ -31,8 +31,7 @@ public class StaffTicketServlet extends HttpServlet {
         // 2. DỮ LIỆU MỚI CHO TAB TRẢ HÀNG (Sử dụng hàm DAO của bạn)
         OrderDAO orderDao = new OrderDAO();
 
-        // Truyền status = 5, sortBy = "id" (hoặc "order_date" tuỳ DB của bạn),
-        // sortOrder = "DESC" để đơn mới lên đầu
+        // Truyền status = 5, sortBy = "id" (hoặc "order_date" tuỳ DB của bạn), sortOrder = "DESC" để đơn mới lên đầu
         List<Order> listReturnOrders = orderDao.getOrdersByStatus(5, "id", "DESC");
 
         request.setAttribute("listReturnOrders", listReturnOrders);
