@@ -937,7 +937,7 @@
                                     </form>
                                 </div>
 
-                                <%-- 3. KHU VỰC TRẢ LỜI CŨ (GIỮ NGUYÊN) --%>
+                            function replyToUser
                                 <div id="replies-section-${d.discussionId}" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed #eee;">
                                     <div id="reply-list-${d.discussionId}" style="display: flex; flex-direction: column;">
                                         <c:if test="${not empty d.replies}">

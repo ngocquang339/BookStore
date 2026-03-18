@@ -125,7 +125,7 @@
 
                         <form action="${pageContext.request.contextPath}/admin/returns/review" method="post">
                             <input type="hidden" name="returnId" value="${req.returnId}">
-
+                            <input type="hidden" name="customerEmail" value="${req.userEmail}">
                             <label class="info-label" style="font-weight: bold; color: #333;">Update Status</label>
                             <select name="status" class="form-control" id="statusDropdown"
                                 onchange="toggleDynamicFields()">

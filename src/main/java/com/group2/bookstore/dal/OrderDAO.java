@@ -1,6 +1,5 @@
 package com.group2.bookstore.dal;
 
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -158,25 +157,29 @@ public class OrderDAO extends DBContext {
     // =========================================================================
     // 1. HÀM TẠO ĐƠN HÀNG (PHIÊN BẢN CỦA BẠN - CÓ VOUCHER & TRỪ KHO)
     // =========================================================================
-    public void createOrder(User user, List<CartItem> cart, String receiverName, String shippingAddress, String phone,
-            double total, String paymentMethod, int orderStatus, int voucherId, BigDecimal discountAmount) {
+    // =========================================================================
+    // MASTER CREATE ORDER METHOD (Unified Teammate + Your Advanced Logic)
+    // =========================================================================
+    public int createOrder(User user, List<CartItem> cart, String receiverName, String shippingAddress, String phone, double total, String paymentMethod, int orderStatus, int voucherId, java.math.BigDecimal discountAmount) {
         String sqlOrder = "INSERT INTO Orders(user_id, order_date, total_amount, status, receiver_name, shipping_address, phone_number, payment_method, voucher_id, discount_amount) VALUES (?, GETDATE(), ?, ?, ?, ?, ?, ?, ?, ?)";
-        Connection cn = null;
+        Connection cn = null; 
+        int generatedOrderId = 0; 
+        
         try {
             cn = getConnection();
             cn.setAutoCommit(false); // Bắt đầu Transaction
 
-            // 1. Lưu Order
-            PreparedStatement ps = cn.prepareStatement(sqlOrder, PreparedStatement.RETURN_GENERATED_KEYS);
+            // 1. Lưu Order (Header)
+            PreparedStatement ps = cn.prepareStatement(sqlOrder, java.sql.Statement.RETURN_GENERATED_KEYS);
             ps.setInt(1, user.getId());
             ps.setDouble(2, total);
-            ps.setInt(3, orderStatus);
-            ps.setString(4, receiverName);
-            ps.setString(5, shippingAddress);
-            ps.setString(6, phone);
-            ps.setString(7, paymentMethod);
-
-            // Set giá trị cho voucher_id và discount_amount
+            ps.setInt(3, orderStatus);         
+            ps.setString(4, receiverName);     
+            ps.setString(5, shippingAddress);  
+            ps.setString(6, phone);            
+            ps.setString(7, paymentMethod);    
+            
+            // Xử lý an toàn cho Voucher & Discount (Cho phép NULL/0 nếu không dùng)
             if (voucherId > 0) {
                 ps.setInt(8, voucherId);
             } else {
@@ -187,51 +190,53 @@ public class OrderDAO extends DBContext {
             } else {
                 ps.setBigDecimal(9, discountAmount);
             }
+            
             ps.executeUpdate();
 
+            // Lấy ID vừa tạo
             ResultSet rs = ps.getGeneratedKeys();
-            int orderID = rs.next() ? rs.getInt(1) : 0;
+            generatedOrderId = rs.next() ? rs.getInt(1) : 0;
 
-            // 2. Lưu OrderDetails
+            // 2. Lưu OrderDetails và Trừ Kho (Gộp chung vòng lặp cho tối ưu)
             String sqlDetail = "INSERT INTO OrderDetails(order_id, book_id, quantity, price) VALUES (?, ?, ?, ?)";
+            String sqlUpdateStock = "UPDATE Books SET stock_quantity = stock_quantity - ? WHERE book_id = ?";
+            
             PreparedStatement psDetail = cn.prepareStatement(sqlDetail);
+            PreparedStatement psUpdateStock = cn.prepareStatement(sqlUpdateStock);
+            
             for (CartItem item : cart) {
-                psDetail.setInt(1, orderID);
+                // Thêm vào batch Chi tiết đơn hàng
+                psDetail.setInt(1, generatedOrderId);
                 psDetail.setInt(2, item.getBook().getId());
                 psDetail.setInt(3, item.getQuantity());
                 psDetail.setDouble(4, item.getBook().getPrice());
                 psDetail.addBatch();
-            }
-            psDetail.executeBatch();
-
-            // 3. TRỪ SỐ LƯỢNG TỒN KHO TRỰC TIẾP
-            String sqlUpdateStock = "UPDATE Books SET stock_quantity = stock_quantity - ? WHERE book_id = ?";
-            PreparedStatement psUpdateStock = cn.prepareStatement(sqlUpdateStock);
-            for (CartItem item : cart) {
-                psUpdateStock.setInt(1, item.getQuantity());
-                psUpdateStock.setInt(2, item.getBook().getId());
+                
+                // Thêm vào batch Trừ kho
+                psUpdateStock.setInt(1, item.getQuantity()); 
+                psUpdateStock.setInt(2, item.getBook().getId()); 
                 psUpdateStock.addBatch();
             }
+            psDetail.executeBatch();
             psUpdateStock.executeBatch();
 
-            // 4. Xóa giỏ hàng (CartItems)
+            // 3. Xóa giỏ hàng (Cart & CartItems)
             String sqlDeleteItems = "DELETE FROM CartItems WHERE cart_id = (SELECT cart_id FROM Cart WHERE user_id = ?)";
             PreparedStatement psDelItems = cn.prepareStatement(sqlDeleteItems);
             psDelItems.setInt(1, user.getId());
             psDelItems.executeUpdate();
 
-            // 5. Xóa bảng Cart
             String sqlDeleteCart = "DELETE FROM Cart WHERE user_id = ?";
             PreparedStatement psDelCart = cn.prepareStatement(sqlDeleteCart);
             psDelCart.setInt(1, user.getId());
             psDelCart.executeUpdate();
 
-            cn.commit(); // TẤT CẢ OK -> LƯU VÀO DB
-
+            cn.commit(); // TẤT CẢ THÀNH CÔNG -> CHỐT LƯU VÀO DB
+            
         } catch (Exception e) {
             if (cn != null) {
                 try {
-                    cn.rollback(); // CÓ LỖI -> HỦY BỎ TẤT CẢ
+                    cn.rollback(); // CÓ LỖI -> HỦY BỎ TOÀN BỘ QUÁ TRÌNH
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
@@ -247,72 +252,8 @@ public class OrderDAO extends DBContext {
                 }
             }
         }
-    }
-
-    // =========================================================================
-    // 2. HÀM TẠO ĐƠN HÀNG (PHIÊN BẢN CỦA ĐỒNG ĐỘI - 7 THAM SỐ CƠ BẢN)
-    // =========================================================================
-    public void createOrder(User user, List<CartItem> cart, String fullname, String address, String phone, double total,
-            String paymentMethod) {
-        String sqlOrder = "INSERT INTO Orders(user_id, order_date, total_amount, status, receiver_name, shipping_address, phone_number, payment_method) VALUES (?, GETDATE(), ?, 1, ?, ?, ?, ?)";
-        Connection cn = null;
-        try {
-            cn = getConnection();
-            cn.setAutoCommit(false);
-
-            PreparedStatement ps = cn.prepareStatement(sqlOrder, PreparedStatement.RETURN_GENERATED_KEYS);
-            ps.setInt(1, user.getId());
-            ps.setDouble(2, total);
-            ps.setString(3, fullname);
-            ps.setString(4, address);
-            ps.setString(5, phone);
-            ps.setString(6, paymentMethod);
-            ps.executeUpdate();
-
-            ResultSet rs = ps.getGeneratedKeys();
-            int orderID = rs.next() ? rs.getInt(1) : 0;
-
-            String sqlDetail = "INSERT INTO OrderDetails(order_id, book_id, quantity, price) VALUES (?, ?, ?, ?)";
-            PreparedStatement psDetail = cn.prepareStatement(sqlDetail);
-            for (CartItem item : cart) {
-                psDetail.setInt(1, orderID);
-                psDetail.setInt(2, item.getBook().getId());
-                psDetail.setInt(3, item.getQuantity());
-                psDetail.setDouble(4, item.getBook().getPrice());
-                psDetail.addBatch();
-            }
-            psDetail.executeBatch();
-
-            String sqlDeleteItems = "DELETE FROM CartItems WHERE cart_id = (SELECT cart_id FROM Cart WHERE user_id = ?)";
-            PreparedStatement psDelItems = cn.prepareStatement(sqlDeleteItems);
-            psDelItems.setInt(1, user.getId());
-            psDelItems.executeUpdate();
-
-            String sqlDeleteCart = "DELETE FROM Cart WHERE user_id = ?";
-            PreparedStatement psDelCart = cn.prepareStatement(sqlDeleteCart);
-            psDelCart.setInt(1, user.getId());
-            psDelCart.executeUpdate();
-
-            cn.commit();
-        } catch (Exception e) {
-            if (cn != null) {
-                try {
-                    cn.rollback();
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-            e.printStackTrace();
-        } finally {
-            if (cn != null) {
-                try {
-                    cn.setAutoCommit(true);
-                    cn.close();
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-        }
+        
+        return generatedOrderId; 
     }
 
     // =========================================================================

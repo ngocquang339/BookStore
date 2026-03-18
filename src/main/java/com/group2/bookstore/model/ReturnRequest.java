@@ -26,7 +26,7 @@ public class ReturnRequest {
     // Extra fields for the Admin UI (populated via SQL JOIN)
     private String bookTitle;
     private String customerName;
-
+    private String userEmail;
     // Default Constructor
     public ReturnRequest() {
     }
@@ -160,4 +160,13 @@ public class ReturnRequest {
         this.maxRefundableAmount = maxRefundableAmount;
     }
     
+
+    // Add the Getter and Setter
+    public String getUserEmail() {
+        return userEmail;
+    }
+
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
+    }
 }
