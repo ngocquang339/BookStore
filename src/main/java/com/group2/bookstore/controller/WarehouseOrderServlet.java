@@ -12,20 +12,6 @@ import java.io.IOException;
 @WebServlet(name = "WarehouseOrderServlet", urlPatterns = { "/warehouse/orders" })
 public class WarehouseOrderServlet extends HttpServlet {
 
-    // 1. HÀM HỖ TRỢ: Xử lý ép kiểu cực kỳ an toàn
-    // Nếu tham số bị rỗng, bị chữ "null", hoặc người dùng gõ bậy bạ -> tự động trả
-    // về giá trị mặc định
-    private int parseIntSafe(String value, int defaultValue) {
-        if (value == null || value.trim().isEmpty() || value.trim().equalsIgnoreCase("null")) {
-            return defaultValue;
-        }
-        try {
-            return Integer.parseInt(value.trim());
-        } catch (NumberFormatException e) {
-            return defaultValue;
-        }
-    }
-
     // 2. HÀM DOGET ĐÃ ĐƯỢC TỐI ƯU
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -93,4 +79,16 @@ public class WarehouseOrderServlet extends HttpServlet {
         // Redirect lại để tránh submit form nhiều lần
         response.sendRedirect(request.getContextPath() + "/warehouse/orders");
     }
+    
+    private int parseIntSafe(String value, int defaultValue) {
+        if (value == null || value.trim().isEmpty() || value.trim().equalsIgnoreCase("null")) {
+            return defaultValue;
+        }
+        try {
+            return Integer.parseInt(value.trim());
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
+
 }
