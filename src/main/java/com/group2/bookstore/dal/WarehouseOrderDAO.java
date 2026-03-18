@@ -2,8 +2,6 @@ package com.group2.bookstore.dal;
 
 import com.group2.bookstore.constant.OrderStatus;
 import com.group2.bookstore.model.Book;
-import com.group2.bookstore.model.PurchaseOrderDetail;
-import com.group2.bookstore.model.PurchaseOrder;
 import com.group2.bookstore.model.Supplier;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -344,5 +342,85 @@ public class WarehouseOrderDAO extends DBContext {
         }
 
         return isSuccess;
+    }
+    // Thêm vào WarehouseOrderDAO.java
+
+    public List<Map<String, Object>> getReturnOrders(String searchName, int statusFilter) {
+        List<Map<String, Object>> list = new ArrayList<>();
+        StringBuilder sql = new StringBuilder(
+                "SELECT o.order_id, o.order_date, o.total_amount, o.status, u.fullname " +
+                        "FROM Orders o JOIN Users u ON o.user_id = u.user_id WHERE o.status IN (7, 8, 9, 10) ");
+
+        if (searchName != null && !searchName.trim().isEmpty()) {
+            sql.append(" AND u.fullname LIKE ? ");
+        }
+        if (statusFilter >= 7) {
+            sql.append(" AND o.status = ? ");
+        }
+        sql.append(" ORDER BY o.order_date DESC");
+
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            int paramIndex = 1;
+            if (searchName != null && !searchName.trim().isEmpty()) {
+                ps.setString(paramIndex++, "%" + searchName + "%");
+            }
+            if (statusFilter >= 7) {
+                ps.setInt(paramIndex++, statusFilter);
+            }
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Map<String, Object> order = new HashMap<>();
+                order.put("order_id", rs.getInt("order_id"));
+                order.put("order_date", rs.getTimestamp("order_date"));
+                order.put("total_amount", rs.getDouble("total_amount"));
+                order.put("status", rs.getInt("status"));
+                order.put("fullname", rs.getString("fullname"));
+                list.add(order);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public void confirmReturnToStock(int orderId) throws Exception {
+        Connection conn = null;
+        try {
+            conn = getConnection();
+            conn.setAutoCommit(false);
+
+            // 1. Lấy danh sách sách cần hoàn trả
+            String sqlItems = "SELECT book_id, quantity FROM OrderDetails WHERE order_id = ?";
+            PreparedStatement psItems = conn.prepareStatement(sqlItems);
+            psItems.setInt(1, orderId);
+            ResultSet rs = psItems.executeQuery();
+
+            // 2. CỘNG lại tồn kho (+)
+            String sqlUpdateStock = "UPDATE Books SET stock_quantity = stock_quantity + ? WHERE book_id = ?";
+            PreparedStatement psStock = conn.prepareStatement(sqlUpdateStock);
+            while (rs.next()) {
+                psStock.setInt(1, rs.getInt("quantity"));
+                psStock.setInt(2, rs.getInt("book_id"));
+                psStock.addBatch();
+            }
+            psStock.executeBatch();
+
+            // 3. Cập nhật trạng thái cuối cùng: RETURN_COMPLETED (10)
+            String sqlStatus = "UPDATE Orders SET status = ? WHERE order_id = ?";
+            PreparedStatement psStatus = conn.prepareStatement(sqlStatus);
+            psStatus.setInt(1, OrderStatus.RETURN_COMPLETED);
+            psStatus.setInt(2, orderId);
+            psStatus.executeUpdate();
+
+            conn.commit();
+        } catch (Exception e) {
+            if (conn != null)
+                conn.rollback();
+            throw e;
+        } finally {
+            if (conn != null)
+                conn.close();
+        }
     }
 }
