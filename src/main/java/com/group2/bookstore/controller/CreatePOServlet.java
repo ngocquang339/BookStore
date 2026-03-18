@@ -14,7 +14,7 @@ import jakarta.servlet.http.HttpSession; // Bắt buộc import HttpSession
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet(name = "CreatePOServlet", urlPatterns = {"/create-po"})
+@WebServlet(name = "CreatePOServlet", urlPatterns = {"/warehouse/create-po"})
 public class CreatePOServlet extends HttpServlet {
 
     @Override
@@ -73,7 +73,8 @@ public class CreatePOServlet extends HttpServlet {
             
             if (isSuccess) {
                 // Tạo thành công -> Chuyển về trang danh sách PO (View Purchase Order)
-                response.sendRedirect("create-po?status=success");
+                response.sendRedirect(request.getContextPath() + "/warehouse/create-po?status=success");
+
             } else {
                 // Thất bại -> Báo lỗi và quay lại trang tạo
                 request.setAttribute("error", "Tạo đơn hàng thất bại. Vui lòng thử lại!");
