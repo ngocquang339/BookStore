@@ -55,6 +55,14 @@
                             class="btn btn-danger mt-auto">Truy cập</a>
                     </div>
                 </div>
+                <div class="col-md-4">
+                    <div class="card p-4 shadow-sm h-100" style="border-color: #fd7e14;">
+                        <h4 style="color: #fd7e14;"><i class="fas fa-undo-alt"></i> Return Orders & Inspect</h4>
+                        <p>Tiếp nhận đơn trả hàng, kiểm tra chất lượng và nhập lại tồn kho.</p>
+                        <a href="${pageContext.request.contextPath}/warehouse/returns" class="btn mt-auto text-white"
+                            style="background-color: #fd7e14;">Truy cập</a>
+                    </div>
+                </div>
 
                 <div class="col-md-4">
                     <div class="card p-4 shadow-sm h-100 border-secondary">

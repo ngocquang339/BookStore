@@ -307,22 +307,26 @@
                 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
                 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
-                <script>
+                <<script>
                     $(document).ready(function () {
-                        $('#orderTable').DataTable({
-                            "language": { "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" },
-                            "order": [[2, "desc"]]
-                        });
-
-                        <c:if test="${not empty orderDetails}">
-                            var myModal = new bootstrap.Modal(document.getElementById('orderDetailModal'), {
-                                keyboard: false,
-                            backdrop: 'static'
-                });
-                            myModal.show();
-                        </c:if>
+                    $('#orderTable').DataTable({
+                    "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json"
+                    },
+                    "order": [], // giữ thứ tự từ SQL
+                    "paging": true, // bật phân trang
+                    "pageLength": 10
                     });
-                </script>
+
+                    <c:if test="${not empty orderDetails}">
+                        var myModal = new bootstrap.Modal(document.getElementById('orderDetailModal'), {
+                        keyboard: false,
+                        backdrop: 'static'
+                        });
+                        myModal.show();
+                    </c:if>
+                    });
+                    </script>
             </body>
 
             </html>

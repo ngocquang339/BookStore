@@ -63,6 +63,14 @@
                     <input type="hidden" name="orderId" value="${orderId}">
 
                     <div class="card card-custom">
+                        <div class="p-3 border-bottom bg-light">
+                            <button type="button" class="btn btn-sm btn-outline-success me-2" onclick="checkAll(true)">
+                                ✔ Check all
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="checkAll(false)">
+                                ✖ Uncheck all
+                            </button>
+                        </div>
                         <div class="table-responsive">
                             <table class="table table-hover align-middle table-bordered mb-0">
                                 <thead class="table-dark">
@@ -118,14 +126,28 @@
             </div>
 
             <script>
+                function checkAll(state) {
+                    document.querySelectorAll('.pick-checkbox').forEach(cb => {
+                        cb.checked = state;
+
+                        var row = cb.closest('tr');
+                        if (state) {
+                            row.classList.add('row-picked');
+                        } else {
+                            row.classList.remove('row-picked');
+                        }
+                    });
+
+                    updateProgress();
+                }
                 // Hàm đổi màu dòng khi được tick và cập nhật tiến độ
                 function toggleRowBackground(checkbox) {
-                    var row = checkbox.closest('tr');
-                    if (checkbox.checked) {
-                        row.classList.add('row-picked');
-                    } else {
-                        row.classList.remove('row-picked');
-                    }
+                    const row = checkbox.closest('tr');
+
+                    checkbox.checked
+                        ? row.classList.add('row-picked')
+                        : row.classList.remove('row-picked');
+
                     updateProgress();
                 }
 

@@ -119,9 +119,9 @@ public class ReturnRequestDAO extends DBContext {
                                  String adminUsername, double refundAmount, String bankRef, String adminNote) {
                                      
         String updateStatusSql = "UPDATE ReturnRequests SET status = ?, admin_note = ? WHERE return_id = ?";
-        String insertLedgerSql = "INSERT INTO RefundTransactions (return_id, processed_by_admin, refund_amount, bank_reference_code) VALUES (?, ?, ?, ?)";
+        String insertLedgerSql = "INSERT INTO RefundTransactions (return_id, processed_by, refund_amount, bank_reference) VALUES (?, ?, ?, ?)";
         // NOTE: Check if your Books table uses 'quantity' or 'stock' for the column name!
-        String updateInventorySql = "UPDATE Books SET quantity = quantity + ? WHERE book_id = ?"; 
+        String updateInventorySql = "UPDATE Books SET stock_quantity = stock_quantity + ? WHERE book_id = ?"; 
         
         Connection conn = null;
         try {
