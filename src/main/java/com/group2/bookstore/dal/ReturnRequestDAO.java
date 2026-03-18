@@ -119,15 +119,14 @@ public class ReturnRequestDAO extends DBContext {
         }
     }
 
-    // 2. Process the financial refund securely using an ACID Transaction
-    // Process the refund AND handle inventory securely
     public boolean processRefund(int returnId, int newStatus, int bookId, int quantity,
             String adminUsername, double refundAmount, String bankRef, String adminNote) {
 
         String updateStatusSql = "UPDATE ReturnRequests SET status = ?, admin_note = ? WHERE return_id = ?";
-        String insertLedgerSql = "INSERT INTO RefundTransactions (return_id, processed_by_admin, refund_amount, bank_reference_code) VALUES (?, ?, ?, ?)";
         
-        // ✨ FIXED: Changed column name from 'quantity' to 'stock_quantity' to match your Books table! ✨
+        // ✨ FIXED: Updated column names to match your SQL Server exactly ✨
+        String insertLedgerSql = "INSERT INTO RefundTransactions (return_id, processed_by, refund_amount, bank_reference) VALUES (?, ?, ?, ?)";
+        
         String updateInventorySql = "UPDATE Books SET stock_quantity = stock_quantity + ? WHERE book_id = ?";
 
         Connection conn = null;
