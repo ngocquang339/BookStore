@@ -28,7 +28,10 @@ public class WarehouseOrderDAO extends DBContext {
         if (statusFilter > 0) {
             sql.append(" AND o.status = ? ");
         }
-        sql.append(" ORDER BY o.order_date DESC");
+        sql.append(
+                " ORDER BY " +
+                        " CASE WHEN o.status = 2 THEN 0 ELSE 1 END, " +
+                        " o.order_date DESC");
 
         try (Connection conn = getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql.toString())) {
