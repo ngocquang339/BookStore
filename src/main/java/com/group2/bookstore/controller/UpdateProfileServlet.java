@@ -64,6 +64,7 @@ public class UpdateProfileServlet extends HttpServlet{
         // (Bạn cần viết hàm updateUser trong UserDAO nhận vào 1 User và chạy lệnh SQL UPDATE)
 
         if (isUpdated) {
+            currentUser.setPassword("");
             // 7. Cập nhật lại Session (Để F5 trang Profile thấy dữ liệu mới ngay)
             session.setAttribute("user", currentUser);
             
@@ -75,6 +76,7 @@ public class UpdateProfileServlet extends HttpServlet{
         }
 
         // 8. Quay trở lại trang Profile
-        response.sendRedirect("view/UserProfile.jsp"); // Hoặc đường dẫn map tới profile
+        // Thay dòng cuối cùng của doPost thành dòng này:
+        response.sendRedirect(request.getContextPath() + "/update-profile");
     }
 }

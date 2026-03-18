@@ -245,7 +245,7 @@ public class CheckoutServlet extends HttpServlet {
                 session.removeAttribute("checkoutCart");
                 session.removeAttribute("grandTotal");
 
-                req.getSession().setAttribute("successMsg", "Đặt hàng thành công!");
+                session.setAttribute("successMsg", "Đặt hàng thành công!");
                 resp.sendRedirect(req.getContextPath() + "/home");
 
             } else if ("VNPAY".equals(paymentMethod)) {

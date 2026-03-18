@@ -146,7 +146,7 @@
             <%-- CỘT BÊN PHẢI: KẾT QUẢ VÀ PHÂN TRANG --%>
             <div class="results-column" style="flex: 1;">
                 
-                <h3 style="margin-top: 0; margin-bottom: 20px;">
+                 <h3 style="margin-top: 0; margin-bottom: 20px;">
                     Kết quả cho: <span style="color: #C92127">"${txtS}"</span> 
                     <span style="font-size: 14px; color: #666; font-weight: normal;">(Tìm thấy ${totalResult} sản phẩm)</span>
                 </h3>

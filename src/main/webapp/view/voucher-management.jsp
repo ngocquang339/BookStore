@@ -21,9 +21,9 @@
                 <i class="fa-solid fa-house"></i> Quay lại Dashboard
             </a>
             <h2 class="text-primary m-0 fw-bold">QUẢN LÝ MÃ GIẢM GIÁ (VOUCHER)</h2>
-            <button type="button" class="btn btn-success fw-bold" data-bs-toggle="modal" data-bs-target="#addVoucherModal">
-                <i class="fa-solid fa-plus"></i> Thêm Voucher
-            </button>
+            <a href="${pageContext.request.contextPath}/vouchers-management?action=add" class="btn btn-success fw-bold">
+    <i class="fa-solid fa-plus"></i> Thêm Voucher
+</a>
         </div>
 
         <div class="table-responsive bg-white shadow-sm rounded border">

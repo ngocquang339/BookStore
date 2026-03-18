@@ -181,7 +181,7 @@ public class VoucherDAO extends DBContext { // Giả sử nhóm bạn dùng DBCo
         }
     }
 
-    // 6. DÀNH CHO STAFF: LẤY TẤT CẢ VOUCHER (Kể cả hết hạn/hết lượt)
+     // 6. DÀNH CHO STAFF: LẤY TẤT CẢ VOUCHER (Kể cả hết hạn/hết lượt)
    
     public List<Voucher> getAllVouchersForStaff() {
         List<Voucher> list = new ArrayList<>();

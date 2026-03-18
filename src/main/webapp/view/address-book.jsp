@@ -262,78 +262,78 @@
             </div> </div> </div> 
             
             <div class="modal fade" id="editAddressModal" tabindex="-1" aria-labelledby="editAddressModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content" style="border-radius: 10px;">
-      
-      <form action="${pageContext.request.contextPath}/edit-address" method="POST" id="dynamicAddressForm">
-        <input type="hidden" name="addressId" id="modal_addressId">
-        <div class="modal-header border-bottom-0 pb-0 mt-3 d-flex justify-content-center position-relative">
-          <h5 class="modal-title fw-bold" style="color: #d70018;" id="editAddressModalLabel">THAY ĐỔI ĐỊA CHỈ GIAO HÀNG</h5>
-        </div>
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content" style="border-radius: 10px;">
+                    
+                    <form action="${pageContext.request.contextPath}/edit-address" method="POST" id="dynamicAddressForm">
+                        <input type="hidden" name="addressId" id="modal_addressId">
+                        <div class="modal-header border-bottom-0 pb-0 mt-3 d-flex justify-content-center position-relative">
+                        <h5 class="modal-title fw-bold" style="color: #d70018;" id="editAddressModalLabel">THAY ĐỔI ĐỊA CHỈ GIAO HÀNG</h5>
+                        </div>
 
-        <div class="modal-body px-4 pb-4">
-            <div class="mb-3 row align-items-start">
-                <label class="col-sm-4 col-form-label text-muted">Họ và tên <span class="text-danger">*</span></label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="fullName" id="modal_fullName" required>
-                    <div class="error-hint" id="modal-fullname-error">Họ tên không được chứa số.</div>
-                    <div class="error-hint" id="modal-fullname-length-error">Độ dài không quá 50 ký tự.</div>
-                </div>
-            </div>
-            
-            <div class="mb-3 row align-items-start">
-                <label class="col-sm-4 col-form-label text-muted">Số điện thoại <span class="text-danger">*</span></label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="phone" id="modal_phone" required>
-                    <div class="error-hint" id="modal-phone-type-error">Số điện thoại chỉ được chứa số.</div>
-                    <div class="error-hint" id="modal-phone-error">SĐT phải có 10 số và bắt đầu bằng số 0.</div>
-                </div>
-            </div>
+                        <div class="modal-body px-4 pb-4">
+                            <div class="mb-3 row align-items-start">
+                                <label class="col-sm-4 col-form-label text-muted">Họ và tên <span class="text-danger">*</span></label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" name="fullName" id="modal_fullName" required>
+                                    <div class="error-hint" id="modal-fullname-error">Họ tên không được chứa số.</div>
+                                    <div class="error-hint" id="modal-fullname-length-error">Độ dài không quá 50 ký tự.</div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3 row align-items-start">
+                                <label class="col-sm-4 col-form-label text-muted">Số điện thoại <span class="text-danger">*</span></label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" name="phone" id="modal_phone" required>
+                                    <div class="error-hint" id="modal-phone-type-error">Số điện thoại chỉ được chứa số.</div>
+                                    <div class="error-hint" id="modal-phone-error">SĐT phải có 10 số và bắt đầu bằng số 0.</div>
+                                </div>
+                            </div>
 
-            <div class="mb-3 row align-items-center">
-                <label class="col-sm-4 col-form-label text-muted">Tỉnh/Thành Phố</label>
-                <div class="col-sm-8">
-                    <select class="form-select" id="modal_city" name="city" required>
-                        <option value="" selected disabled>Chọn tỉnh/thành phố</option>
-                    </select>
-                </div>
-            </div>
+                            <div class="mb-3 row align-items-center">
+                                <label class="col-sm-4 col-form-label text-muted">Tỉnh/Thành Phố</label>
+                                <div class="col-sm-8">
+                                    <select class="form-select" id="modal_city" name="city" required>
+                                        <option value="" selected disabled>Chọn tỉnh/thành phố</option>
+                                    </select>
+                                </div>
+                            </div>
 
-            <div class="mb-3 row align-items-center">
-                <label class="col-sm-4 col-form-label text-muted">Quận/Huyện</label>
-                <div class="col-sm-8">
-                    <select class="form-select" id="modal_district" name="district" required>
-                        <option value="" selected disabled>Chọn quận/huyện</option>
-                    </select>
-                </div>
-            </div>
+                            <div class="mb-3 row align-items-center">
+                                <label class="col-sm-4 col-form-label text-muted">Quận/Huyện</label>
+                                <div class="col-sm-8">
+                                    <select class="form-select" id="modal_district" name="district" required>
+                                        <option value="" selected disabled>Chọn quận/huyện</option>
+                                    </select>
+                                </div>
+                            </div>
 
-            <div class="mb-3 row align-items-center">
-                <label class="col-sm-4 col-form-label text-muted">Phường/Xã</label>
-                <div class="col-sm-8">
-                    <select class="form-select" id="modal_ward" name="ward" required>
-                        <option value="" selected disabled>Chọn phường/xã</option>
-                    </select>
-                </div>
-            </div>
+                            <div class="mb-3 row align-items-center">
+                                <label class="col-sm-4 col-form-label text-muted">Phường/Xã</label>
+                                <div class="col-sm-8">
+                                    <select class="form-select" id="modal_ward" name="ward" required>
+                                        <option value="" selected disabled>Chọn phường/xã</option>
+                                    </select>
+                                </div>
+                            </div>
 
-            <div class="mb-3 row align-items-start">
-                <label class="col-sm-4 col-form-label text-muted">Địa chỉ nhận hàng</label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="addressDetail" id="modal_detail" placeholder="Số nhà, ngõ..." required>
-                    <div class="error-hint" id="modal-address-length-error">Địa chỉ không được vượt quá 100 ký tự.</div>
+                            <div class="mb-3 row align-items-start">
+                                <label class="col-sm-4 col-form-label text-muted">Địa chỉ nhận hàng</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" name="addressDetail" id="modal_detail" placeholder="Số nhà, ngõ..." required>
+                                    <div class="error-hint" id="modal-address-length-error">Địa chỉ không được vượt quá 100 ký tự.</div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <button type="submit" class="btn text-white w-100 mb-2 py-2 fw-bold" id="btn-save-modal" style="background-color: #d70018; border-radius: 5px;">Lưu địa chỉ</button>
+                                <button type="button" class="btn bg-white w-100 py-2 fw-bold" data-bs-dismiss="modal" style="color: #d70018; border: 1px solid #d70018; border-radius: 5px;">Hủy</button>
+                            </div>
+                        </div>
+                    </form>
+                    </div>
                 </div>
             </div>
-            
-            <div class="mt-4">
-                <button type="submit" class="btn text-white w-100 mb-2 py-2 fw-bold" id="btn-save-modal" style="background-color: #d70018; border-radius: 5px;">Lưu địa chỉ</button>
-                <button type="button" class="btn bg-white w-100 py-2 fw-bold" data-bs-dismiss="modal" style="color: #d70018; border: 1px solid #d70018; border-radius: 5px;">Hủy</button>
-            </div>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
             <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
