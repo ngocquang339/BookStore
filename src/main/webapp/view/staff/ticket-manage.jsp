@@ -115,22 +115,26 @@
                                                                     class="fa-solid fa-hourglass-half me-1"></i>Chờ
                                                                 duyệt trả hàng</span></td>
                                                         <td class="text-end">
-                                                            <form
-                                                                action="${pageContext.request.contextPath}/staff/tickets"
-                                                                method="POST" style="margin: 0;">
-                                                                <input type="hidden" name="action"
-                                                                    value="approve_return">
-                                                                <input type="hidden" name="orderId" value="${order.id}">
-                                                                <input type="hidden" name="userId"
-                                                                    value="${order.userId}">
+                                                            <td class="text-end">
+                                                                <form action="${pageContext.request.contextPath}/staff/tickets" method="POST" 
+                                                                    class="d-flex align-items-center justify-content-end gap-2" style="margin: 0;">
+                                                                    
+                                                                    <input type="hidden" name="action" value="process_return">
+                                                                    <input type="hidden" name="orderId" value="${order.id}">
+                                                                    <input type="hidden" name="userId" value="${order.userId}">
 
-                                                                <button type="submit"
-                                                                    class="btn btn-sm btn-success fw-bold"
-                                                                    onclick="return confirm('Xác nhận hoàn tiền và chuyển trạng thái đơn hàng #${order.id} thành Đã Hoàn Tiền?');">
-                                                                    <i class="fa-solid fa-check me-1"></i> Chấp nhận &
-                                                                    Hoàn tiền
-                                                                </button>
-                                                            </form>
+                                                                    <select name="decision" class="form-select form-select-sm w-auto" required style="cursor: pointer; min-width: 150px;">
+                                                                        <option value="" disabled selected>-- Chọn thao tác --</option>
+                                                                        <option value="accept" class="text-success fw-bold">Chấp nhận yêu cầu</option>
+                                                                        <option value="reject" class="text-danger fw-bold">Không chấp nhận</option>
+                                                                    </select>
+
+                                                                    <button type="submit" class="btn btn-sm btn-primary fw-bold" 
+                                                                            onclick="return confirm('Xác nhận lưu quyết định xử lý cho đơn hàng #${order.id}?');">
+                                                                        Lưu
+                                                                    </button>
+                                                                </form>
+                                                            </td>
                                                         </td>
                                                     </tr>
                                                 </c:forEach>

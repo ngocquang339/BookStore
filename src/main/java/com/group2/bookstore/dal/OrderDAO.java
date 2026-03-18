@@ -1039,4 +1039,26 @@ public class OrderDAO extends DBContext {
             e.printStackTrace();
         }
     }
+
+    public boolean insertReturnRequestAtomic(int orderId, String customerReason) {
+        // Tuyệt chiêu INSERT INTO ... SELECT: Bốc thẳng sách từ OrderDetails ném sang ReturnRequests
+        String sql = "INSERT INTO ReturnRequests (order_id, book_id, quantity, customer_reason, return_method, refund_preference, status, created_at) "
+                   + "SELECT order_id, book_id, quantity, ?, 'pickup', 'refund_wallet', 1, GETDATE() "
+                   + "FROM OrderDetails WHERE order_id = ?";
+                   
+        try (java.sql.Connection conn = getConnection(); 
+             java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setString(1, customerReason);
+            ps.setInt(2, orderId);
+            
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+            
+        } catch (Exception e) {
+            System.out.println("Lỗi khi bốc dữ liệu sang ReturnRequests: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return false;
+    }
 }
