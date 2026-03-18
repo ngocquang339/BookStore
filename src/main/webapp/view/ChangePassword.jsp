@@ -52,21 +52,21 @@
                         <div class="form-row">
                             <label class="form-label-custom">Mật khẩu hiện tại<span class="text-danger">*</span></label>
                             <div class="form-input-custom">
-                                <input type="password" name="currentPass" class="form-control" placeholder="Nhập mật khẩu hiện tại" required>
+                                <input type="password" name="currentPass" class="form-control" placeholder="Nhập mật khẩu hiện tại" maxlength="30" required>
                             </div>
                         </div>
 
                         <div class="form-row">
                             <label class="form-label-custom">Mật khẩu mới<span class="text-danger">*</span></label>
                             <div class="form-input-custom">
-                                <input type="password" name="newPass" class="form-control" placeholder="Nhập mật khẩu mới" required>
+                                <input type="password" name="newPass" class="form-control" placeholder="Nhập mật khẩu mới" maxlength="30" required>
                             </div>
                         </div>
 
                         <div class="form-row">
                             <label class="form-label-custom">Xác nhận mật khẩu<span class="text-danger">*</span></label>
                             <div class="form-input-custom">
-                                <input type="password" name="confirmPass" class="form-control" placeholder="Nhập lại mật khẩu mới" required>
+                                <input type="password" name="confirmPass" class="form-control" placeholder="Nhập lại mật khẩu mới" maxlength="30" required>
                             </div>
                         </div>
 

@@ -193,25 +193,36 @@ public class OrderServlet extends HttpServlet {
                 }
             }else if ("request_return".equals(action)) {
                 int orderId = Integer.parseInt(request.getParameter("orderId"));
-                String returnReason = request.getParameter("returnReason"); // Nếu bạn muốn lưu vào bảng ReturnRequests
-                String returnNote = request.getParameter("returnNote");
-                OrderDAO orderDAO = new OrderDAO();
-
-                // 1. Chuyển status đơn hàng thành 5 (Chờ duyệt trả hàng)
-                boolean isUpdated = orderDAO.updateOrderStatus(orderId, 5);
-
-                // (Tùy chọn) 2. Bạn có thể Insert reason và note vào bảng ReturnRequests trong
-                // DB ở đây
-                // returnRequestDao.insert(orderId, returnReason, returnNote);
-
-                if (isUpdated) {
-                    request.getSession().setAttribute("successMsg",
-                            "Đã gửi yêu cầu hoàn tiền cho đơn hàng #" + orderId + ". Vui lòng chờ phản hồi.");
+                String reason = request.getParameter("returnReason");
+                String note = request.getParameter("returnNote");
+                
+                // 1. Gộp Lý do và Chi tiết lại
+                String fullReason = reason;
+                if (note != null && !note.trim().isEmpty()) {
+                    fullReason = reason + " - Chi tiết: " + note.trim();
                 }
-
-                // Load lại trang và nhảy sang tab Yêu cầu trả hàng (Status 5)
-                response.sendRedirect(request.getContextPath() + "/my-orders?status=return_pending");
-                return;
+                
+                OrderDAO orderDAO = new OrderDAO();
+                Order currentOrder = orderDAO.getOrderById(orderId);
+                
+                if (currentOrder != null && currentOrder.getUserId() == user.getId()) {
+                    
+                    // 2. Dùng tuyệt chiêu DAO mới: Không cần vòng lặp Java nữa!
+                    boolean isInserted = orderDAO.insertReturnRequestAtomic(orderId, fullReason);
+                    
+                    if (isInserted) {
+                        orderDAO.updateOrderStatus(orderId, 7); 
+                        request.getSession().setAttribute("mess", "Đã gửi yêu cầu trả hàng thành công. Chờ shop duyệt nhé!");
+                        request.getSession().setAttribute("status", "success");
+                    } else {
+                        // Đã sửa thành "mess" để hiện lên màn hình đỏ
+                        request.getSession().setAttribute("mess", "Có lỗi khi gửi yêu cầu trả hàng vào Database.");
+                        request.getSession().setAttribute("status", "error");
+                    }
+                } else {
+                    request.getSession().setAttribute("mess", "Không tìm thấy đơn hàng hợp lệ.");
+                    request.getSession().setAttribute("status", "error");
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
