@@ -79,7 +79,7 @@
                                             </c:if>
                                             
                                             <%-- Nút Thùng Rác (Gọi hàm xóa và chặn event nhảy trang) --%>
-                                            <div onclick="removeNotification(event, ${n.id})" 
+                                            <div onclick="removeNotification(event, ${n.id}, this)"
                                                  class="text-muted p-2" 
                                                  style="cursor: pointer; transition: 0.2s;" 
                                                  onmouseover="this.className='text-danger p-2'" 
@@ -121,7 +121,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function removeNotification(event, notifId) {
+        function removeNotification(event, notifId, element) {
             // 1. NGĂN CHẶN thẻ <a> thực hiện lệnh readAndRedirect()
             event.preventDefault();
             event.stopPropagation();
@@ -134,16 +134,40 @@
                     headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                     body: 'action=deleteNotif&notifId=' + notifId
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) throw new Error("Network error"); // Ném lỗi nếu rớt mạng/server sập
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
-                        // Xóa thành công thì tải lại trang để thấy danh sách mới
-                        window.location.reload();
+                        // [SỬA LỖI NORMAL FLOW]: Xóa phần tử HTML khỏi màn hình mượt mà thay vì tải lại trang
+                        let notificationItem = element.closest('a.list-group-item');
+                        if (notificationItem) {
+                            notificationItem.style.transition = "opacity 0.3s ease, transform 0.3s ease";
+                            notificationItem.style.opacity = "0";
+                            notificationItem.style.transform = "translateX(20px)";
+                            
+                            // Đợi 300ms cho hiệu ứng chạy xong rồi xóa hẳn khỏi DOM
+                            setTimeout(() => {
+                                notificationItem.remove();
+                                
+                                // (Tùy chọn) Kiểm tra nếu danh sách trống thì hiện dòng chữ "Chưa có thông báo nào"
+                                let listContainer = document.querySelector('.list-group');
+                                if (listContainer && listContainer.children.length === 0) {
+                                    window.location.reload(); 
+                                }
+                            }, 300);
+                        }
                     } else {
-                        alert("Đã xảy ra lỗi khi xóa thông báo!");
+                        // [SỬA LỖI EX 2]
+                        alert("Failed to delete notification. Please try again.");
                     }
                 })
-                .catch(err => console.error("Lỗi xóa thông báo:", err));
+                .catch(err => {
+                    // [SỬA LỖI EX 2]: Xử lý khi rớt mạng
+                    console.error("Lỗi xóa thông báo:", err);
+                    alert("Failed to delete notification. Please try again.");
+                });
             }
         }
 
