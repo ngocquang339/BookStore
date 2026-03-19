@@ -464,20 +464,31 @@
             </c:if>
 
             <div id="form-login" class="form-content ${not isRegisterMode ? 'active' : ''}">
-                <form action="${pageContext.request.contextPath}/login" method="post">
+                <form id="loginForm" action="${pageContext.request.contextPath}/login" method="post" onsubmit="return validateLogin(event)">
+                    
                     <div class="form-group">
                         <label for="username">Tên đăng nhập / Email</label>
-                        <input type="text" id="username" name="username" value="${param.username}" placeholder="Nhập số điện thoại/Email" maxlength="50" required>
+                        <input type="text" id="username" name="username" value="${not empty savedUser ? savedUser : param.username}" placeholder="Nhập số điện thoại/Email" maxlength="50">
+                        <span id="err-username" style="display:none; color: #dc3545; font-size: 13px; margin-top: 5px;"><i class="fa-solid fa-circle-exclamation"></i> Vui lòng nhập thông tin này</span>
                     </div>
 
                     <div class="form-group">
                         <label for="password">Mật khẩu</label>
-                        <input type="password" id="password" name="password" placeholder="Nhập mật khẩu" maxlength="50" required>
-                        <span class="toggle-password" onclick="toggleLoginPassword()">Hiện</span>
+                        <div style="position: relative;">
+                            <input type="password" id="password" name="password" value="${savedPass}" placeholder="Nhập mật khẩu" maxlength="50" style="width: 100%;">
+                            <span class="toggle-password" onclick="toggleLoginPassword()" style="position: absolute; right: 10px; top: 12px; cursor: pointer; color: #007bff; font-weight: bold; font-size: 13px;">Hiện</span>
+                        </div>
+                        <span id="err-password" style="display:none; color: #dc3545; font-size: 13px; margin-top: 5px;"><i class="fa-solid fa-circle-exclamation"></i> Vui lòng nhập thông tin này</span>
                     </div>
 
-                    <div class="forgot-password">
-                        <a href="javascript:void(0);" onclick="openPhoneModal(); return false;">Quên mật khẩu?</a>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div class="remember-me" style="display: flex; align-items: center; gap: 5px;">
+                            <input type="checkbox" id="remember" name="remember" value="true" ${not empty savedUser ? 'checked' : ''} style="width: 16px; height: 16px; cursor: pointer;">
+                            <label for="remember" style="font-size: 14px; margin: 0; cursor: pointer;">Ghi nhớ đăng nhập</label>
+                        </div>
+                        <div class="forgot-password" style="margin: 0;">
+                            <a href="javascript:void(0);" onclick="openPhoneModal(); return false;" style="font-size: 14px; color: #C92127;">Quên mật khẩu?</a>
+                        </div>
                     </div>
 
                     <button type="submit" class="btn-submit">Đăng nhập</button>
@@ -485,7 +496,7 @@
             </div>
 
             <div id="form-register" class="form-content ${isRegisterMode ? 'active' : ''}">
-                <form action="${pageContext.request.contextPath}/${not empty requestScope.showOtpStep ? 'verify-otp' : 'register'}" method="post">
+                <form id="registerForm" action="${pageContext.request.contextPath}/${not empty requestScope.showOtpStep ? 'verify-otp' : 'register'}" method="post" onsubmit="return validateRegister(event)">
                     
                     <c:set var="valName" value="${not empty sessionScope.tempUser ? sessionScope.tempUser.fullname : fullname}" />
                     <c:set var="valPhone" value="${not empty sessionScope.tempUser ? sessionScope.tempUser.phone_number : phone_number}" />
@@ -542,6 +553,16 @@
                                 <i class="fa-solid fa-shield-halved"></i>
                             </div>
                         </div>
+
+                        <div class="form-group" style="margin-top: 15px;">
+                            <div style="display: flex; align-items: flex-start; gap: 8px;">
+                                <input type="checkbox" id="reg_terms" name="terms" required style="margin-top: 4px; cursor: pointer;">
+                                <label for="reg_terms" style="font-size: 13px; color: #555; line-height: 1.4; cursor: pointer;">
+                                    Tôi đồng ý với các <a href="#" style="color: #C92127;">Điều khoản dịch vụ</a> và <a href="#" style="color: #C92127;">Chính sách bảo mật</a>.
+                                </label>
+                            </div>
+                            <span id="err-reg-terms" style="display:none; color: #dc3545; font-size: 13px; margin-top: 5px;"><i class="fa-solid fa-circle-exclamation"></i> Vui lòng chấp nhận điều khoản.</span>
+                        </div>
                     </c:if>
 
                     <c:if test="${not empty requestScope.showOtpStep}">
@@ -567,7 +588,6 @@
                     </button>
                 </form>
             </div>
-
         </div>
     </div>
 
@@ -795,6 +815,93 @@
             pwdInput.type = "password";
             toggleText.innerText = "Hiện";
         }
+    }
+
+    function validateLogin(e) {
+        let u = document.getElementById("username").value.trim();
+        let p = document.getElementById("password").value.trim();
+        let isValid = true;
+
+        let errU = document.getElementById("err-username");
+        let errP = document.getElementById("err-password");
+
+        // Kiểm tra User
+        if (u === "") {
+            errU.style.display = "block";
+            isValid = false;
+        } else {
+            errU.style.display = "none";
+        }
+
+        // Kiểm tra Pass
+        if (p === "") {
+            errP.style.display = "block";
+            isValid = false;
+        } else {
+            errP.style.display = "none";
+        }
+
+        // Nếu có lỗi thì chặn Form không cho gửi xuống Server
+        if (!isValid) {
+            e.preventDefault(); 
+        }
+        return isValid;
+    }
+
+    function validateRegister(e) {
+        // Chỉ chạy validate nếu đang ở bước điền form (không phải bước OTP)
+        let isOtpStep = "${not empty requestScope.showOtpStep}";
+        if (isOtpStep === "true") return true;
+
+        let isValid = true;
+
+        // Lấy danh sách các ô cần kiểm tra (Giả sử bạn đã thêm id cho chúng)
+        // Nếu bạn dùng name thì đổi thành document.querySelector('input[name="fullname"]')
+        let fields = [
+            { id: document.querySelector('input[name="fullname"]'), errId: 'err-reg-fullname' },
+            { id: document.querySelector('input[name="phone_number"]'), errId: 'err-reg-phone' },
+            { id: document.querySelector('input[name="username"]'), errId: 'err-reg-username' },
+            { id: document.querySelector('input[name="email"]'), errId: 'err-reg-email' },
+            { id: document.querySelector('input[name="password"]'), errId: 'err-reg-password' },
+            { id: document.querySelector('input[name="re_pass"]'), errId: 'err-reg-repass' }
+        ];
+
+        // Duyệt qua từng ô, nếu rỗng thì chặn lại và hiện thông báo lỗi
+        for (let field of fields) {
+            let inputEle = field.id;
+            
+            // Tự động tạo thẻ span báo lỗi nếu bạn chưa tự tay viết trong HTML
+            let errSpan = inputEle.parentElement.nextElementSibling;
+            if (!errSpan || !errSpan.classList.contains('err-msg-dynamic')) {
+                errSpan = document.createElement('span');
+                errSpan.className = 'err-msg-dynamic';
+                errSpan.style = 'display:none; color: #dc3545; font-size: 13px; margin-top: 5px;';
+                errSpan.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> This field is required';
+                inputEle.parentElement.after(errSpan);
+            }
+
+            if (inputEle.value.trim() === "") {
+                errSpan.style.display = "block";
+                isValid = false;
+            } else {
+                errSpan.style.display = "none";
+            }
+        }
+
+        // Kiểm tra EX 6 (Terms and Conditions)
+        let termsCheck = document.getElementById("reg_terms");
+        let errTerms = document.getElementById("err-reg-terms");
+        if (termsCheck && !termsCheck.checked) {
+            errTerms.style.display = "block";
+            isValid = false;
+        } else if (errTerms) {
+            errTerms.style.display = "none";
+        }
+
+        if (!isValid) {
+            e.preventDefault();
+        }
+        return isValid;
     }
     </script>
 

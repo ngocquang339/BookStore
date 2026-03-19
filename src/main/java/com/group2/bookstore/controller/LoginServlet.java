@@ -23,6 +23,18 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+                // [BỔ SUNG BƯỚC NÀY] ĐỌC COOKIE TRƯỚC KHI TẢI TRANG (AF 1)
+            jakarta.servlet.http.Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (jakarta.servlet.http.Cookie cookie : cookies) {
+                    if ("rememberedUser".equals(cookie.getName())) {
+                        request.setAttribute("savedUser", cookie.getValue());
+                    }
+                    if ("rememberedPass".equals(cookie.getName())) {
+                        request.setAttribute("savedPass", cookie.getValue());
+                    }
+                }
+            }
             BookDAO dao = new BookDAO();
             HttpSession session = request.getSession();
             User currentUser = (User) session.getAttribute("user");
@@ -68,6 +80,27 @@ public class LoginServlet extends HttpServlet {
             // Đăng nhập thành công
             HttpSession session = request.getSession();
             session.setAttribute("user", account);
+            // ============================================================
+            // [MỚI] XỬ LÝ CHỨC NĂNG REMEMBER ME (AF 1) BẰNG COOKIE
+            // ============================================================
+            String remember = request.getParameter("remember");
+            if ("true".equals(remember)) {
+                // Tạo cookie lưu 7 ngày
+                jakarta.servlet.http.Cookie userCookie = new jakarta.servlet.http.Cookie("rememberedUser", u);
+                jakarta.servlet.http.Cookie passCookie = new jakarta.servlet.http.Cookie("rememberedPass", p);
+                userCookie.setMaxAge(60 * 60 * 24 * 7); 
+                passCookie.setMaxAge(60 * 60 * 24 * 7);
+                response.addCookie(userCookie);
+                response.addCookie(passCookie);
+            } else {
+                // Nếu khách không tích ô Remember -> Hủy Cookie cũ đi (nếu có)
+                jakarta.servlet.http.Cookie userCookie = new jakarta.servlet.http.Cookie("rememberedUser", "");
+                jakarta.servlet.http.Cookie passCookie = new jakarta.servlet.http.Cookie("rememberedPass", "");
+                userCookie.setMaxAge(0); // Set = 0 để xóa
+                passCookie.setMaxAge(0);
+                response.addCookie(userCookie);
+                response.addCookie(passCookie);
+            }
 
             // ============================================================
             // [MỚI] TÍNH NĂNG GỘP GIỎ HÀNG (SESSION -> DATABASE)

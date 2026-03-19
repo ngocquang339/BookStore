@@ -67,7 +67,48 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <c:forEach items="${listTickets}" var="ticket"> </c:forEach>
+                                                <c:forEach items="${listTickets}" var="ticket">
+                                                    <tr>
+                                                        <td class="fw-bold">
+                                                            <span class="badge bg-light text-secondary border border-secondary-subtle font-monospace px-2 py-1">
+                                                                TK-${ticket.ticketId}
+                                                            </span>
+                                                        </td>
+                                                        <td>${ticket.userId}</td>
+                                                        <td><span class="badge bg-info text-dark">${ticket.issueType}</span></td>
+                                                        
+                                                        <%-- Cắt bớt tiêu đề nếu quá dài --%>
+                                                        <td style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${ticket.ticketSubject}">
+                                                            ${ticket.ticketSubject}
+                                                        </td>
+                                                        
+                                                        <td>
+                                                            <fmt:formatDate value="${ticket.createdAt}" pattern="dd/MM/yyyy HH:mm" />
+                                                        </td>
+                                                        
+                                                        <td>
+                                                            <c:choose>
+                                                                <c:when test="${ticket.status == 'Pending'}">
+                                                                    <span class="badge bg-warning text-dark">
+                                                                        <i class="fa-solid fa-hourglass-half me-1"></i>Chờ xử lý
+                                                                    </span>
+                                                                </c:when>
+                                                                <c:otherwise>
+                                                                    <span class="badge bg-success">
+                                                                        <i class="fa-solid fa-check-double me-1"></i>Đã phản hồi
+                                                                    </span>
+                                                                </c:otherwise>
+                                                            </c:choose>
+                                                        </td>
+                                                        
+                                                        <td class="text-end">
+                                                            <%-- Nút này sau này bạn dùng JS để mở Modal phản hồi khiếu nại nhé --%>
+                                                            <button type="button" class="btn btn-sm btn-primary fw-bold" onclick="openReplyModal(${ticket.ticketId})">
+                                                                Xử lý
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                </c:forEach>
                                                 <c:if test="${empty listTickets}">
                                                     <tr>
                                                         <td colspan="7" class="text-center text-muted py-4">Chưa có
