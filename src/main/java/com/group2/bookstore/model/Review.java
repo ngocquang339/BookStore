@@ -15,7 +15,7 @@ public class Review {
     private String bookTitle;
     private String email;
     private String staffReply;
-
+    private int bookStatus;
     public Review() {
     }
 
@@ -109,5 +109,11 @@ public class Review {
     }
     public void setStaffReply(String staffReply) {
         this.staffReply = staffReply;
+    }
+    public int getBookStatus() {
+        return bookStatus;
+    }
+    public void setBookStatus(int bookStatus) {
+        this.bookStatus = bookStatus;
     }
 }

@@ -76,8 +76,9 @@ public class ChangePasswordServlet extends HttpServlet {
         // ========================================================
         User user = (User) session.getAttribute("user");
 
-        // Nếu chưa đăng nhập -> đá về trang login
+        // [SỬA LỖI EX 6 - Session Timeout]: Thêm thông báo trước khi đá về login
         if (user == null) {
+            session.setAttribute("mess", "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."); 
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
@@ -90,11 +91,11 @@ public class ChangePasswordServlet extends HttpServlet {
         if(currentPass == null || newPass == null || confirmPass == null ||
            currentPass.isEmpty() || newPass.isEmpty() || confirmPass.isEmpty() ||
            currentPass.length() > 50 || newPass.length() > 50 || confirmPass.length() > 50) {
-            session.setAttribute("mess", "Vui lòng cung cấp thông tin hợp lệ!");
+            session.setAttribute("mess", "Tất cả các trường là bắt buộc và không được quá dài!"); // EX 5
             session.setAttribute("status", "error");
             response.sendRedirect(request.getContextPath() + "/change-password");
             return;
-        }
+        }   
         
         // 2. VALIDATE (Kiểm tra dữ liệu)
         String message = "";
@@ -103,7 +104,11 @@ public class ChangePasswordServlet extends HttpServlet {
         // Kiểm tra logic mật khẩu
         if (!user.getPassword().equals(currentPass)) {
             message = "Mật khẩu hiện tại không đúng!";
-        } 
+        }
+        else if (newPass.length() < 6) {
+            // [SỬA LỖI EX 3 - Weak Password]: Chặn mật khẩu dưới 6 ký tự
+            message = "Mật khẩu phải dài ít nhất 6 ký tự!"; 
+        }
         else if (!newPass.equals(confirmPass)) {
             message = "Mật khẩu xác nhận không khớp!";
         } 

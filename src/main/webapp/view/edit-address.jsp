@@ -130,7 +130,7 @@
                     
                     <h5>Sửa địa chỉ</h5>
 
-                    <form action="edit-address" method="POST">
+                    <form action="${pageContext.request.contextPath}/edit-address" method="POST" onsubmit="return validateAddressForm(event)">
                         <input type="hidden" name="addressId" value="${address.id}"> 
                         
                         <div class="row g-3 mb-3">
@@ -290,6 +290,47 @@
             }
         });
     });
+    function validateAddressForm(e) {
+    let isValid = true;
+    
+    let fullName = document.getElementById("fullName").value.trim();
+    let phone = document.getElementById("phone").value.trim();
+    let city = document.getElementById("city").value;
+    let addressDetail = document.getElementById("addressDetail").value.trim();
+
+    // 1. Kiểm tra Dropdown (EX 5)
+    if (!city || city === "") {
+        alert("Vui lòng chọn Tỉnh/Thành phố, Quận/Huyện, Xã/Phường đầy đủ.");
+        isValid = false;
+    }
+
+    // 2. Kiểm tra Họ tên không chứa số & giới hạn 50 ký tự (EX 1, EX 2)
+    if (/\d/.test(fullName)) {
+        alert("Họ tên không được chứa chữ số.");
+        isValid = false;
+    } else if (fullName.length > 50) {
+        alert("Họ tên không được vượt quá 50 ký tự.");
+        isValid = false;
+    }
+
+    // 3. Kiểm tra Số điện thoại (EX 3) - 10 số và bắt đầu bằng 0
+    if (!/^0\d{9}$/.test(phone)) {
+        alert("Số điện thoại phải bao gồm đúng 10 chữ số và bắt đầu bằng 0.");
+        isValid = false;
+    }
+
+    // 4. Kiểm tra địa chỉ cụ thể (EX 4)
+    if (addressDetail.length > 100) {
+        alert("Địa chỉ cụ thể không được vượt quá 100 ký tự.");
+        isValid = false;
+    }
+
+    // Nếu có lỗi, chặn không cho submit form
+    if (!isValid) {
+        e.preventDefault();
+    }
+    return isValid;
+}
     </script>
 </body>
 </html>

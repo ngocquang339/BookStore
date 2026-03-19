@@ -203,4 +203,20 @@ public class CollectionDAO extends DBContext {
         }
         return list;
     }
+
+    // Hàm kiểm tra trùng tên (Bỏ qua ID của collection đang sửa, truyền -1 nếu là tạo mới)
+    public boolean isNameExist(int userId, String name, int excludeCollectionId) {
+        String sql = "SELECT 1 FROM Collections WHERE user_id = ? AND name = ? AND collection_id != ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setString(2, name);
+            ps.setInt(3, excludeCollectionId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next(); // Trả về true nếu tìm thấy trùng lặp
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

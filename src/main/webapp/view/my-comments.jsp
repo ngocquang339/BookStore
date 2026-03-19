@@ -87,6 +87,27 @@
                         color: #a01a1f;
                         background-color: #f8f9fa;
                     }
+
+                    /* CSS giới hạn 3 dòng cho EX 3 */
+                    .text-truncate-3 {
+                        display: -webkit-box;
+                        -webkit-line-clamp: 3;
+                        -webkit-box-orient: vertical;
+                        overflow: hidden;
+                    }
+                    .read-more-btn {
+                        font-size: 13px;
+                        color: #C92127;
+                        font-weight: bold;
+                        cursor: pointer;
+                        text-decoration: none;
+                        display: none; /* Mặc định ẩn, JS sẽ bật lên nếu text quá dài */
+                        margin-top: 5px;
+                    }
+                    .read-more-btn:hover {
+                        text-decoration: underline;
+                        color: #a01a1f;
+                    }
                 </style>
             </head>
 
@@ -146,45 +167,51 @@
                                                     <div class="d-flex justify-content-between align-items-start">
                                                         <div>
                                                             <div class="mb-1">
-                                                                <span class="badge bg-light text-dark border me-2">Sản
-                                                                    phẩm</span>
-                                                                <a href="${pageContext.request.contextPath}/detail?pid=${c.bookId}"
-                                                                    class="book-title-link">
+                                                                <span class="badge bg-light text-dark border me-2">Sản phẩm</span>
+                                                                <a href="${pageContext.request.contextPath}/detail?pid=${c.bookId}" class="book-title-link">
                                                                     ${c.bookTitle}
                                                                 </a>
                                                             </div>
                                                             <div class="star-rating mb-1">
                                                                 <c:forEach begin="1" end="5" var="i">
                                                                     <c:choose>
-                                                                        <c:when test="${i <= c.rating}"><i
-                                                                                class="fa-solid fa-star"></i></c:when>
-                                                                        <c:otherwise><i class="fa-regular fa-star"
-                                                                                style="color: #ddd;"></i></c:otherwise>
+                                                                        <c:when test="${i <= c.rating}"><i class="fa-solid fa-star"></i></c:when>
+                                                                        <c:otherwise><i class="fa-regular fa-star" style="color: #ddd;"></i></c:otherwise>
                                                                     </c:choose>
                                                                 </c:forEach>
-                                                                <span class="ms-2 text-dark fw-bold"
-                                                                    style="font-size: 13px;">${c.rating}/5 sao</span>
+                                                                <span class="ms-2 text-dark fw-bold" style="font-size: 13px;">${c.rating}/5 sao</span>
                                                             </div>
                                                             <div class="comment-date">
                                                                 <i class="fa-regular fa-clock me-1"></i>Đăng vào ngày:
-                                                                <fmt:formatDate value="${c.createAt}"
-                                                                    pattern="dd/MM/yyyy HH:mm" />
+                                                                <fmt:formatDate value="${c.createAt}" pattern="dd/MM/yyyy HH:mm" />
                                                             </div>
                                                         </div>
 
-                                                        <a href="${pageContext.request.contextPath}/detail?pid=${c.bookId}#review-section"
-                                                            class="btn btn-sm btn-outline-secondary"
-                                                            title="Xem trên trang sản phẩm">
-                                                            <i class="fa-solid fa-arrow-up-right-from-square"></i> Xem
-                                                        </a>
+                                                        <div>
+                                                            <c:choose>
+                                                                <c:when test="${c.bookStatus == 0}"> 
+                                                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="alert('Sản phẩm này hiện không còn tồn tại trên hệ thống.');">
+                                                                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Xem
+                                                                    </button>
+                                                                </c:when>
+                                                                <c:otherwise>
+                                                                    <a href="${pageContext.request.contextPath}/detail?pid=${c.bookId}#review-section"
+                                                                        class="btn btn-sm btn-outline-secondary"
+                                                                        title="Xem trên trang sản phẩm">
+                                                                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Xem
+                                                                    </a>
+                                                                </c:otherwise>
+                                                            </c:choose>
+                                                        </div>
+                                                    </div> 
+                                                    <div class="comment-content-wrapper">
+                                                        <div class="comment-content text-truncate-3" id="comment-${c.reviewId}">
+                                                            <i class="fa-solid fa-quote-left text-muted me-2" style="opacity: 0.3;"></i>
+                                                            <c:out value="${c.comment}" />
+                                                        </div>
+                                                        <a href="javascript:void(0);" class="read-more-btn" id="btn-comment-${c.reviewId}" onclick="toggleComment('${c.reviewId}')">... Xem thêm</a>
                                                     </div>
-
-                                                    <div class="comment-content">
-                                                        <i class="fa-solid fa-quote-left text-muted me-2"
-                                                            style="opacity: 0.3;"></i>
-                                                        <c:out value="${c.comment}" />
-                                                    </div>
-                                                </div>
+                                                </div> 
                                             </c:forEach>
                                         </div>
 
@@ -236,6 +263,32 @@
                         let toast = document.getElementById('toastMsg');
                         if (toast) toast.style.display = 'none';
                     }, 4000);
+
+                    // Xử lý EX 3: Kiểm tra xem nội dung nào dài quá 3 dòng thì hiện nút "... Xem thêm"
+                    document.addEventListener("DOMContentLoaded", function() {
+                        var comments = document.querySelectorAll('.comment-content.text-truncate-3');
+                        comments.forEach(function(content) {
+                            // Nếu chiều cao thực tế lớn hơn chiều cao hiển thị (nghĩa là chữ bị che mất)
+                            if (content.scrollHeight > content.clientHeight) {
+                                var btn = content.nextElementSibling; // Lấy nút Xem thêm ngay bên dưới
+                                btn.style.display = "inline-block";
+                            }
+                        });
+                    });
+
+                    // Hàm Bật/Tắt (Mở rộng / Thu gọn)
+                    function toggleComment(id) {
+                        var content = document.getElementById('comment-' + id);
+                        var btn = document.getElementById('btn-comment-' + id);
+
+                        if (content.classList.contains('text-truncate-3')) {
+                            content.classList.remove('text-truncate-3');
+                            btn.innerText = "Thu gọn";
+                        } else {
+                            content.classList.add('text-truncate-3');
+                            btn.innerText = "... Xem thêm";
+                        }
+                    }
                 </script>
             </body>
 
