@@ -7,15 +7,28 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.List;
+
 import com.group2.bookstore.util.EmailUtility;
 import com.group2.bookstore.dal.UserDAO;
 import com.group2.bookstore.model.User;
+import com.group2.bookstore.dal.BookDAO;
+import com.group2.bookstore.model.Book;
 
 @WebServlet(name = "RegisterServlet", urlPatterns = { "/register" })
 public class RegisterServlet extends HttpServlet{
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+                BookDAO dao = new BookDAO();
+            HttpSession session = request.getSession();
+            User currentUser = (User) session.getAttribute("user");
+            int roleId = 0;
+            if(currentUser != null){
+                roleId = currentUser.getRole();
+            }
+            List<Book> list = dao.getRandomBook(roleId, 20);
+            request.setAttribute("suggestedBooks", list);
         // 1. Gắn cờ báo hiệu cho file JSP biết là khách muốn vào thẳng form Đăng ký
         request.setAttribute("activeTab", "register");
         
@@ -41,6 +54,13 @@ public class RegisterServlet extends HttpServlet{
         // --- BƯỚC 1: KIỂM TRA ĐẦU VÀO (VALIDATION) ---
         if (u == null || u.trim().isEmpty() || p == null || p.trim().isEmpty() || e == null || e.trim().isEmpty() || e.length() > 100 || phone == null || phone.trim().isEmpty() || fn == null || fn.trim().isEmpty()){
             request.setAttribute("mess", "Thông tin không hợp lệ!");
+            request.setAttribute("activeTab", "register");
+            request.getRequestDispatcher("view/Login.jsp").forward(request, response);
+            return;
+        }
+        // [BỔ SUNG EX 4]: Mật khẩu quá ngắn
+        if (p.length() < 6) {
+            request.setAttribute("mess", "Mật khẩu phải dài ít nhất 6 ký tự!");
             request.setAttribute("activeTab", "register");
             request.getRequestDispatcher("view/Login.jsp").forward(request, response);
             return;

@@ -36,47 +36,44 @@ public class UpdateProfileServlet extends HttpServlet{
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-        // 2. Xử lý tiếng Việt (nếu có)
         request.setCharacterEncoding("UTF-8");
-
-        // 3. Lấy dữ liệu người dùng nhập từ Form
-        String newFullname = request.getParameter("fullname");
-        String newEmail = request.getParameter("email");
-        String newPhone = request.getParameter("phone_number");
-
-        
         HttpSession session = request.getSession();
         User currentUser = (User) session.getAttribute("user");
-        // Kiểm tra nếu session hết hạn (user null) thì đá về login
+        
         if (currentUser == null) {
-            response.sendRedirect("login.jsp");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
-        // 5. Cập nhật thông tin mới vào đối tượng User
-        currentUser.setFullname(newFullname);
-        currentUser.setEmail(newEmail);
-        currentUser.setPhone_number(newPhone);
+        // CHỈ lấy fullname từ form cơ bản này. TUYỆT ĐỐI KHÔNG lấy email và phone ở đây.
+        String newFullname = request.getParameter("fullname");
 
-        // 6. GỌI DAO ĐỂ LƯU VÀO DATABASE (QUAN TRỌNG)
+        // [XỬ LÝ EX 1]: Kiểm tra tên bị bỏ trống
+        if (newFullname == null || newFullname.trim().isEmpty()) {
+            session.setAttribute("mess", "Full Name cannot be blank.");
+            session.setAttribute("status", "error");
+            response.sendRedirect(request.getContextPath() + "/update-profile");
+            return;
+        }
+
+        // Chỉ cập nhật fullname
+        currentUser.setFullname(newFullname.trim());
+
         UserDAO userDAO = new UserDAO();
+        // Lưu ý: Hàm updateUser trong DAO lúc này chỉ nên update fullname, 
+        // hoặc vẫn truyền nguyên đối tượng currentUser (vì email/phone cũ không bị ghi đè)
         boolean isUpdated = userDAO.updateUser(currentUser); 
-        // (Bạn cần viết hàm updateUser trong UserDAO nhận vào 1 User và chạy lệnh SQL UPDATE)
 
         if (isUpdated) {
             currentUser.setPassword("");
-            // 7. Cập nhật lại Session (Để F5 trang Profile thấy dữ liệu mới ngay)
             session.setAttribute("user", currentUser);
-            
-            // Gửi thông báo thành công
-            session.setAttribute("mess", "Cập nhật thành công!");
+            session.setAttribute("mess", "Cập nhật thông tin thành công!");
+            session.setAttribute("status", "success");
         } else {
-            // Gửi thông báo thất bại
             session.setAttribute("mess", "Lỗi! Không thể cập nhật.");
+            session.setAttribute("status", "error");
         }
 
-        // 8. Quay trở lại trang Profile
-        // Thay dòng cuối cùng của doPost thành dòng này:
         response.sendRedirect(request.getContextPath() + "/update-profile");
     }
 }
