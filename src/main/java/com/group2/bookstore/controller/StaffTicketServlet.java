@@ -31,9 +31,7 @@ public class StaffTicketServlet extends HttpServlet {
         // 2. DỮ LIỆU MỚI CHO TAB TRẢ HÀNG (Sử dụng hàm DAO của bạn)
         OrderDAO orderDao = new OrderDAO();
 
-        // Truyền status = 5, sortBy = "id" (hoặc "order_date" tuỳ DB của bạn),
-        // sortOrder = "DESC" để đơn mới lên đầu
-        List<Order> listReturnOrders = orderDao.getOrdersByStatus(7, "id", "DESC");
+        List<Order> listReturnOrders = orderDao.getOrdersByStatus(7, "order_date", "DESC");
 
         request.setAttribute("listReturnOrders", listReturnOrders);
 
@@ -60,7 +58,7 @@ public class StaffTicketServlet extends HttpServlet {
             if ("accept".equals(decision)) {
                 // CHẤP NHẬN: Chuyển order status sang 6 (Đã Hủy / Hoàn tiền)
                 boolean isUpdated = orderDao.updateOrderStatus(orderId, 8);
-                
+
                 if (isUpdated) {
                     notifDao.createNotification(userId,
                             "Yêu cầu trả hàng cho đơn #" + orderId + " đã được CHẤP NHẬN và hoàn tiền!",
@@ -70,11 +68,11 @@ public class StaffTicketServlet extends HttpServlet {
                 } else {
                     request.getSession().setAttribute("errorMessage", "Lỗi: Không thể cập nhật trạng thái đơn hàng.");
                 }
-                
+
             } else if ("reject".equals(decision)) {
                 // TỪ CHỐI: Chuyển order status về lại 5 (Hoàn tất - Không cho trả nữa)
                 boolean isUpdated = orderDao.updateOrderStatus(orderId, 5);
-                
+
                 if (isUpdated) {
                     notifDao.createNotification(userId,
                             "Yêu cầu trả hàng cho đơn #" + orderId + " đã BỊ TỪ CHỐI bởi cửa hàng.",
@@ -86,8 +84,8 @@ public class StaffTicketServlet extends HttpServlet {
                 }
             }
 
-        } else {
-            // --- XỬ LÝ: STAFF TRẢ LỜI TICKET KHIẾU NẠI (CODE CŨ CỦA BẠN) ---
+        } else if ("reply_ticket".equals(action)) {
+            // --- XỬ LÝ: STAFF TRẢ LỜI TICKET KHIẾU NẠI ---
             int ticketId = Integer.parseInt(request.getParameter("ticketId"));
             int customerId = Integer.parseInt(request.getParameter("userId"));
             String status = request.getParameter("status");
@@ -100,7 +98,10 @@ public class StaffTicketServlet extends HttpServlet {
                 NotificationDAO notifDao = new NotificationDAO();
                 String msg = "Khiếu nại (Mã #" + ticketId + ") của bạn đã được phản hồi! Trạng thái hiện tại: "
                         + status;
+
+                // Lưu ý: Đảm bảo đường dẫn URL notification của bạn ở đây khớp với bên User
                 notifDao.createNotification(customerId, msg, "support");
+
                 request.getSession().setAttribute("successMessage",
                         "Đã phản hồi khiếu nại và gửi thông báo cho khách hàng!");
             } else {

@@ -34,6 +34,7 @@ public class UserDAO extends DBContext {
                         rs.getString("phone_number"),
                         rs.getInt("status"));
                         u.setWalletBalance(rs.getDouble("wallet_balance"));
+                        u.setF_points(rs.getInt("f_point"));
                 return u;
             }
         } catch (Exception e) {
@@ -72,7 +73,7 @@ public class UserDAO extends DBContext {
             st.setString(1, username);
             ResultSet rs = st.executeQuery();
             if (rs.next()) {
-                return new User(
+                User u = new User(
                         rs.getInt("user_id"),
                         rs.getString("username"),
                         rs.getString("password"),
@@ -81,6 +82,8 @@ public class UserDAO extends DBContext {
                         rs.getInt("role"),
                         rs.getString("phone_number"),
                         rs.getInt("status"));
+                        u.setF_points(rs.getInt("f_point"));
+                        return u;
             }
         } catch (Exception e) {
             System.out.println(e);
@@ -96,7 +99,7 @@ public class UserDAO extends DBContext {
             st.setString(1, email);
             ResultSet rs = st.executeQuery();
             if (rs.next()) {
-                return new User(
+                User u = new User(
                         rs.getInt("user_id"),
                         rs.getString("username"),
                         rs.getString("password"),
@@ -105,6 +108,8 @@ public class UserDAO extends DBContext {
                         rs.getInt("role"),
                         rs.getString("phone_number"),
                         rs.getInt("status"));
+                        u.setF_points(rs.getInt("f_point"));
+                        return u;
             }
         } catch (Exception e) {
             System.out.println(e);
@@ -241,6 +246,7 @@ public class UserDAO extends DBContext {
                     u.setPhone_number(rs.getString("phone_number"));
                     u.setRole(rs.getInt("role"));
                     u.setStatus(rs.getInt("status"));
+                    u.setF_points(rs.getInt("f_point"));
                     list.add(u);
                 }
             }
@@ -274,10 +280,9 @@ public class UserDAO extends DBContext {
     public List<User> getFilteredCustomers(String keyword, String memberTier, Double minSpend, Double maxSpend) {
         List<User> list = new ArrayList<>();
 
-        // ĐÃ SỬA LỖI: Bổ sung thêm u.tags vào câu lệnh SQL
         StringBuilder sql = new StringBuilder(
                 "SELECT * FROM (" +
-                        "   SELECT u.user_id, u.fullname, u.username, u.email, u.phone_number, u.status, u.tags, " +
+                        "   SELECT u.user_id, u.fullname, u.username, u.email, u.phone_number, u.status, u.tags, u.f_point," +
                         "          COALESCE((SELECT SUM(total_amount) FROM Orders o WHERE o.user_id = u.user_id AND o.status = 4), 0) AS total_spend "
                         +
                         "   FROM Users u " +
@@ -341,9 +346,8 @@ public class UserDAO extends DBContext {
                     u.setStatus(rs.getInt("status"));
                     u.setTotalSpend(rs.getDouble("total_spend"));
 
-                    // THÊM DÒNG NÀY ĐỂ LẤY NHÃN DÁN LÊN WEB (Lỗi do thiếu dòng này)
                     u.setTags(rs.getString("tags"));
-
+                    u.setF_points(rs.getInt("f_point"));
                     list.add(u);
                 }
             }
@@ -496,7 +500,7 @@ public class UserDAO extends DBContext {
                     u.setPhone_number(rs.getString("phone_number"));
                     u.setRole(rs.getInt("role"));
                     u.setStatus(rs.getInt("status"));
-
+                    u.setF_points(rs.getInt("f_point"));
                     // Xử lý an toàn: Lấy thẳng chuỗi String từ DB để không bị lỗi Timestamp
                     if (rs.getString("createAt") != null) {
                         u.setCreateAt(rs.getTimestamp("createAt"));
