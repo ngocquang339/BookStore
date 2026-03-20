@@ -168,4 +168,22 @@ public class NotificationDAO extends DBContext {
             ps.executeUpdate();
         } catch (Exception e) { e.printStackTrace(); }
     }
+    // Hàm tạo thông báo mới
+    public void insertNotification(int userId, String message, String link) {
+        String sql = "INSERT INTO Notifications (user_id, message, link, is_read, created_at) " +
+                     "VALUES (?, ?, ?, 0, GETDATE())";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+             
+            ps.setInt(1, userId);
+            ps.setNString(2, message); 
+            ps.setString(3, link); // Dùng cột link
+            
+            ps.executeUpdate();
+        } catch (Exception e) {
+            System.err.println("Lỗi khi tạo thông báo: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 }

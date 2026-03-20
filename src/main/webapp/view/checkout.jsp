@@ -319,14 +319,11 @@
                         <td class="text-muted text-start">Thành tiền</td>
                         <td class="text-end fw-bold"><fmt:formatNumber value="${grandTotal}" type="currency" currencySymbol="₫"/></td>
                     </tr>
-                    
                     <c:if test="${fpointDiscountUI > 0}">
-                        <tr>
-                            <td class="text-muted text-start">Ưu đãi Hạng (${sessionScope.user.rankName})</td>
+                        <tr id="tierDiscountRow" style="display: none;"> <td class="text-muted text-start">Ưu đãi Hạng (${sessionScope.user.rankName})</td>
                             <td class="text-end text-success fw-bold">-<fmt:formatNumber value="${fpointDiscountUI}" pattern="#,###"/>₫</td>
                         </tr>
                     </c:if>
-                    
                     <tr>
                         <td class="text-muted text-start">Phí vận chuyển (GHN)</td>
                         <td class="text-end text-success fw-bold" id="shippingFeeAmount">Đang tính...</td>
@@ -334,7 +331,7 @@
                     <tr class="total-row">
                         <td class="fw-bold text-start text-dark fs-6">Tổng Số Tiền</td>
                         <td class="text-end text-orange-total">
-                            <fmt:formatNumber value="${grandTotal - (fpointDiscountUI != null ? fpointDiscountUI : 0)}" type="currency" currencySymbol="₫"/>
+                            <fmt:formatNumber value="${grandTotal}" type="currency" currencySymbol="₫"/>
                         </td>
                     </tr>
                 </table>
@@ -734,11 +731,28 @@ async function calculateShippingGHN(toDistrictId, toWardCode) {
 }
 
 function recalculateFinalTotal() {
-    let finalTotal = originalGrandTotal + currentShippingFee - currentDiscountValue - fpointDiscount;
+    let actualFpointDiscount = 0; 
+    const discountRow = document.getElementById('tierDiscountRow'); 
+
+    const selectedMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+
+    if (selectedMethod === "VNPAY") {
+        actualFpointDiscount = fpointDiscount; // Chọn VNPAY -> Áp dụng giảm giá
+        if (discountRow) discountRow.style.display = ''; // Hiện dòng giảm giá
+    } else {
+        actualFpointDiscount = 0; // Chọn COD -> Không giảm giá
+        if (discountRow) discountRow.style.display = 'none'; // Ẩn dòng giảm giá
+    }
+    let finalTotal = originalGrandTotal + currentShippingFee - currentDiscountValue - actualFpointDiscount;
     if (finalTotal < 0) finalTotal = 0; 
     document.querySelector('.text-orange-total').innerHTML = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(finalTotal);
 }
-
+$(document).ready(function() {
+    // Lắng nghe lúc khách click vào 2 nút radio
+    $('#cod, #vnpay').change(function() {
+        recalculateFinalTotal();
+    });
+});
 // LOGIC VOUCHER (Giữ nguyên của bạn, chỉ đặt ra ngoài)
 var myVouchers = [
     <c:forEach items="${wallet}" var="uv">

@@ -167,7 +167,7 @@ public class StaffReviewServlet extends HttpServlet {
             return; // Xong thì kết thúc
         }
         // ==========================================
-        // LUỒNG 2: XỬ LÝ NÚT BẤM "TRẢ LỜI ĐÁNH GIÁ"
+        // LUỒNG 2: XỬ LÝ NÚT BẤM "TRẢ LỜI ĐÁNH GIÁ" & GỬI THÔNG BÁO
         // ==========================================
         String reviewIdStr = request.getParameter("reviewId");
         String replyText = request.getParameter("replyText");
@@ -176,7 +176,29 @@ public class StaffReviewServlet extends HttpServlet {
             try {
                 int reviewId = Integer.parseInt(reviewIdStr);
                 ReviewDAO reviewDAO = new ReviewDAO();
-                reviewDAO.updateStaffReply(reviewId, replyText);
+
+                // 1. Lưu câu trả lời vào Database
+                boolean isSuccess = reviewDAO.updateStaffReply(reviewId, replyText);
+
+                // 2. Nếu lưu thành công thì bắn thông báo cho khách
+                if (isSuccess) {
+                    Review review = reviewDAO.getReviewById(reviewId); 
+                    if (review != null) {
+                        com.group2.bookstore.dal.NotificationDAO notifDAO = new com.group2.bookstore.dal.NotificationDAO();
+                        
+                        String message = "Quản trị viên đã phản hồi bình luận của bạn.";
+                        
+                        // Đã sửa lại đường dẫn cho khớp với định dạng "detail?pid=" trong DB của bạn
+                        String link = "detail?pid=" + review.getBookId(); 
+                        
+                        // Chỉ truyền 3 tham số: userId, message, link
+                        notifDAO.insertNotification(review.getUserId(), message, link);
+                    }
+                    
+                    request.getSession().setAttribute("reviewMessage", "Đã trả lời bình luận và gửi thông báo cho khách!");
+                    request.getSession().setAttribute("reviewMessageType", "success");
+                }
+
             } catch (NumberFormatException e) {
                 e.printStackTrace();
             }
