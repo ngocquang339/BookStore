@@ -38,8 +38,9 @@ public class UserDAO extends DBContext {
                         rs.getInt("role"),
                         rs.getString("phone_number"),
                         rs.getInt("status"));
+                        u.setWalletBalance(rs.getDouble("wallet_balance"));
                 int monthlyPts = rs.getInt("current_month_points");
-                u.setF_points(monthlyPts > 0 ? monthlyPts : 0);
+                        u.setF_points(monthlyPts > 0 ? monthlyPts : 0);
                 return u;
             }
         } catch (Exception e) {
@@ -515,6 +516,8 @@ public class UserDAO extends DBContext {
                     if (rs.getString("createAt") != null) {
                         u.setCreateAt(rs.getTimestamp("createAt"));
                     }
+                    // Lấy số dư ví từ Database và nhét vào Object User
+                    u.setWalletBalance(rs.getDouble("wallet_balance"));
                     return u;
                 }
             }
@@ -605,6 +608,18 @@ public class UserDAO extends DBContext {
             ps.executeUpdate();
         } catch (Exception e) {
             System.out.println("Lỗi khi cập nhật trạng thái user: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    // Hàm cập nhật số dư ví cho User
+    public void updateWalletBalance(int userId, double newBalance) {
+        String sql = "UPDATE Users SET wallet_balance = ? WHERE user_id = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setDouble(1, newBalance);
+            ps.setInt(2, userId);
+            ps.executeUpdate();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

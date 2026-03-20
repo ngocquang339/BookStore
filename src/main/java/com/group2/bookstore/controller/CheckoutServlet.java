@@ -3,11 +3,13 @@ package com.group2.bookstore.controller;
 import com.group2.bookstore.dal.OrderDAO;
 import com.group2.bookstore.dal.UserDAO;
 import com.group2.bookstore.dal.VoucherDAO;
+import com.group2.bookstore.dal.WalletHistoryDAO;
 import com.group2.bookstore.dal.BookDAO;
 import com.group2.bookstore.dal.AddressDAO;
 import com.group2.bookstore.model.Address;
 import com.group2.bookstore.model.CartItem;
 import com.group2.bookstore.model.User;
+import com.group2.bookstore.model.WalletHistory;
 import com.group2.bookstore.model.Book;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -181,12 +183,21 @@ public class CheckoutServlet extends HttpServlet {
 
             Double grandTotal = (Double) session.getAttribute("grandTotal");
             // ===============================================================
+            // [MỚI] HỨNG PHÍ SHIP TỪ JAVASCRIPT GỬI VỀ
+            // ===============================================================
+            String shippingFeeStr = req.getParameter("shippingFee");
+            double shippingFee = 0;
+            if (shippingFeeStr != null && !shippingFeeStr.isEmpty()) {
+                shippingFee = Double.parseDouble(shippingFeeStr);
+            }
+            // ===============================================================
             // [MỚI] TÒA ÁN TỐI CAO JAVA TÍNH TOÁN LẠI VOUCHER
             // ===============================================================
             String appliedVoucherIdStr = req.getParameter("appliedVoucherId");
             int appliedVoucherId = 0;
             double discount = 0;
-            double finalTotal = grandTotal; // Mặc định số tiền cuối cùng = tiền gốc
+            // [SỬA QUAN TRỌNG]: Mặc định tiền thanh toán = Tiền hàng + Phí Ship
+            double finalTotal = grandTotal + shippingFee;
 
             if (appliedVoucherIdStr != null && !appliedVoucherIdStr.trim().isEmpty()) {
                 appliedVoucherId = Integer.parseInt(appliedVoucherIdStr);
@@ -213,10 +224,10 @@ public class CheckoutServlet extends HttpServlet {
                         }
 
                         // Chống âm tiền
-                        if (discount > grandTotal)
-                            discount = grandTotal;
-
-                        finalTotal = grandTotal - discount; // Chốt số tiền cuối cùng!
+                        if (discount > grandTotal) discount = grandTotal;
+                        
+                        // [SỬA LẠI THÀNH THẾ NÀY]: Cộng cả phí ship vào rồi mới trừ đi khuyến mãi
+                        finalTotal = (grandTotal + shippingFee) - discount;
                     } else {
                         appliedVoucherId = 0; // Đơn không đủ đk -> Hủy mã
                     }
@@ -263,9 +274,16 @@ public class CheckoutServlet extends HttpServlet {
 
                 OrderDAO dao = new OrderDAO();
                 // [SỬA]: Truyền finalTotal thay vì grandTotal vào Database
-                dao.createOrder(user, checkoutCart, receiverName, shippingAddress, phone, finalTotal, paymentMethod,
-                        orderStatus, appliedVoucherId, BigDecimal.valueOf(discount));
-
+                int newOrderId = dao.createOrder(user, checkoutCart, receiverName, shippingAddress, phone, finalTotal, paymentMethod, orderStatus, appliedVoucherId, BigDecimal.valueOf(discount), shippingFee);
+                // Thêm dòng kiểm tra này:
+                if (newOrderId > 0) {
+                    // Đặt hàng thành công -> Xé voucher, xóa giỏ hàng, chuyển hướng...
+                } else {
+                    // Lỗi Database -> Báo lỗi cho người dùng, không xóa giỏ hàng
+                    session.setAttribute("errorMsg", "Lỗi hệ thống: Không thể lưu đơn hàng!");
+                    resp.sendRedirect(req.getContextPath() + "/checkout");
+                    return;
+                }
                 // [MỚI]: Xé vé Voucher nếu có xài
                 if (appliedVoucherId > 0) {
                     VoucherDAO vDao = new VoucherDAO();
@@ -301,6 +319,10 @@ public class CheckoutServlet extends HttpServlet {
                 session.setAttribute("pending_grandTotal", finalTotal- fpointDiscount);
                 session.setAttribute("pending_paymentMethod", paymentMethod);
                 session.setAttribute("pending_discount", discount);
+                
+                // [MỚI]: Nhớ lưu lại ID voucher để trang vnpay-return xé vé sau khi quẹt thẻ thành công
+                // [BẠN HÃY THÊM DÒNG NÀY VÀO]: Nhét tiền ship vào balo trước khi sang VNPAY
+                session.setAttribute("pending_shippingFee", shippingFee);
 
                 // [MỚI]: Nhớ lưu lại ID voucher để trang vnpay-return xé vé sau khi quẹt thẻ
                 // thành công
@@ -313,6 +335,73 @@ public class CheckoutServlet extends HttpServlet {
                         returnUrl);
                 resp.sendRedirect(vnpayUrl);
                 return;
+            }
+            else if ("WALLET".equals(paymentMethod)) {
+                int orderStatus = 1; 
+                // 1. Lấy thông tin user hiện tại
+                User currentUser = (User) session.getAttribute("user");
+                
+                // 2. BACKEND VALIDATION (CHỐNG HACK): Kiểm tra lại số dư ví
+                if (currentUser.getWalletBalance() < finalTotal) {
+                    req.setAttribute("mess", "Giao dịch thất bại: Số dư ví không đủ!");
+                    req.getRequestDispatcher("view/checkout.jsp").forward(req, resp);
+                    return;
+                }
+
+                // 3. TRỪ TIỀN VÍ TRONG DATABASE VÀ SESSION
+                double newBalance = currentUser.getWalletBalance() - finalTotal;
+                
+                userDAO.updateWalletBalance(currentUser.getId(), newBalance); // Trừ DB
+                
+                currentUser.setWalletBalance(newBalance);
+                session.setAttribute("user", currentUser); // Cập nhật lại Session ngay lập tức
+
+                // 4. TẠO ĐƠN HÀNG 
+                OrderDAO dao = new OrderDAO();
+                // [QUAN TRỌNG]: Khai báo biến newOrderId để hứng cái kết quả (ID) mà hàm này trả về!
+                int newOrderId = dao.createOrder(user, checkoutCart, receiverName, shippingAddress, phone, finalTotal, paymentMethod, orderStatus, appliedVoucherId, BigDecimal.valueOf(discount), shippingFee);
+                // Thêm dòng kiểm tra này:
+                if (newOrderId > 0) {
+                    // Đặt hàng thành công -> Xé voucher, xóa giỏ hàng, chuyển hướng...
+                    // [MỚI]: Xé vé Voucher nếu có xài
+                    if (appliedVoucherId > 0) {
+                        VoucherDAO vDao = new VoucherDAO();
+                        vDao.markVoucherAsUsed(currentUser.getId(), appliedVoucherId);
+                    }
+
+                    // 5. GHI LẠI LỊCH SỬ GIAO DỊCH VÍ (SAO KÊ) 
+                    // [LƯU Ý]: Phải chạy cái này TRƯỚC khi sendRedirect
+                    WalletHistoryDAO walletDAO = new WalletHistoryDAO();
+                    WalletHistory history = new WalletHistory();
+                    history.setUserId(currentUser.getId());
+                    history.setAmount(-finalTotal); // Tiền mua hàng bị TRỪ nên phải là số ÂM
+                    history.setTransactionType("PAYMENT");
+                    history.setDescription("Thanh toán đơn hàng bằng Ví BookStore");
+                    // Bây giờ newOrderId đã có giá trị, truyền thẳng vào đây:
+                    history.setOrderId(newOrderId); 
+                    
+                    walletDAO.insertHistory(history);
+
+                    // 6. DỌN DẸP GIỎ HÀNG (Giữ nguyên của bạn)
+                    if (mainCart != null) {
+                        for (CartItem purchasedItem : checkoutCart) {
+                            mainCart.removeIf(item -> item.getBook().getId() == purchasedItem.getBook().getId());
+                        }
+                    }
+                    session.setAttribute("cart", mainCart);
+                    session.removeAttribute("checkoutCart");
+                    session.removeAttribute("grandTotal");
+
+                    // 7. CHUYỂN HƯỚNG BÁO THÀNH CÔNG (Luôn để ở cuối cùng)
+                    session.setAttribute("successMsg", "Đặt hàng thành công bằng Ví BookStore!");
+                    resp.sendRedirect(req.getContextPath() + "/home");
+                    return;
+                } else {
+                    // Lỗi Database -> Báo lỗi cho người dùng, không xóa giỏ hàng
+                    session.setAttribute("errorMsg", "Lỗi hệ thống: Không thể lưu đơn hàng!");
+                    resp.sendRedirect(req.getContextPath() + "/checkout");
+                    return;
+                }
             }
 
         } catch (Exception e) {
