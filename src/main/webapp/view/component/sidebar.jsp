@@ -1,6 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
-
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <% 
     String currentPath = request.getServletPath(); 
 %>
@@ -108,6 +108,24 @@
         <a href="${pageContext.request.contextPath}/my-comments" 
            class="menu-item <%= currentPath.contains("my-comments") ? "active" : "" %>">
             <i class="fa-regular fa-comment-dots"></i> Bình luận của tôi
+        </a>
+
+        <a href="${pageContext.request.contextPath}/my-wallet" 
+           class="menu-item <%= currentPath.contains("my-wallet") ? "active" : "" %>">
+            <%-- Icon luôn màu xám như các mục khác --%>
+            <i class="fa-solid fa-wallet text-secondary"></i> Ví BookStore 
+            
+            <%-- Cục đỏ hiển thị số dư --%>
+            <span style="background: #C92127; color: white; font-size: 11px; padding: 2px 6px; border-radius: 10px; margin-left: auto; font-weight: bold;">
+                <c:choose>
+                    <%-- Nếu có số dư > 0 thì format hiển thị --%>
+                    <c:when test="${sessionScope.user.walletBalance != null && sessionScope.user.walletBalance > 0}">
+                        <fmt:formatNumber value="${sessionScope.user.walletBalance}" pattern="#,###"/>đ
+                    </c:when>
+                    <%-- Nếu rỗng hoặc = 0 thì in cứng 0đ --%>
+                    <c:otherwise>0đ</c:otherwise>
+                </c:choose>
+            </span>
         </a>
         <a href="${pageContext.request.contextPath}/logout" class="menu-item" style="color: #666;">
             <i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất

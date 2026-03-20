@@ -139,7 +139,7 @@
 <jsp:include page="component/header.jsp" />
 <div class="container py-5">
     <form action="${pageContext.request.contextPath}/checkout" method="post" id="checkoutForm">
-        
+        <input type="hidden" name="shippingFee" id="hiddenShippingFee" value="0">
         <div class="checkout-wrapper" style="max-width: 900px; margin: 0 auto;">
             
             <div class="checkout-section shadow-sm bg-white p-4 mb-4 rounded">
@@ -207,15 +207,47 @@
                 <div class="section-title mb-3" style="border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; color: #333; font-weight: bold;">
                     PHƯƠNG THỨC THANH TOÁN
                 </div>
+                
                 <div class="payment-option d-flex align-items-center mb-3">
                     <input type="radio" name="paymentMethod" value="COD" id="cod" class="form-check-input me-3" checked>
                     <img src="${pageContext.request.contextPath}/assets/image/PaymentMethod/COD.jpg" alt="COD" width="40" class="me-2 border rounded p-1">
                     <label for="cod" style="cursor: pointer;">Thanh toán bằng tiền mặt khi nhận hàng</label>
                 </div>
-                <div class="payment-option d-flex align-items-center mt-2">
+                
+                <div class="payment-option d-flex align-items-center mt-2 mb-3">
                     <input type="radio" name="paymentMethod" value="VNPAY" id="vnpay" class="form-check-input me-3">
                     <img src="${pageContext.request.contextPath}/assets/image/PaymentMethod/VNPAY.jpg" alt="VNPAY" width="40" class="me-2 border rounded p-1" style="object-fit: contain;">
                     <label for="vnpay" style="cursor: pointer;">Thanh toán qua VNPAY</label>
+                </div>
+
+                <%-- BƯỚC 1: Đặt biến lấy số dư ví (nếu rỗng thì gán = 0) --%>
+                <c:set var="walletBal" value="${sessionScope.user.walletBalance != null ? sessionScope.user.walletBalance : 0}" />
+                
+                <%-- BƯỚC 2: [RẤT QUAN TRỌNG] Thay 'totalPrice' bằng biến chứa tổng tiền đơn hàng của bạn ở trang này --%>
+                <c:set var="totalAmount" value="${grandTotal}" /> 
+                
+                <%-- BƯỚC 3: Kiểm tra xem tiền có đủ không (true / false) --%>
+                <c:set var="isEnough" value="${walletBal >= grandTotal}" />
+
+                <%-- BƯỚC 4: Vẽ giao diện (Nếu isEnough = false thì làm mờ khối div và khóa input) --%>
+                <div class="payment-option d-flex align-items-center mt-2 ${!isEnough ? 'text-muted' : ''}" style="${!isEnough ? 'opacity: 0.5; pointer-events: none;' : ''}">
+                    
+                    <input type="radio" name="paymentMethod" value="WALLET" id="wallet" class="form-check-input me-3" ${!isEnough ? 'disabled' : ''}>
+                    
+                    <div class="me-2 border rounded p-1 d-flex justify-content-center align-items-center" style="width: 40px; height: 32px; background: #fdfdfd;">
+                        <i class="fa-solid fa-wallet text-danger"></i>
+                    </div>
+                    
+                    <label for="wallet" style="${isEnough ? 'cursor: pointer;' : 'cursor: not-allowed;'}">
+                        Thanh toán bằng Ví MindBook
+                        <span style="font-size: 13px; font-weight: bold; color: ${isEnough ? '#C92127' : '#888'}; margin-left: 5px;">
+                            (Số dư: <fmt:formatNumber value="${walletBal}" pattern="#,###"/>đ)
+                        </span>
+                        
+                        <c:if test="${!isEnough}">
+                            <span class="ms-2 badge bg-secondary" style="font-size: 11px;">Không đủ số dư</span>
+                        </c:if>
+                    </label>
                 </div>
             </div>
 
@@ -660,6 +692,8 @@ async function calculateShippingGHN(toDistrictId, toWardCode) {
         const feeData = await feeRes.json();
         if(feeData.code === 200) {
             currentShippingFee = feeData.data.total;
+            // [THÊM DÒNG NÀY]: Đổ dữ liệu phí ship vào thẻ input ẩn để submit về Java
+            document.getElementById('hiddenShippingFee').value = currentShippingFee;
             const feeFormatted = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(currentShippingFee);
             $('#shippingFeeAmount').removeClass('text-success').addClass('text-dark').text(feeFormatted);
         }

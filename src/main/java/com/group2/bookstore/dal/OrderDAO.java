@@ -160,8 +160,8 @@ public class OrderDAO extends DBContext {
     // =========================================================================
     // MASTER CREATE ORDER METHOD (Unified Teammate + Your Advanced Logic)
     // =========================================================================
-    public int createOrder(User user, List<CartItem> cart, String receiverName, String shippingAddress, String phone, double total, String paymentMethod, int orderStatus, int voucherId, java.math.BigDecimal discountAmount) {
-        String sqlOrder = "INSERT INTO Orders(user_id, order_date, total_amount, status, receiver_name, shipping_address, phone_number, payment_method, voucher_id, discount_amount) VALUES (?, GETDATE(), ?, ?, ?, ?, ?, ?, ?, ?)";
+    public int createOrder(User user, List<CartItem> cart, String receiverName, String shippingAddress, String phone, double total, String paymentMethod, int orderStatus, int voucherId, java.math.BigDecimal discountAmount,double shippingFee) {
+        String sqlOrder = "INSERT INTO Orders(user_id, order_date, total_amount, status, receiver_name, shipping_address, phone_number, payment_method, voucher_id, discount_amount, shipping_fee) VALUES (?, GETDATE(), ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         Connection cn = null; 
         int generatedOrderId = 0; 
         
@@ -190,6 +190,7 @@ public class OrderDAO extends DBContext {
             } else {
                 ps.setBigDecimal(9, discountAmount);
             }
+            ps.setDouble(10, shippingFee);
             
             ps.executeUpdate();
 
@@ -716,7 +717,7 @@ public class OrderDAO extends DBContext {
                     b.setTitle(rs.getString("title"));
                     b.setImageUrl(rs.getString("image")); // Đã khớp DB của bạn
                     od.setBook(b);
-
+                    
                     details.add(od);
                 }
                 order.setDetails(details);
@@ -755,6 +756,7 @@ public class OrderDAO extends DBContext {
                     } else {
                         o.setDiscountAmount(dbDiscount);
                     }
+                    o.setShippingFee(rs.getDouble("shipping_fee"));
                     // ==============================================================
 
                     list.add(o);
@@ -802,6 +804,7 @@ public class OrderDAO extends DBContext {
                     } else {
                         o.setDiscountAmount(dbDiscount);
                     }
+                    o.setShippingFee(rs.getDouble("shipping_fee"));
                     // ==============================================================
 
                     list.add(o);
@@ -961,6 +964,7 @@ public class OrderDAO extends DBContext {
                 o.setOrderDate(rs.getTimestamp("order_date"));
                 o.setTotalAmount(rs.getDouble("total_amount"));
                 o.setStatus(rs.getInt("status"));
+                o.setShippingFee(rs.getDouble("shipping_fee"));
                 list.add(o);
             }
         } catch (Exception e) {
