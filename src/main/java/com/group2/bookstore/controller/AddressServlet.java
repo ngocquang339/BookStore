@@ -116,6 +116,54 @@ public class AddressServlet extends HttpServlet {
         AddressDAO addressDAO = new AddressDAO();
 
         // =========================================================
+        // KIỂM TRA DỮ LIỆU ĐẦU VÀO (BACKEND VALIDATION CHO EX 1 -> EX 5)
+        // (Áp dụng chung cho cả THÊM và SỬA)
+        // =========================================================
+        if ("/add-address".equals(path) || "/edit-address".equals(path)) {
+            String fullName = request.getParameter("fullName");
+            String phone = request.getParameter("phone");
+            String city = request.getParameter("city");
+            String district = request.getParameter("district");
+            String ward = request.getParameter("ward");
+            String addressDetail = request.getParameter("addressDetail");
+
+            // [EX 5]: Thiếu Dropdown Tỉnh/Huyện/Xã
+            if (city == null || district == null || ward == null || city.isEmpty() || district.isEmpty() || ward.isEmpty()) {
+                session.setAttribute("mess", "This field is required (Vui lòng chọn đầy đủ địa giới).");
+                session.setAttribute("status", "error");
+                response.sendRedirect(request.getContextPath() + "/address");
+                return;
+            }
+            // [EX 2]: Tên quá dài
+            if (fullName == null || fullName.trim().length() > 50) {
+                session.setAttribute("mess", "Length cannot exceed 50 characters.");
+                session.setAttribute("status", "error");
+                response.sendRedirect(request.getContextPath() + "/address");
+                return;
+            }
+            // [EX 1]: Tên chứa số
+            if (fullName.matches(".*\\d.*")) {
+                session.setAttribute("mess", "Name cannot contain numbers.");
+                session.setAttribute("status", "error");
+                response.sendRedirect(request.getContextPath() + "/address");
+                return;
+            }
+            // [EX 3]: SĐT sai định dạng (Bắt buộc 10 số, bắt đầu bằng 0)
+            if (phone == null || !phone.matches("^0\\d{9}$")) {
+                session.setAttribute("mess", "Phone number must contain only digits, be exactly 10 digits, and start with 0.");
+                session.setAttribute("status", "error");
+                response.sendRedirect(request.getContextPath() + "/address");
+                return;
+            }
+            // [EX 4]: Chi tiết địa chỉ quá dài
+            if (addressDetail == null || addressDetail.trim().length() > 100) {
+                session.setAttribute("mess", "Address cannot exceed 100 characters.");
+                session.setAttribute("status", "error");
+                response.sendRedirect(request.getContextPath() + "/address");
+                return;
+            }
+        }
+        // =========================================================
         // XỬ LÝ 1: SUBMIT FORM THÊM ĐỊA CHỈ
         // =========================================================
         if ("/add-address".equals(path)) {

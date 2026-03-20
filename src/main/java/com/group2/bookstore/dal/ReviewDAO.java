@@ -264,8 +264,8 @@ public class ReviewDAO extends DBContext {
         System.out.println("=== DEBUG: ID của User đang đăng nhập: " + userId);
 
         List<Review> list = new ArrayList<>();
-        // JOIN với bảng Books để lấy tiêu đề sách
-        String sql = "SELECT r.*, b.title AS book_title " +
+        // JOIN với bảng Books để lấy tiêu đề sách VÀ trạng thái sách
+        String sql = "SELECT r.*, b.title AS book_title, b.is_active AS is_active " +
                 "FROM Review r " +
                 "JOIN Books b ON r.book_id = b.book_id " +
                 "WHERE r.user_id = ? " +
@@ -295,6 +295,13 @@ public class ReviewDAO extends DBContext {
                         r.setUserId(rs.getInt("user_id"));
                         r.setRating(rs.getInt("rating"));
                         r.setComment(rs.getNString("comment"));
+                        // [QUAN TRỌNG 1]: Bạn nhớ lấy thêm Ngày đăng và Tên sách để JSP có cái hiển thị nhé
+                        r.setBookTitle(rs.getString("book_title"));
+                        r.setCreateAt(rs.getDate("create_at")); 
+                        // (Lưu ý tên cột create_at trong DB của bạn có thể là created_at, hãy check lại cho chuẩn)
+
+                        // [QUAN TRỌNG 2 - MỤC TIÊU CỦA CHÚNG TA]: Gán trạng thái sách để xử lý EX 2
+                        r.setBookStatus(rs.getInt("is_active"));
                         list.add(r);
                     }
                     System.out.println("=== DEBUG: Đã đọc xong! Tổng số bình luận lấy được: " + count);
@@ -330,9 +337,9 @@ public class ReviewDAO extends DBContext {
         int offset = (page - 1) * pageSize; // Tính toán vị trí bỏ qua
 
         // SQL Server dùng OFFSET và FETCH NEXT để phân trang
-        String sql = "SELECT r.*, b.title AS book_title " +
+        String sql = "SELECT r.*, b.title AS book_title, b.is_active AS is_active " +
                 "FROM Review r " +
-                "JOIN Books b ON r.book_id = b.book_id " +
+                "LEFT JOIN Books b ON r.book_id = b.book_id " +
                 "WHERE r.user_id = ? " +
                 "ORDER BY r.create_at DESC " +
                 "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
@@ -352,6 +359,8 @@ public class ReviewDAO extends DBContext {
                     r.setComment(rs.getNString("comment"));
                     r.setCreateAt(rs.getDate("create_at"));
                     r.setBookTitle(rs.getString("book_title"));
+                    // [QUAN TRỌNG 2 - MỤC TIÊU CỦA CHÚNG TA]: Gán trạng thái sách để xử lý EX 2
+                    r.setBookStatus(rs.getInt("is_active"));
                     list.add(r);
                 }
             }

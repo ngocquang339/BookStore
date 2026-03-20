@@ -54,7 +54,7 @@ public class OrderServlet extends HttpServlet {
                                                                                                                  // duyệt,
                                                                                                                  // Đã
                                                                                                                  // duyệt,
-                                                                                                                 // Đóng
+                                                                                                     // Đóng
                                                                                                                  // gói
                                                                                                                  // xong)
         int countShipping = orderDAO.countOrdersByStatus(user.getId(), 4); // [SỬA] Đang giao là 4

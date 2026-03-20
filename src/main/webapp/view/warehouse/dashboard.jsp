@@ -68,9 +68,10 @@
                     <div class="card p-4 shadow-sm h-100 border-secondary">
                         <h4 class="text-secondary"><i class="fas fa-dolly"></i> Create Purchase Order</h4>
                         <p>Quản lý các yêu cầu nhập hàng từ nhà cung cấp vào kho.</p>
-                        <a href="${pageContext.request.contextPath}/create-po" class="btn btn-secondary mt-auto">
-                            Truy cập
-                        </a>
+                        <a href="${pageContext.request.contextPath}/warehouse/create-po"
+           class="btn btn-secondary mt-auto">
+            Truy cập
+        </a>
                     </div>
                 </div>
                 <div class="col-md-4">

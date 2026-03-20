@@ -334,38 +334,6 @@
                 modal.style.display = 'none';
             }
         }
-        function validatePhone() {
-        var input = document.getElementById('newPhoneInput');
-        var errorMsg = document.getElementById('phoneError');
-        var btn = document.getElementById('btnConfirmPhone');
-        var value = input.value;
-
-        // Reset trạng thái ban đầu
-        errorMsg.style.display = 'none';
-        input.style.borderColor = '#ddd';
-        btn.disabled = false;
-        btn.style.opacity = '1'; // Nút sáng lên
-
-        // 1. Kiểm tra nếu có chữ (Ký tự không phải số)
-        // Regex: \D khớp với bất kỳ ký tự nào KHÔNG phải là số
-        if (/\D/.test(value)) {
-            errorMsg.innerText = 'Vui lòng chỉ nhập số, không nhập chữ!';
-            errorMsg.style.display = 'block';
-            input.style.borderColor = '#dc3545'; // Viền đỏ
-            btn.disabled = true; // Khóa nút
-            btn.style.opacity = '0.5'; // Nút mờ đi
-            return;
-        }
-
-        // 2. Kiểm tra độ dài (Quá 10 số)
-        if (value.length > 10) {
-            errorMsg.innerText = 'Số điện thoại không được quá 10 số!';
-            errorMsg.style.display = 'block';
-            input.style.borderColor = '#dc3545';
-            btn.disabled = true;
-            btn.style.opacity = '0.5';
-        }
-    }
 
         // Đóng modal khi bấm ra ngoài vùng trắng
         window.onclick = function(event) {
@@ -660,6 +628,33 @@
                 emailInput.style.borderColor = "#ddd";
             }
         }, 1000);
+    }
+
+    function validatePhone() {
+        var input = document.getElementById('newPhoneInput');
+        var errorMsg = document.getElementById('phoneError');
+        var btn = document.getElementById('btnConfirmPhone');
+        var value = input.value.trim();
+
+        // Reset trạng thái ban đầu
+        errorMsg.style.display = 'none';
+        input.style.borderColor = '#ddd';
+        btn.disabled = false;
+        btn.style.opacity = '1'; 
+
+        // Nếu người dùng chưa nhập gì thì không báo lỗi vội
+        if (value === "") return;
+
+        // [XỬ LÝ EX 5]: Regex ép đúng 10 số và bắt đầu bằng 0
+        var phoneRegex = /^0\d{9}$/;
+
+        if (!phoneRegex.test(value)) {
+            errorMsg.innerText = 'Phone number must be 10 digits and start with 0.';
+            errorMsg.style.display = 'block';
+            input.style.borderColor = '#dc3545'; 
+            btn.disabled = true; 
+            btn.style.opacity = '0.5'; 
+        }
     }
     </script>
 
