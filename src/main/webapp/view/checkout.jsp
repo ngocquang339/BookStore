@@ -140,6 +140,12 @@
 <div class="container py-5">
     <form action="${pageContext.request.contextPath}/checkout" method="post" id="checkoutForm">
         <input type="hidden" name="shippingFee" id="hiddenShippingFee" value="0">
+        <c:if test="${not empty errorMsg}">
+            <div class="alert alert-danger alert-dismissible fade show mb-4 shadow-sm" role="alert" style="max-width: 900px; margin: 0 auto; border-left: 5px solid #dc3545;">
+                <strong><i class="fa-solid fa-triangle-exclamation me-2"></i> Lỗi thanh toán:</strong> ${errorMsg}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </c:if>
         <div class="checkout-wrapper" style="max-width: 900px; margin: 0 auto;">
             
             <div class="checkout-section shadow-sm bg-white p-4 mb-4 rounded">

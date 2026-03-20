@@ -86,13 +86,13 @@
         </a>
         
         <a href="${pageContext.request.contextPath}/user/voucher-wallet" 
-           class="menu-item <%= currentPath.contains("voucher") ? "active" : "" %>">
-            <i class="fa-solid fa-ticket"></i> Ví Voucher <span style="background:red; color:white; font-size:10px; padding: 2px 5px; border-radius:10px; margin-left:5px;">18</span>
+        class="menu-item <%= currentPath.contains("voucher") ? "active" : "" %>">
+            <i class="fa-solid fa-ticket"></i> Ví Voucher
         </a>
 
         <a href="${pageContext.request.contextPath}/my-collections" 
-           class="menu-item <%= currentPath.contains("collection") ? "active" : "" %>">
-            <i class="fa-solid fa-bookmark"></i> Bộ sưu tập của tôi <span style="background:red; color:white; font-size:10px; padding: 2px 5px; border-radius:10px; margin-left:5px;">18</span>
+        class="menu-item <%= currentPath.contains("collection") ? "active" : "" %>">
+            <i class="fa-solid fa-bookmark"></i> Bộ sưu tập của tôi
         </a>
 
         <a href="${pageContext.request.contextPath}/support" 
