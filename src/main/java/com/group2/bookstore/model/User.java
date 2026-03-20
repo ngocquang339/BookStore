@@ -22,6 +22,7 @@ public class User implements Serializable {
     private double totalSpend;
     private String tags;
     private int f_points;
+    private double walletBalance;
 
     public User() {
     }
@@ -151,5 +152,14 @@ public class User implements Serializable {
 
     public void setF_points(int f_points) {
         this.f_points = f_points;
+    }
+
+
+    public double getWalletBalance(){
+        return walletBalance;
+    }
+
+    public void setWalletBalance(double walletBalance){
+        this.walletBalance = walletBalance;
     }
 }

@@ -6,6 +6,7 @@ import com.group2.bookstore.dal.VoucherDAO;
 import com.group2.bookstore.model.CartItem;
 import com.group2.bookstore.model.User;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -38,7 +39,11 @@ public class VnpayReturnServlet extends HttpServlet {
             String receiverName = (String) session.getAttribute("pending_receiverName");
             String shippingAddress = (String) session.getAttribute("pending_shippingAddress");
             String phone = (String) session.getAttribute("pending_phone");
-            Double grandTotal = (Double) session.getAttribute("pending_grandTotal");
+            Double grandTotal = (Double) session.getAttribute("pending_grandTotal"); // Đây chính là finalTotal lưu từ bên kia
+            
+            // [MỚI THÊM]: Lôi phí ship từ session ra
+            Double pendingShippingFee = (Double) session.getAttribute("pending_shippingFee");
+            double shippingFee = (pendingShippingFee != null) ? pendingShippingFee : 0;
             
             OrderDAO orderDAO = new OrderDAO();
             try {
@@ -47,7 +52,7 @@ public class VnpayReturnServlet extends HttpServlet {
                 int orderStatus = 2; // Đã duyệt
                 
                 // ==========================================================
-                // [MỚI THÊM]: Lấy Voucher ID và Tiền giảm giá từ Session ra
+                // Lấy Voucher ID và Tiền giảm giá từ Session ra
                 // ==========================================================
                 Integer pendingVoucherId = (Integer) session.getAttribute("pending_voucherId");
                 int voucherId = (pendingVoucherId != null) ? pendingVoucherId : 0;
@@ -55,30 +60,39 @@ public class VnpayReturnServlet extends HttpServlet {
                 Double pendingDiscount = (Double) session.getAttribute("pending_discount");
                 java.math.BigDecimal discountAmount = (pendingDiscount == null) ? java.math.BigDecimal.ZERO : java.math.BigDecimal.valueOf(pendingDiscount);
                 
-                // TRUYỀN THÊM voucherId VÀ discountAmount VÀO HÀM NÀY
-                orderDAO.createOrder(user, checkoutCart, receiverName, shippingAddress, phone, grandTotal, paymentMethod, orderStatus, voucherId, discountAmount);
+                // [ĐÃ SỬA TÊN BIẾN VÀ THÊM SHIP]: Truyền đúng tên biến đang có trong hàm này
+                int newOrderId = orderDAO.createOrder(user, checkoutCart, receiverName, shippingAddress, phone, grandTotal, paymentMethod, orderStatus, voucherId, discountAmount, shippingFee);
                 // ==========================================================
-                
-                // 3. XÉ VOUCHER NẾU KHÁCH CÓ DÙNG
-                if (voucherId > 0) {
-                    VoucherDAO voucherDAO = new VoucherDAO();
-                    voucherDAO.markVoucherAsUsed(user.getId(), voucherId);
-                }
-
-                // 4. Xóa những món đã mua khỏi session giỏ hàng hiện tại
-                List<CartItem> mainCart = (List<CartItem>) session.getAttribute("cart");
-                if (mainCart != null && checkoutCart != null) {
-                    for (CartItem purchasedItem : checkoutCart) {
-                        mainCart.removeIf(item -> item.getBook().getId() == purchasedItem.getBook().getId());
+                // Thêm dòng kiểm tra này:
+                if (newOrderId > 0) {
+                    // Đặt hàng thành công -> Xé voucher, xóa giỏ hàng, chuyển hướng...
+                    
+                    if (voucherId > 0) {
+                        VoucherDAO voucherDAO = new VoucherDAO();
+                        voucherDAO.markVoucherAsUsed(user.getId(), voucherId);
                     }
+
+                    // 4. Xóa những món đã mua khỏi session giỏ hàng hiện tại
+                    List<CartItem> mainCart = (List<CartItem>) session.getAttribute("cart");
+                    if (mainCart != null && checkoutCart != null) {
+                        for (CartItem purchasedItem : checkoutCart) {
+                            mainCart.removeIf(item -> item.getBook().getId() == purchasedItem.getBook().getId());
+                        }
+                    }
+                    session.setAttribute("cart", mainCart);
+
+                    // Dọn dẹp session tạm
+                    clearPendingSession(session);
+
+                    session.setAttribute("successMsg", "Thanh toán thành công! Mã giao dịch: " + vnp_TransactionNo);
+                    resp.sendRedirect(req.getContextPath() + "/home");
+                } else {
+                    // Lỗi Database -> Báo lỗi cho người dùng, không xóa giỏ hàng
+                    session.setAttribute("errorMsg", "Lỗi hệ thống: Không thể lưu đơn hàng!");
+                    resp.sendRedirect(req.getContextPath() + "/checkout");
+                    return;
                 }
-                session.setAttribute("cart", mainCart);
-
-                // Dọn dẹp session tạm
-                clearPendingSession(session);
-
-                session.setAttribute("successMsg", "Thanh toán thành công! Mã giao dịch: " + vnp_TransactionNo);
-                resp.sendRedirect(req.getContextPath() + "/home");
+                
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -110,7 +124,8 @@ public class VnpayReturnServlet extends HttpServlet {
         session.removeAttribute("pending_grandTotal");
         session.removeAttribute("pending_paymentMethod");
         session.removeAttribute("pending_voucherId"); 
-        session.removeAttribute("pending_discount"); // [MỚI THÊM]: Dọn luôn biến tiền giảm giá
+        session.removeAttribute("pending_discount");
+        session.removeAttribute("pending_shippingFee"); // [MỚI THÊM]: Dọn luôn biến ship
         session.removeAttribute("checkoutCart");
         session.removeAttribute("grandTotal");
     }
