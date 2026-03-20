@@ -225,19 +225,28 @@ public class CheckoutServlet extends HttpServlet {
                 }
             }
             // ===============================================================
-            // F-POINT
+            // F-POINT (CHỈ ÁP DỤNG KHI THANH TOÁN VNPAY)
             // ===============================================================
-            double fpointDiscount = grandTotal * user.getDiscountRate();
+            double fpointDiscount = 0;
+            
+            // 1. Ép xóa khoảng trắng và viết hoa chữ VNPAY để kiểm tra chắc chắn 100%
+            if (paymentMethod != null && "VNPAY".equals(paymentMethod.trim().toUpperCase())) {
+                fpointDiscount = grandTotal * user.getDiscountRate(); 
+            }
+
+            // 2. Nếu có giảm giá F-Point thì mới cộng dồn vào tổng tiền giảm
             if (fpointDiscount > 0) {
-                discount += fpointDiscount; // Cộng dồn tiền giảm F-Point vào tổng tiền giảm chung
+                discount += fpointDiscount; 
 
                 // Chống âm tiền lần 2 (nếu tổng giảm của Voucher + F-Point lớn hơn cả tiền gốc)
                 if (discount > grandTotal) {
                     discount = grandTotal;
                 }
-
-                finalTotal = grandTotal - discount; // Cập nhật lại số tiền cuối cùng khách phải trả
             }
+            
+            // 3. Cập nhật lại số tiền cuối cùng khách phải trả
+            finalTotal = grandTotal - discount; 
+            // ===============================================================
             // ===============================================================
 
             // ================= RẼ NHÁNH PHƯƠNG THỨC THANH TOÁN =================
@@ -262,7 +271,6 @@ public class CheckoutServlet extends HttpServlet {
                     VoucherDAO vDao = new VoucherDAO();
                     vDao.markVoucherAsUsed(user.getId(), appliedVoucherId);
                 }
-
                 // (Đoạn code xóa giỏ hàng bên dưới giữ nguyên) ...
                 if (mainCart != null) {
                     for (CartItem purchasedItem : checkoutCart) {
@@ -276,8 +284,7 @@ public class CheckoutServlet extends HttpServlet {
                 session.setAttribute("successMsg", "Đặt hàng thành công!");
                 resp.sendRedirect(req.getContextPath() + "/home");
 
-            } else if ("VNPAY".equals(paymentMethod)) {
-
+            } else if (paymentMethod != null && "VNPAY".equals(paymentMethod.trim().toUpperCase())) {
                 String orderId = "ORDER_" + System.currentTimeMillis();
                 // [SỬA]: Gửi số tiền ĐÃ TRỪ VOUCHER sang VNPAY
                 long amount = (long) finalTotal;
@@ -291,7 +298,7 @@ public class CheckoutServlet extends HttpServlet {
                 session.setAttribute("pending_shippingAddress", shippingAddress);
                 session.setAttribute("pending_phone", phone);
                 // [SỬA]: Lưu finalTotal thay vì tiền gốc
-                session.setAttribute("pending_grandTotal", finalTotal);
+                session.setAttribute("pending_grandTotal", finalTotal- fpointDiscount);
                 session.setAttribute("pending_paymentMethod", paymentMethod);
                 session.setAttribute("pending_discount", discount);
 

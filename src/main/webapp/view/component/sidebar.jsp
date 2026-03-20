@@ -1,10 +1,59 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
-
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+<%@ page import="java.time.LocalDate, java.time.YearMonth, java.time.temporal.ChronoUnit" %>
 <% 
     String currentPath = request.getServletPath(); 
+    
+    LocalDate today = LocalDate.now();
+    LocalDate endOfMonth = YearMonth.now().atEndOfMonth();
+    long daysLeft = ChronoUnit.DAYS.between(today, endOfMonth);
+    request.setAttribute("daysLeft", daysLeft);
 %>
+<style>
+    .rank-container {
+        position: relative;
+        display: inline-block;
+        cursor: help;
+    }
 
+    .rank-tooltip {
+        visibility: hidden;
+        width: 270px;
+        background-color: #2b2b2b; 
+        color: #fff;
+        text-align: left;
+        border-radius: 8px;
+        padding: 12px;
+        position: absolute;
+        z-index: 9999;
+        top: 130%; 
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+        transition: opacity 0.3s ease, top 0.3s ease;
+        font-size: 13px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        border: 1px solid #444;
+    }
+
+    .rank-tooltip::after {
+        content: "";
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        margin-left: -6px;
+        border-width: 6px;
+        border-style: solid;
+        border-color: transparent transparent #2b2b2b transparent;
+    }
+
+    .rank-container:hover .rank-tooltip {
+        visibility: visible;
+        opacity: 1;
+        top: 115%; 
+    }
+</style>
 <div class="sidebar-wrapper"> 
     <div class="user-info-box">
         <div class="avatar-container">
@@ -36,10 +85,32 @@
             </c:otherwise>
         </c:choose>
 
-        <div class="membership-badge">
-            ${sessionScope.user.role == 1 ? "Admin" : rank}
+        <div class="rank-container">
+            <div class="membership-badge">
+                ${sessionScope.user.role == 1 ? "Admin" : rank}
+            </div>
+            
+            <%-- KHỐI TOOLTIP ẨN HIỆN --%>
+            <div class="rank-tooltip">
+                <div style="font-weight: bold; color: #F5A623; margin-bottom: 6px;">
+                    <i class="fa-solid fa-circle-info me-1"></i> Thông tin hạng
+                </div>
+                
+                <div>
+                    Hạng thành viên của bạn sẽ được làm mới sau: <strong class="text-warning">${daysLeft} ngày</strong> nữa (vào cuối tháng).
+                </div>
+                
+                <hr style="border-top: 1px dashed #666; margin: 10px 0;">
+                
+                <div style="font-size: 11.5px; color: #ccc;">
+                    * Nếu có vấn đề gì hãy chụp ảnh lại và gửi theo Gmail:<br>
+                    <a href="mailto:viethoang240805@gmail.com" style="color: #4da3ff; text-decoration: none; font-weight: bold;">
+                        viethoang240805@gmail.com
+                    </a>
+                </div>
+            </div>
         </div>
-        
+
         <div class="f-point">F-Point tích lũy: <strong><fmt:formatNumber value="${fpoint}" pattern="#,###"/></strong></div>
         
         <div class="upgrade-note">

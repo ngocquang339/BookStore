@@ -11,8 +11,13 @@ import com.group2.bookstore.model.User;
 
 public class UserDAO extends DBContext {
     public User checkLogin(String username, String password) {
-        String sql = "SELECT * FROM Users WHERE username = ? AND password = ?";
-
+        // String sql = "SELECT * FROM Users WHERE username = ? AND password = ?";
+        String sql = "SELECT u.*, " +
+                "COALESCE((SELECT SUM(CASE WHEN action_type = 'add' THEN amount ELSE -amount END) " +
+                "FROM FPoint_History h WHERE h.user_id = u.user_id " +
+                "AND MONTH(h.created_at) = MONTH(GETDATE()) " +
+                "AND YEAR(h.created_at) = YEAR(GETDATE())), 0) AS current_month_points " +
+                "FROM Users u WHERE u.username = ? AND u.password = ?";
         try {
             // 2. Chuẩn bị câu lệnh
             PreparedStatement st = getConnection().prepareStatement(sql);
@@ -33,7 +38,8 @@ public class UserDAO extends DBContext {
                         rs.getInt("role"),
                         rs.getString("phone_number"),
                         rs.getInt("status"));
-                        u.setF_points(rs.getInt("f_point"));
+                int monthlyPts = rs.getInt("current_month_points");
+                u.setF_points(monthlyPts > 0 ? monthlyPts : 0);
                 return u;
             }
         } catch (Exception e) {
@@ -81,8 +87,8 @@ public class UserDAO extends DBContext {
                         rs.getInt("role"),
                         rs.getString("phone_number"),
                         rs.getInt("status"));
-                        u.setF_points(rs.getInt("f_point"));
-                        return u;
+                u.setF_points(rs.getInt("f_point"));
+                return u;
             }
         } catch (Exception e) {
             System.out.println(e);
@@ -107,8 +113,8 @@ public class UserDAO extends DBContext {
                         rs.getInt("role"),
                         rs.getString("phone_number"),
                         rs.getInt("status"));
-                        u.setF_points(rs.getInt("f_point"));
-                        return u;
+                u.setF_points(rs.getInt("f_point"));
+                return u;
             }
         } catch (Exception e) {
             System.out.println(e);
@@ -275,19 +281,22 @@ public class UserDAO extends DBContext {
         }
     }
 
-    // HÀM LỌC CRM NÂNG CAO (Fix lỗi không hiển thị Nhãn dán)
+    // HÀM LỌC CRM NÂNG CAO
     public List<User> getFilteredCustomers(String keyword, String memberTier, Double minSpend, Double maxSpend) {
         List<User> list = new ArrayList<>();
 
         StringBuilder sql = new StringBuilder(
                 "SELECT * FROM (" +
-                        "   SELECT u.user_id, u.fullname, u.username, u.email, u.phone_number, u.status, u.tags, u.f_point," +
+                        "   SELECT u.user_id, u.fullname, u.username, u.email, u.phone_number, u.status, u.tags, " +
+                        "          COALESCE((SELECT SUM(CASE WHEN action_type = 'add' THEN amount ELSE -amount END) " +
+                        "                    FROM FPoint_History h WHERE h.user_id = u.user_id " +
+                        "                    AND MONTH(h.created_at) = MONTH(GETDATE()) " +
+                        "                    AND YEAR(h.created_at) = YEAR(GETDATE())), 0) AS current_month_points, " +
                         "          COALESCE((SELECT SUM(total_amount) FROM Orders o WHERE o.user_id = u.user_id AND o.status = 4), 0) AS total_spend "
                         +
                         "   FROM Users u " +
                         "   WHERE u.role = 0 " +
                         ") AS c WHERE 1=1 ");
-
         List<Object> params = new ArrayList<>();
 
         if (keyword != null && !keyword.trim().isEmpty()) {
@@ -346,7 +355,9 @@ public class UserDAO extends DBContext {
                     u.setTotalSpend(rs.getDouble("total_spend"));
 
                     u.setTags(rs.getString("tags"));
-                    u.setF_points(rs.getInt("f_point"));
+
+                    int monthlyPts = rs.getInt("current_month_points");
+                    u.setF_points(monthlyPts > 0 ? monthlyPts : 0);
                     list.add(u);
                 }
             }

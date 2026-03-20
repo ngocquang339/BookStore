@@ -64,7 +64,27 @@ public class VnpayReturnServlet extends HttpServlet {
                     VoucherDAO voucherDAO = new VoucherDAO();
                     voucherDAO.markVoucherAsUsed(user.getId(), voucherId);
                 }
+                // ===============================================================
+                //TỰ ĐỘNG CỘNG ĐIỂM F-POINT (CHỈ ÁP DỤNG VNPAY)
+                // ===============================================================
+                int totalQuantity = 0;
+                if (checkoutCart != null) {
+                    for (CartItem item : checkoutCart) {
+                        totalQuantity += item.getQuantity();
+                    }
+                }
 
+                int earnedPoints = totalQuantity * 10; // Quy tắc: 1 cuốn = 10 điểm
+                if (earnedPoints > 0) {
+                    com.group2.bookstore.dal.FPointHistoryDAO historyDAO = new com.group2.bookstore.dal.FPointHistoryDAO();
+                    String customerInfo = "@" + user.getUsername() + " (#" + user.getId() + ")";
+                    // Ghi chú rõ ràng là thanh toán qua VNPAY
+                    String reason = "Tích điểm tự động (Mua " + totalQuantity + " cuốn sách - VNPAY)";
+                    
+                    com.group2.bookstore.model.FPointHistory log = new com.group2.bookstore.model.FPointHistory(
+                            user.getId(), customerInfo, "add", earnedPoints, reason);
+                    historyDAO.insertLog(log);
+                }
                 // 4. Xóa những món đã mua khỏi session giỏ hàng hiện tại
                 List<CartItem> mainCart = (List<CartItem>) session.getAttribute("cart");
                 if (mainCart != null && checkoutCart != null) {
