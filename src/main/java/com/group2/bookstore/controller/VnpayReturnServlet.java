@@ -126,7 +126,7 @@ public class VnpayReturnServlet extends HttpServlet {
         session.removeAttribute("pending_voucherId"); 
         session.removeAttribute("pending_discount");
         session.removeAttribute("pending_shippingFee"); // [MỚI THÊM]: Dọn luôn biến ship
-        session.removeAttribute("checkoutCart");
-        session.removeAttribute("grandTotal");
+        // session.removeAttribute("checkoutCart");
+        // session.removeAttribute("grandTotal");
     }
 }
