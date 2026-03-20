@@ -11,15 +11,50 @@
             <img src="https://ui-avatars.com/api/?name=${sessionScope.user.username}&background=ddd&color=555&size=128&bold=true" 
                  alt="Avatar" class="avatar-img">
         </div>
-        
-        <div class="user-display-name">${sessionScope.user.username}</div>
-        
+        <c:set var="fpoint" value="${not empty sessionScope.user.f_points ? sessionScope.user.f_points : 0}" />
+
+        <c:choose>
+            <c:when test="${fpoint >= 5000}">
+                <c:set var="rank" value="Kim Cương" />
+                <c:set var="nextRank" value="Max" />
+                <c:set var="pointsNeeded" value="0" />
+            </c:when>
+            <c:when test="${fpoint >= 2000}">
+                <c:set var="rank" value="Vàng" />
+                <c:set var="nextRank" value="Kim Cương" />
+                <c:set var="pointsNeeded" value="${5000 - fpoint}" />
+            </c:when>
+            <c:when test="${fpoint >= 500}">
+                <c:set var="rank" value="Bạc" />
+                <c:set var="nextRank" value="Vàng" />
+                <c:set var="pointsNeeded" value="${2000 - fpoint}" />
+            </c:when>
+            <c:otherwise>
+                <c:set var="rank" value="Đồng" />
+                <c:set var="nextRank" value="Bạc" />
+                <c:set var="pointsNeeded" value="${500 - fpoint}" />
+            </c:otherwise>
+        </c:choose>
+
         <div class="membership-badge">
-            ${sessionScope.user.role == 1 ? "Admin" : "Thành viên Bạc"}
+            ${sessionScope.user.role == 1 ? "Admin" : rank}
         </div>
         
-        <div class="f-point">F-Point tích lũy: 0</div>
-        <div class="upgrade-note">Thêm 30.000 để nâng hạng Vàng</div>
+        <div class="f-point">F-Point tích lũy: <strong><fmt:formatNumber value="${fpoint}" pattern="#,###"/></strong></div>
+        
+        <div class="upgrade-note">
+            <c:choose>
+                <c:when test="${sessionScope.user.role == 1}">
+                    (Tài khoản Quản trị viên)
+                </c:when>
+                <c:when test="${nextRank == 'Max'}">
+                    Bạn đã đạt hạng cao nhất! 💎
+                </c:when>
+                <c:otherwise>
+                    Thêm <strong><fmt:formatNumber value="${pointsNeeded}" pattern="#,###"/></strong> để nâng hạng ${nextRank}
+                </c:otherwise>
+            </c:choose>
+        </div>
     </div>
 
     <div class="sidebar-menu">

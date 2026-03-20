@@ -13,11 +13,11 @@ public class User implements Serializable {
     private String email;
     private String fullname;
     private String phone_number;
-    private int role;           // 1=Admin, 2=Customer, 3=Warehouse
+    private int role; // 1=Admin, 2=Customer, 3=Warehouse
     private String address;
 
     // NEW FIELDS added to match Database
-    private int status;         // 1=Active, 0=Banned (Mapped from [bit])
+    private int status; // 1=Active, 0=Banned (Mapped from [bit])
     private Timestamp createAt; // Mapped from [datetime]
     private double totalSpend;
     private String tags;
@@ -26,7 +26,8 @@ public class User implements Serializable {
     public User() {
     }
 
-    public User(int id, String username, String password, String email, String fullname, int role, String phone_number, int status) {
+    public User(int id, String username, String password, String email, String fullname, int role, String phone_number,
+            int status) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -43,6 +44,29 @@ public class User implements Serializable {
         this.email = email;
         this.fullname = fullname;
         this.phone_number = phone_number;
+    }
+
+    public String getRankName() {
+        if (this.f_points >= 5000)
+            return "Kim Cương";
+        if (this.f_points >= 2000)
+            return "Vàng";
+        if (this.f_points >= 500)
+            return "Bạc";
+        return "Đồng"; // Mặc định < 500 điểm
+    }
+
+    public double getDiscountRate() {
+        switch (getRankName()) {
+            case "Kim Cương":
+                return 0.15; // Giảm 15%
+            case "Vàng":
+                return 0.10; // Giảm 10%
+            case "Bạc":
+                return 0.05; // Giảm 5%
+            default:
+                return 0.0; // Hạng Đồng không giảm
+        }
     }
 
     // --- GETTERS AND SETTERS ---
@@ -126,8 +150,6 @@ public class User implements Serializable {
     public void setAddress(String address) {
         this.address = address;
     }
-
-   
 
     public double getTotalSpend() {
         return totalSpend;

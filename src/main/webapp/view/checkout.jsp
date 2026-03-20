@@ -281,14 +281,22 @@
                         <td class="text-muted text-start">Thành tiền</td>
                         <td class="text-end fw-bold"><fmt:formatNumber value="${grandTotal}" type="currency" currencySymbol="₫"/></td>
                     </tr>
+                    
+                    <c:if test="${fpointDiscountUI > 0}">
+                        <tr>
+                            <td class="text-muted text-start">Ưu đãi Hạng (${sessionScope.user.rankName})</td>
+                            <td class="text-end text-success fw-bold">-<fmt:formatNumber value="${fpointDiscountUI}" pattern="#,###"/>₫</td>
+                        </tr>
+                    </c:if>
+                    
                     <tr>
-                        <td class="text-muted text-start">Phí vận chuyển (Giao hàng tiêu chuẩn)</td>
+                        <td class="text-muted text-start">Phí vận chuyển (GHN)</td>
                         <td class="text-end text-success fw-bold" id="shippingFeeAmount">Đang tính...</td>
                     </tr>
                     <tr class="total-row">
-                        <td class="fw-bold text-start text-dark fs-6">Tổng Số Tiền (gồm VAT)</td>
+                        <td class="fw-bold text-start text-dark fs-6">Tổng Số Tiền</td>
                         <td class="text-end text-orange-total">
-                            <fmt:formatNumber value="${grandTotal}" type="currency" currencySymbol="₫"/>
+                            <fmt:formatNumber value="${grandTotal - (fpointDiscountUI != null ? fpointDiscountUI : 0)}" type="currency" currencySymbol="₫"/>
                         </td>
                     </tr>
                 </table>
@@ -454,6 +462,7 @@
 <script>
 // Biến toàn cục để tính toán tiền
 const originalGrandTotal = Math.round(Number('${grandTotal}')) || 0;
+const fpointDiscount = Math.round(Number('${fpointDiscountUI}')) || 0;
 let currentShippingFee = 0;
 let currentDiscountValue = 0; 
 
@@ -685,7 +694,7 @@ async function calculateShippingGHN(toDistrictId, toWardCode) {
 }
 
 function recalculateFinalTotal() {
-    let finalTotal = originalGrandTotal + currentShippingFee - currentDiscountValue;
+    let finalTotal = originalGrandTotal + currentShippingFee - currentDiscountValue - fpointDiscount;
     if (finalTotal < 0) finalTotal = 0; 
     document.querySelector('.text-orange-total').innerHTML = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(finalTotal);
 }

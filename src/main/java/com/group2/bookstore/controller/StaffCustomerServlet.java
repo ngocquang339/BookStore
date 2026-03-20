@@ -32,10 +32,10 @@ public class StaffCustomerServlet extends HttpServlet {
             if (maxSpendStr != null && !maxSpendStr.trim().isEmpty())
                 maxSpend = Double.parseDouble(maxSpendStr);
         } catch (NumberFormatException e) {
-            // Nuốt lỗi êm ái nếu nhập chữ linh tinh
+            // Lỗi nếu nhập chữ linh tinh
         }
 
-        // 3. Gọi DAO "thần thánh" vừa viết
+        // 3. Gọi DAO
         UserDAO dao = new UserDAO();
         List<User> listCustomers = dao.getFilteredCustomers(keyword, memberTier, minSpend, maxSpend);
 

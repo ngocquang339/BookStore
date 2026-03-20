@@ -129,16 +129,17 @@
                 
             </div>
 
-            <div class="footer-col">
-                <h4>Dịch vụ khách hàng</h4>
-                <ul>
-                    <li><a href="#"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Điều khoản sử dụng</a></li>
-                    <li><a href="#"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Chính sách bảo mật</a></li>
-                    <li><a href="#"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Chính sách đổi trả</a></li>
-                    <li><a href="#"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Phương thức thanh toán</a></li>
-                    <li><a href="#"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Phương thức vận chuyển</a></li>
-                </ul>
-            </div>
+<div class="footer-col">
+    <h4>Dịch vụ khách hàng</h4>
+    <ul>
+        <li><a href="${pageContext.request.contextPath}/terms"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Điều khoản sử dụng</a></li>
+        
+        <li><a href="#"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Chính sách bảo mật</a></li>
+        <li><a href="#"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Chính sách đổi trả</a></li>
+        <li><a href="#"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Phương thức thanh toán</a></li>
+        <li><a href="#"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Phương thức vận chuyển</a></li>
+    </ul>
+</div>
 
             <div class="footer-col">
                 <h4>Về MindBook</h4>

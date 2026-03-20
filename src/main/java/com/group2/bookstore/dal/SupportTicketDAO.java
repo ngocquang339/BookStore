@@ -84,10 +84,12 @@ public class SupportTicketDAO extends DBContext {
 
     // 4. Cập nhật trạng thái và nội dung phản hồi của Staff
     public boolean updateTicketAndReply(int ticketId, String status, String adminReply) {
+        // Đổi WHERE ticket_id = ? thành WHERE id = ?
         String sql = "UPDATE Support_Tickets SET status = ?, admin_reply = ? WHERE ticket_id = ?";
+
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, status);
-            ps.setNString(2, adminReply); // setNString để hỗ trợ Tiếng Việt
+            ps.setNString(2, adminReply);
             ps.setInt(3, ticketId);
             return ps.executeUpdate() > 0;
         } catch (Exception e) {

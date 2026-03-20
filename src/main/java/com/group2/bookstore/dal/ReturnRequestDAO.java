@@ -61,8 +61,7 @@ public class ReturnRequestDAO extends DBContext {
            + "LEFT JOIN Users u ON o.user_id = u.user_id "
            + "LEFT JOIN OrderDetails od ON o.order_id = od.order_id AND r.book_id = od.book_id "
            + "WHERE r.return_id = ?";
-
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, returnId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -120,7 +119,7 @@ public class ReturnRequestDAO extends DBContext {
     }
 
     public boolean processRefund(int returnId, int newStatus, int bookId, int quantity,
-            String adminUsername, double refundAmount, String bankRef, String adminNote) {
+String adminUsername, double refundAmount, String bankRef, String adminNote) {
 
         String updateStatusSql = "UPDATE ReturnRequests SET status = ?, admin_note = ? WHERE return_id = ?";
         
@@ -184,7 +183,7 @@ public class ReturnRequestDAO extends DBContext {
             }
             e.printStackTrace();
             return false;
-        } finally {
+} finally {
             if (conn != null) {
                 try {
                     conn.setAutoCommit(true);
