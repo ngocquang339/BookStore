@@ -316,6 +316,10 @@
             0% { background-color: #ffe8a1; box-shadow: 0 0 10px #ffe8a1; }
             100% { background-color: transparent; box-shadow: none; }
         }
+        .public-profile-link:hover {
+            color: #C92127 !important; /* Đổi sang màu đỏ thương hiệu khi trỏ chuột */
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -659,50 +663,60 @@
                     <c:when test="${not empty listReviews}">
                         <c:forEach items="${listReviews}" var="r">
                             <div class="review-item" id="review-box-${r.reviewId}">
-                                <div class="reviewer-info" style="position: relative;">
-                                    <div class="reviewer-avatar">${r.username.substring(0, 1).toUpperCase()}</div> 
-                                    <div>
-                                        <div class="reviewer-name">${r.username}</div>
-                                        <div class="review-date">${r.createAt}</div>
-                                    </div>
-                                    
-                                    <%-- Nút 3 chấm thông minh --%>
-                                    <c:if test="${sessionScope.user != null}">
-                                        <div class="dropdown" style="position: absolute; right: 0; top: 0;">
-                                            <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown" style="background: transparent; border: none; font-size: 18px; color: #888;">
-                                                <i class="fa-solid fa-ellipsis-vertical"></i>
-                                            </button>
-                                            <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                                                
-                                                <c:choose>
-                                                    <%-- NẾU LÀ CHỦ NHÂN BÌNH LUẬN -> CHO SỬA & XÓA --%>
-                                                    <c:when test="${sessionScope.user.username == r.username}">
-                                                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="openEditReview(${r.reviewId}, ${r.rating}, '${r.comment}')"><i class="fa-solid fa-pen-to-square me-2 text-primary"></i> Sửa bình luận</a></li>
-                                                        <li><hr class="dropdown-divider"></li>
-                                                        <li>
-                                                            <form class="delete-review-form" style="margin: 0;">
-                                                                <input type="hidden" name="action" value="delete">
-                                                                <input type="hidden" name="reviewId" value="${r.reviewId}">
-                                                                <input type="hidden" name="pid" value="${book.id}">
-                                                                <button type="submit" class="dropdown-item text-danger"><i class="fa-solid fa-trash-can me-2"></i> Xóa bình luận</button>
-                                                            </form>
-                                                        </li>
-                                                    </c:when>
-                                                    
-                                                    <%-- NẾU LÀ NGƯỜI KHÁC ĐỌC -> CHỈ CHO TỐ CÁO --%>
-                                                    <c:otherwise>
-                                                        <li>
-                                                            <a class="dropdown-item text-warning" href="javascript:void(0)" onclick="openReportModal(${r.reviewId})">
-                                                                <i class="fa-solid fa-flag me-2"></i> Báo cáo vi phạm
-                                                            </a>
-                                                        </li>
-                                                    </c:otherwise>
-                                                </c:choose>
-                                                
-                                            </ul>
-                                        </div>
-                                    </c:if>
-                                </div>
+                                <div class="reviewer-info" style="position: relative; display: flex; align-items: center; gap: 15px;">
+    
+    <%-- 1. Bọc thẻ <a> cho Avatar --%>
+    <a href="${pageContext.request.contextPath}/public-profile?id=${r.userId}" style="text-decoration: none;">
+        <div class="reviewer-avatar" style="cursor: pointer; transition: 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+            ${r.username.substring(0, 1).toUpperCase()}
+        </div> 
+    </a>
+    
+    <div>
+        <%-- 2. Bọc thẻ <a> cho Tên người dùng --%>
+        <a href="${pageContext.request.contextPath}/public-profile?id=${r.userId}" style="text-decoration: none; color: inherit;">
+            <div class="reviewer-name public-profile-link" style="cursor: pointer; font-weight: bold; transition: color 0.2s;">
+                ${r.username}
+            </div>
+        </a>
+        <div class="review-date">${r.createAt}</div>
+    </div>
+    
+    <%-- Nút 3 chấm thông minh (Giữ nguyên của bạn) --%>
+    <c:if test="${sessionScope.user != null}">
+        <div class="dropdown" style="position: absolute; right: 0; top: 0;">
+            <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown" style="background: transparent; border: none; font-size: 18px; color: #888;">
+                <i class="fa-solid fa-ellipsis-vertical"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                <c:choose>
+                    <%-- NẾU LÀ CHỦ NHÂN BÌNH LUẬN -> CHO SỬA & XÓA --%>
+                    <c:when test="${sessionScope.user.username == r.username}">
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="openEditReview(${r.reviewId}, ${r.rating}, '${r.comment}')"><i class="fa-solid fa-pen-to-square me-2 text-primary"></i> Sửa bình luận</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form class="delete-review-form" style="margin: 0;">
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="reviewId" value="${r.reviewId}">
+                                <input type="hidden" name="pid" value="${book.id}">
+                                <button type="submit" class="dropdown-item text-danger"><i class="fa-solid fa-trash-can me-2"></i> Xóa bình luận</button>
+                            </form>
+                        </li>
+                    </c:when>
+                    
+                    <%-- NẾU LÀ NGƯỜI KHÁC ĐỌC -> CHỈ CHO TỐ CÁO --%>
+                    <c:otherwise>
+                        <li>
+                            <a class="dropdown-item text-warning" href="javascript:void(0)" onclick="openReportModal(${r.reviewId})">
+                                <i class="fa-solid fa-flag me-2"></i> Báo cáo vi phạm
+                            </a>
+                        </li>
+                    </c:otherwise>
+                </c:choose>
+            </ul>
+        </div>
+    </c:if>
+</div>
                                 
                                 <%-- Phần hiển thị bình thường --%>
                                 <div id="review-content-display-${r.reviewId}">
@@ -937,7 +951,6 @@
                                     </form>
                                 </div>
 
-                            function replyToUser
                                 <div id="replies-section-${d.discussionId}" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed #eee;">
                                     <div id="reply-list-${d.discussionId}" style="display: flex; flex-direction: column;">
                                         <c:if test="${not empty d.replies}">
