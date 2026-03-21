@@ -376,18 +376,37 @@
                     <input type="hidden" name="id" value="${book.id}">
                     <input type="hidden" name="purchase" value="1">
                     <input type="hidden" name="quantity" id="hiddenPurchaseQty" value="1">
+                    
                     <div class="button-group" style="display: flex; gap: 15px; width: 100%;">
                         
-                        <button type="button" onclick="addToCartAjax()" style="background: white; color: #C92127; border: 2px solid #C92127; padding: 12px 10px; font-weight: bold; font-size: 16px; cursor: pointer; border-radius: 8px; flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.3s;">
-                            <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ
-                        </button>
+                        <%-- KIỂM TRA ĐIỀU KIỆN TỒN KHO --%>
+                        <c:choose>
+                            <%-- TRƯỜNG HỢP 1: HẾT HÀNG --%>
+                            <c:when test="${book.stockQuantity <= 0}">
+                                <button type="button" disabled style="background: #f5f5f5; color: #999; border: 2px solid #ddd; padding: 12px 10px; font-weight: bold; font-size: 16px; cursor: not-allowed; border-radius: 8px; flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                    <i class="fa-solid fa-cart-plus"></i> Tạm hết hàng
+                                </button>
 
-                        <button type="submit" 
-                                onclick="document.getElementById('hiddenPurchaseQty').value = document.getElementById('qtyInput').value;" 
-                                style="background: #C92127; color: white; border: none; padding: 12px 10px; font-weight: bold; font-size: 16px; cursor: pointer; border-radius: 8px; flex: 1; display: flex; align-items: center; justify-content: center; transition: 0.3s;">
-                            Mua ngay
-                        </button>
+                                <button type="button" disabled style="background: #ccc; color: white; border: none; padding: 12px 10px; font-weight: bold; font-size: 16px; cursor: not-allowed; border-radius: 8px; flex: 1; display: flex; align-items: center; justify-content: center;">
+                                    Hết hàng
+                                </button>
+                            </c:when>
 
+                            <%-- TRƯỜNG HỢP 2: CÒN HÀNG (Code gốc của bạn) --%>
+                            <c:otherwise>
+                                <button type="button" onclick="addToCartAjax()" style="background: white; color: #C92127; border: 2px solid #C92127; padding: 12px 10px; font-weight: bold; font-size: 16px; cursor: pointer; border-radius: 8px; flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.3s;">
+                                    <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ
+                                </button>
+
+                                <button type="submit" 
+                                        onclick="document.getElementById('hiddenPurchaseQty').value = document.getElementById('qtyInput').value;" 
+                                        style="background: #C92127; color: white; border: none; padding: 12px 10px; font-weight: bold; font-size: 16px; cursor: pointer; border-radius: 8px; flex: 1; display: flex; align-items: center; justify-content: center; transition: 0.3s;">
+                                    Mua ngay
+                                </button>
+                            </c:otherwise>
+                        </c:choose>
+
+                        <%-- NÚT LƯU BỘ SƯU TẬP (Luôn hiển thị) --%>
                         <c:if test="${sessionScope.user != null}">
                             <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#addToCollectionModal" title="Lưu vào Giá sách" style="width: 50px; height: 50px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 8px; border: 2px solid #dc3545; flex-shrink: 0;">
                                 <i class="fa-regular fa-heart" style="font-size: 20px;"></i>
@@ -514,12 +533,20 @@
                 <div style="display: flex; align-items: center; gap: 40px; margin-bottom: 10px;">
                     <span style="font-weight: bold; font-size: 15px; color: #333;">Số lượng:</span>
                     
-                    <div style="display: flex; align-items: center; border: 1px solid #ddd; border-radius: 4px; overflow: hidden;">
-                        <button type="button" style="background: white; border: none; padding: 8px 15px; cursor: pointer; border-right: 1px solid #ddd; color: #888; transition: 0.2s;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='white'" onclick="let q = document.getElementById('qtyInput'); if(q.value > 1) q.value--;"><i class="fa-solid fa-minus"></i></button>
-                        
-                        <input type="text" id="qtyInput" value="1" max="${book.stockQuantity}" style="width: 50px; text-align: center; border: none; font-weight: bold; font-size: 15px; outline: none;">
-                        <button type="button" style="background: white; border: none; padding: 8px 15px; cursor: pointer; border-left: 1px solid #ddd; color: #888; transition: 0.2s;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='white'" onclick="let q = document.getElementById('qtyInput'); if(parseInt(q.value) < ${book.stockQuantity}) q.value++;"><i class="fa-solid fa-plus"></i></button>
-                    </div>
+                    <c:choose>
+                        <%-- NẾU HẾT HÀNG: Khóa ô nhập số lượng --%>
+                        <c:when test="${book.stockQuantity <= 0}">
+                            <span class="badge bg-secondary px-3 py-2" style="font-size: 14px;">Sản phẩm tạm hết hàng</span>
+                        </c:when>
+                        <%-- NẾU CÒN HÀNG: Hiện ô nhập số lượng bình thường --%>
+                        <c:otherwise>
+                            <div style="display: flex; align-items: center; border: 1px solid #ddd; border-radius: 4px; overflow: hidden;">
+                                <button type="button" style="background: white; border: none; padding: 8px 15px; cursor: pointer; border-right: 1px solid #ddd; color: #888; transition: 0.2s;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='white'" onclick="let q = document.getElementById('qtyInput'); if(q.value > 1) q.value--;"><i class="fa-solid fa-minus"></i></button>
+                                <input type="text" id="qtyInput" value="1" max="${book.stockQuantity}" style="width: 50px; text-align: center; border: none; font-weight: bold; font-size: 15px; outline: none;">
+                                <button type="button" style="background: white; border: none; padding: 8px 15px; cursor: pointer; border-left: 1px solid #ddd; color: #888; transition: 0.2s;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='white'" onclick="let q = document.getElementById('qtyInput'); if(parseInt(q.value) < ${book.stockQuantity}) q.value++;"><i class="fa-solid fa-plus"></i></button>
+                            </div>
+                        </c:otherwise>
+                    </c:choose>
                 </div>
 
             </div>
