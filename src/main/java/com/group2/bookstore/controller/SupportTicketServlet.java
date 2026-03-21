@@ -56,7 +56,22 @@ public class SupportTicketServlet extends HttpServlet {
         String issueType = request.getParameter("issueType");
         String ticketSubject = request.getParameter("ticketSubject");
         String ticketMessage = request.getParameter("ticketMessage");
-
+        // =================================================================
+        // [THÊM MỚI] RÀO CHẮN BẢO MẬT BACKEND (XỬ LÝ EX 1 VÀ EX 2)
+        // =================================================================
+        if (issueType == null || ticketSubject == null || ticketMessage == null || 
+            issueType.trim().isEmpty() || ticketSubject.trim().isEmpty() || ticketMessage.trim().isEmpty()) {
+            
+            session.setAttribute("errorMsg", "Vui lòng điền đầy đủ các trường bắt buộc!");
+            response.sendRedirect(request.getContextPath() + "/support");
+            return;
+        }
+        
+        if (ticketSubject.length() > 100) {
+            session.setAttribute("errorMsg", "Tiêu đề không được vượt quá 100 ký tự!");
+            response.sendRedirect(request.getContextPath() + "/support");
+            return;
+        }
         // Gói vào Model
         SupportTicket ticket = new SupportTicket();
         ticket.setUserId(user.getId());

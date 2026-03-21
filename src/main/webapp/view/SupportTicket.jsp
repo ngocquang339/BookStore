@@ -128,7 +128,7 @@
                                     </div>
                                     <div class="col-md-12 mb-3">
                                         <label class="form-label fw-bold">Tiêu đề yêu cầu <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" name="ticketSubject" placeholder="Ví dụ: Sách bị rách bìa khi nhận hàng..." required>
+                                        <input type="text" class="form-control" name="ticketSubject" placeholder="Ví dụ: Sách bị rách bìa khi nhận hàng..." maxlength="100" required>
                                     </div>
                                     <div class="col-md-12 mb-3">
                                         <label class="form-label fw-bold">Chi tiết vấn đề <span class="text-danger">*</span></label>

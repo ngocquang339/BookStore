@@ -87,6 +87,11 @@
                                     
                                     <div class="v-footer">
                                         <div class="v-date">HSD: <fmt:formatDate value="${uv.voucher.endDate}" pattern="dd/MM/yyyy"/></div>
+
+                                        <a href="javascript:void(0)" class="text-primary mt-1 d-inline-block" style="font-size: 13px; text-decoration: none;" 
+                                        onclick="showVoucherDetails('${uv.voucher.code}', ${uv.voucher.discountPercent}, ${uv.voucher.discountAmount}, ${uv.voucher.minOrderValue}, '<fmt:formatDate value="${uv.voucher.endDate}" pattern="dd/MM/yyyy HH:mm"/>')">
+                                        Chi tiết điều khoản
+                                        </a>
                                         
                                         <%-- ĐỔI NÚT DỰA VÀO TRẠNG THÁI --%>
                                         <c:choose>
@@ -112,12 +117,75 @@
     </div>
 
     <jsp:include page="component/footer.jsp" />
+    <div class="modal fade" id="voucherDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-ticket me-2"></i>Điều khoản Voucher</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <h4 id="modalVoucherTitle" class="text-danger fw-bold text-center mb-3"></h4>
+                    <ul class="list-group list-group-flush" style="font-size: 15px;">
+                        <li class="list-group-item px-0"><strong>Mã Code:</strong> <span id="modalVoucherCode" class="text-primary fw-bold"></span></li>
+                        <li class="list-group-item px-0"><strong>Điều kiện:</strong> Áp dụng cho đơn hàng có giá trị từ <span id="modalMinOrder" class="text-danger fw-bold"></span>đ trở lên.</li>
+                        <li class="list-group-item px-0"><strong>Hạn sử dụng:</strong> <span id="modalEndDate"></span></li>
+                        <li class="list-group-item px-0"><strong>Áp dụng:</strong> Toàn bộ sản phẩm sách trên BookStore. Mỗi tài khoản chỉ được sử dụng 1 lần. Không áp dụng cùng lúc với các chương trình khuyến mãi khác (ngoại trừ F-Point).</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-4" style="z-index: 1055;">
+        <div id="copyToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body fw-bold">
+                    <i class="fa-solid fa-circle-check me-2"></i> Đã sao chép mã: <span id="toastCode"></span>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+        // Hàm Copy Code (Sử dụng Bootstrap Toast)
         function copyCode(code) {
             navigator.clipboard.writeText(code).then(() => {
-                alert("Đã copy mã: " + code);
+                // Nhét mã code vào cái Toast
+                document.getElementById('toastCode').innerText = code;
+                // Gọi Toast lên
+                var toastEl = document.getElementById('copyToast');
+                var toast = new bootstrap.Toast(toastEl, { delay: 2000 }); // Hiện 2 giây rồi tự tắt
+                toast.show();
+            }).catch(err => {
+                console.error("Lỗi copy: ", err);
             });
+        }
+
+        // Hàm mở Modal Chi tiết (Truyền dữ liệu vào Popup rồi bật nó lên)
+        function showVoucherDetails(code, discountPercent, discountAmount, minOrder, endDate) {
+            document.getElementById('modalVoucherCode').innerText = code;
+            
+            // Xử lý in chữ tiêu đề cho đẹp:
+            let titleText = "";
+            if (discountPercent > 0) {
+                titleText = "Giảm " + discountPercent + "%";
+            } else {
+                // Format số tiền thành dạng 100.000đ
+                titleText = "Giảm " + Number(discountAmount).toLocaleString('vi-VN') + "đ";
+            }
+            document.getElementById('modalVoucherTitle').innerText = titleText;
+            
+            // Format tiền đơn tối thiểu
+            document.getElementById('modalMinOrder').innerText = Number(minOrder).toLocaleString('vi-VN');
+            document.getElementById('modalEndDate').innerText = endDate;
+            
+            // Gọi Modal lên
+            var modal = new bootstrap.Modal(document.getElementById('voucherDetailModal'));
+            modal.show();
         }
     </script>
 </body>
