@@ -661,20 +661,27 @@
                 </div>
             </div>
             <%-- phần form đánh giá khi người dùng click vào nút "Viết đánh giá" --%>
+            <%-- Phần form đánh giá --%>
             <div id="reviewFormSection" class="review-form-wrapper">
                 <form id="reviewForm" action="review" method="POST">
                     <input type="hidden" name="pid" value="${book.id}">
-                    <input type="hidden" id="ratingValue" name="rating" value="5"> <div style="font-weight: bold; margin-bottom: 10px;">Bạn chấm sản phẩm này bao nhiêu sao?</div>
+                    
+                    <%-- [ĐÃ SỬA]: Xóa value="5" đi, để rỗng --%>
+                    <input type="hidden" id="ratingValue" name="rating" value=""> 
+
+                    <div style="font-weight: bold; margin-bottom: 10px;">Bạn chấm sản phẩm này bao nhiêu sao?</div>
                     
                     <div class="star-voting" id="starVoting">
-                        <i class="fa-solid fa-star active" data-value="1"></i>
-                        <i class="fa-solid fa-star active" data-value="2"></i>
-                        <i class="fa-solid fa-star active" data-value="3"></i>
-                        <i class="fa-solid fa-star active" data-value="4"></i>
-                        <i class="fa-solid fa-star active" data-value="5"></i>
+                        <%-- [ĐÃ SỬA]: Xóa class 'active' và đổi 'fa-solid' thành 'fa-regular' để sao mặc định là viền xám --%>
+                        <i class="fa-regular fa-star" data-value="1"></i>
+                        <i class="fa-regular fa-star" data-value="2"></i>
+                        <i class="fa-regular fa-star" data-value="3"></i>
+                        <i class="fa-regular fa-star" data-value="4"></i>
+                        <i class="fa-regular fa-star" data-value="5"></i>
                     </div>
 
-                    <textarea name="comment" class="review-textarea" placeholder="Chia sẻ cảm nhận của bạn về cuốn sách này nhé..." required></textarea>
+                    <%-- [ĐÃ SỬA]: Bỏ thuộc tính required đi để ta dùng JS tự bắt lỗi --%>
+                    <textarea name="comment" class="review-textarea" placeholder="Chia sẻ cảm nhận của bạn về cuốn sách này nhé..."></textarea>
                     
                     <div style="text-align: right;">
                         <button type="button" class="btn-write-review" style="display: inline-block; color: #666; border-color: #ccc; margin-right: 10px;" onclick="toggleReviewForm()">Hủy</button>
@@ -1696,6 +1703,25 @@
         e.preventDefault(); 
 
         const form = this;
+        const ratingVal = document.getElementById("ratingValue").value;
+        const commentVal = form.querySelector('textarea[name="comment"]').value.trim();
+
+        // =========================================================
+        // [THÊM MỚI] XỬ LÝ EX 1: CHƯA CHỌN SAO
+        // =========================================================
+        if (!ratingVal || ratingVal === "") {
+            alert("Vui lòng chọn số sao đánh giá!");
+            return; // Dừng lại, không chạy tiếp lệnh gửi
+        }
+
+        // =========================================================
+        // [THÊM MỚI] XỬ LÝ EX 2: ĐỂ TRỐNG NỘI DUNG
+        // =========================================================
+        if (commentVal === '') {
+            alert("Vui lòng chia sẻ cảm nhận của bạn về cuốn sách này!");
+            form.querySelector('textarea[name="comment"]').focus();
+            return; // Dừng lại, không chạy tiếp
+        }
         const formData = new FormData(form);
         const submitBtn = form.querySelector('.btn-submit-review');
         const originalBtnText = submitBtn.innerText;
