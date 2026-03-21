@@ -326,13 +326,23 @@
                                                         <!-- <button type="button" class="btn btn-buy-again" style="padding: 8px 20px; font-size: 14px; background: #C92127; color: white; border: none;" onclick="repurchaseOrder(${order.id})">Mua lại</button> -->
                                                     </c:when>
 
-                                                    <%-- TRƯỜNG HỢP 2: ĐƠN ĐÃ GIAO (Hoàn tất) -> CHO PHÉP TRẢ HÀNG & MUA LẠI --%>
+                                                    <%-- TRƯỜNG HỢP 2: ĐƠN ĐÃ GIAO (Hoàn tất) -> CHO PHÉP TRẢ HÀNG (TRONG 30 NGÀY) & MUA LẠI --%>
                                                     <c:when test="${order.status == 5}">
-                                                        <button type="button" class="btn btn-outline-warning" 
-                                                                style="padding: 8px 20px; font-size: 14px; border-color: #f39c12; color: #e67e22;"
-                                                                data-bs-toggle="modal" data-bs-target="#returnOrderModal" onclick="openReturnModal(${order.id})">
-                                                            Trả hàng / Hoàn tiền
-                                                        </button>
+                                                        
+                                                        <%-- [MỚI THÊM] Lấy ngày giờ hiện tại và tính số ngày chênh lệch --%>
+                                                        <jsp:useBean id="now" class="java.util.Date" />
+                                                        <c:set var="daysDiff" value="${(now.time - order.orderDate.time) / (1000 * 60 * 60 * 24)}" />
+                                                        
+                                                        <%-- Nút Trả Hàng chỉ hiện ra nếu số ngày chênh lệch <= 30 --%>
+                                                        <c:if test="${daysDiff <= 30}">
+                                                            <button type="button" class="btn btn-outline-warning" 
+                                                                    style="padding: 8px 20px; font-size: 14px; border-color: #f39c12; color: #e67e22;"
+                                                                    data-bs-toggle="modal" data-bs-target="#returnOrderModal" onclick="openReturnModal(${order.id})">
+                                                                Trả hàng / Hoàn tiền
+                                                            </button>
+                                                        </c:if>
+                                                        
+                                                        <%-- Nút Mua Lại thì luôn hiện --%>
                                                         <button type="button" class="btn btn-buy-again" style="padding: 8px 20px; font-size: 14px; background: #C92127; color: white; border: none;" onclick="repurchaseOrder(${order.id})">Mua lại</button>
                                                     </c:when>
                                                     <c:when test="${order.status == 4}">

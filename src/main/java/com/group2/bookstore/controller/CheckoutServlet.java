@@ -343,8 +343,9 @@ public class CheckoutServlet extends HttpServlet {
                 
                 // 2. BACKEND VALIDATION (CHỐNG HACK): Kiểm tra lại số dư ví
                 if (currentUser.getWalletBalance() < finalTotal) {
-                    req.setAttribute("mess", "Giao dịch thất bại: Số dư ví không đủ!");
-                    req.getRequestDispatcher("view/checkout.jsp").forward(req, resp);
+                    // Đổi "mess" thành "errorMsg" và dùng session + sendRedirect cho đồng bộ
+                    session.setAttribute("errorMsg", "Giao dịch thất bại: Số dư ví không đủ!");
+                    resp.sendRedirect(req.getContextPath() + "/checkout");
                     return;
                 }
 
