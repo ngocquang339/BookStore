@@ -121,16 +121,22 @@ public class ReviewDAO extends DBContext {
         return -1; // Trả về -1 nếu thất bại
     }
 
-    public void updateStaffReply(int reviewId, String replyText) {
+    public boolean updateStaffReply(int reviewId, String replyText) {
         String sql = "UPDATE Review SET staff_reply = ? WHERE review_id = ?";
         try (Connection conn = getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+             
             ps.setNString(1, replyText);
             ps.setInt(2, reviewId);
-            ps.executeUpdate();
+            
+            // Trả về true nếu update thành công (có dòng bị ảnh hưởng)
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+            
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return false; // Trả về false nếu gặp lỗi
     }
 
     // Hàm 2: Lấy danh sách đánh giá của 1 cuốn sách (kèm tên người đánh giá)
@@ -157,6 +163,7 @@ public class ReviewDAO extends DBContext {
                 r.setComment(rs.getString("comment"));
                 r.setCreateAt(rs.getDate("create_at"));
 
+                r.setStaffReply(rs.getNString("staff_reply"));
                 // Thuộc tính phụ từ bảng Users
                 r.setUsername(rs.getString("username"));
                 try {
@@ -550,5 +557,32 @@ public class ReviewDAO extends DBContext {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    // =======================================================================
+    // LẤY CHI TIẾT 1 ĐÁNH GIÁ THEO ID (DÙNG ĐỂ BẮN THÔNG BÁO)
+    // =======================================================================
+    public Review getReviewById(int reviewId) {
+        String sql = "SELECT * FROM Review WHERE review_id = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+             
+            ps.setInt(1, reviewId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Review r = new Review();
+                    r.setReviewId(rs.getInt("review_id"));
+                    r.setUserId(rs.getInt("user_id"));
+                    r.setBookId(rs.getInt("book_id"));
+                    r.setRating(rs.getInt("rating"));
+                    r.setComment(rs.getNString("comment"));
+                    r.setCreateAt(rs.getDate("create_at"));
+                    r.setStaffReply(rs.getNString("staff_reply"));
+                    return r;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

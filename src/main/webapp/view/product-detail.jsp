@@ -752,6 +752,17 @@
                                         <c:forEach begin="${r.rating + 1}" end="5"><i class="fa-regular fa-star" style="color: #ddd;"></i></c:forEach>
                                     </div>
                                     <div class="review-content">${r.comment}</div>
+                                    
+                                    <c:if test="${not empty r.staffReply}">
+                                        <div class="mt-3 p-3 rounded" style="background-color: #1a1c20; border-left: 4px solid #C92127;">
+                                            <div class="fw-bold mb-1" style="color: #C92127;">
+                                                <i class="fa-solid fa-reply me-1"></i> Phản hồi của Shop:
+                                            </div>
+                                            <div class="text-light" style="font-size: 14px;">
+                                                ${r.staffReply}
+                                            </div>
+                                        </div>
+                                    </c:if>
                                 </div>
 
                                 <%-- Phần Form Edit Ẩn --%>

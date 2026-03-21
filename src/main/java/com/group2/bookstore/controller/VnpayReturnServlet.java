@@ -60,19 +60,38 @@ public class VnpayReturnServlet extends HttpServlet {
                 Double pendingDiscount = (Double) session.getAttribute("pending_discount");
                 java.math.BigDecimal discountAmount = (pendingDiscount == null) ? java.math.BigDecimal.ZERO : java.math.BigDecimal.valueOf(pendingDiscount);
                 
-                // [ĐÃ SỬA TÊN BIẾN VÀ THÊM SHIP]: Truyền đúng tên biến đang có trong hàm này
                 int newOrderId = orderDAO.createOrder(user, checkoutCart, receiverName, shippingAddress, phone, grandTotal, paymentMethod, orderStatus, voucherId, discountAmount, shippingFee);
-                // ==========================================================
-                // Thêm dòng kiểm tra này:
-                if (newOrderId > 0) {
-                    // Đặt hàng thành công -> Xé voucher, xóa giỏ hàng, chuyển hướng...
+
+                if (newOrderId > 0) { 
                     
+                    // 1. XÉ VOUCHER NẾU KHÁCH CÓ DÙNG
                     if (voucherId > 0) {
                         VoucherDAO voucherDAO = new VoucherDAO();
                         voucherDAO.markVoucherAsUsed(user.getId(), voucherId);
                     }
 
-                    // 4. Xóa những món đã mua khỏi session giỏ hàng hiện tại
+                    // ===============================================================
+                    // 2. TỰ ĐỘNG CỘNG ĐIỂM F-POINT (CHỈ ÁP DỤNG VNPAY)
+                    // ===============================================================
+                    int totalQuantity = 0;
+                    if (checkoutCart != null) {
+                        for (CartItem item : checkoutCart) {
+                            totalQuantity += item.getQuantity();
+                        }
+                    }
+
+                    int earnedPoints = totalQuantity * 10; // Quy tắc: 1 cuốn = 10 điểm
+                    if (earnedPoints > 0) {
+                        com.group2.bookstore.dal.FPointHistoryDAO historyDAO = new com.group2.bookstore.dal.FPointHistoryDAO();
+                        String customerInfo = "@" + user.getUsername() + " (#" + user.getId() + ")";
+                        String reason = "Tích điểm tự động (Mua " + totalQuantity + " cuốn sách - VNPAY)";
+                        
+                        com.group2.bookstore.model.FPointHistory log = new com.group2.bookstore.model.FPointHistory(
+                                user.getId(), customerInfo, "add", earnedPoints, reason);
+                        historyDAO.insertLog(log);
+                    }
+                    // ===============================================================
+                    // 3. Xóa những món đã mua khỏi session giỏ hàng hiện tại
                     List<CartItem> mainCart = (List<CartItem>) session.getAttribute("cart");
                     if (mainCart != null && checkoutCart != null) {
                         for (CartItem purchasedItem : checkoutCart) {
@@ -81,19 +100,17 @@ public class VnpayReturnServlet extends HttpServlet {
                     }
                     session.setAttribute("cart", mainCart);
 
-                    // Dọn dẹp session tạm
+                    // 4. Dọn dẹp session tạm và chuyển hướng
                     clearPendingSession(session);
-
                     session.setAttribute("successMsg", "Thanh toán thành công! Mã giao dịch: " + vnp_TransactionNo);
                     resp.sendRedirect(req.getContextPath() + "/home");
+                    
                 } else {
-                    // Lỗi Database -> Báo lỗi cho người dùng, không xóa giỏ hàng
+                    // LỖI DATABASE: Báo lỗi cho người dùng, không xóa giỏ hàng
                     session.setAttribute("errorMsg", "Lỗi hệ thống: Không thể lưu đơn hàng!");
                     resp.sendRedirect(req.getContextPath() + "/checkout");
                     return;
                 }
-                
-
             } catch (Exception e) {
                 e.printStackTrace();
                 resp.getWriter().println("Lỗi khi lưu đơn hàng: " + e.getMessage());
