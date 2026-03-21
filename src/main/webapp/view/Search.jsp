@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 
 <!DOCTYPE html>
 <html lang="vi">
@@ -145,9 +146,84 @@
 
             <%-- CỘT BÊN PHẢI: KẾT QUẢ VÀ PHÂN TRANG --%>
             <div class="results-column" style="flex: 1;">
-                
-                 <h3 style="margin-top: 0; margin-bottom: 20px;">
-                    Kết quả cho: <span style="color: #C92127">"${txtS}"</span> 
+                <%-- TÌM VÀ ĐỊNH DẠNG TÊN THỂ LOẠI (Chỉ viết hoa chữ cái đầu) --%>
+                <c:set var="selectedCatName" value="" />
+                <c:if test="${cid > 0}">
+                    <c:forEach var="cat" items="${listCategories}">
+                        <c:if test="${cat.id == cid}">
+                            <%-- Lấy tên gốc từ DB --%>
+                            <c:set var="rawName" value="${cat.name}" />
+                            <%-- Chuyển tất cả thành chữ thường: "ngoại ngữ" --%>
+                            <c:set var="lowered" value="${fn:toLowerCase(rawName)}" />
+                            <%-- Lấy chữ cái đầu và viết hoa: "N" --%>
+                            <c:set var="firstChar" value="${fn:toUpperCase(fn:substring(lowered, 0, 1))}" />
+                            <%-- Lấy phần còn lại: "goại ngữ" --%>
+                            <c:set var="restChars" value="${fn:substring(lowered, 1, fn:length(lowered))}" />
+                            <%-- Nối lại thành: "Ngoại ngữ" --%>
+                            <c:set var="selectedCatName" value="${firstChar}${restChars}" />
+                        </c:if>
+                    </c:forEach>
+                </c:if>
+
+                <h3 style="margin-top: 0; margin-bottom: 20px;">
+                    <c:choose>
+                        <%-- 1. Nếu có gõ từ khóa tìm kiếm --%>
+                        <c:when test="${not empty txtS}">
+                            Kết quả tìm kiếm: <span style="color: #C92127">"${txtS}"</span>
+                        </c:when>
+                        
+                        <%-- 2. Nếu không gõ từ khóa, nhưng có gõ Tác giả --%>
+                        <c:when test="${not empty author}">
+                            Sách của tác giả: <span style="color: #C92127">"${author}"</span>
+                        </c:when>
+                        
+                        <%-- 3. Nếu lọc theo Nhà xuất bản --%>
+                        <c:when test="${not empty publisher}">
+                            Sách của NXB: <span style="color: #C92127">"${publisher}"</span>
+                        </c:when>
+                        
+                        <%-- 4. NHÓM BỘ LỌC KẾT HỢP (THỂ LOẠI, GIÁ, SAO) --%>
+                        <c:when test="${cid > 0 or not empty minPrice or not empty maxPrice or ratingFilter > 0}">
+                            Kết quả lọc: 
+                            <span style="color: #C92127">
+                                <%-- In Thể loại --%>
+                                <c:if test="${cid > 0}">
+                                    Thể loại ${selectedCatName}
+                                </c:if>
+                                
+                                <%-- Dấu phân cách nếu có Thể loại VÀ (Giá hoặc Sao) --%>
+                                <c:if test="${cid > 0 and (not empty minPrice or not empty maxPrice or ratingFilter > 0)}">
+                                    &nbsp;|&nbsp; 
+                                </c:if>
+
+                                <%-- In Khoảng Giá --%>
+                                <c:if test="${not empty minPrice or not empty maxPrice}">
+                                    Giá từ <fmt:formatNumber value="${empty minPrice ? 0 : minPrice}" type="number" pattern="#,###"/>đ 
+                                    đến 
+                                    <c:choose>
+                                        <c:when test="${empty maxPrice}">trở lên</c:when>
+                                        <c:otherwise><fmt:formatNumber value="${maxPrice}" type="number" pattern="#,###"/>đ</c:otherwise>
+                                    </c:choose>
+                                </c:if>
+                                
+                                <%-- Dấu phân cách nếu có Giá VÀ Sao --%>
+                                <c:if test="${(not empty minPrice or not empty maxPrice) and ratingFilter > 0}">
+                                    &nbsp;|&nbsp; 
+                                </c:if>
+                                
+                                <%-- In Số Sao --%>
+                                <c:if test="${ratingFilter > 0}">
+                                    Từ ${ratingFilter} Sao <i class="fa-solid fa-star" style="font-size: 15px; margin-bottom: 2px;"></i>
+                                </c:if>
+                            </span>
+                        </c:when>
+                        
+                        <%-- 5. Nếu không lọc gì cả (Xem toàn bộ sách) --%>
+                        <c:otherwise>
+                            Danh sách: <span style="color: #C92127">Tất cả sản phẩm</span>
+                        </c:otherwise>
+                    </c:choose>
+                    
                     <span style="font-size: 14px; color: #666; font-weight: normal;">(Tìm thấy ${totalResult} sản phẩm)</span>
                 </h3>
 

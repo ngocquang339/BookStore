@@ -35,6 +35,7 @@ public class SearchServlet extends HttpServlet {
         String author = request.getParameter("author");
         String publisher = request.getParameter("publisher");
         String sortBy = request.getParameter("sort");
+        String rating_raw = request.getParameter("rating");
         
         // --- PHẦN PHÂN TRANG ---
         String indexPage = request.getParameter("index");
@@ -59,7 +60,7 @@ public class SearchServlet extends HttpServlet {
         int cid = 0;
         double priceFrom = 0;
         double priceTo = 0;
-
+        int ratingFilter = 0;
         // Xử lý Sort logic
         if(sortBy.equals("price_asc")){
             sortBy = "price";
@@ -82,6 +83,8 @@ public class SearchServlet extends HttpServlet {
             if (cid_raw != null && !cid_raw.isEmpty()) cid = Integer.parseInt(cid_raw);
             if (priceFrom_raw != null && !priceFrom_raw.isEmpty()) priceFrom = Double.parseDouble(priceFrom_raw);
             if (priceTo_raw != null && !priceTo_raw.isEmpty()) priceTo = Double.parseDouble(priceTo_raw);
+            // [BẠN BỊ THIẾU DÒNG NÀY ĐÂY]:
+            if (rating_raw != null && !rating_raw.isEmpty()) ratingFilter = Integer.parseInt(rating_raw);
         } catch (NumberFormatException e) {
             // Giữ mặc định 0
         }
@@ -102,7 +105,7 @@ public class SearchServlet extends HttpServlet {
 
         // --- LOGIC PHÂN TRANG CORE ---
         // A. Đếm tổng số lượng sách dựa trên TẤT CẢ bộ lọc (dùng hàm count nâng cao của bạn)
-        int total = bookDAO.countBooks(txtSearch, cid, author, publisher, priceFrom, priceTo, isAdmin);
+        int total = bookDAO.countBooks(txtSearch, cid, author, publisher, priceFrom, priceTo, ratingFilter, isAdmin);
         
         // B. Tính trang cuối cùng
         int endPage = total / pageSize;
@@ -111,7 +114,7 @@ public class SearchServlet extends HttpServlet {
         }
 
         // C. Lấy danh sách sách của trang hiện tại (Dùng Overload 3 trong DAO của bạn)
-        List<Book> listBooks = bookDAO.getBooks(txtSearch, cid, author, publisher, priceFrom, priceTo, sortBy, sortOrder, isAdmin, index, pageSize);
+        List<Book> listBooks = bookDAO.getBooks(txtSearch, cid, author, publisher, priceFrom, priceTo, ratingFilter, sortBy, sortOrder, isAdmin, index, pageSize);
         
         // Dữ liệu bổ trợ
         List<Book> randomBooks = bookDAO.getRandomBook(roleId, 10); // Lấy ít lại cho nhẹ trang
@@ -137,7 +140,7 @@ public class SearchServlet extends HttpServlet {
         request.setAttribute("author", author);
         request.setAttribute("publisher", publisher);
         request.setAttribute("sort", sortBy);
-
+        request.setAttribute("ratingFilter", ratingFilter);
         request.getRequestDispatcher("view/Search.jsp").forward(request, response);
     }
 

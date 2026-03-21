@@ -42,6 +42,12 @@ public class DiscussionServlet extends HttpServlet {
                 
                 // Lấy thêm Product ID (pid) từ frontend gửi lên để làm cái link bấm vào thông báo
                 String pidStr = request.getParameter("pid"); 
+                // [THÊM MỚI] - XỬ LÝ EX 2: BỘ LỌC TỪ NGỮ CẤM
+                if (containsBadWords(replyContent)) {
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    response.getWriter().write("{\"success\": false, \"message\": \"Your comment contains inappropriate language and cannot be posted.\"}");
+                    return;
+                }
                 
                 int newReplyId = dao.createReply(discussionId, user.getId(), replyContent);
                 
@@ -163,6 +169,12 @@ public class DiscussionServlet extends HttpServlet {
                 String content = request.getParameter("discussionContent");
                 String topicTag = request.getParameter("topicTag");
                 boolean hasSpoiler = request.getParameter("hasSpoiler") != null;
+                // [THÊM MỚI] - XỬ LÝ EX 2: BỘ LỌC TỪ NGỮ CẤM
+                if (containsBadWords(title) || containsBadWords(content)) {
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    response.getWriter().write("{\"success\": false, \"message\": \"Your comment contains inappropriate language and cannot be posted.\"}");
+                    return;
+                }
 
                 int newId = dao.createDiscussion(bookId, user.getId(), title, content, hasSpoiler, topicTag);
                 if (newId > 0) {
@@ -177,5 +189,16 @@ public class DiscussionServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().write("{\"success\": false}");
         }
+    }
+    // Hàm kiểm tra từ ngữ vi phạm
+    private boolean containsBadWords(String text) {
+        if (text == null) return false;
+        String lowerText = text.toLowerCase();
+        // Danh sách từ cấm (Bạn có thể thêm bớt tùy ý)
+        String[] badWords = {"đm", "vcl", "fuck", "shit", "ngu", "chó"}; 
+        for (String word : badWords) {
+            if (lowerText.contains(word)) return true;
+        }
+        return false;
     }
 }
