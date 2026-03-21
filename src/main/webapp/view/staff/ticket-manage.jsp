@@ -181,12 +181,17 @@
                                 <tbody>
                                     <c:forEach items="${listReturnOrders}" var="order">
                                         <tr>
-                                            <td class="fw-bold">
-                                                <span class="badge bg-light text-secondary border border-secondary-subtle font-monospace px-2 py-1">OD-${order.id}</span>
+                                            <td>
+                                                <div class="fw-bold text-secondary mb-1">OD-${order.id}</div>
+                                                <button type="button" class="btn btn-sm btn-outline-primary" 
+                                                        style="padding: 2px 8px; font-size: 12px; border-radius: 4px;"
+                                                        data-bs-toggle="modal" data-bs-target="#staffDetailModal_${order.id}">
+                                                    <i class="fa-solid fa-eye me-1"></i>Xem chi tiết
+                                                </button>
                                             </td>
                                             <td>${order.userId}</td>
                                             <td><fmt:formatDate value="${order.orderDate}" pattern="dd/MM/yyyy HH:mm" /></td>
-                                            <td class="text-danger fw-bold"><fmt:formatNumber value="${order.totalAmount}" type="currency" currencySymbol="₫" /></td>
+                                            <td class="text-danger fw-bold"><fmt:formatNumber value="${refundMap[order.id]}" type="currency" currencySymbol="₫"/></td>
                                             <td><span class="badge bg-warning text-dark"><i class="fa-solid fa-hourglass-half me-1"></i>Chờ duyệt trả hàng</span></td>
                                             
                                             <td class="text-end">
@@ -207,6 +212,55 @@
                                                 </form>
                                             </td>
                                         </tr>
+                                        <div class="modal fade" id="staffDetailModal_${order.id}" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered modal-lg">
+                                                <div class="modal-content">
+                                                    <div class="modal-header bg-light">
+                                                        <h5 class="modal-title fw-bold">Chi tiết trả hàng - Đơn OD-${order.id}</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body p-4" style="max-height: 70vh; overflow-y: auto;">
+                                                        
+                                                        <h6 class="fw-bold mb-3"><i class="fa-solid fa-box-open text-warning me-2"></i>Sản phẩm yêu cầu trả:</h6>
+                                                        
+                                                        <%-- Lặp qua các sách bị trả --%>
+                                                        <c:forEach var="req" items="${returnDetailsMap[order.id]}">
+                                                            <div class="border rounded p-3 mb-3 bg-white shadow-sm" style="border-left: 4px solid #e67e22 !important;">
+                                                                <div class="fw-bold text-dark" style="font-size: 15px;">
+                                                                    ${req.bookTitle} <span class="badge bg-danger ms-2">SL: ${req.quantity}</span>
+                                                                </div>
+                                                                <div class="text-muted mt-2" style="font-size: 14px;">
+                                                                    <strong>Lý do của khách:</strong> ${req.customerReason}
+                                                                </div>
+                                                            </div>
+                                                        </c:forEach>
+                                                        
+                                                        <%-- Lấy dữ liệu của phần tử đầu tiên (index = 0) để lấy ảnh chung --%>
+                                                        <c:set var="firstReq" value="${returnDetailsMap[order.id][0]}" />
+                                                        
+                                                        <c:if test="${not empty firstReq.proofImage}">
+                                                            <hr class="my-4">
+                                                            <h6 class="fw-bold mb-3"><i class="fa-solid fa-camera text-info me-2"></i>Minh chứng đính kèm:</h6>
+                                                            
+                                                            <div class="text-center bg-light p-3 rounded border">
+                                                                <c:choose>
+                                                                    <c:when test="${firstReq.imageMimeType != null && firstReq.imageMimeType.startsWith('video/')}">
+                                                                        <video src="${firstReq.proofImage}" controls style="max-width: 100%; max-height: 400px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);"></video>
+                                                                    </c:when>
+                                                                    <c:otherwise>
+                                                                        <img src="${firstReq.proofImage}" style="max-width: 100%; max-height: 400px; border-radius: 8px; object-fit: contain; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                                                                    </c:otherwise>
+                                                                </c:choose>
+                                                            </div>
+                                                        </c:if>
+                                                        
+                                                    </div>
+                                                    <div class="modal-footer border-top-0">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </c:forEach>
                                     <c:if test="${empty listReturnOrders}">
                                         <tr>

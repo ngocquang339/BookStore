@@ -10,8 +10,8 @@ import java.io.IOException;
 // Cấu hình Servlet này "bắt" nhiều đường dẫn cùng lúc
 @WebServlet(name = "PolicyServlet", urlPatterns = {
         "/terms",
-        "/privacy",
-        "/payment-policy",
+        "/privacy-policy",
+        "/payment-methods",
         "/shipping-policy",
         "/return-policy"
 })
@@ -29,17 +29,11 @@ public class PolicyServlet extends HttpServlet {
                 // Đã trỏ đường dẫn vào thư mục Footer
                 jspPage = "/view/footer/TermsOfUse.jsp";
                 break;
-            case "/privacy":
-                jspPage = "/view/footer/PrivacyPolicy.jsp";
+            case "/privacy-policy":
+                jspPage = "/view/footer/privacy-policy.jsp";
                 break;
-            case "/payment-policy":
-                jspPage = "/view/footer/PaymentPolicy.jsp";
-                break;
-            case "/shipping-policy":
-                jspPage = "/view/footer/ShippingPolicy.jsp";
-                break;
-            case "/return-policy":
-                jspPage = "/view/footer/ReturnPolicy.jsp";
+            case "/payment-methods":
+                jspPage = "/view/footer/payment-methods.jsp";
                 break;
             default:
                 jspPage = "/view/footer/TermsOfUse.jsp";

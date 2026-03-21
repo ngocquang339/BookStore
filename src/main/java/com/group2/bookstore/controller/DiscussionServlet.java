@@ -195,7 +195,7 @@ public class DiscussionServlet extends HttpServlet {
         if (text == null) return false;
         String lowerText = text.toLowerCase();
         // Danh sách từ cấm (Bạn có thể thêm bớt tùy ý)
-        String[] badWords = {"đm", "vcl", "fuck", "shit", "ngu", "chó"}; 
+        String[] badWords = {"đm", "vcl", "fuck", "shit", "ngu", "chó", "dmm"}; 
         for (String word : badWords) {
             if (lowerText.contains(word)) return true;
         }

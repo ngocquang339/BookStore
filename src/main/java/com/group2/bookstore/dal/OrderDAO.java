@@ -1006,4 +1006,47 @@ public class OrderDAO extends DBContext {
         }
         return false;
     }
+
+    public boolean insertPartialReturnRequest(int orderId, int bookId, int quantity, String customer_reason, String proof_image, String mimeType) {
+        // [QUAN TRỌNG] Thêm cột image_mime_type vào câu lệnh SQL và thêm 1 dấu ? tương ứng
+        String sql = "INSERT INTO ReturnRequests (order_id, book_id, quantity, customer_reason, proof_image, image_mime_type, status, return_method, refund_preference) VALUES (?, ?, ?, ?, ?, ?, 1,'pickup','refund_wallet')";
+        
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)){
+            ps.setInt(1, orderId);
+            ps.setInt(2, bookId);
+            ps.setInt(3, quantity);
+            ps.setString(4, customer_reason);
+            ps.setString(5, proof_image); // Lưu đường dẫn ảnh/video vào DB
+            ps.setString(6, mimeType);   // [MỚI] Lưu định dạng file (vd: image/jpeg, video/mp4)
+            
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            System.out.println("Lỗi tại insertPartialReturnRequest: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     * Tính tổng số tiền cần hoàn lại cho một đơn hàng (chỉ tính những món khách yêu cầu trả)
+     */
+    public double calculateRefundAmount(int orderId) {
+        // Lưu ý: Kiểm tra tên bảng Order_Details hay OrderDetails cho khớp với DB của bạn nhé
+        String sql = "SELECT SUM(rr.quantity * od.price) AS TotalRefund " +
+                     "FROM ReturnRequests rr " +
+                     "JOIN OrderDetails od ON rr.order_id = od.order_id AND rr.book_id = od.book_id " +
+                     "WHERE rr.order_id = ?";
+                     
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, orderId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getDouble("TotalRefund");
+            }
+        } catch (Exception e) {
+            System.out.println("Lỗi tính tiền hoàn trả: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return 0; // Nếu lỗi trả về 0
+    }
 }
