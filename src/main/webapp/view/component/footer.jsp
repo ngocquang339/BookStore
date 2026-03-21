@@ -134,30 +134,23 @@
     <ul>
         <li><a href="${pageContext.request.contextPath}/terms"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Điều khoản sử dụng</a></li>
         
-        <li><a href="#"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Chính sách bảo mật</a></li>
-        <li><a href="#"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Chính sách đổi trả</a></li>
-        <li><a href="#"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Phương thức thanh toán</a></li>
-        <li><a href="#"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Phương thức vận chuyển</a></li>
+        <li><a href="${pageContext.request.contextPath}/privacy-policy"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Chính sách bảo mật</a></li>
+        <li><a href="${pageContext.request.contextPath}/payment-methods"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Phương thức thanh toán</a></li>
     </ul>
 </div>
 
             <div class="footer-col">
                 <h4>Về MindBook</h4>
                 <ul>
-                    <li><a href="#"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Giới thiệu MindBook</a></li>
-                    <li><a href="#"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Hệ thống nhà sách</a></li>
-                    <li><a href="#"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Tuyển dụng</a></li>
-                    <li><a href="#"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Góc báo chí</a></li>
-                    <li><a href="#"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Liên hệ</a></li>
+                    <li><a href="${pageContext.request.contextPath}/about-us"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Giới thiệu MindBook</a></li>
                 </ul>
             </div>
-
             <div class="footer-col">
                 <h4>Tài khoản của tôi</h4>
                 <ul style="margin-bottom: 25px;">
-                    <li><a href="#"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Đăng nhập / Đăng ký</a></li>
-                    <li><a href="#"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Lịch sử mua hàng</a></li>
-                    <li><a href="#"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Giỏ hàng</a></li>
+                    <li><a href="${pageContext.request.contextPath}/login"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Đăng nhập / Đăng ký</a></li>
+                    <li><a href="${pageContext.request.contextPath}/my-orders"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Lịch sử mua hàng</a></li>
+                    <li><a href="${pageContext.request.contextPath}/cart"><i class="fa-solid fa-angle-right" style="font-size:10px; margin-right:5px;"></i> Giỏ hàng</a></li>
                 </ul>
             </div>
 

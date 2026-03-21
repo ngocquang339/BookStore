@@ -4,9 +4,10 @@ import com.group2.bookstore.dal.NotificationDAO;
 import com.group2.bookstore.dal.OrderDAO;
 import com.group2.bookstore.dal.SupportTicketDAO;
 import com.group2.bookstore.model.Order;
+import com.group2.bookstore.model.ReturnRequest;
 import com.group2.bookstore.model.SupportTicket;
 import com.group2.bookstore.model.User;
-
+import com.group2.bookstore.dal.ReturnRequestDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -30,9 +31,25 @@ public class StaffTicketServlet extends HttpServlet {
 
         // 2. DỮ LIỆU MỚI CHO TAB TRẢ HÀNG (Sử dụng hàm DAO của bạn)
         OrderDAO orderDao = new OrderDAO();
-
+        ReturnRequestDAO returnDao = new ReturnRequestDAO(); // [MỚI] Khởi tạo DAO này
         List<Order> listReturnOrders = orderDao.getOrdersByStatus(7, "order_date", "DESC");
-
+        
+        // =========================================================
+        // [MỚI THÊM] TÍNH TOÁN SỐ TIỀN HOÀN LẠI THỰC TẾ CHO TỪNG ĐƠN
+        // =========================================================
+        java.util.Map<Integer, Double> refundMap = new java.util.HashMap<>();
+        // [MỚI] Tạo Map để chứa danh sách ảnh/lý do của từng đơn
+        java.util.Map<Integer, List<ReturnRequest>> returnDetailsMap = new java.util.HashMap<>();
+        for (Order order : listReturnOrders) {
+            // Lấy id đơn hàng, tính tiền và nhét vào Map
+            double refundAmount = orderDao.calculateRefundAmount(order.getId());
+            refundMap.put(order.getId(), refundAmount);
+            // [MỚI] Lấy chi tiết ảnh, lý do của đơn này nhét vào Map
+            List<ReturnRequest> details = returnDao.getReturnRequestsByOrderId(order.getId());
+            returnDetailsMap.put(order.getId(), details);
+        }
+        request.setAttribute("refundMap", refundMap); // Bắn Map này sang file JSP
+        request.setAttribute("returnDetailsMap", returnDetailsMap); // [MỚI] Bắn sang JSP
         request.setAttribute("listReturnOrders", listReturnOrders);
 
         request.getRequestDispatcher("/view/staff/ticket-manage.jsp").forward(request, response);

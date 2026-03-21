@@ -2433,7 +2433,7 @@
         const data = new URLSearchParams(new FormData(form));
         
         // Nếu chọn "Khác" thì gộp lý do
-        if(data.get('reason') === 'Khác') {
+        if(data.get('reason') === 'Khác'){
             data.set('reason', data.get('customReason'));
         }
 
