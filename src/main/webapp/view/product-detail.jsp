@@ -2113,7 +2113,7 @@
                 listContainer.insertAdjacentHTML('afterbegin', newHtml);
                 form.reset();
             } else {
-                alert("Lỗi khi gửi câu hỏi!");
+                alert(result.message || "Lỗi khi gửi câu hỏi!"); // [ĐÃ SỬA Ở ĐÂY]
             }
         })
         .catch(err => {
@@ -2286,7 +2286,7 @@
                     form.removeAttribute('data-tag');
                     form.removeAttribute('data-hidden-tag');
                     document.getElementById('reply-list-' + discussionId).appendChild(form);
-                } else alert("Lỗi khi gửi trả lời!");
+                } else alert(result.message || "Lỗi khi gửi trả lời!"); // [ĐÃ SỬA Ở ĐÂY]
             })
             .finally(() => { 
                 submitBtn.disabled = false; 
