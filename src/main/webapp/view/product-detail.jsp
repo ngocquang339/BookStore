@@ -2464,7 +2464,7 @@
     window.addEventListener('load', function() {
         const hash = window.location.hash; // Lấy phần #... trên URL
         
-        if (hash && hash.startsWith('#reply-box-')) {
+        if (hash && (hash.startsWith('#reply-box-') || hash.startsWith('#review-box-'))) {
             const targetEl = document.querySelector(hash);
             
             if (targetEl) {
