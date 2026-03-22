@@ -1028,25 +1028,41 @@ public class OrderDAO extends DBContext {
     }
 
     /**
-     * Tính tổng số tiền cần hoàn lại cho một đơn hàng (chỉ tính những món khách yêu cầu trả)
+     * Tính tổng số tiền hoàn lại (ĐÃ TRỪ HAO TỶ LỆ VOUCHER)
      */
     public double calculateRefundAmount(int orderId) {
-        // Lưu ý: Kiểm tra tên bảng Order_Details hay OrderDetails cho khớp với DB của bạn nhé
-        String sql = "SELECT SUM(rr.quantity * od.price) AS TotalRefund " +
+        // Lấy Tổng tiền SP trả (RawRefund), Tiền Voucher (Discount) và Tổng tiền hàng ban đầu (SubTotal)
+        String sql = "SELECT " +
+                     "  SUM(rr.quantity * od.price) AS RawRefund, " +
+                     "  MAX(o.discount_amount) AS Discount, " +
+                     "  MAX(o.total_amount + o.discount_amount - o.shipping_fee) AS SubTotal " +
                      "FROM ReturnRequests rr " +
                      "JOIN OrderDetails od ON rr.order_id = od.order_id AND rr.book_id = od.book_id " +
+                     "JOIN Orders o ON rr.order_id = o.order_id " +
                      "WHERE rr.order_id = ?";
                      
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, orderId);
             ResultSet rs = ps.executeQuery();
+            
             if (rs.next()) {
-                return rs.getDouble("TotalRefund");
+                double rawRefund = rs.getDouble("RawRefund"); // Tiền gốc của các món bị trả
+                double discount = rs.getDouble("Discount");   // Khách có áp voucher không?
+                double subTotal = rs.getDouble("SubTotal");   // Tổng giá trị hàng hóa của cả đơn
+                
+                // Nếu đơn hàng bằng 0 hoặc không có hàng trả
+                if (subTotal <= 0 || rawRefund == 0) return 0;
+                
+                // CÔNG THỨC E-COMMERCE: Tiền gốc SP trả - (Tỷ lệ phần trăm SP trả * Tiền Voucher)
+                double finalRefund = rawRefund - (rawRefund / subTotal) * discount;
+                
+                // Làm tròn về số chẵn (Ví dụ: 90.000đ)
+                return Math.round(finalRefund);
             }
         } catch (Exception e) {
-            System.out.println("Lỗi tính tiền hoàn trả: " + e.getMessage());
+            System.out.println("Lỗi tính toán tiền hoàn trả tỷ lệ: " + e.getMessage());
             e.printStackTrace();
         }
-        return 0; // Nếu lỗi trả về 0
+        return 0;
     }
 }

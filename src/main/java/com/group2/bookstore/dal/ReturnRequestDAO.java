@@ -262,9 +262,11 @@ String adminUsername, double refundAmount, String bankRef, String adminNote) {
      */
     public List<ReturnRequest> getReturnRequestsByOrderId(int orderId) {
         List<ReturnRequest> list = new ArrayList<>();
-        String sql = "SELECT r.*, b.title AS book_title " +
+        // [SỬA SQL] JOIN thêm bảng OrderDetails để lấy giá gốc lúc mua (od.price)
+        String sql = "SELECT r.*, b.title AS book_title, od.price AS purchased_price " +
                      "FROM ReturnRequests r " +
                      "JOIN Books b ON r.book_id = b.book_id " +
+                     "JOIN OrderDetails od ON r.order_id = od.order_id AND r.book_id = od.book_id " +
                      "WHERE r.order_id = ?";
                      
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -278,9 +280,11 @@ String adminUsername, double refundAmount, String bankRef, String adminNote) {
                 req.setCustomerReason(rs.getString("customer_reason"));
                 req.setBookTitle(rs.getString("book_title"));
                 
-                // Hứng đường dẫn ảnh và định dạng
                 req.setProofImage(rs.getString("proof_image"));
                 req.setImageMimeType(rs.getString("image_mime_type"));
+                
+                // [MỚI] Hứng giá tiền vào Model
+                req.setPrice(rs.getDouble("purchased_price"));
                 
                 list.add(req);
             }

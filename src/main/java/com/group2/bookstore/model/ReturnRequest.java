@@ -20,7 +20,8 @@ public class ReturnRequest {
     private String proofImage;
     private String imageMimeType;
     private String accountNumber;
-
+// Thêm biến hứng giá tiền
+    private double price;
     private String accountOwner;
 
     private double maxRefundableAmount;
@@ -178,4 +179,7 @@ public class ReturnRequest {
 
     public String getImageMimeType() { return imageMimeType; }
     public void setImageMimeType(String imageMimeType) { this.imageMimeType = imageMimeType; }
+    // Getter và Setter
+    public double getPrice() { return price; }
+    public void setPrice(double price) { this.price = price; }
 }

@@ -72,6 +72,13 @@ public class SupportTicketServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/support");
             return;
         }
+
+        // THÊM MỚI: Check độ dài Chi tiết vấn đề
+        if (ticketMessage.length() > 1000) {
+            session.setAttribute("errorMsg", "Chi tiết vấn đề không được vượt quá 1000 ký tự!");
+            response.sendRedirect(request.getContextPath() + "/support");
+            return;
+        }
         // Gói vào Model
         SupportTicket ticket = new SupportTicket();
         ticket.setUserId(user.getId());

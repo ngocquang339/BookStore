@@ -90,7 +90,7 @@ public class ChangePasswordServlet extends HttpServlet {
 
         if(currentPass == null || newPass == null || confirmPass == null ||
            currentPass.isEmpty() || newPass.isEmpty() || confirmPass.isEmpty() ||
-           currentPass.length() > 50 || newPass.length() > 50 || confirmPass.length() > 50) {
+           currentPass.length() > 30 || newPass.length() > 30 || confirmPass.length() > 30) {
             session.setAttribute("mess", "Tất cả các trường là bắt buộc và không được quá dài!"); // EX 5
             session.setAttribute("status", "error");
             response.sendRedirect(request.getContextPath() + "/change-password");
