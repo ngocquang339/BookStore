@@ -20,24 +20,24 @@ public class StaffCustomerServlet extends HttpServlet {
         // 1. Lấy toàn bộ tham số từ form CRM
         String keyword = request.getParameter("keyword");
         String memberTier = request.getParameter("memberTier");
-        String minSpendStr = request.getParameter("minSpend");
-        String maxSpendStr = request.getParameter("maxSpend");
+        String minPointStr = request.getParameter("minPoint");
+        String maxPointStr = request.getParameter("maxPoint");
 
         // 2. Xử lý an toàn cho kiểu số (Tránh lỗi sập web khi bỏ trống)
-        Double minSpend = null;
-        Double maxSpend = null;
+        Integer minPoint = null;
+        Integer maxPoint = null;
         try {
-            if (minSpendStr != null && !minSpendStr.trim().isEmpty())
-                minSpend = Double.parseDouble(minSpendStr);
-            if (maxSpendStr != null && !maxSpendStr.trim().isEmpty())
-                maxSpend = Double.parseDouble(maxSpendStr);
+            if (minPointStr != null && !minPointStr.trim().isEmpty())
+                minPoint = Integer.parseInt(minPointStr);
+            if (maxPointStr != null && !maxPointStr.trim().isEmpty())
+                maxPoint = Integer.parseInt(maxPointStr);
         } catch (NumberFormatException e) {
-            // Lỗi nếu nhập chữ linh tinh
+            // Bỏ qua nếu khách nhập linh tinh
         }
 
         // 3. Gọi DAO
         UserDAO dao = new UserDAO();
-        List<User> listCustomers = dao.getFilteredCustomers(keyword, memberTier, minSpend, maxSpend);
+        List<User> listCustomers = dao.getFilteredCustomers(keyword, memberTier, minPoint, maxPoint);
 
         // 4. Trả dữ liệu về JSP
         request.setAttribute("listCustomers", listCustomers);

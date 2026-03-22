@@ -207,18 +207,15 @@
                                             </select>
                                         </div>
 
-                                        <div class="col-md-2">
-                                            <label class="form-label text-muted small mb-1">Chi tiêu (Từ)</label>
-                                            <input type="number" name="minSpend"
-                                                class="form-control bg-dark text-light border-secondary shadow-none"
-                                                placeholder="VNĐ">
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-bold">F-Point (Từ):</label>
+                                            <input type="number" name="minPoint" class="form-control"
+                                                value="${param.minPoint}" placeholder="VD: 500">
                                         </div>
-
-                                        <div class="col-md-2">
-                                            <label class="form-label text-muted small mb-1">Chi tiêu (Đến)</label>
-                                            <input type="number" name="maxSpend"
-                                                class="form-control bg-dark text-light border-secondary shadow-none"
-                                                placeholder="VNĐ">
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-bold">F-Point (Đến):</label>
+                                            <input type="number" name="maxPoint" class="form-control"
+                                                value="${param.maxPoint}" placeholder="VD: 5000">
                                         </div>
 
                                         <div class="col-md-5">
