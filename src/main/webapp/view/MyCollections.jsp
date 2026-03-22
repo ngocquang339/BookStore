@@ -212,11 +212,11 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label fw-bold">Tên giá sách <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="name" required placeholder="VD: Truyện trinh thám cày đêm...">
+                            <input type="text" class="form-control" name="name" required maxlength="50" placeholder="VD: Truyện trinh thám cày đêm...">
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-bold">Mô tả ngắn</label>
-                            <textarea class="form-control" name="description" rows="2" placeholder="Sách mua từ năm 2026..."></textarea>
+                            <textarea class="form-control" name="description" rows="2" maxlength="250" placeholder="Sách mua từ năm 2026..."></textarea>
                         </div>
                         <div class="row">
                             <div class="col-6 mb-3">
@@ -255,11 +255,11 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label fw-bold">Tên giá sách <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="name" id="edit_name" required>
+                            <input type="text" class="form-control" name="name" id="edit_name" required maxlength="50">
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-bold">Mô tả ngắn</label>
-                            <textarea class="form-control" name="description" id="edit_desc" rows="2"></textarea>
+                            <textarea class="form-control" name="description" id="edit_desc" rows="2" maxlength="250"></textarea>
                         </div>
                         <div class="row">
                             <div class="col-6 mb-3">

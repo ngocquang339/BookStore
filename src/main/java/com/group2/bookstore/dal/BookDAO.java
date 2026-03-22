@@ -234,150 +234,34 @@ public class BookDAO extends DBContext {
     // --- MASTER GET BOOKS METHODS ---
     // ==========================================
 
-    // Overload 1: No pagination
-    public List<Book> getBooks(String keyword, int cid, String author, String publisher, double minPrice,
-            double maxPrice, String sortBy, String sortOrder, boolean isAdmin) {
-        return getBooks(keyword, cid, author, publisher, minPrice, maxPrice, sortBy, sortOrder, isAdmin, 1, 1000000);
+    // Overload 1: Dành cho team dùng (Không phân trang, không lọc sao)
+    public List<Book> getBooks(String keyword, int cid, String author, String publisher, int minPrice,
+            int maxPrice, String sortBy, String sortOrder, boolean isAdmin) {
+        // Truyền mặc định ratingFilter = 0
+        return getBooks(keyword, cid, author, publisher, minPrice, maxPrice, 0, sortBy, sortOrder, isAdmin, 1, 1000000);
     }
 
-    // Overload 2: Fixed 5 items per page
+    // Overload 2: Dành cho team dùng (Có phân trang, không lọc sao)
     public List<Book> getBooks(String keyword, int cid, String author, String publisher, double minPrice,
             double maxPrice, String sortBy, String sortOrder, boolean isAdmin, int index) {
-        return getBooks(keyword, cid, author, publisher, minPrice, maxPrice, sortBy, sortOrder, isAdmin, index, 5);
+        // Truyền mặc định ratingFilter = 0
+        return getBooks(keyword, cid, author, publisher, minPrice, maxPrice, 0, sortBy, sortOrder, isAdmin, index, 5);
     }
 
-    // Overload 3: The Main Core Method (MERGED WITH TEAMMATE'S WAREHOUSE LOGIC)
-    /* public List<Book> getBooks(String keyword, int cid, String author, String publisher, double minPrice,
-            double maxPrice, String sortBy, String sortOrder, boolean isAdmin, int index, int pageSize) {
-        List<Book> list = new ArrayList<>();
-
-        // 1. TẠO BẢNG TẠM (CTE): Chỉ tìm ra "ID" của 20 cuốn sách thuộc trang hiện tại
-        StringBuilder sql = new StringBuilder(
-                "WITH PagedBooks AS ( " +
-                        "   SELECT b.book_id " +
-                        "   FROM Books b " +
-                        "   LEFT JOIN Categories c ON b.category_id = c.category_id " +
-                        "   WHERE 1=1 ");
-
-        List<Object> params = new ArrayList<>();
-
-        if (!isAdmin)
-            sql.append(" AND b.is_active = 1 ");
-
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            sql.append(
-                    " AND ((LOWER(b.title) LIKE LOWER(?)) OR (LOWER(b.author) LIKE LOWER(?)) OR (LOWER(b.supplier) LIKE LOWER(?)) OR (LOWER(b.publisher) LIKE LOWER(?))) ");
-            String searchParam = "%" + keyword.trim() + "%";
-            params.add(searchParam);
-            params.add(searchParam);
-            params.add(searchParam);
-            params.add(searchParam);
-        }
-        if (cid > 0) {
-            sql.append(" AND (b.category_id = ? OR c.parent_id = ?) ");
-            params.add(cid);
-            params.add(cid);
-        }
-        if (author != null && !author.trim().isEmpty()) {
-            sql.append(" AND LOWER(b.author) LIKE LOWER(?) ");
-            params.add("%" + author.trim() + "%");
-        }
-        if (publisher != null && !publisher.trim().isEmpty()) {
-            sql.append(" AND LOWER(b.publisher) LIKE LOWER(?) ");
-            params.add("%" + publisher.trim() + "%");
-        }
-        if (maxPrice > 0) {
-            sql.append(" AND b.price BETWEEN ? AND ? ");
-            params.add(minPrice);
-            params.add(maxPrice);
-        } else if (minPrice > 0) {
-            sql.append(" AND b.price >= ? ");
-            params.add(minPrice);
-        }
-
-        // --- XỬ LÝ SẮP XẾP ---
-        String orderClause = "";
-        if (sortBy != null && !sortBy.isEmpty() && (sortBy.equals("price") || sortBy.equals("title")
-                || sortBy.equals("stock_quantity") || sortBy.equals("book_id"))) {
-            orderClause = " ORDER BY b." + sortBy + ("DESC".equalsIgnoreCase(sortOrder) ? " DESC" : " ASC");
-        } else if ("category_name".equals(sortBy)) {
-            orderClause = " ORDER BY c.category_name" + ("DESC".equalsIgnoreCase(sortOrder) ? " DESC" : " ASC");
-        } else {
-            orderClause = " ORDER BY b.book_id DESC";
-        }
-        sql.append(orderClause);
-
-        // --- CẮT TRANG ---
-        sql.append(" OFFSET ? ROWS FETCH NEXT ? ROWS ONLY ");
-        sql.append(") "); // Kết thúc khối bảng tạm
-
-        // 2. TRUY VẤN CHÍNH: Chỉ lấy thông tin nặng (như cover_image) cho đúng 20 cái
-        // ID ở trên
-        sql.append("SELECT b.*, c.category_name, l.location_code, " +
-                "(SELECT TOP 1 bi.image_url FROM BookImages bi WHERE bi.book_id = b.book_id) AS cover_image " +
-                "FROM PagedBooks pb " +
-                "INNER JOIN Books b ON pb.book_id = b.book_id " +
-                "LEFT JOIN Categories c ON b.category_id = c.category_id " +
-                "LEFT JOIN Warehouse_Locations l ON b.location_id = l.location_id ");
-        sql.append(orderClause); // Sắp xếp lại lần nữa để đảm bảo thứ tự sau khi JOIN
-
-        try (Connection conn = getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql.toString())) {
-
-            int paramIndex = 1;
-            for (Object param : params)
-                ps.setObject(paramIndex++, param);
-
-            // Truyền tham số cho OFFSET
-            ps.setInt(paramIndex++, (index - 1) * pageSize);
-            ps.setInt(paramIndex, pageSize);
-
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                Book b = new Book();
-                b.setId(rs.getInt("book_id"));
-                b.setTitle(rs.getString("title"));
-                b.setAuthor(rs.getString("author"));
-                b.setPrice(rs.getDouble("price"));
-                try {
-                    b.setPublisher(rs.getString("publisher"));
-                } catch (Exception e) {
-                }
-                b.setImageUrl(rs.getString("image"));
-                b.setStockQuantity(rs.getInt("stock_quantity"));
-                b.setCategoryId(rs.getInt("category_id"));
-                b.setSupplier(rs.getString("supplier"));
-                b.setYearOfPublish(rs.getInt("yearOfPublish"));
-                b.setNumberPage(rs.getInt("number_page"));
-                b.setCoverImage(rs.getString("cover_image"));
-
-                try {
-                    b.setCategoryName(rs.getString("category_name"));
-                } catch (Exception e) {
-                }
-                try {
-                    b.setActive(rs.getBoolean("is_active"));
-                } catch (Exception e) {
-                }
-                try {
-                    b.setLocationCode(rs.getString("location_code"));
-                } catch (Exception e) {
-                }
-
-                list.add(b);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return list;
-    } */
-
-    // Overload 3: The Main Core Method (TEMPORARY BYPASS - WAREHOUSE DISABLED)
+    // Overload 3: Giữ lại hàm cũ cho team dùng (Tùy chỉnh pageSize, không lọc sao)
     public List<Book> getBooks(String keyword, int cid, String author, String publisher, double minPrice,
             double maxPrice, String sortBy, String sortOrder, boolean isAdmin, int index, int pageSize) {
+        // Truyền mặc định ratingFilter = 0
+        return getBooks(keyword, cid, author, publisher, minPrice, maxPrice, 0, sortBy, sortOrder, isAdmin, index, pageSize);
+    }
+
+
+    // Overload 4: HÀM CORE MỚI CỦA BẠN (Có thêm int ratingFilter)
+    public List<Book> getBooks(String keyword, int cid, String author, String publisher, double minPrice,
+            double maxPrice, int ratingFilter, String sortBy, String sortOrder, boolean isAdmin, int index, int pageSize) {
+        
         List<Book> list = new ArrayList<>();
 
-        // BYPASS: Removed l.location_code and the Warehouse_Locations JOIN
         StringBuilder sql = new StringBuilder(
                 "SELECT b.*, c.category_name, " +
                         "(SELECT TOP 1 bi.image_url FROM BookImages bi WHERE bi.book_id = b.book_id) AS cover_image " +
@@ -417,6 +301,12 @@ public class BookDAO extends DBContext {
         } else if (minPrice > 0) {
             sql.append(" AND b.price >= ? ");
             params.add(minPrice);
+        }
+
+        // [LOGIC MỚI CHỈ CHẠY KHI BẠN GỌI Ở TRANG SEARCH]
+        if (ratingFilter > 0) {
+            sql.append(" AND b.book_id IN (SELECT book_id FROM Review GROUP BY book_id HAVING AVG(CAST(rating AS FLOAT)) >= ?) ");
+            params.add(ratingFilter);
         }
 
         if (sortBy != null && !sortBy.isEmpty() && (sortBy.equals("price") || sortBy.equals("title")
@@ -507,17 +397,21 @@ public class BookDAO extends DBContext {
         return 0;
     }
 
-    // Advanced Count (ĐÃ ĐƯỢC ĐỒNG BỘ LOGIC VỚI HÀM GETBOOKS)
-    public int countBooks(String keyword, int cid, String author, String publisher, double minPrice, double maxPrice,
-            boolean isAdmin) {
+    // 2. Hàm Advanced Count (GIỮ LẠI CHO TEAM DÙNG - Không có ratingFilter)
+    public int countBooks(String keyword, int cid, String author, String publisher, double minPrice, double maxPrice, boolean isAdmin) {
+        // Chuyển hướng sang hàm mới và truyền số 0 (không lọc sao)
+        return countBooks(keyword, cid, author, publisher, minPrice, maxPrice, 0, isAdmin);
+    }
+
+    // 3. Hàm Advanced Count CORE MỚI CỦA BẠN (Có thêm int ratingFilter)
+    public int countBooks(String keyword, int cid, String author, String publisher, double minPrice, double maxPrice, int ratingFilter, boolean isAdmin) {
         StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM Books b ");
         sql.append("LEFT JOIN Categories c ON b.category_id = c.category_id ");
         sql.append("WHERE 1=1 ");
 
         List<Object> params = new ArrayList<>();
 
-        if (!isAdmin)
-            sql.append(" AND b.is_active = 1 ");
+        if (!isAdmin) sql.append(" AND b.is_active = 1 ");
 
         // 1. Đồng bộ Keyword (Tìm cả title, author, supplier, publisher)
         if (keyword != null && !keyword.trim().isEmpty()) {
@@ -557,6 +451,12 @@ public class BookDAO extends DBContext {
         } else if (minPrice > 0) {
             sql.append(" AND b.price >= ? ");
             params.add(minPrice);
+        }
+
+        // [LOGIC MỚI THÊM VÀO ĐÂY]
+        if (ratingFilter > 0) {
+            sql.append(" AND b.book_id IN (SELECT book_id FROM Review GROUP BY book_id HAVING AVG(CAST(rating AS FLOAT)) >= ?) ");
+            params.add(ratingFilter);
         }
 
         try (Connection conn = getConnection();

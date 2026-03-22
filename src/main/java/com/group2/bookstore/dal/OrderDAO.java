@@ -1006,4 +1006,63 @@ public class OrderDAO extends DBContext {
         }
         return false;
     }
+
+    public boolean insertPartialReturnRequest(int orderId, int bookId, int quantity, String customer_reason, String proof_image, String mimeType) {
+        // [QUAN TRỌNG] Thêm cột image_mime_type vào câu lệnh SQL và thêm 1 dấu ? tương ứng
+        String sql = "INSERT INTO ReturnRequests (order_id, book_id, quantity, customer_reason, proof_image, image_mime_type, status, return_method, refund_preference) VALUES (?, ?, ?, ?, ?, ?, 1,'pickup','refund_wallet')";
+        
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)){
+            ps.setInt(1, orderId);
+            ps.setInt(2, bookId);
+            ps.setInt(3, quantity);
+            ps.setString(4, customer_reason);
+            ps.setString(5, proof_image); // Lưu đường dẫn ảnh/video vào DB
+            ps.setString(6, mimeType);   // [MỚI] Lưu định dạng file (vd: image/jpeg, video/mp4)
+            
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            System.out.println("Lỗi tại insertPartialReturnRequest: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     * Tính tổng số tiền hoàn lại (ĐÃ TRỪ HAO TỶ LỆ VOUCHER)
+     */
+    public double calculateRefundAmount(int orderId) {
+        // Lấy Tổng tiền SP trả (RawRefund), Tiền Voucher (Discount) và Tổng tiền hàng ban đầu (SubTotal)
+        String sql = "SELECT " +
+                     "  SUM(rr.quantity * od.price) AS RawRefund, " +
+                     "  MAX(o.discount_amount) AS Discount, " +
+                     "  MAX(o.total_amount + o.discount_amount - o.shipping_fee) AS SubTotal " +
+                     "FROM ReturnRequests rr " +
+                     "JOIN OrderDetails od ON rr.order_id = od.order_id AND rr.book_id = od.book_id " +
+                     "JOIN Orders o ON rr.order_id = o.order_id " +
+                     "WHERE rr.order_id = ?";
+                     
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, orderId);
+            ResultSet rs = ps.executeQuery();
+            
+            if (rs.next()) {
+                double rawRefund = rs.getDouble("RawRefund"); // Tiền gốc của các món bị trả
+                double discount = rs.getDouble("Discount");   // Khách có áp voucher không?
+                double subTotal = rs.getDouble("SubTotal");   // Tổng giá trị hàng hóa của cả đơn
+                
+                // Nếu đơn hàng bằng 0 hoặc không có hàng trả
+                if (subTotal <= 0 || rawRefund == 0) return 0;
+                
+                // CÔNG THỨC E-COMMERCE: Tiền gốc SP trả - (Tỷ lệ phần trăm SP trả * Tiền Voucher)
+                double finalRefund = rawRefund - (rawRefund / subTotal) * discount;
+                
+                // Làm tròn về số chẵn (Ví dụ: 90.000đ)
+                return Math.round(finalRefund);
+            }
+        } catch (Exception e) {
+            System.out.println("Lỗi tính toán tiền hoàn trả tỷ lệ: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return 0;
+    }
 }

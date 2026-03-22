@@ -58,6 +58,40 @@ public class RegisterServlet extends HttpServlet{
             request.getRequestDispatcher("view/Login.jsp").forward(request, response);
             return;
         }
+
+        // 1. Kiểm tra Tên đăng nhập KHÔNG chứa khoảng trắng (THÊM MỚI)
+        if (u.contains(" ")) {
+            request.setAttribute("mess", "Tên đăng nhập không được chứa khoảng trắng!");
+            request.setAttribute("activeTab", "register");
+            request.getRequestDispatcher("view/Login.jsp").forward(request, response);
+            return;
+        }
+
+        // 2. Kiểm tra Họ và tên CHỈ chứa chữ cái và khoảng trắng (THÊM MỚI)
+        // Sử dụng \p{L} để hỗ trợ các chữ cái có dấu tiếng Việt
+        if (!fn.matches("^[\\p{L}\\s]+$")) {
+            request.setAttribute("mess", "Họ và tên chỉ được chứa chữ cái, không chứa số hay ký tự đặc biệt!");
+            request.setAttribute("activeTab", "register");
+            request.getRequestDispatcher("view/Login.jsp").forward(request, response);
+            return;
+        }
+
+        // 3. Kiểm tra Số điện thoại ĐÚNG 10 số và bắt đầu bằng 0 (SỬA LẠI)
+        if (!phone.matches("^0\\d{9}$")) {
+            request.setAttribute("mess", "Số điện thoại không hợp lệ (Phải đúng 10 số và bắt đầu bằng 0)!");
+            request.setAttribute("activeTab", "register");
+            request.getRequestDispatcher("view/Login.jsp").forward(request, response);
+            return;
+        }
+
+        // 4. Kiểm tra Email có định dạng @domain.com (CẢI THIỆN LẠI)
+        // Sử dụng regex chuẩn hơn thay vì chỉ dùng contains("@")
+        if (!e.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[a-zA-Z]{2,}$")) {
+            request.setAttribute("mess", "Email không đúng định dạng!");
+            request.setAttribute("activeTab", "register");
+            request.getRequestDispatcher("view/Login.jsp").forward(request, response);
+            return;
+        }
         // [BỔ SUNG EX 4]: Mật khẩu quá ngắn
         if (p.length() < 6) {
             request.setAttribute("mess", "Mật khẩu phải dài ít nhất 6 ký tự!");
@@ -86,8 +120,8 @@ public class RegisterServlet extends HttpServlet{
             request.getRequestDispatcher("view/Login.jsp").forward(request, response);
             return;
         }
-
-        if(phone.matches(".*[a-zA-Z].*") || phone.length() > 10){
+        
+        if(phone.matches(".*[a-zA-Z].*") || phone.length() > 10 || !phone.startsWith("0")){
             request.setAttribute("mess", "Số điện thoại không hợp lệ");
             request.setAttribute("activeTab", "register");
             request.getRequestDispatcher("view/Login.jsp").forward(request, response);

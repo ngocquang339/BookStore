@@ -16,9 +16,12 @@ public class ReturnRequest {
     private String adminNote;
     private Date createdAt;
     private String bankName;
-
+    // Thêm 2 biến này vào danh sách thuộc tính
+    private String proofImage;
+    private String imageMimeType;
     private String accountNumber;
-
+// Thêm biến hứng giá tiền
+    private double price;
     private String accountOwner;
 
     private double maxRefundableAmount;
@@ -169,4 +172,14 @@ public class ReturnRequest {
     public void setUserEmail(String userEmail) {
         this.userEmail = userEmail;
     }
+
+    // Thêm Getters và Setters
+    public String getProofImage() { return proofImage; }
+    public void setProofImage(String proofImage) { this.proofImage = proofImage; }
+
+    public String getImageMimeType() { return imageMimeType; }
+    public void setImageMimeType(String imageMimeType) { this.imageMimeType = imageMimeType; }
+    // Getter và Setter
+    public double getPrice() { return price; }
+    public void setPrice(double price) { this.price = price; }
 }

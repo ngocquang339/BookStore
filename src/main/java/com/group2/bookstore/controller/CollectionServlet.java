@@ -106,6 +106,17 @@ public class CollectionServlet extends HttpServlet {
             return;
         }
 
+        // THÊM MỚI: Kiểm tra độ dài Tên giá sách và Mô tả
+        if (name.length() > 50) {
+            session.setAttribute("errorMsg", "Tên giá sách không được vượt quá 50 ký tự!");
+            response.sendRedirect(request.getContextPath() + "/my-collections");
+            return;
+        }
+        if (description != null && description.length() > 250) {
+            session.setAttribute("errorMsg", "Mô tả ngắn không được vượt quá 250 ký tự!");
+            response.sendRedirect(request.getContextPath() + "/my-collections");
+            return;
+        }
         // [XỬ LÝ EX 2]: Chặn trùng tên bộ sưu tập của cùng 1 user
         // (Lưu ý: Bạn cần viết thêm hàm isNameExist trong CollectionDAO)
         if (dao.isNameExist(user.getId(), name.trim(), -1)) {
@@ -135,6 +146,18 @@ public class CollectionServlet extends HttpServlet {
         // [XỬ LÝ EX 1]: Chặn rỗng
         if (name == null || name.trim().isEmpty()) {
             session.setAttribute("errorMsg", "Tên giá sách không được để trống!");
+            response.sendRedirect(request.getContextPath() + "/my-collections");
+            return;
+        }
+
+        // THÊM MỚI: Kiểm tra độ dài Tên giá sách và Mô tả
+        if (name.length() > 50) {
+            session.setAttribute("errorMsg", "Tên giá sách không được vượt quá 50 ký tự!");
+            response.sendRedirect(request.getContextPath() + "/my-collections");
+            return;
+        }
+        if (description != null && description.length() > 250) {
+            session.setAttribute("errorMsg", "Mô tả ngắn không được vượt quá 250 ký tự!");
             response.sendRedirect(request.getContextPath() + "/my-collections");
             return;
         }
