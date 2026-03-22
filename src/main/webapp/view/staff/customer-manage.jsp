@@ -284,7 +284,7 @@
 
                                                     <th>Khách hàng</th>
                                                     <th>Thông tin liên lạc</th>
-                                                    <th class="text-center">Hạng VIP & Chi tiêu</th>
+                                                    <th class="text-center">Hạng VIP & F-Point</th>
                                                     <th class="text-center">Trạng thái</th>
                                                     <th class="text-end pe-4">Hành động</th>
                                                 </tr>
@@ -366,34 +366,34 @@
                                                         </td>
                                                         <td class="text-center align-middle">
                                                             <c:choose>
-                                                                <c:when test="${u.totalSpend >= 10000000}">
-                                                                    <span
-                                                                        class="badge bg-info text-dark rounded-pill px-2"><i
-                                                                            class="fa-regular fa-gem"></i> Kim
-                                                                        Cương</span>
+                                                                <%-- Sửa lại dùng u.f_points thay vì u.totalSpend --%>
+                                                                <c:when test="${u.f_points >= 5000}">
+                                                                    <span class="badge bg-info text-dark rounded-pill px-2">
+                                                                        <i class="fa-regular fa-gem"></i> Kim Cương
+                                                                    </span>
                                                                 </c:when>
-                                                                <c:when test="${u.totalSpend >= 5000000}">
-                                                                    <span
-                                                                        class="badge bg-warning text-dark rounded-pill px-2"><i
-                                                                            class="fa-solid fa-medal"></i> Vàng</span>
+                                                                <c:when test="${u.f_points >= 2000}">
+                                                                    <span class="badge bg-warning text-dark rounded-pill px-2">
+                                                                        <i class="fa-solid fa-medal"></i> Vàng
+                                                                    </span>
                                                                 </c:when>
-                                                                <c:when test="${u.totalSpend >= 1000000}">
-                                                                    <span
-                                                                        class="badge bg-secondary rounded-pill px-2">🥈
-                                                                        Bạc</span>
+                                                                <c:when test="${u.f_points >= 500}">
+                                                                    <span class="badge bg-secondary rounded-pill px-2">
+                                                                        🥈 Bạc
+                                                                    </span>
                                                                 </c:when>
                                                                 <c:otherwise>
-                                                                    <span
-                                                                        class="badge bg-dark border border-secondary text-muted rounded-pill px-2">🥉
-                                                                        Đồng</span>
+                                                                    <span class="badge bg-dark border border-secondary text-muted rounded-pill px-2">
+                                                                        🥉 Đồng
+                                                                    </span>
                                                                 </c:otherwise>
                                                             </c:choose>
-                                                            <div class="mt-2 text-success fw-bold"
-                                                                style="font-size: 14px;">
-                                                                <fmt:formatNumber value="${u.totalSpend}"
-                                                                    type="currency" currencySymbol="đ"
-                                                                    maxFractionDigits="0" />
-                                                            </div>
+
+                                                            <%-- Phần hiển thị F-Point hiện tại --%>
+<div class="mt-2 text-warning fw-bold" style="font-size: 15px;" title="Điểm F-Point tích lũy trong tháng">
+    <i class="fa-solid fa-coins me-1"></i>
+    <fmt:formatNumber value="${u.f_points}" type="number" maxFractionDigits="0" /> điểm
+</div>
                                                         </td>
                                                         <td class="text-center align-middle">
                                                             <c:choose>
