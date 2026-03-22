@@ -467,15 +467,15 @@
                 <form id="loginForm" action="${pageContext.request.contextPath}/login" method="post" onsubmit="return validateLogin(event)">
                     
                     <div class="form-group">
-                        <label for="username">Tên đăng nhập / Email</label>
-                        <input type="text" id="username" name="username" value="${not empty savedUser ? savedUser : param.username}" placeholder="Nhập số điện thoại/Email" maxlength="50">
+                        <label for="username">Tên đăng nhập</label>
+                        <input type="text" id="username" name="username" value="${not empty savedUser ? savedUser : param.username}" placeholder="Nhập tên đăng nhập" maxlength="50" required>
                         <span id="err-username" style="display:none; color: #dc3545; font-size: 13px; margin-top: 5px;"><i class="fa-solid fa-circle-exclamation"></i> Vui lòng nhập thông tin này</span>
                     </div>
 
                     <div class="form-group">
                         <label for="password">Mật khẩu</label>
                         <div style="position: relative;">
-                            <input type="password" id="password" name="password" value="${savedPass}" placeholder="Nhập mật khẩu" maxlength="50" style="width: 100%;">
+                            <input type="password" id="password" name="password" value="${savedPass}" placeholder="Nhập mật khẩu" maxlength="50" style="width: 100%;" required>
                             <span class="toggle-password" onclick="toggleLoginPassword()" style="position: absolute; right: 10px; top: 12px; cursor: pointer; color: #007bff; font-weight: bold; font-size: 13px;">Hiện</span>
                         </div>
                         <span id="err-password" style="display:none; color: #dc3545; font-size: 13px; margin-top: 5px;"><i class="fa-solid fa-circle-exclamation"></i> Vui lòng nhập thông tin này</span>
@@ -508,7 +508,10 @@
                     <div class="form-group">
                         <label>Họ và tên</label>
                         <div class="input-wrapper">
-                            <input type="text" name="fullname" value="${valName}" class="${lockClass}" ${isReadonly} placeholder="Ví dụ: Nguyễn Văn An" required autocomplete="off" maxlength="50">
+                            <input type="text" name="fullname" value="${valName}" class="${lockClass}" ${isReadonly} 
+                                placeholder="Ví dụ: Nguyễn Văn An" required autocomplete="off" maxlength="50"
+                                pattern="^[A-Za-zÀ-ỹ\s]+$"
+                                title="Chỉ được nhập chữ cái và khoảng trắng">
                             <i class="fa-regular fa-id-card"></i>
                         </div>
                     </div>
@@ -516,15 +519,25 @@
                     <div class="form-group">
                         <label>Số điện thoại</label>
                         <div class="input-wrapper">
-                            <input type="tel" name="phone_number" value="${valPhone}" class="${lockClass}" ${isReadonly} placeholder="Ví dụ: 0912345678" required autocomplete="off" maxlength="10">
+                            <input type="text" id="phoneInput" name="phone_number" value="${valPhone}" class="${lockClass}" ${isReadonly} 
+                                placeholder="Ví dụ: 0912345678" required autocomplete="off" maxlength="10"
+                                pattern="^0\d{9}$"
+                                title="Số điện thoại phải bắt đầu bằng 0 và gồm 10 chữ số"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                             <i class="fa-solid fa-phone"></i>
                         </div>
+                        <span id="phoneError" style="display:none; color: #dc3545; font-size: 13px; margin-top: 5px;">
+                            <i class="fa-solid fa-circle-exclamation"></i> Số điện thoại bắt buộc phải bắt đầu bằng số 0.
+                        </span>
                     </div>
 
                     <div class="form-group">
                         <label>Tên đăng nhập</label>
                         <div class="input-wrapper">
-                            <input type="text" name="username" value="${valUser}" class="${lockClass}" ${isReadonly} placeholder="Ví dụ: nguyenvanan" required autocomplete="off" maxlength="50">
+                            <input type="text" name="username" value="${valUser}" class="${lockClass}" ${isReadonly} 
+                                placeholder="Ví dụ: nguyenvanan" required autocomplete="off" maxlength="50"
+                                pattern="^\S+$" 
+                                title="Tên đăng nhập không được chứa khoảng trắng">
                             <i class="fa-regular fa-user"></i>
                         </div>
                     </div>
@@ -541,7 +554,7 @@
                         <div class="form-group">
                             <label>Mật khẩu</label>
                             <div class="input-wrapper">
-                                <input type="password" name="password" placeholder="Nhập mật khẩu..." required autocomplete="off" maxlength="100">
+                                <input type="password" name="password" placeholder="Nhập mật khẩu..." required autocomplete="off" maxlength="30" minlength="6">
                                 <i class="fa-solid fa-lock"></i>
                             </div>
                         </div>
@@ -549,7 +562,7 @@
                         <div class="form-group">
                             <label>Nhập lại mật khẩu</label>
                             <div class="input-wrapper">
-                                <input type="password" name="re_pass" placeholder="Xác nhận lại mật khẩu..." required autocomplete="off" maxlength="100">
+                                <input type="password" name="re_pass" placeholder="Xác nhận lại mật khẩu..." required autocomplete="off" maxlength="30" minlength="6">
                                 <i class="fa-solid fa-shield-halved"></i>
                             </div>
                         </div>
@@ -572,6 +585,8 @@
                             
                             <div class="input-wrapper">
                                 <input type="text" name="Userotp" placeholder="------" required maxlength="6" autofocus
+                                        pattern="\d{6}" title="Mã OTP phải là 6 chữ số"
+                                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                        style="border: 2px solid ${not empty requestScope.otpError ? '#dc3545' : '#ddd'}; text-align: center; letter-spacing: 10px; font-weight: bold; font-size: 18px; padding-left: 10px;">
                             </div>
                             
@@ -903,6 +918,34 @@
         }
         return isValid;
     }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const phoneInput = document.getElementById("phoneInput");
+        const phoneError = document.getElementById("phoneError");
+
+        if (phoneInput) {
+            // Lắng nghe sự kiện mỗi khi người dùng nhập dữ liệu
+            phoneInput.addEventListener("input", function(e) {
+                let value = e.target.value;
+                
+                // Nếu ô input có dữ liệu VÀ ký tự đầu tiên không phải là số '0'
+                if (value.length > 0 && value.charAt(0) !== '0') {
+                    // Hiện câu cảnh báo
+                    phoneError.style.display = "block"; 
+                    
+                    // (Tùy chọn) Xóa luôn số vừa nhập sai đi để ép nhập lại số 0
+                    // Nếu bạn muốn dùng tính năng này thì bỏ comment dòng bên dưới
+                    // e.target.value = ""; 
+                } else {
+                    // Nếu đã nhập đúng số 0 ở đầu, hoặc xóa hết ô trống thì ẩn cảnh báo đi
+                    phoneError.style.display = "none";
+                }
+
+                // Tiện tay chặn luôn người dùng nhập chữ vào ô này (chỉ cho phép số)
+                e.target.value = value.replace(/[^0-9]/g, '');
+            });
+        }
+    });
     </script>
 
 </body>

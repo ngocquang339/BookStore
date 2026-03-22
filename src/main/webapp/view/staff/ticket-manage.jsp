@@ -191,7 +191,10 @@
                                             </td>
                                             <td>${order.userId}</td>
                                             <td><fmt:formatDate value="${order.orderDate}" pattern="dd/MM/yyyy HH:mm" /></td>
-                                            <td class="text-danger fw-bold"><fmt:formatNumber value="${refundMap[order.id]}" type="currency" currencySymbol="₫"/></td>
+                                            <td class="text-danger fw-bold">
+                                                <fmt:formatNumber value="${refundMap[order.id]}" type="currency" currencySymbol="₫"/><br>
+                                                <small class="text-muted fw-normal" style="font-size: 11px;">(Sau chiết khấu)</small>
+                                            </td>
                                             <td><span class="badge bg-warning text-dark"><i class="fa-solid fa-hourglass-half me-1"></i>Chờ duyệt trả hàng</span></td>
                                             
                                             <td class="text-end">
@@ -234,7 +237,19 @@
                                                                 </div>
                                                             </div>
                                                         </c:forEach>
+                                                        <%-- [MỚI THÊM] KHU VỰC TỔNG KẾT TIỀN HOÀN LẠI --%>
+                                                        <div class="alert alert-warning mt-3 mb-4 d-flex justify-content-between align-items-center p-3 border-warning" style="background-color: #fff9e6;">
+                                                            <div>
+                                                                <h6 class="fw-bold mb-1 text-dark"><i class="fa-solid fa-coins text-warning me-2"></i>Tổng tiền hoàn lại:</h6>
+                                                                <small class="text-muted">(Đã trừ tỷ lệ Voucher / Khuyến mãi nếu có)</small>
+                                                            </div>
+                                                            <h4 class="text-danger fw-bold mb-0">
+                                                                <fmt:formatNumber value="${refundMap[order.id]}" type="currency" currencySymbol="₫"/>
+                                                            </h4>
+                                                        </div>
                                                         
+                                                        <%-- Lấy dữ liệu của phần tử đầu tiên để lấy ảnh chung (Code cũ giữ nguyên) --%>
+                                                        <c:set var="firstReq" value="${returnDetailsMap[order.id][0]}" />
                                                         <%-- Lấy dữ liệu của phần tử đầu tiên (index = 0) để lấy ảnh chung --%>
                                                         <c:set var="firstReq" value="${returnDetailsMap[order.id][0]}" />
                                                         
@@ -262,6 +277,7 @@
                                             </div>
                                         </div>
                                     </c:forEach>
+                                    
                                     <c:if test="${empty listReturnOrders}">
                                         <tr>
                                             <td colspan="6" class="text-center text-muted py-4">Không có yêu cầu trả hàng nào cần duyệt.</td>

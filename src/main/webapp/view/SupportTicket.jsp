@@ -132,7 +132,7 @@
                                     </div>
                                     <div class="col-md-12 mb-3">
                                         <label class="form-label fw-bold">Chi tiết vấn đề <span class="text-danger">*</span></label>
-                                        <textarea class="form-control" name="ticketMessage" rows="5" placeholder="Vui lòng mô tả chi tiết vấn đề bạn đang gặp phải để chúng tôi có thể hỗ trợ nhanh nhất..." required></textarea>
+                                        <textarea class="form-control" name="ticketMessage" rows="5" maxlength="1000" placeholder="Vui lòng mô tả chi tiết vấn đề bạn đang gặp phải để chúng tôi có thể hỗ trợ nhanh nhất..." required></textarea>
                                     </div>
                                     <div class="col-md-12 text-end">
                                         <button type="submit" class="btn text-white fw-bold px-4" style="background-color: #C92127;">
