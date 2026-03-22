@@ -96,16 +96,59 @@ public class WarehouseOrderDAO extends DBContext {
         return list;
     }
 
-    // 3. Cập nhật trạng thái đơn hàng chung (cho Cancel, Processing...)
+    // 3. Cập nhật trạng thái đơn hàng chung (cho Cancel, Processing, Delivered...)
     public void updateOrderStatus(int orderId, int status) throws Exception {
-        String sql = "UPDATE Orders SET status = ? WHERE order_id = ?";
-        try (Connection conn = getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, status);
-            ps.setInt(2, orderId);
-            ps.executeUpdate();
+        String sqlUpdateStatus = "UPDATE Orders SET status = ? WHERE order_id = ?";
+        Connection conn = null;
+
+        try {
+            conn = getConnection();
+            conn.setAutoCommit(false); // Bắt đầu Transaction
+
+            // 1. Cập nhật trạng thái đơn hàng
+            try (PreparedStatement ps = conn.prepareStatement(sqlUpdateStatus)) {
+                ps.setInt(1, status);
+                ps.setInt(2, orderId);
+                ps.executeUpdate();
+            }
+
+            // 2. TỰ ĐỘNG TẠO HÓA ĐƠN BÁN CHỈ KHI TRẠNG THÁI LÀ 5 (DELIVERED)
+            if (status == 5) {
+                // Kiểm tra chống trùng lặp: Đảm bảo order này chưa có hóa đơn
+                String checkExistSql = "SELECT COUNT(*) FROM Invoices WHERE order_id = ?";
+                boolean isInvoiceExist = false;
+                try (PreparedStatement psCheck = conn.prepareStatement(checkExistSql)) {
+                    psCheck.setInt(1, orderId);
+                    try (ResultSet rs = psCheck.executeQuery()) {
+                        if (rs.next() && rs.getInt(1) > 0) {
+                            isInvoiceExist = true; // Hóa đơn đã tồn tại
+                        }
+                    }
+                }
+
+                // Nếu chưa có hóa đơn thì mới tạo
+                if (!isInvoiceExist) {
+                    String insertSaleInvoiceSql = "INSERT INTO Invoices (invoice_type, order_id, total_amount, status) " +
+                                                  "SELECT 'SALE', order_id, total_amount, 'COMPLETED' " +
+                                                  "FROM Orders WHERE order_id = ?";
+                    try (PreparedStatement psInvoice = conn.prepareStatement(insertSaleInvoiceSql)) {
+                        psInvoice.setInt(1, orderId);
+                        psInvoice.executeUpdate();
+                    }
+                }
+            }
+
+            conn.commit(); // Xác nhận lưu mọi thay đổi
         } catch (Exception e) {
+            if (conn != null) {
+                conn.rollback(); // Nếu có bất kỳ lỗi gì xảy ra, hoàn tác lại toàn bộ
+            }
             throw new Exception("Lỗi cập nhật trạng thái: " + e.getMessage());
+        } finally {
+            if (conn != null) {
+                conn.setAutoCommit(true);
+                conn.close();
+            }
         }
     }
 

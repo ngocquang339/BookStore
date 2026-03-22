@@ -161,63 +161,76 @@ public class PurchaseOrderDAO extends DBContext {
     // 2. XÁC NHẬN NHẬP KHO (CỘNG KHO & ĐỔI TRẠNG THÁI PO)
     // =======================================================
     public boolean confirmReceive(int poId, String[] selectedBookIds) {
-        String updateStockSql = "UPDATE Books SET stock_quantity = stock_quantity + ? WHERE book_id = ?";
-        String updatePoStatusSql = "UPDATE Purchase_Orders SET status = 2 WHERE purchase_order_id = ?"; // 2: Received
+    String updateStockSql = "UPDATE Books SET stock_quantity = stock_quantity + ? WHERE book_id = ?";
+    String updatePoStatusSql = "UPDATE Purchase_Orders SET status = 2 WHERE purchase_order_id = ?"; // 2: Received
 
-        Connection conn = null;
-        try {
-            conn = new DBContext().getConnection();
-            conn.setAutoCommit(false); // Bắt đầu Transaction
+    // NEW: Insert Invoice
+    String insertInvoiceSql = "INSERT INTO Invoices (invoice_type, purchase_order_id, total_amount, status) " +
+                              "SELECT 'PURCHASE', purchase_order_id, total_amount, 'COMPLETED' " +
+                              "FROM Purchase_Orders WHERE purchase_order_id = ?";
 
-            // 1. Lấy chi tiết để biết số lượng cần cộng (expected_quantity)
-            List<PurchaseOrderDetail> items = getPoDetailsForReceive(poId);
+    Connection conn = null;
+    try {
+        conn = new DBContext().getConnection();
+        conn.setAutoCommit(false); // Bắt đầu Transaction
 
-            // 2. Cập nhật số lượng kho bằng Batch (Thực thi nhiều lệnh cùng lúc cho nhanh)
-            try (PreparedStatement psStock = conn.prepareStatement(updateStockSql)) {
-                for (String bookIdStr : selectedBookIds) {
-                    int bookId = Integer.parseInt(bookIdStr);
+        // 1. Lấy chi tiết để biết số lượng cần cộng
+        List<PurchaseOrderDetail> items = getPoDetailsForReceive(poId);
 
-                    // Tìm item tương ứng trong danh sách để lấy đúng quantity
-                    PurchaseOrderDetail currentItem = items.stream()
-                            .filter(i -> i.getBook().getId() == bookId)
-                            .findFirst().orElse(null);
+        // 2. Cập nhật stock (batch)
+        try (PreparedStatement psStock = conn.prepareStatement(updateStockSql)) {
+            for (String bookIdStr : selectedBookIds) {
+                int bookId = Integer.parseInt(bookIdStr);
 
-                    if (currentItem != null) {
-                        psStock.setInt(1, currentItem.getExpectedQuantity());
-                        psStock.setInt(2, bookId);
-                        psStock.addBatch(); // Đưa vào hàng chờ
-                    }
+                PurchaseOrderDetail currentItem = items.stream()
+                        .filter(i -> i.getBook().getId() == bookId)
+                        .findFirst().orElse(null);
+
+                if (currentItem != null) {
+                    psStock.setInt(1, currentItem.getExpectedQuantity());
+                    psStock.setInt(2, bookId);
+                    psStock.addBatch();
                 }
-                psStock.executeBatch(); // Chạy đồng loạt tất cả các lệnh cộng kho
             }
+            psStock.executeBatch();
+        }
 
-            // 3. Cập nhật trạng thái PO thành Received
-            try (PreparedStatement psStatus = conn.prepareStatement(updatePoStatusSql)) {
-                psStatus.setInt(1, poId);
-                psStatus.executeUpdate();
-            }
+        // 3. Update status PO -> Received
+        try (PreparedStatement psStatus = conn.prepareStatement(updatePoStatusSql)) {
+            psStatus.setInt(1, poId);
+            psStatus.executeUpdate();
+        }
 
-            conn.commit(); // Thành công tất cả thì Commit (Lưu vào DB)
-            return true;
-        } catch (Exception e) {
-            if (conn != null) {
-                try {
-                    conn.rollback();
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                } // Lỗi thì Rollback
+        // ================= NEW: TẠO PURCHASE INVOICE =================
+        try (PreparedStatement psInvoice = conn.prepareStatement(insertInvoiceSql)) {
+            psInvoice.setInt(1, poId);
+            psInvoice.executeUpdate();
+        }
+        // =============================================================
+
+        conn.commit(); // Commit tất cả
+        return true;
+
+    } catch (Exception e) {
+        if (conn != null) {
+            try {
+                conn.rollback();
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
-            e.printStackTrace();
-            return false;
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.setAutoCommit(true);
-                    conn.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        }
+        e.printStackTrace();
+        return false;
+
+    } finally {
+        if (conn != null) {
+            try {
+                conn.setAutoCommit(true);
+                conn.close();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }
+}
 }

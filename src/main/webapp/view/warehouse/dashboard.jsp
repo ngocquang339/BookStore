@@ -18,7 +18,8 @@
                     <div class="card p-4 shadow-sm h-100 border-primary">
                         <h4 class="text-primary"><i class="fas fa-boxes"></i> Inventory List</h4>
                         <p>Xem danh sách toàn bộ sách, tìm kiếm và lọc.</p>
-                        <a href="inventory" class="btn btn-primary mt-auto">Truy cập</a>
+                        <a href="${pageContext.request.contextPath}/warehouse/inventory" class="btn btn-primary mt-auto">Truy
+                            cập</a>
                     </div>
                 </div>
 
@@ -26,7 +27,8 @@
                     <div class="card p-4 shadow-sm h-100 border-warning">
                         <h4 class="text-warning"><i class="fas fa-exclamation-triangle"></i> Low Stock Books</h4>
                         <p>Xem các sách sắp hết hàng cần nhập thêm.</p>
-                        <a href="low-stock" class="btn btn-warning mt-auto text-dark">Truy cập</a>
+                        <a href="${pageContext.request.contextPath}/warehouse/low-stock"
+                            class="btn btn-warning mt-auto text-dark">Truy cập</a>
                     </div>
                 </div>
 
@@ -34,7 +36,8 @@
                     <div class="card p-4 shadow-sm h-100 border-success">
                         <h4 class="text-success"><i class="fa-solid fa-truck-fast"></i> Supplier Mng.</h4>
                         <p>Quản lý thông tin nhà cung cấp, NXB (Thêm, Sửa, Xóa).</p>
-                        <a href="supplier" class="btn btn-success mt-auto">Truy cập</a>
+                        <a href="${pageContext.request.contextPath}/warehouse/supplier" class="btn btn-success mt-auto">Truy
+                            cập</a>
                     </div>
                 </div>
 
@@ -42,7 +45,8 @@
                     <div class="card p-4 shadow-sm h-100 border-info">
                         <h4 class="text-info"><i class="fa-solid fa-map-location-dot"></i> Location Setup</h4>
                         <p>Thiết lập sơ đồ kho: Khu vực, Kệ, Tầng.</p>
-                        <a href="location" class="btn btn-info text-white mt-auto">Truy cập</a>
+                        <a href="${pageContext.request.contextPath}/warehouse/location"
+                            class="btn btn-info text-white mt-auto">Truy cập</a>
                     </div>
                 </div>
 
@@ -68,7 +72,8 @@
                     <div class="card p-4 shadow-sm h-100 border-secondary">
                         <h4 class="text-secondary"><i class="fas fa-dolly"></i> Create Purchase Order</h4>
                         <p>Quản lý các yêu cầu nhập hàng từ nhà cung cấp vào kho.</p>
-                        <a href="${pageContext.request.contextPath}/create-po" class="btn btn-secondary mt-auto">
+                        <a href="${pageContext.request.contextPath}/warehouse/create-po"
+                            class="btn btn-secondary mt-auto">
                             Truy cập
                         </a>
                     </div>
@@ -80,6 +85,17 @@
                         </h4>
                         <p>Xem danh sách đơn nhập hàng và thực hiện nhập kho.</p>
                         <a href="${pageContext.request.contextPath}/warehouse/view-po" class="btn btn-dark mt-auto">
+                            Truy cập
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card p-4 shadow-sm h-100 border-primary">
+                        <h4 class="text-primary">
+                            <i class="fas fa-file-invoice-dollar"></i> Invoices
+                        </h4>
+                        <p>Xem danh sách hóa đơn bán và nhập, kiểm tra chi tiết.</p>
+                        <a href="${pageContext.request.contextPath}/warehouse/invoices" class="btn btn-primary mt-auto">
                             Truy cập
                         </a>
                     </div>
