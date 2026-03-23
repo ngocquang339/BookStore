@@ -156,11 +156,20 @@ public class PurchaseOrderDAO extends DBContext {
     }
 
     // =======================================================
-    // 2. XÁC NHẬN NHẬP KHO (CỘNG KHO & ĐỔI TRẠNG THÁI PO)
+    // 2. XÁC NHẬN NHẬP KHO (CỘNG KHO, GHI LOG, ĐỔI TRẠNG THÁI & TẠO HÓA ĐƠN)
     // =======================================================
-    public boolean confirmReceive(int poId, String[] selectedBookIds) {
+    // Thay đổi 1: Thêm tham số userId để biết ai là người nhập kho
+    public boolean confirmReceive(int poId, String[] selectedBookIds, int userId) {
         String updateStockSql = "UPDATE Books SET stock_quantity = stock_quantity + ? WHERE book_id = ?";
         String updatePoStatusSql = "UPDATE Purchase_Orders SET status = 2 WHERE purchase_order_id = ?"; // 2: Received
+
+        // THÊM MỚI 1: Lệnh SQL ghi log Inventory History (IMPORT)
+        String insertHistorySql = "INSERT INTO Inventory_History (book_id, transaction_type, quantity_changed, related_id, created_by) VALUES (?, 'IMPORT', ?, ?, ?)";
+
+        // THÊM MỚI 2: Lệnh SQL tự động tạo Purchase Invoice
+        String insertInvoiceSql = "INSERT INTO Invoices (invoice_type, purchase_order_id, total_amount, status) " +
+                "SELECT 'PURCHASE', purchase_order_id, total_amount, 'COMPLETED' " +
+                "FROM Purchase_Orders WHERE purchase_order_id = ?";
 
         Connection conn = null;
         try {
@@ -170,29 +179,47 @@ public class PurchaseOrderDAO extends DBContext {
             // 1. Lấy chi tiết để biết số lượng cần cộng (expected_quantity)
             List<PurchaseOrderDetail> items = getPoDetailsForReceive(poId);
 
-            // 2. Cập nhật số lượng kho bằng Batch (Thực thi nhiều lệnh cùng lúc cho nhanh)
-            try (PreparedStatement psStock = conn.prepareStatement(updateStockSql)) {
+            // 2. Cập nhật số lượng kho VÀ Ghi log lịch sử bằng Batch
+            try (PreparedStatement psStock = conn.prepareStatement(updateStockSql);
+                    PreparedStatement psHistory = conn.prepareStatement(insertHistorySql)) { // Khởi tạo thêm psHistory
+
                 for (String bookIdStr : selectedBookIds) {
                     int bookId = Integer.parseInt(bookIdStr);
 
-                    // Tìm item tương ứng trong danh sách để lấy đúng quantity
                     PurchaseOrderDetail currentItem = items.stream()
                             .filter(i -> i.getBook().getId() == bookId)
                             .findFirst().orElse(null);
 
                     if (currentItem != null) {
-                        psStock.setInt(1, currentItem.getExpectedQuantity());
+                        int quantity = currentItem.getExpectedQuantity();
+
+                        // 2.1 Đưa lệnh cộng kho vào Batch
+                        psStock.setInt(1, quantity);
                         psStock.setInt(2, bookId);
-                        psStock.addBatch(); // Đưa vào hàng chờ
+                        psStock.addBatch();
+
+                        // 2.2 Đưa lệnh ghi log vào Batch (Số lượng dương vì là Nhập kho)
+                        psHistory.setInt(1, bookId);
+                        psHistory.setInt(2, quantity);
+                        psHistory.setInt(3, poId);
+                        psHistory.setInt(4, userId);
+                        psHistory.addBatch();
                     }
                 }
-                psStock.executeBatch(); // Chạy đồng loạt tất cả các lệnh cộng kho
+                psStock.executeBatch(); // Chạy đồng loạt lệnh cộng kho
+                psHistory.executeBatch(); // Chạy đồng loạt lệnh ghi log
             }
 
             // 3. Cập nhật trạng thái PO thành Received
             try (PreparedStatement psStatus = conn.prepareStatement(updatePoStatusSql)) {
                 psStatus.setInt(1, poId);
                 psStatus.executeUpdate();
+            }
+
+            // 4. Tự động sinh Hóa đơn (Purchase Invoice)
+            try (PreparedStatement psInvoice = conn.prepareStatement(insertInvoiceSql)) {
+                psInvoice.setInt(1, poId);
+                psInvoice.executeUpdate();
             }
 
             conn.commit(); // Thành công tất cả thì Commit (Lưu vào DB)
@@ -203,7 +230,7 @@ public class PurchaseOrderDAO extends DBContext {
                     conn.rollback();
                 } catch (Exception ex) {
                     ex.printStackTrace();
-                } // Lỗi thì Rollback
+                }
             }
             e.printStackTrace();
             return false;

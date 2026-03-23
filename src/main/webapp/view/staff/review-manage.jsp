@@ -183,7 +183,18 @@
                                         class="form-control bg-dark text-light border-secondary shadow-none"
                                         placeholder="Nhập từ khóa nội dung bình luận cần tìm...">
                                 </div>
-
+                                <div class="col-md-4 mt-3 d-flex align-items-center">
+                                    <div class="form-check form-switch fs-5">
+                                        <input class="form-check-input bg-danger border-danger" type="checkbox"
+                                            name="isReported" value="true" id="filterReported" <c:if
+                                            test="${requestScope.isReported}">checked</c:if>
+                                        onchange="this.form.submit()" style="cursor:pointer;">
+                                        <label class="form-check-label text-danger fw-bold ms-2" for="filterReported"
+                                            style="cursor:pointer; font-size:15px;">
+                                            <i class="fa-solid fa-flag me-1"></i> Bình luận bị tố cáo
+                                        </label>
+                                    </div>
+                                </div>
                                 <div class="col-md-4 mt-3 d-flex gap-2">
                                     <button type="submit" class="btn btn-danger w-50"><i
                                             class="fa-solid fa-magnifying-glass"></i> Lọc</button>
@@ -198,21 +209,22 @@
                             method="POST">
 
                             <c:if test="${not empty reviewMessage}">
-                            <div class="alert alert-${reviewMessageType} alert-dismissible fade show" role="alert">
-                                ${reviewMessage}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        </c:if>
+                                <div class="alert alert-${reviewMessageType} alert-dismissible fade show" role="alert">
+                                    ${reviewMessage}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                        aria-label="Close"></button>
+                                </div>
+                            </c:if>
 
-                        <div class="d-flex justify-content-between align-items-center mb-3 mt-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3 mt-4">
                                 <div class="d-flex gap-2">
                                     <button type="button" class="btn btn-sm btn-outline-danger"
                                         onclick="submitMassDelete()">
                                         <i class="fa-solid fa-trash-can me-1"></i> Xóa các mục đã chọn
                                     </button>
-                                    <button type="button" class="btn btn-sm btn-outline-warning"
-                                        onclick="submitMassSpam()">
-                                        <i class="fa-solid fa-ban me-1"></i> Đánh dấu Spam
+                                    <button type="button" class="btn btn-sm btn-outline-success"
+                                        onclick="submitIgnoreReports()">
+                                        <i class="fa-solid fa-shield-check me-1"></i> Bỏ qua báo cáo (An toàn)
                                     </button>
                                 </div>
                                 <button type="button" class="btn btn-sm btn-success" onclick="exportToExcel()">
@@ -290,6 +302,13 @@
                                                             <i
                                                                 class="fa-solid fa-clock-rotate-left text-muted me-2"></i>
                                                             <c:out value="${r.username}" />
+                                                            <c:if test="${r.reportCount > 0}">
+                                                                <span class="badge bg-danger ms-2"
+                                                                    title="Bình luận này đang bị người khác tố cáo!">
+                                                                    <i class="fa-solid fa-triangle-exclamation"></i> Bị
+                                                                    báo cáo (${r.reportCount})
+                                                                </span>
+                                                            </c:if>
                                                         </div>
                                                     </a>
                                                 </td>
@@ -438,16 +457,16 @@
                     }
                 }
 
-                // Xử lý nút "ĐÁNH DẤU SPAM"
-                function submitMassSpam() {
+                // Xử lý nút "BỎ QUA BÁO CÁO"
+                function submitIgnoreReports() {
                     let checkedBoxes = document.querySelectorAll('.review-checkbox:checked');
                     if (checkedBoxes.length === 0) {
-                        alert('Vui lòng tích chọn ít nhất 1 bình luận để đánh dấu Spam!');
+                        alert('Vui lòng tích chọn ít nhất 1 bình luận để đánh dấu An toàn!');
                         return;
                     }
-                    if (confirm('CẢNH BÁO: Đánh dấu Spam sẽ ẩn vĩnh viễn nội dung của ' + checkedBoxes.length + ' bình luận này. Bạn có chắc chắn?')) {
+                    if (confirm('Bạn có chắc chắn muốn bỏ qua báo cáo cho ' + checkedBoxes.length + ' bình luận này (đánh dấu là An toàn)?')) {
                         let form = document.getElementById('bulkForm');
-                        form.action = "${pageContext.request.contextPath}/staff/mark-spam-reviews"; // Bẻ lái về Servlet Spam
+                        form.action = "${pageContext.request.contextPath}/staff/ignore-reports";
                         form.submit();
                     }
                 }
