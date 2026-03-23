@@ -74,6 +74,7 @@ public class CreatePOServlet extends HttpServlet {
             if (isSuccess) {
                 // Tạo thành công -> Chuyển về trang danh sách PO (View Purchase Order)
                 response.sendRedirect(request.getContextPath() + "/warehouse/create-po?status=success");
+
             } else {
                 // Thất bại -> Báo lỗi và quay lại trang tạo
                 request.setAttribute("error", "Tạo đơn hàng thất bại. Vui lòng thử lại!");

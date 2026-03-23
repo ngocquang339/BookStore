@@ -236,6 +236,10 @@
                                     <span style="color: #999;">-</span>
                                     <input type="number" name="maxPrice" placeholder="Đến (đ)" min="0">
                                 </div>
+                                <%-- [THÊM MỚI]: Dòng chữ báo lỗi, mặc định display: none (ẩn) --%>
+                                <div id="priceErrorText" style="color: #C92127; font-size: 12px; margin-top: 8px; display: none; font-weight: 500;">
+                                    <i class="fa-solid fa-circle-exclamation"></i> Giá tối đa phải lớn hơn hoặc bằng giá tối thiểu
+                                </div>
                             </div>
 
                             <div class="filter-group">
@@ -263,15 +267,46 @@
                                 </select>
                                 
                                 <h4 style="margin-top: 30px;"><i class="fa-solid fa-star"></i> Đánh giá</h4>
-                                <label class="category-item" style="display: inline-block;">
-                                    <input type="radio" name="rating" value="4"> 
-                                    <span class="cat-name" style="padding: 5px 10px;">
-                                        <span style="color: #ffc107; font-size: 13px;">
-                                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-                                        </span> 
-                                        <span style="color: #555; margin-left: 5px;">trở lên</span>
-                                    </span>
-                                </label>
+                                
+                                <div class="category-list">
+                                    <%-- Lựa chọn 0: Tất cả --%>
+                                    <label class="category-item">
+                                        <input type="radio" name="rating" value="0" ${empty ratingFilter or ratingFilter == 0 ? 'checked' : ''}> 
+                                        <span class="cat-name">Tất cả</span>
+                                    </label>
+
+                                    <%-- Lựa chọn 5 Sao --%>
+                                    <label class="category-item">
+                                        <input type="radio" name="rating" value="5" ${ratingFilter == 5 ? 'checked' : ''}> 
+                                        <span class="cat-name">
+                                            <span style="color: #ffc107; font-size: 13px;">
+                                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                                            </span> 
+                                        </span>
+                                    </label>
+
+                                    <%-- Lựa chọn 4 Sao trở lên --%>
+                                    <label class="category-item">
+                                        <input type="radio" name="rating" value="4" ${ratingFilter == 4 ? 'checked' : ''}> 
+                                        <span class="cat-name">
+                                            <span style="color: #ffc107; font-size: 13px;">
+                                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star" style="color: #ddd;"></i>
+                                            </span> 
+                                            <span style="color: #555; margin-left: 5px;">trở lên</span>
+                                        </span>
+                                    </label>
+
+                                    <%-- Lựa chọn 3 Sao trở lên --%>
+                                    <label class="category-item">
+                                        <input type="radio" name="rating" value="3" ${ratingFilter == 3 ? 'checked' : ''}> 
+                                        <span class="cat-name">
+                                            <span style="color: #ffc107; font-size: 13px;">
+                                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star" style="color: #ddd;"></i><i class="fa-regular fa-star" style="color: #ddd;"></i>
+                                            </span> 
+                                            <span style="color: #555; margin-left: 5px;">trở lên</span>
+                                        </span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
                         
@@ -442,4 +477,69 @@
                 window.location.href = link;
             });
         }
+        // =================================================================
+    // BỘ LỌC GIÁ: BẮT LỖI TRỰC TIẾP KHI ĐANG GÕ PHÍM (REAL-TIME)
+    // =================================================================
+    const filterForm = document.querySelector('.filter-dropdown form');
+    if (filterForm) {
+        const minInput = filterForm.querySelector('input[name="minPrice"]');
+        const maxInput = filterForm.querySelector('input[name="maxPrice"]');
+        const errorText = document.getElementById('priceErrorText');
+        const submitBtn = filterForm.querySelector('.btn-apply');
+
+        // Hàm kiểm tra logic giá
+        function checkPriceLogic() {
+            let minVal = parseFloat(minInput.value);
+            let maxVal = parseFloat(maxInput.value);
+
+            // Chỉ bắt lỗi khi CẢ 2 Ô ĐỀU CÓ SỐ và Số sau nhỏ hơn Số trước
+            if (!isNaN(minVal) && !isNaN(maxVal) && maxVal < minVal) {
+                // Hiển thị dòng chữ lỗi và bôi đỏ ô nhập
+                errorText.style.display = 'block';
+                maxInput.style.borderColor = '#C92127';
+                maxInput.style.boxShadow = '0 0 0 3px rgba(201, 33, 39, 0.1)';
+                
+                // Khóa luôn nút "Áp dụng bộ lọc" cho chắc chắn
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = '0.5';
+                submitBtn.style.cursor = 'not-allowed';
+            } else {
+                // Hợp lệ thì giấu dòng chữ đi, trả lại viền bình thường
+                errorText.style.display = 'none';
+                maxInput.style.borderColor = '#ddd';
+                maxInput.style.boxShadow = 'none';
+                
+                // Mở khóa nút bấm
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '1';
+                submitBtn.style.cursor = 'pointer';
+            }
+        }
+
+        // Kích hoạt hàm kiểm tra mỗi khi người dùng gõ thêm 1 số mới vào 1 trong 2 ô
+        minInput.addEventListener('input', checkPriceLogic);
+        maxInput.addEventListener('input', checkPriceLogic);
+
+        // =========================================================
+        // [THÊM MỚI]: LẮNG NGHE SỰ KIỆN NÚT "ĐẶT LẠI THIẾT LẬP" (RESET)
+        // =========================================================
+        filterForm.addEventListener('reset', function() {
+            // Khi form được reset, ẩn ngay lỗi và trả lại trạng thái nút bấm
+            errorText.style.display = 'none';
+            maxInput.style.borderColor = '#ddd';
+            
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+            submitBtn.style.cursor = 'pointer';
+        });
+        // Bọc lót vòng cuối: Nếu khách cố tình gõ sai rồi ấn Enter thẳng từ bàn phím
+        filterForm.addEventListener('submit', function(e) {
+            let minVal = parseFloat(minInput.value);
+            let maxVal = parseFloat(maxInput.value);
+            if (!isNaN(minVal) && !isNaN(maxVal) && maxVal < minVal) {
+                e.preventDefault(); // Chặn gửi form
+                maxInput.focus();   // Trỏ con trỏ chuột vào ô bị lỗi
+            }
+        });
+    }
     </script>

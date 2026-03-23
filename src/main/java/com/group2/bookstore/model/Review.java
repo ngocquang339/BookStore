@@ -15,6 +15,8 @@ public class Review {
     private String bookTitle;
     private String email;
     private String staffReply;
+    private int bookStatus;
+    private int reportCount;
 
     public Review() {
     }
@@ -104,10 +106,28 @@ public class Review {
     public void setBookTitle(String bookTitle) {
         this.bookTitle = bookTitle;
     }
+
     public String getStaffReply() {
         return staffReply;
     }
+
     public void setStaffReply(String staffReply) {
         this.staffReply = staffReply;
+    }
+
+    public int getBookStatus() {
+        return bookStatus;
+    }
+
+    public void setBookStatus(int bookStatus) {
+        this.bookStatus = bookStatus;
+    }
+
+    public int getReportCount() {
+        return reportCount;
+    }
+
+    public void setReportCount(int reportCount) {
+        this.reportCount = reportCount;
     }
 }

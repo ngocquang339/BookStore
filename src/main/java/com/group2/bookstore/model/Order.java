@@ -19,7 +19,7 @@ public class Order {
     private String paymentMethod;
     private String statusNote;
     private String fullName;
-    
+    private double shippingFee;
     private String staffNote;
 
     // Optional: Helper field to show User's name in Admin Panel
@@ -140,5 +140,14 @@ public class Order {
 }
 public void setStaffNote(String staffNote) {
     this.staffNote = staffNote;
+}
+
+// Thêm Getter và Setter
+public double getShippingFee() {
+    return shippingFee;
+}
+
+public void setShippingFee(double shippingFee) {
+    this.shippingFee = shippingFee;
 }
 }

@@ -203,4 +203,60 @@ public class CollectionDAO extends DBContext {
         }
         return list;
     }
+
+    // Hàm kiểm tra trùng tên (Bỏ qua ID của collection đang sửa, truyền -1 nếu là tạo mới)
+    public boolean isNameExist(int userId, String name, int excludeCollectionId) {
+        String sql = "SELECT 1 FROM Collections WHERE user_id = ? AND name = ? AND collection_id != ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setString(2, name);
+            ps.setInt(3, excludeCollectionId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next(); // Trả về true nếu tìm thấy trùng lặp
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // Lấy TẤT CẢ các bộ sưu tập CÔNG KHAI của một User
+    // Lấy TẤT CẢ các bộ sưu tập CÔNG KHAI của một User (Có đếm số lượng sách)
+    public List<Collection> getPublicCollectionsByUserId(int userId) {
+        List<Collection> list = new ArrayList<>();
+        
+        // Dùng LEFT JOIN và GROUP BY để đếm số lượng sách trong mỗi Collection
+        String sql = "SELECT c.*, COUNT(cb.book_id) AS total_books " +
+                     "FROM Collections c " +
+                     "LEFT JOIN Collection_Books cb ON c.collection_id = cb.collection_id " +
+                     "WHERE c.user_id = ? AND c.is_public = 1 " +
+                     "GROUP BY c.collection_id, c.user_id, c.collection_name, c.description, c.is_public, c.cover_color, c.created_at " +
+                     "ORDER BY c.collection_id DESC";
+        
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Collection c = new Collection();
+                    // Lưu ý: Đảm bảo Getter/Setter của bạn khớp với các dòng này
+                    c.setId(rs.getInt("collection_id"));
+                    c.setUserId(rs.getInt("user_id"));
+                    c.setName(rs.getString("collection_name"));
+                    c.setDescription(rs.getString("description"));
+                    c.setPublic(rs.getBoolean("is_public"));
+                    c.setCoverColor(rs.getString("cover_color"));
+                    
+                    // [QUAN TRỌNG]: Lấy tổng số sách từ cột COUNT của SQL
+                    // Tùy thuộc vào việc Model Collection của bạn tên biến là gì (totalBooks hay bookCount)
+                    // Dưới đây mình dùng setTotalBooks, nếu model của bạn khác thì tự sửa nhé!
+                    c.setTotalBooks(rs.getInt("total_books")); 
+                    
+                    list.add(c);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 }
