@@ -61,8 +61,7 @@ public class ReturnRequestDAO extends DBContext {
            + "LEFT JOIN Users u ON o.user_id = u.user_id "
            + "LEFT JOIN OrderDetails od ON o.order_id = od.order_id AND r.book_id = od.book_id "
            + "WHERE r.return_id = ?";
-
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, returnId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -120,7 +119,7 @@ public class ReturnRequestDAO extends DBContext {
     }
 
     public boolean processRefund(int returnId, int newStatus, int bookId, int quantity,
-            String adminUsername, double refundAmount, String bankRef, String adminNote) {
+String adminUsername, double refundAmount, String bankRef, String adminNote) {
 
         String updateStatusSql = "UPDATE ReturnRequests SET status = ?, admin_note = ? WHERE return_id = ?";
         
@@ -184,7 +183,7 @@ public class ReturnRequestDAO extends DBContext {
             }
             e.printStackTrace();
             return false;
-        } finally {
+} finally {
             if (conn != null) {
                 try {
                     conn.setAutoCommit(true);
@@ -256,5 +255,42 @@ public class ReturnRequestDAO extends DBContext {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Lấy danh sách các sản phẩm yêu cầu trả của 1 đơn hàng
+     */
+    public List<ReturnRequest> getReturnRequestsByOrderId(int orderId) {
+        List<ReturnRequest> list = new ArrayList<>();
+        // [SỬA SQL] JOIN thêm bảng OrderDetails để lấy giá gốc lúc mua (od.price)
+        String sql = "SELECT r.*, b.title AS book_title, od.price AS purchased_price " +
+                     "FROM ReturnRequests r " +
+                     "JOIN Books b ON r.book_id = b.book_id " +
+                     "JOIN OrderDetails od ON r.order_id = od.order_id AND r.book_id = od.book_id " +
+                     "WHERE r.order_id = ?";
+                     
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, orderId);
+            ResultSet rs = ps.executeQuery();
+            while(rs.next()) {
+                ReturnRequest req = new ReturnRequest();
+                req.setReturnId(rs.getInt("return_id"));
+                req.setBookId(rs.getInt("book_id"));
+                req.setQuantity(rs.getInt("quantity"));
+                req.setCustomerReason(rs.getString("customer_reason"));
+                req.setBookTitle(rs.getString("book_title"));
+                
+                req.setProofImage(rs.getString("proof_image"));
+                req.setImageMimeType(rs.getString("image_mime_type"));
+                
+                // [MỚI] Hứng giá tiền vào Model
+                req.setPrice(rs.getDouble("purchased_price"));
+                
+                list.add(req);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 }

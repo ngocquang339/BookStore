@@ -3,9 +3,11 @@ package com.group2.bookstore.controller;
 import com.group2.bookstore.dal.OrderDAO;
 import com.group2.bookstore.model.Order;
 import com.group2.bookstore.model.User;
-// Nhớ import các class Order và OrderDAO của bạn vào đây
-// import com.group2.bookstore.dal.OrderDAO;
-// import com.group2.bookstore.model.Order;
+import jakarta.servlet.annotation.MultipartConfig;
+import jakarta.servlet.http.Part;
+import java.io.File;
+import java.nio.file.Paths;
+import java.util.UUID;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -18,6 +20,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @WebServlet(name = "OrderServlet", urlPatterns = { "/my-orders" })
+@MultipartConfig(
+    fileSizeThreshold = 1024 * 1024 * 2, // 2MB
+    maxFileSize = 1024 * 1024 * 50,      // 50MB (Tối đa 1 file)
+    maxRequestSize = 1024 * 1024 * 50    // 50MB (Tối đa toàn request)
+)
 public class OrderServlet extends HttpServlet {
 
     @Override
@@ -54,7 +61,7 @@ public class OrderServlet extends HttpServlet {
                                                                                                                  // duyệt,
                                                                                                                  // Đã
                                                                                                                  // duyệt,
-                                                                                                                 // Đóng
+                                                                                                     // Đóng
                                                                                                                  // gói
                                                                                                                  // xong)
         int countShipping = orderDAO.countOrdersByStatus(user.getId(), 4); // [SỬA] Đang giao là 4
@@ -195,29 +202,81 @@ public class OrderServlet extends HttpServlet {
                 int orderId = Integer.parseInt(request.getParameter("orderId"));
                 String reason = request.getParameter("returnReason");
                 String note = request.getParameter("returnNote");
-                
-                // 1. Gộp Lý do và Chi tiết lại
+                String[] selectedBookIds = request.getParameterValues("selectedBookIds");
+
+                // Gộp Lý do và Chi tiết lại
                 String fullReason = reason;
                 if (note != null && !note.trim().isEmpty()) {
                     fullReason = reason + " - Chi tiết: " + note.trim();
                 }
+
+                // ==========================================
+                // XỬ LÝ UPLOAD FILE VÀ LẤY MIME TYPE (CÁCH BỌC THÉP)
+                // ==========================================
+                String proofImagePath = "";
+                String mimeType = ""; 
+                Part filePart = request.getPart("proofFile");
                 
+                if (filePart != null && filePart.getSize() > 0) {
+                    mimeType = filePart.getContentType();
+                    
+                    try {
+                        // 1. ĐƯỜNG DẪN TUYỆT ĐỐI RA NGOÀI Ổ CỨNG (Thay cho cách cũ)
+                        String uploadPath = "D:" + File.separator + "Mindbook_Data" + File.separator + "returns";
+                        File uploadDir = new File(uploadPath);
+                        if (!uploadDir.exists()) {
+                            uploadDir.mkdirs();
+                        }
+
+                        // Đổi tên file cho khỏi trùng lặp
+                        String originalFileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+                        String uniqueFileName = UUID.randomUUID().toString() + "_" + originalFileName;
+                        
+                        // LƯU FILE BẰNG INPUT STREAM
+                        File fileToSave = new File(uploadDir, uniqueFileName);
+                        try (java.io.InputStream fileContent = filePart.getInputStream()) {
+                            java.nio.file.Files.copy(fileContent, fileToSave.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                        }
+                        
+                        // 2. ĐƯỜNG DẪN ẢO ĐỂ LƯU VÀO DATABASE (Sau này gắn thẻ <img> sẽ gọi link này)
+                        proofImagePath = "/uploads/returns/" + uniqueFileName;
+
+                    } catch (Exception ex) {
+                        System.out.println("CẢNH BÁO - Lỗi khi lưu file ảnh: " + ex.getMessage());
+                        // Dù lỗi lưu ảnh (do Tomcat), hệ thống VẪN TIẾP TỤC CHẠY xuống dưới để lưu DB!
+                    }
+                }
+
                 OrderDAO orderDAO = new OrderDAO();
                 Order currentOrder = orderDAO.getOrderById(orderId);
-                
+
                 if (currentOrder != null && currentOrder.getUserId() == user.getId()) {
-                    
-                    // 2. Dùng tuyệt chiêu DAO mới: Không cần vòng lặp Java nữa!
-                    boolean isInserted = orderDAO.insertReturnRequestAtomic(orderId, fullReason);
-                    
-                    if (isInserted) {
-                        orderDAO.updateOrderStatus(orderId, 7); 
-                        request.getSession().setAttribute("mess", "Đã gửi yêu cầu trả hàng thành công. Chờ shop duyệt nhé!");
-                        request.getSession().setAttribute("status", "success");
+                    if (selectedBookIds != null && selectedBookIds.length > 0) {
+                        boolean allSuccess = true;
+
+                        for (String bookIdStr : selectedBookIds) {
+                            int bookId = Integer.parseInt(bookIdStr);
+                            String qtyParam = request.getParameter("returnQty_" + bookId);
+                            int returnQty = (qtyParam != null) ? Integer.parseInt(qtyParam) : 1;
+
+                            // [SỬA Ở ĐÂY] Truyền thêm tham số mimeType vào hàm DAO
+                            boolean isInserted = orderDAO.insertPartialReturnRequest(orderId, bookId, returnQty, fullReason, proofImagePath, mimeType);
+                            
+                            if (!isInserted) allSuccess = false;
+                        }
+
+                        if (allSuccess) {
+                            orderDAO.updateOrderStatus(orderId, 7); 
+                            request.getSession().setAttribute("mess", "Đã gửi yêu cầu trả hàng thành công. Chờ shop duyệt nhé!");
+                            request.getSession().setAttribute("status", "success");
+                        } else {
+                            request.getSession().setAttribute("mess", "Có lỗi khi lưu sản phẩm trả hàng vào Database.");
+                            request.getSession().setAttribute("status", "error");
+                        }
+                        
                     } else {
-                        // Đã sửa thành "mess" để hiện lên màn hình đỏ
-                        request.getSession().setAttribute("mess", "Có lỗi khi gửi yêu cầu trả hàng vào Database.");
-                        request.getSession().setAttribute("status", "error");
+                        request.getSession().setAttribute("mess", "Bạn chưa tick chọn sản phẩm nào để trả!");
+                        request.getSession().setAttribute("status", "warning");
                     }
                 } else {
                     request.getSession().setAttribute("mess", "Không tìm thấy đơn hàng hợp lệ.");

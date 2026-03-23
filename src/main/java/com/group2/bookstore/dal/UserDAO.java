@@ -11,8 +11,13 @@ import com.group2.bookstore.model.User;
 
 public class UserDAO extends DBContext {
     public User checkLogin(String username, String password) {
-        String sql = "SELECT * FROM Users WHERE username = ? AND password = ?";
-
+        // String sql = "SELECT * FROM Users WHERE username = ? AND password = ?";
+        String sql = "SELECT u.*, " +
+                "COALESCE((SELECT SUM(CASE WHEN action_type = 'add' THEN amount ELSE -amount END) " +
+                "FROM FPoint_History h WHERE h.user_id = u.user_id " +
+                "AND MONTH(h.created_at) = MONTH(GETDATE()) " +
+                "AND YEAR(h.created_at) = YEAR(GETDATE())), 0) AS current_month_points " +
+                "FROM Users u WHERE u.username = ? AND u.password = ?";
         try {
             // 2. Chuẩn bị câu lệnh
             PreparedStatement st = getConnection().prepareStatement(sql);
@@ -33,6 +38,9 @@ public class UserDAO extends DBContext {
                         rs.getInt("role"),
                         rs.getString("phone_number"),
                         rs.getInt("status"));
+                        u.setWalletBalance(rs.getDouble("wallet_balance"));
+                int monthlyPts = rs.getInt("current_month_points");
+                        u.setF_points(monthlyPts > 0 ? monthlyPts : 0);
                 return u;
             }
         } catch (Exception e) {
@@ -71,7 +79,7 @@ public class UserDAO extends DBContext {
             st.setString(1, username);
             ResultSet rs = st.executeQuery();
             if (rs.next()) {
-                return new User(
+                User u = new User(
                         rs.getInt("user_id"),
                         rs.getString("username"),
                         rs.getString("password"),
@@ -80,6 +88,8 @@ public class UserDAO extends DBContext {
                         rs.getInt("role"),
                         rs.getString("phone_number"),
                         rs.getInt("status"));
+                u.setF_points(rs.getInt("f_point"));
+                return u;
             }
         } catch (Exception e) {
             System.out.println(e);
@@ -95,7 +105,7 @@ public class UserDAO extends DBContext {
             st.setString(1, email);
             ResultSet rs = st.executeQuery();
             if (rs.next()) {
-                return new User(
+                User u = new User(
                         rs.getInt("user_id"),
                         rs.getString("username"),
                         rs.getString("password"),
@@ -104,6 +114,8 @@ public class UserDAO extends DBContext {
                         rs.getInt("role"),
                         rs.getString("phone_number"),
                         rs.getInt("status"));
+                u.setF_points(rs.getInt("f_point"));
+                return u;
             }
         } catch (Exception e) {
             System.out.println(e);
@@ -240,6 +252,7 @@ public class UserDAO extends DBContext {
                     u.setPhone_number(rs.getString("phone_number"));
                     u.setRole(rs.getInt("role"));
                     u.setStatus(rs.getInt("status"));
+                    u.setF_points(rs.getInt("f_point"));
                     list.add(u);
                 }
             }
@@ -269,20 +282,22 @@ public class UserDAO extends DBContext {
         }
     }
 
-    // HÀM LỌC CRM NÂNG CAO (Fix lỗi không hiển thị Nhãn dán)
-    public List<User> getFilteredCustomers(String keyword, String memberTier, Double minSpend, Double maxSpend) {
+    // HÀM LỌC CRM NÂNG CAO
+    public List<User> getFilteredCustomers(String keyword, String memberTier, Integer minPoint, Integer maxPoint) {
         List<User> list = new ArrayList<>();
 
-        // ĐÃ SỬA LỖI: Bổ sung thêm u.tags vào câu lệnh SQL
         StringBuilder sql = new StringBuilder(
                 "SELECT * FROM (" +
                         "   SELECT u.user_id, u.fullname, u.username, u.email, u.phone_number, u.status, u.tags, " +
+                        "          COALESCE((SELECT SUM(CASE WHEN action_type = 'add' THEN amount ELSE -amount END) " +
+                        "                    FROM FPoint_History h WHERE h.user_id = u.user_id " +
+                        "                    AND MONTH(h.created_at) = MONTH(GETDATE()) " +
+                        "                    AND YEAR(h.created_at) = YEAR(GETDATE())), 0) AS current_month_points, " +
                         "          COALESCE((SELECT SUM(total_amount) FROM Orders o WHERE o.user_id = u.user_id AND o.status = 4), 0) AS total_spend "
                         +
                         "   FROM Users u " +
                         "   WHERE u.role = 0 " +
                         ") AS c WHERE 1=1 ");
-
         List<Object> params = new ArrayList<>();
 
         if (keyword != null && !keyword.trim().isEmpty()) {
@@ -294,28 +309,28 @@ public class UserDAO extends DBContext {
             params.add(kw);
             params.add(keyword);
         }
-        if (minSpend != null) {
-            sql.append(" AND c.total_spend >= ? ");
-            params.add(minSpend);
+        if (minPoint != null) {
+            sql.append(" AND c.current_month_points >= ? ");
+            params.add(minPoint);
         }
-        if (maxSpend != null) {
-            sql.append(" AND c.total_spend <= ? ");
-            params.add(maxSpend);
+        if (maxPoint != null) {
+            sql.append(" AND c.current_month_points <= ? ");
+            params.add(maxPoint);
         }
 
         if (memberTier != null && !memberTier.equals("all")) {
             switch (memberTier) {
                 case "diamond":
-                    sql.append(" AND c.total_spend >= 10000000 ");
+                    sql.append(" AND c.current_month_points >= 5000 ");
                     break;
                 case "gold":
-                    sql.append(" AND c.total_spend >= 5000000 AND c.total_spend < 10000000 ");
+                    sql.append(" AND c.current_month_points >= 2000 AND c.current_month_points < 5000 ");
                     break;
                 case "silver":
-                    sql.append(" AND c.total_spend >= 1000000 AND c.total_spend < 5000000 ");
+                    sql.append(" AND c.current_month_points >= 500 AND c.current_month_points < 2000 ");
                     break;
                 case "bronze":
-                    sql.append(" AND c.total_spend < 1000000 ");
+                    sql.append(" AND c.current_month_points < 500 ");
                     break;
             }
         }
@@ -340,9 +355,10 @@ public class UserDAO extends DBContext {
                     u.setStatus(rs.getInt("status"));
                     u.setTotalSpend(rs.getDouble("total_spend"));
 
-                    // THÊM DÒNG NÀY ĐỂ LẤY NHÃN DÁN LÊN WEB (Lỗi do thiếu dòng này)
                     u.setTags(rs.getString("tags"));
 
+                    int monthlyPts = rs.getInt("current_month_points");
+                    u.setF_points(monthlyPts > 0 ? monthlyPts : 0);
                     list.add(u);
                 }
             }
@@ -495,11 +511,13 @@ public class UserDAO extends DBContext {
                     u.setPhone_number(rs.getString("phone_number"));
                     u.setRole(rs.getInt("role"));
                     u.setStatus(rs.getInt("status"));
-
+                    u.setF_points(rs.getInt("f_point"));
                     // Xử lý an toàn: Lấy thẳng chuỗi String từ DB để không bị lỗi Timestamp
                     if (rs.getString("createAt") != null) {
                         u.setCreateAt(rs.getTimestamp("createAt"));
                     }
+                    // Lấy số dư ví từ Database và nhét vào Object User
+                    u.setWalletBalance(rs.getDouble("wallet_balance"));
                     return u;
                 }
             }
@@ -590,6 +608,18 @@ public class UserDAO extends DBContext {
             ps.executeUpdate();
         } catch (Exception e) {
             System.out.println("Lỗi khi cập nhật trạng thái user: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    // Hàm cập nhật số dư ví cho User
+    public void updateWalletBalance(int userId, double newBalance) {
+        String sql = "UPDATE Users SET wallet_balance = ? WHERE user_id = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setDouble(1, newBalance);
+            ps.setInt(2, userId);
+            ps.executeUpdate();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

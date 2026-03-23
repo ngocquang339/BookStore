@@ -184,6 +184,13 @@
 
                                             </td>
 
+                                            <td class="ps-4 fw-bold text-primary">
+                                                <a
+                                                    href="${pageContext.request.contextPath}/admin/po-detail?poId=${po.purchaseOrderId}">
+                                                    #PO-${po.purchaseOrderId}
+                                                </a>
+                                            </td>
+
                                         </tr>
                                     </c:forEach>
 

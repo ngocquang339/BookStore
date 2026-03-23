@@ -1,14 +1,14 @@
 package com.group2.bookstore.dal;
 
-import com.group2.bookstore.model.PurchaseOrder;
-import com.group2.bookstore.model.PurchaseOrderDetail;
-import com.group2.bookstore.model.Book;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.group2.bookstore.model.Book;
+import com.group2.bookstore.model.PurchaseOrder;
+import com.group2.bookstore.model.PurchaseOrderDetail;
 
 public class PurchaseOrderDAO extends DBContext {
 
@@ -20,11 +20,11 @@ public class PurchaseOrderDAO extends DBContext {
 
         // Dùng StringBuilder để nối chuỗi SQL linh hoạt dựa trên điều kiện lọc
         StringBuilder sql = new StringBuilder(
-                "SELECT po.*, s.supplier_name, u.username as created_by_name " +
-                        "FROM Purchase_Orders po " +
-                        "JOIN Suppliers s ON po.supplier_id = s.supplier_id " +
-                        "JOIN Users u ON po.user_id = u.user_id " +
-                        "WHERE 1=1 ");
+                "SELECT po.*, s.supplier_name, u.username as created_by_name "
+                + "FROM Purchase_Orders po "
+                + "JOIN Suppliers s ON po.supplier_id = s.supplier_id "
+                + "JOIN Users u ON po.user_id = u.user_id "
+                + "WHERE 1=1 ");
 
         if (searchSupplier != null && !searchSupplier.trim().isEmpty()) {
             sql.append(" AND s.supplier_name LIKE ? ");
@@ -36,8 +36,7 @@ public class PurchaseOrderDAO extends DBContext {
         // Sắp xếp mới nhất lên đầu và Phân trang (OFFSET - FETCH NEXT của SQL Server)
         sql.append(" ORDER BY po.order_date DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY ");
 
-        try (Connection conn = new DBContext().getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql.toString())) {
 
             int paramIndex = 1;
 
@@ -78,13 +77,14 @@ public class PurchaseOrderDAO extends DBContext {
     }
 
     /**
-     * Đếm tổng số lượng Purchase Order để phục vụ tính toán số trang (Pagination)
+     * Đếm tổng số lượng Purchase Order để phục vụ tính toán số trang
+     * (Pagination)
      */
     public int countPurchaseOrders(String searchSupplier, Integer status) {
         StringBuilder sql = new StringBuilder(
-                "SELECT COUNT(*) FROM Purchase_Orders po " +
-                        "JOIN Suppliers s ON po.supplier_id = s.supplier_id " +
-                        "WHERE 1=1 ");
+                "SELECT COUNT(*) FROM Purchase_Orders po "
+                + "JOIN Suppliers s ON po.supplier_id = s.supplier_id "
+                + "WHERE 1=1 ");
 
         if (searchSupplier != null && !searchSupplier.trim().isEmpty()) {
             sql.append(" AND s.supplier_name LIKE ? ");
@@ -93,8 +93,7 @@ public class PurchaseOrderDAO extends DBContext {
             sql.append(" AND po.status = ? ");
         }
 
-        try (Connection conn = new DBContext().getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql.toString())) {
 
             int paramIndex = 1;
             if (searchSupplier != null && !searchSupplier.trim().isEmpty()) {
@@ -120,15 +119,14 @@ public class PurchaseOrderDAO extends DBContext {
     // =======================================================
     public List<PurchaseOrderDetail> getPoDetailsForReceive(int poId) {
         List<PurchaseOrderDetail> list = new ArrayList<>();
-        String sql = "SELECT b.book_id, b.title, b.author, s.supplier_name, pod.expected_quantity, pod.price " +
-                "FROM Purchase_Order_Details pod " +
-                "JOIN Books b ON pod.book_id = b.book_id " +
-                "JOIN Purchase_Orders po ON pod.purchase_order_id = po.purchase_order_id " +
-                "JOIN Suppliers s ON po.supplier_id = s.supplier_id " +
-                "WHERE pod.purchase_order_id = ?";
+        String sql = "SELECT b.book_id, b.title, b.author, s.supplier_name, pod.expected_quantity, pod.price "
+                + "FROM Purchase_Order_Details pod "
+                + "JOIN Books b ON pod.book_id = b.book_id "
+                + "JOIN Purchase_Orders po ON pod.purchase_order_id = po.purchase_order_id "
+                + "JOIN Suppliers s ON po.supplier_id = s.supplier_id "
+                + "WHERE pod.purchase_order_id = ?";
 
-        try (Connection conn = new DBContext().getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, poId);
             try (ResultSet rs = ps.executeQuery()) {
@@ -246,5 +244,43 @@ public class PurchaseOrderDAO extends DBContext {
                 }
             }
         }
+    }
+
+    public boolean approvePO(int poId, int adminId) {
+        String sql = "UPDATE Purchase_Orders SET status = 1, approved_by = ?, order_date = GETDATE() WHERE purchase_order_id = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, adminId);
+            ps.setInt(2, poId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public PurchaseOrder getPurchaseOrderById(int poId) {
+        String sql = "SELECT po.*, s.supplier_name, u.username as created_by_name "
+                + "FROM Purchase_Orders po "
+                + "JOIN Suppliers s ON po.supplier_id = s.supplier_id "
+                + "JOIN Users u ON po.user_id = u.user_id "
+                + "WHERE po.purchase_order_id = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, poId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    PurchaseOrder po = new PurchaseOrder();
+                    po.setPurchaseOrderId(rs.getInt("purchase_order_id"));
+                    po.setOrderDate(rs.getTimestamp("order_date"));
+                    po.setTotalAmount(rs.getDouble("total_amount"));
+                    po.setStatus(rs.getInt("status"));
+                    po.setSupplierName(rs.getString("supplier_name"));
+                    po.setCreatedByName(rs.getString("created_by_name"));
+                    return po;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

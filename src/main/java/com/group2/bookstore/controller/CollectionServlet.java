@@ -99,7 +99,33 @@ public class CollectionServlet extends HttpServlet {
         boolean isPublic = "1".equals(request.getParameter("isPublic"));
         String coverColor = request.getParameter("coverColor");
 
-        Collection c = new Collection(0, user.getId(), name, description, isPublic, coverColor, null);
+        // [XỬ LÝ EX 1]: Chặn tên bị bỏ trống ở Backend
+        if (name == null || name.trim().isEmpty()) {
+            session.setAttribute("errorMsg", "Collection name is required (Tên giá sách không được để trống)!");
+            response.sendRedirect(request.getContextPath() + "/my-collections");
+            return;
+        }
+
+        // THÊM MỚI: Kiểm tra độ dài Tên giá sách và Mô tả
+        if (name.length() > 50) {
+            session.setAttribute("errorMsg", "Tên giá sách không được vượt quá 50 ký tự!");
+            response.sendRedirect(request.getContextPath() + "/my-collections");
+            return;
+        }
+        if (description != null && description.length() > 250) {
+            session.setAttribute("errorMsg", "Mô tả ngắn không được vượt quá 250 ký tự!");
+            response.sendRedirect(request.getContextPath() + "/my-collections");
+            return;
+        }
+        // [XỬ LÝ EX 2]: Chặn trùng tên bộ sưu tập của cùng 1 user
+        // (Lưu ý: Bạn cần viết thêm hàm isNameExist trong CollectionDAO)
+        if (dao.isNameExist(user.getId(), name.trim(), -1)) {
+            session.setAttribute("errorMsg", "You already have a collection with this name (Bạn đã có bộ sưu tập với tên này)!");
+            response.sendRedirect(request.getContextPath() + "/my-collections");
+            return;
+        }
+
+        Collection c = new Collection(0, user.getId(), name.trim(), description, isPublic, coverColor, null);
         
         if (dao.createCollection(c)) {
             session.setAttribute("successMsg", "Tạo Bộ sưu tập thành công!");
@@ -117,7 +143,33 @@ public class CollectionServlet extends HttpServlet {
         boolean isPublic = "1".equals(request.getParameter("isPublic"));
         String coverColor = request.getParameter("coverColor");
 
-        Collection c = new Collection(collectionId, user.getId(), name, description, isPublic, coverColor, null);
+        // [XỬ LÝ EX 1]: Chặn rỗng
+        if (name == null || name.trim().isEmpty()) {
+            session.setAttribute("errorMsg", "Tên giá sách không được để trống!");
+            response.sendRedirect(request.getContextPath() + "/my-collections");
+            return;
+        }
+
+        // THÊM MỚI: Kiểm tra độ dài Tên giá sách và Mô tả
+        if (name.length() > 50) {
+            session.setAttribute("errorMsg", "Tên giá sách không được vượt quá 50 ký tự!");
+            response.sendRedirect(request.getContextPath() + "/my-collections");
+            return;
+        }
+        if (description != null && description.length() > 250) {
+            session.setAttribute("errorMsg", "Mô tả ngắn không được vượt quá 250 ký tự!");
+            response.sendRedirect(request.getContextPath() + "/my-collections");
+            return;
+        }
+
+        // [XỬ LÝ EX 2]: Chặn trùng tên (Loại trừ chính cái collection đang sửa)
+        if (dao.isNameExist(user.getId(), name.trim(), collectionId)) {
+            session.setAttribute("errorMsg", "Bạn đã có một bộ sưu tập khác mang tên này!");
+            response.sendRedirect(request.getContextPath() + "/my-collections");
+            return;
+        }
+
+        Collection c = new Collection(collectionId, user.getId(), name.trim(), description, isPublic, coverColor, null);
 
         if (dao.updateCollection(c)) {
             session.setAttribute("successMsg", "Cập nhật thành công!");

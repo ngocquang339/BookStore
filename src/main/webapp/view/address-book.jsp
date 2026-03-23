@@ -148,7 +148,7 @@
                        <a href="javascript:void(0);" 
                         class="btn-add-address btn-open-add-modal" 
                         data-bs-toggle="modal" 
-                        data-bs-target="#editAddressModal">
+                        data-bs-target="#addAddressModal">
                             <i class="fa-solid fa-plus"></i> Thêm địa chỉ mới
                         </a>
                     </div>
@@ -261,14 +261,14 @@
                 </div> 
             </div> </div> </div> 
             
-            <div class="modal fade" id="editAddressModal" tabindex="-1" aria-labelledby="editAddressModalLabel" aria-hidden="true">
+            <div class="modal fade" id="addAddressModal" tabindex="-1" aria-labelledby="addAddressModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content" style="border-radius: 10px;">
                     
                     <form action="${pageContext.request.contextPath}/edit-address" method="POST" id="dynamicAddressForm">
                         <input type="hidden" name="addressId" id="modal_addressId">
                         <div class="modal-header border-bottom-0 pb-0 mt-3 d-flex justify-content-center position-relative">
-                        <h5 class="modal-title fw-bold" style="color: #d70018;" id="editAddressModalLabel">THAY ĐỔI ĐỊA CHỈ GIAO HÀNG</h5>
+                        <h5 class="modal-title fw-bold" style="color: #d70018;" id="addAddressModalLabel">THÊM ĐỊA CHỈ GIAO HÀNG</h5>
                         </div>
 
                         <div class="modal-body px-4 pb-4">
@@ -418,42 +418,11 @@
     });
 
     // ====================================================================================
-    // 4. KHI BẤM NÚT "SỬA" TRÊN ĐỊA CHỈ BẤT KỲ
-    // ====================================================================================
-    $('.btn-edit-address').on('click', function() {
-        // Đổi tiêu đề và Action của form về SỬA
-        $('#editAddressModalLabel').text('THAY ĐỔI ĐỊA CHỈ GIAO HÀNG');
-        $('#dynamicAddressForm').attr('action', '${pageContext.request.contextPath}/edit-address');
-
-        const id = $(this).data('id');
-        const name = $(this).data('fullname');
-        const phone = $(this).data('phone');
-        const city = $(this).data('city');
-        const district = $(this).data('district');
-        const ward = $(this).data('ward');
-        const detail = $(this).data('detail');
-        
-        $('#modal_addressId').val(id);
-        $('#modal_fullName').val(name);
-        $('#modal_phone').val(phone);
-        $('#modal_detail').val(detail);
-
-        $('.input-error').removeClass('input-error');
-        $('.show-error').removeClass('show-error');
-
-        if (city) {
-            savedDistrict = district;
-            savedWard = ward;
-            $city.val(city).trigger('change');
-        }
-    });
-
-    // ====================================================================================
     // 5. KHI BẤM NÚT "GIAO HÀNG ĐẾN ĐỊA CHỈ KHÁC" (THÊM MỚI)
     // ====================================================================================
     $('.btn-open-add-modal').on('click', function() {
         // Đổi tiêu đề và Action của form về THÊM MỚI
-        $('#editAddressModalLabel').text('THÊM ĐỊA CHỈ MỚI');
+        $('#addAddressModalLabel').text('THÊM ĐỊA CHỈ MỚI');
         $('#dynamicAddressForm').attr('action', '${pageContext.request.contextPath}/add-address');
 
         // Làm trống toàn bộ ô nhập liệu

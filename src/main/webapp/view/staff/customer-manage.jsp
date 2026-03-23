@@ -36,25 +36,37 @@
                             --brand-color: #C92127;
                         }
 
-                        .card, .modal-content, .table, .table th, .table td {
+                        .card,
+                        .modal-content,
+                        .table,
+                        .table th,
+                        .table td {
                             background-color: var(--card-bg) !important;
                             border-color: var(--border-color) !important;
                             color: var(--text-primary) !important;
                         }
+
                         .card {
                             box-shadow: 0 4px 14px rgba(31, 40, 51, 0.1);
                         }
-                        .card-body, .modal-body {
+
+                        .card-body,
+                        .modal-body {
                             background-color: var(--panel-bg);
                         }
+
                         .table thead {
                             background: linear-gradient(120deg, #f1f3f7, #e9edf3);
                         }
-                        input, select, textarea {
+
+                        input,
+                        select,
+                        textarea {
                             background: #fff;
                             color: #212529;
                             border-color: #ced4da;
                         }
+
                         .btn,
                         .btn-outline-secondary,
                         .form-select,
@@ -195,18 +207,15 @@
                                             </select>
                                         </div>
 
-                                        <div class="col-md-2">
-                                            <label class="form-label text-muted small mb-1">Chi tiêu (Từ)</label>
-                                            <input type="number" name="minSpend"
-                                                class="form-control bg-dark text-light border-secondary shadow-none"
-                                                placeholder="VNĐ">
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-bold">F-Point (Từ):</label>
+                                            <input type="number" name="minPoint" class="form-control"
+                                                value="${param.minPoint}" placeholder="VD: 500">
                                         </div>
-
-                                        <div class="col-md-2">
-                                            <label class="form-label text-muted small mb-1">Chi tiêu (Đến)</label>
-                                            <input type="number" name="maxSpend"
-                                                class="form-control bg-dark text-light border-secondary shadow-none"
-                                                placeholder="VNĐ">
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-bold">F-Point (Đến):</label>
+                                            <input type="number" name="maxPoint" class="form-control"
+                                                value="${param.maxPoint}" placeholder="VD: 5000">
                                         </div>
 
                                         <div class="col-md-5">
@@ -284,14 +293,16 @@
 
                                                     <th>Khách hàng</th>
                                                     <th>Thông tin liên lạc</th>
-                                                    <th class="text-center">Hạng VIP & Chi tiêu</th>
+                                                    <th class="text-center">Hạng VIP & F-Point</th>
                                                     <th class="text-center">Trạng thái</th>
                                                     <th class="text-end pe-4">Hành động</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <c:forEach items="${listCustomers}" var="u">
-                                                    <tr class="customer-row" data-href="${pageContext.request.contextPath}/staff/customer-detail?id=${u.id}" data-customer-id="${u.id}" style="cursor:pointer;">
+                                                    <tr class="customer-row"
+                                                        data-href="${pageContext.request.contextPath}/staff/customer-detail?id=${u.id}"
+                                                        data-customer-id="${u.id}" style="cursor:pointer;">
                                                         <td class="ps-4 align-middle">
                                                             <input
                                                                 class="form-check-input border-secondary cus-checkbox"
@@ -299,9 +310,10 @@
                                                         </td>
                                                         <td class="ps-4 align-middle text-muted fw-bold">#${u.id}</td>
 
-                                                        <td class="align-middle customer-cell" data-customer-id="${u.id}">
+                                                        <td class="align-middle customer-cell"
+                                                            data-customer-id="${u.id}">
                                                             <div class="text-decoration-none d-flex align-items-center"
-                                                                 style="transition: 0.2s; cursor: pointer;">
+                                                                style="transition: 0.2s; cursor: pointer;">
 
                                                                 <div class="avatar-circle me-3 text-dark">
                                                                     <i class="fa-regular fa-user"></i>
@@ -366,34 +378,41 @@
                                                         </td>
                                                         <td class="text-center align-middle">
                                                             <c:choose>
-                                                                <c:when test="${u.totalSpend >= 10000000}">
-                                                                    <span
-                                                                        class="badge bg-info text-dark rounded-pill px-2"><i
-                                                                            class="fa-regular fa-gem"></i> Kim
-                                                                        Cương</span>
-                                                                </c:when>
-                                                                <c:when test="${u.totalSpend >= 5000000}">
-                                                                    <span
-                                                                        class="badge bg-warning text-dark rounded-pill px-2"><i
-                                                                            class="fa-solid fa-medal"></i> Vàng</span>
-                                                                </c:when>
-                                                                <c:when test="${u.totalSpend >= 1000000}">
-                                                                    <span
-                                                                        class="badge bg-secondary rounded-pill px-2">🥈
-                                                                        Bạc</span>
-                                                                </c:when>
-                                                                <c:otherwise>
-                                                                    <span
-                                                                        class="badge bg-dark border border-secondary text-muted rounded-pill px-2">🥉
-                                                                        Đồng</span>
-                                                                </c:otherwise>
+                                                                <%-- Sửa lại dùng u.f_points thay vì u.totalSpend --%>
+                                                                    <c:when test="${u.f_points >= 5000}">
+                                                                        <span
+                                                                            class="badge bg-info text-dark rounded-pill px-2">
+                                                                            <i class="fa-regular fa-gem"></i> Kim Cương
+                                                                        </span>
+                                                                    </c:when>
+                                                                    <c:when test="${u.f_points >= 2000}">
+                                                                        <span
+                                                                            class="badge bg-warning text-dark rounded-pill px-2">
+                                                                            <i class="fa-solid fa-medal"></i> Vàng
+                                                                        </span>
+                                                                    </c:when>
+                                                                    <c:when test="${u.f_points >= 500}">
+                                                                        <span
+                                                                            class="badge bg-secondary rounded-pill px-2">
+                                                                            🥈 Bạc
+                                                                        </span>
+                                                                    </c:when>
+                                                                    <c:otherwise>
+                                                                        <span
+                                                                            class="badge bg-dark border border-secondary text-muted rounded-pill px-2">
+                                                                            🥉 Đồng
+                                                                        </span>
+                                                                    </c:otherwise>
                                                             </c:choose>
-                                                            <div class="mt-2 text-success fw-bold"
-                                                                style="font-size: 14px;">
-                                                                <fmt:formatNumber value="${u.totalSpend}"
-                                                                    type="currency" currencySymbol="đ"
-                                                                    maxFractionDigits="0" />
-                                                            </div>
+
+                                                            <%-- Phần hiển thị F-Point hiện tại --%>
+                                                                <div class="mt-2 text-warning fw-bold"
+                                                                    style="font-size: 15px;"
+                                                                    title="Điểm F-Point tích lũy trong tháng">
+                                                                    <i class="fa-solid fa-coins me-1"></i>
+                                                                    <fmt:formatNumber value="${u.f_points}"
+                                                                        type="number" maxFractionDigits="0" /> điểm
+                                                                </div>
                                                         </td>
                                                         <td class="text-center align-middle">
                                                             <c:choose>
@@ -640,7 +659,8 @@
                                         <button type="button"
                                             class="btn btn-outline-secondary rounded-pill px-4 text-light"
                                             data-bs-dismiss="modal">Hủy</button>
-                                        <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">Lưu ghi chú</button>
+                                        <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">Lưu ghi
+                                            chú</button>
                                     </div>
                                 </form>
                             </div>
@@ -648,18 +668,22 @@
                     </div>
 
                     <!-- Modal hiển thị thông tin chi tiết khách hàng -->
-                    <div class="modal fade" id="customerInfoModal" tabindex="-1" aria-labelledby="customerInfoModalLabel" aria-hidden="true">
+                    <div class="modal fade" id="customerInfoModal" tabindex="-1"
+                        aria-labelledby="customerInfoModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered modal-lg">
                             <div class="modal-content">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="customerInfoModalLabel">Thông tin khách hàng</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body" id="customerInfoBody">
-                                    <div class="text-center py-5"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải...</div>
+                                    <div class="text-center py-5"><i class="fa-solid fa-spinner fa-spin"></i> Đang
+                                        tải...</div>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Đóng</button>
                                 </div>
                             </div>
                         </div>
@@ -750,7 +774,7 @@
                             modal.show();
 
                             let url = contextPath + '/staff/customer-detail?ajax=1&id=' + encodeURIComponent(customerId);
-                            fetch(url, {cache: 'no-store'})
+                            fetch(url, { cache: 'no-store' })
                                 .then(res => {
                                     if (!res.ok) {
                                         throw new Error('HTTP ' + res.status + ' ' + res.statusText);

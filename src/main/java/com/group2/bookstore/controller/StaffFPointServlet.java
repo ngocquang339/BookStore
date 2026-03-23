@@ -130,26 +130,26 @@ public class StaffFPointServlet extends HttpServlet {
             String customerDisplayInfo = "@" + targetUser.getUsername() + " (#" + targetUser.getId() + ")";
 
             // 4. Lưu log vào bảng FPoint_History
-            FPointHistory log = new FPointHistory(
-                    targetUser.getId(),
-                    customerDisplayInfo,
-                    actionType,
-                    amount,
-                    reason);
-
+            // 4. Lưu log vào bảng FPoint_History
+            FPointHistory log = new FPointHistory(targetUser.getId(), customerDisplayInfo, actionType, amount, reason);
             boolean isSaved = historyDAO.insertLog(log);
 
-            /*
-             * (Tùy chọn) Nếu bạn đã thêm cột f_point vào bảng Users thì gọi hàm cập nhật
-             * điểm thực tế:
-             * int currentPoint = targetUser.getF_point(); // Cần tạo getter trong User.java
-             * int newPoint = actionType.equals("add") ? currentPoint + amount :
-             * currentPoint - amount;
-             * userDAO.updateUserPoint(targetUser.getId(), newPoint);
-             */
-
-            // 5. Trả thông báo về giao diện
+            // TÍNH TOÁN VÀ CẬP NHẬT ĐIỂM F-POINT THỰC TẾ
             if (isSaved) {
+                int currentPoint = targetUser.getF_points();
+                int newPoint = 0;
+
+                if (actionType.equals("add")) {
+                    newPoint = currentPoint + amount;
+                } else {
+                    newPoint = currentPoint - amount;
+                    if (newPoint < 0)
+                        newPoint = 0; // Đảm bảo điểm không bị âm
+                }
+
+                // Gọi hàm DAO vừa tạo ở Bước 2
+                userDAO.updateUserPoint(targetUser.getId(), newPoint);
+
                 session.setAttribute("successMessage", "Đã " + (actionType.equals("add") ? "cộng" : "trừ") +
                         " " + amount + " điểm cho khách hàng " + targetUser.getFullname());
             } else {
