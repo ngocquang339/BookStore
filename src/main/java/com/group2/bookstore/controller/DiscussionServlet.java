@@ -39,7 +39,11 @@ public class DiscussionServlet extends HttpServlet {
             if ("reply".equals(action)) {
                 int discussionId = Integer.parseInt(request.getParameter("discussionId"));
                 String replyContent = request.getParameter("replyContent");
-                
+                if (replyContent != null && replyContent.length() > 800) {
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    response.getWriter().write("{\"success\": false, \"message\": \"Câu trả lời không được vượt quá 500 ký tự!\"}");
+                    return;
+                }
                 // Lấy thêm Product ID (pid) từ frontend gửi lên để làm cái link bấm vào thông báo
                 String pidStr = request.getParameter("pid"); 
                 // [THÊM MỚI] - XỬ LÝ EX 2: BỘ LỌC TỪ NGỮ CẤM
@@ -116,6 +120,11 @@ public class DiscussionServlet extends HttpServlet {
             else if ("updateReply".equals(action)) {
                 int replyId = Integer.parseInt(request.getParameter("replyId"));
                 String content = request.getParameter("replyContent");
+                if (content != null && content.length() > 800) {
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    response.getWriter().write("{\"success\": false, \"message\": \"Câu trả lời không được vượt quá 500 ký tự!\"}");
+                    return;
+                }
                 boolean success = dao.updateReply(replyId, user.getId(), content);
                 response.getWriter().write("{\"success\": " + success + "}");
             } 

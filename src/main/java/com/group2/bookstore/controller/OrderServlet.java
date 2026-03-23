@@ -202,6 +202,13 @@ public class OrderServlet extends HttpServlet {
                 int orderId = Integer.parseInt(request.getParameter("orderId"));
                 String reason = request.getParameter("returnReason");
                 String note = request.getParameter("returnNote");
+                // THÊM ĐOẠN NÀY ĐỂ VALIDATE ĐỘ DÀI
+                if (note != null && note.length() > 500) {
+                    request.getSession().setAttribute("mess", "Chi tiết thêm không được vượt quá 500 ký tự!");
+                    request.getSession().setAttribute("status", "error");
+                    response.sendRedirect(request.getContextPath() + "/my-orders");
+                    return;
+                }
                 String[] selectedBookIds = request.getParameterValues("selectedBookIds");
 
                 // Gộp Lý do và Chi tiết lại

@@ -258,8 +258,20 @@
 
                                                 <p class="fw-bold text-dark mb-3">2. Vui lòng chọn lý do trả hàng: <span class="text-danger">*</span></p>
                                                 <div class="form-check mb-2">
-                                                    <input class="form-check-input" type="radio" name="returnReason" id="reason1_${order.id}" value="Sản phẩm bị lỗi, trầy xước hoặc hư hỏng" required style="cursor: pointer;">
-                                                    <label class="form-check-label" for="reason1_${order.id}" style="cursor: pointer;">Sản phẩm bị lỗi, trầy xước hoặc hư hỏng</label>
+                                                    <input class="form-check-input" type="radio" name="returnReason" id="reason1_${order.id}" value="Sản phẩm bị lỗi, trầy xước..." required style="cursor: pointer;">
+                                                    <label class="form-check-label" for="reason1_${order.id}" style="cursor: pointer;">Sản phẩm bị lỗi, trầy xước...</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input class="form-check-input" type="radio" name="returnReason" id="reason2_${order.id}" value="Giao sai sản phẩm..." style="cursor: pointer;">
+                                                    <label class="form-check-label" for="reason2_${order.id}" style="cursor: pointer;">Giao sai sản phẩm...</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input class="form-check-input" type="radio" name="returnReason" id="reason3_${order.id}" value="Sản phẩm không giống mô tả" style="cursor: pointer;">
+                                                    <label class="form-check-label" for="reason3_${order.id}" style="cursor: pointer;">Sản phẩm không giống mô tả</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input class="form-check-input" type="radio" name="returnReason" id="reason4_${order.id}" value="Thiếu phụ kiện..." style="cursor: pointer;">
+                                                    <label class="form-check-label" for="reason4_${order.id}" style="cursor: pointer;">Thiếu phụ kiện...</label>
                                                 </div>
                                                 <div class="form-check mb-3">
                                                     <input class="form-check-input" type="radio" name="returnReason" id="reason5_${order.id}" value="Lý do khác" style="cursor: pointer;">
@@ -268,7 +280,7 @@
 
                                                 <div class="mb-2 mt-3">
                                                     <label for="returnNote_${order.id}" class="form-label text-muted small fw-bold">Chi tiết thêm (Bắt buộc/Tùy chọn):</label>
-                                                    <textarea class="form-control bg-light" id="returnNote_${order.id}" name="returnNote" rows="2" placeholder="Vui lòng cung cấp thêm chi tiết..."></textarea>
+                                                    <textarea class="form-control bg-light" id="returnNote_${order.id}" name="returnNote" rows="2" maxlength="500" placeholder="Vui lòng cung cấp thêm chi tiết..."></textarea>
                                                 </div>
 
                                                 <div class="mb-3 mt-4 p-3" style="background-color: #fff9f9; border: 1px dashed #f0caca; border-radius: 8px;">

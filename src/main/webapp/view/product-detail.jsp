@@ -452,18 +452,15 @@
                     <div style="display: flex; align-items: center; gap: 10px; font-size: 14px; margin-bottom: 20px;">
                         
                         <%-- 1. HIỂN THỊ SAO ĐỘNG DỰA VÀO averageRating --%>
-                        <div style="color: #F5A623; font-size: 13px;">
+                        <div id="display-top-stars" style="color: #F5A623; font-size: 13px;">
                             <c:forEach var="i" begin="1" end="5">
                                 <c:choose>
-                                    <%-- Nếu điểm trung bình >= vị trí sao (VD: 3.8 >= 3) -> Sao Vàng Full --%>
                                     <c:when test="${averageRating >= i}">
                                         <i class="fa-solid fa-star"></i>
                                     </c:when>
-                                    <%-- Nếu điểm trung bình có phần lẻ >= 0.5 (VD: 3.8 >= 4 - 0.5) -> Sao Vàng Nửa --%>
                                     <c:when test="${averageRating >= (i - 0.5)}">
                                         <i class="fa-solid fa-star-half-stroke"></i>
                                     </c:when>
-                                    <%-- Còn lại -> Sao Xám --%>
                                     <c:otherwise>
                                         <i class="fa-regular fa-star" style="color: #ddd;"></i>
                                     </c:otherwise>
@@ -473,14 +470,16 @@
 
                         <%-- 2. HIỂN THỊ SỐ LƯỢNG ĐÁNH GIÁ ĐỘNG --%>
                         <div style="color: #F5A623;">
-                            <c:choose>
-                                <c:when test="${totalReviews > 0}">
-                                    (${totalReviews} đánh giá)
-                                </c:when>
-                                <c:otherwise>
-                                    (0 đánh giá)
-                                </c:otherwise>
-                            </c:choose>
+                            <span id="display-top-total">
+                                <c:choose>
+                                    <c:when test="${totalReviews > 0}">
+                                        (${totalReviews} đánh giá)
+                                    </c:when>
+                                    <c:otherwise>
+                                        (0 đánh giá)
+                                    </c:otherwise>
+                                </c:choose>
+                            </span>
                         </div>
                         
                         <div style="color: #ccc;">|</div>
@@ -598,47 +597,32 @@
 
             <div class="review-overview">
                 <div class="rating-score">
-                    <div style="font-size: 48px; font-weight: bold; line-height: 1; color: #333;">
+                    <div id="display-avg-score" style="font-size: 48px; font-weight: bold; line-height: 1; color: #333;">
                         ${totalReviews > 0 ? averageRating : '0.0'}<span style="font-size: 24px; color: #999; font-weight: normal;">/5</span>
                     </div>
                     
-                    <div style="color: #F5A623; font-size: 18px; margin: 8px 0;">
+                    <div id="display-stars-overview" style="color: #F5A623; font-size: 18px; margin: 8px 0;">
                         <c:forEach var="i" begin="1" end="5">
                             <c:choose>
-                                <%-- Nếu điểm trung bình >= vị trí sao (VD: 4.5 >= 4) -> In sao Vàng Full --%>
-                                <c:when test="${averageRating >= i}">
-                                    <i class="fa-solid fa-star"></i>
-                                </c:when>
-                                <%-- Nếu điểm trung bình có phần lẻ >= 0.5 (VD: 4.5 >= 5 - 0.5) -> In sao Vàng Khuyết Nửa --%>
-                                <c:when test="${averageRating >= (i - 0.5)}">
-                                    <i class="fa-solid fa-star-half-stroke"></i>
-                                </c:when>
-                                <%-- Còn lại -> In sao Xám --%>
-                                <c:otherwise>
-                                    <i class="fa-regular fa-star" style="color: #ddd;"></i>
-                                </c:otherwise>
+                                <c:when test="${averageRating >= i}"><i class="fa-solid fa-star"></i></c:when>
+                                <c:when test="${averageRating >= (i - 0.5)}"><i class="fa-solid fa-star-half-stroke"></i></c:when>
+                                <c:otherwise><i class="fa-regular fa-star" style="color: #ddd;"></i></c:otherwise>
                             </c:choose>
                         </c:forEach>
                     </div>
                     
-                    <div style="color: #777; font-size: 13px;">(${totalReviews} đánh giá)</div>
+                    <div id="display-total-reviews" style="color: #777; font-size: 13px;">(${totalReviews} đánh giá)</div>
                 </div>
 
                 <div class="rating-bars">
                     <c:forEach var="i" begin="1" end="5" step="1">
-                        <%-- Tạo biến starValue chạy lùi từ 5 xuống 1 --%>
                         <c:set var="starValue" value="${6 - i}" /> 
-                        
                         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 13px; color: #555;">
                             <span style="width: 45px; text-align: right;">${starValue} sao</span>
-                            
                             <div style="flex: 1; height: 6px; background-color: #eee; border-radius: 3px; overflow: hidden;">
-                                <%-- Chiều rộng của thanh cam sẽ tự động lấy từ mảng % (Thêm transition để có hiệu ứng trượt mượt mà) --%>
-                                <div style="width: ${starPercentages != null ? starPercentages[starValue] : 0}%; height: 100%; background-color: #F5A623; transition: width 0.8s ease-out;"></div>
+                                <div id="bar-fill-${starValue}" style="width: ${starPercentages != null ? starPercentages[starValue] : 0}%; height: 100%; background-color: #F5A623; transition: width 0.8s ease-out;"></div>
                             </div>
-                            
-                            <%-- In con số % ra text --%>
-                            <span style="width: 30px; text-align: right;">${starPercentages != null ? starPercentages[starValue] : 0}%</span>
+                            <span id="bar-text-${starValue}" style="width: 30px; text-align: right;">${starPercentages != null ? starPercentages[starValue] : 0}%</span>
                         </div>
                     </c:forEach>
                 </div>
@@ -681,7 +665,7 @@
                     </div>
 
                     <%-- [ĐÃ SỬA]: Bỏ thuộc tính required đi để ta dùng JS tự bắt lỗi --%>
-                    <textarea name="comment" class="review-textarea" placeholder="Chia sẻ cảm nhận của bạn về cuốn sách này nhé..."></textarea>
+                    <textarea name="comment" class="review-textarea" maxlength="800"placeholder="Chia sẻ cảm nhận của bạn về cuốn sách này nhé..."></textarea>
                     
                     <div style="text-align: right;">
                         <button type="button" class="btn-write-review" style="display: inline-block; color: #666; border-color: #ccc; margin-right: 10px;" onclick="toggleReviewForm()">Hủy</button>
@@ -758,7 +742,7 @@
                                         <c:forEach begin="1" end="${r.rating}"><i class="fa-solid fa-star"></i></c:forEach>
                                         <c:forEach begin="${r.rating + 1}" end="5"><i class="fa-regular fa-star" style="color: #ddd;"></i></c:forEach>
                                     </div>
-                                    <div class="review-content">${r.comment}</div>
+                                    <div class="review-content"><c:out value="${r.comment}" escapeXml="true" /></div>
                                     
                                     <c:if test="${not empty r.staffReply}">
                                         <div class="mt-3 p-3 rounded" style="background-color: #1a1c20; border-left: 4px solid #C92127;">
@@ -788,7 +772,7 @@
                                             <option value="1" ${r.rating == 1 ? 'selected' : ''}>⭐ (Rất tệ)</option>
                                         </select>
                                         
-                                        <textarea name="comment" class="form-control" rows="2" required>${r.comment}</textarea>
+                                        <textarea name="comment" class="form-control" maxlength="800"rows="2" required>${r.comment}</textarea>
                                         
                                         <div style="margin-top: 10px; text-align: right;">
                                             <button type="button" class="btn btn-sm btn-light border" onclick="cancelEditReview(${r.reviewId})">Hủy</button>
@@ -836,7 +820,7 @@
                     <div class="row">
                         <div class="col-md-8 mb-3">
                             <label class="fw-bold mb-1" style="font-size: 14px;">Tiêu đề câu hỏi <span class="text-danger">*</span></label>
-                            <input type="text" name="discussionTitle" class="form-control" placeholder="Ví dụ: Bản dịch này có mượt không mọi người?" required>
+                            <input type="text" name="discussionTitle" class="form-control" maxlength="150" placeholder="Ví dụ: Bản dịch này có mượt không mọi người?" required>
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="fw-bold mb-1" style="font-size: 14px;">Chủ đề <span class="text-danger">*</span></label>
@@ -849,7 +833,7 @@
                         </div>
                         <div class="col-12 mb-3">
                             <label class="fw-bold mb-1" style="font-size: 14px;">Chi tiết câu hỏi <span class="text-danger">*</span></label>
-                            <textarea name="discussionContent" class="form-control" rows="3" placeholder="Viết rõ hơn về thắc mắc của bạn..." required></textarea>
+                            <textarea name="discussionContent" class="form-control" maxlength="800" rows="3" placeholder="Viết rõ hơn về thắc mắc của bạn..." required></textarea>
                         </div>
                         <div class="col-12 d-flex justify-content-between align-items-center">
                             <div class="form-check form-switch">
@@ -859,7 +843,7 @@
                                 </label>
                             </div>
                             <div>
-                                <button type="button" class="btn btn-light border me-2" onclick="toggleQAForm()">Hủy</button>
+                                <button type="button" class="btn btn-light border me-2" onclick="cancelQAForm()">Hủy</button>
                                 <button type="submit" class="btn text-white fw-bold px-4" style="background-color: #C92127;">Gửi câu hỏi</button>
                             </div>
                         </div>
@@ -968,7 +952,7 @@
                                         
                                         <div class="mb-2">
                                             <label class="fw-bold" style="font-size: 13px;">Tiêu đề:</label>
-                                            <input type="text" name="discussionTitle" class="form-control form-control-sm" value="${d.discussionTitle}" required>
+                                            <input type="text" name="discussionTitle" maxlength="150" class="form-control form-control-sm" value="${d.discussionTitle}" required>
                                         </div>
                                         <div class="mb-2">
                                             <label class="fw-bold" style="font-size: 13px;">Chủ đề:</label>
@@ -981,7 +965,7 @@
                                         </div>
                                         <div class="mb-2">
                                             <label class="fw-bold" style="font-size: 13px;">Nội dung:</label>
-                                            <textarea name="discussionContent" class="form-control form-control-sm" rows="3" required>${d.discussionContent}</textarea>
+                                            <textarea name="discussionContent" class="form-control form-control-sm" rows="3" maxlength="800" required>${d.discussionContent}</textarea>
                                         </div>
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div class="form-check form-switch">
@@ -1110,7 +1094,7 @@
                                                             <form class="edit-reply-form">
                                                                 <input type="hidden" name="action" value="updateReply">
                                                                 <input type="hidden" name="replyId" value="${reply.replyId}">
-                                                                <textarea name="replyContent" class="form-control form-control-sm mb-2" rows="2" required>${reply.replyContent}</textarea>
+                                                                <textarea name="replyContent" class="form-control form-control-sm mb-2" rows="2" maxlength="800" required>${reply.replyContent}</textarea>
                                                                 <div class="text-end">
                                                                     <button type="button" class="btn btn-sm btn-light border py-1 px-2" style="font-size: 12px;" onclick="cancelEditReply(${reply.replyId})">Hủy</button>
                                                                     <button type="submit" class="btn btn-sm text-white fw-bold py-1 px-2" style="background-color: #f5a623; font-size: 12px;">Lưu</button>
@@ -1130,7 +1114,7 @@
                                                 <input type="hidden" name="discussionId" value="${d.discussionId}">
                                                 <%-- ĐÂY LÀ DÒNG QUAN TRỌNG NHẤT VỪA THÊM VÀO --%>
                                                 <input type="hidden" name="pid" value="${book.id}">
-                                                <input type="text" name="replyContent" class="form-control form-control-sm" placeholder="Viết câu trả lời của bạn..." required autocomplete="off">
+                                                <input type="text" name="replyContent" class="form-control form-control-sm" maxlength="800" placeholder="Viết câu trả lời của bạn..." required autocomplete="off">
                                                 <button type="submit" class="btn btn-sm text-white fw-bold" style="background: #C92127; white-space: nowrap;"><i class="fa-solid fa-paper-plane me-1"></i>Gửi</button>
                                             </form>
                                         </c:when>
@@ -1376,7 +1360,7 @@
                             </div>
                             
                             <div id="customReasonDiv" style="display: none; margin-top: 10px; padding-left: 24px;">
-                                <textarea class="form-control" id="customReasonInput" rows="2" placeholder="Vui lòng mô tả chi tiết lý do..."></textarea>
+                                <textarea class="form-control" id="customReasonInput" rows="2" maxlength="500" placeholder="Vui lòng mô tả chi tiết lý do..."></textarea>
                             </div>
                             
                         </div>
@@ -1429,7 +1413,7 @@
                             </div>
                             
                             <div id="customDiscReasonDiv" style="display: none; margin-top: 10px; padding-left: 24px;">
-                                <textarea class="form-control" name="customReason" id="customDiscReasonInput" rows="2" placeholder="Vui lòng mô tả chi tiết lý do..."></textarea>
+                                <textarea class="form-control" name="customReason" id="customDiscReasonInput" rows="2" maxlength="500" placeholder="Vui lòng mô tả chi tiết lý do..."></textarea>
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -1714,14 +1698,6 @@
             return; // Dừng lại, không chạy tiếp lệnh gửi
         }
 
-        // =========================================================
-        // [THÊM MỚI] XỬ LÝ EX 2: ĐỂ TRỐNG NỘI DUNG
-        // =========================================================
-        if (commentVal === '') {
-            alert("Vui lòng chia sẻ cảm nhận của bạn về cuốn sách này!");
-            form.querySelector('textarea[name="comment"]').focus();
-            return; // Dừng lại, không chạy tiếp
-        }
         const formData = new FormData(form);
         const submitBtn = form.querySelector('.btn-submit-review');
         const originalBtnText = submitBtn.innerText;
@@ -1752,7 +1728,8 @@
         .then(data => {
             if(data && data.success) {
                 toggleReviewForm(); // Đóng form
-                
+                // THÊM DÒNG NÀY ĐỂ CẬP NHẬT BẢNG TỔNG QUAN
+                updateRatingOverviewUI(data.newAverage, data.newTotal, data.newPercentages);
                 // LẤY ID THẬT TỪ DATABASE DO SERVLET GỬI VỀ
                 const realReviewId = data.reviewId; 
                 
@@ -1816,7 +1793,7 @@
                                 '<option value="2" ' + (rating==2?'selected':'') + '>⭐⭐ (Tệ)</option>' +
                                 '<option value="1" ' + (rating==1?'selected':'') + '>⭐ (Rất tệ)</option>' +
                             '</select>' +
-                            '<textarea name="comment" class="form-control" rows="2" required>' + comment + '</textarea>' +
+                            '<textarea name="comment" class="form-control" rows="2" maxlength="800">' + comment + '</textarea>' +
                             '<div style="margin-top: 10px; text-align: right;">' +
                                 '<button type="button" class="btn btn-sm btn-light border" onclick="cancelEditReview(' + realReviewId + ')">Hủy</button> ' +
                                 '<button type="submit" class="btn btn-sm text-white" style="background-color: #C92127;">Lưu thay đổi</button>' +
@@ -1874,6 +1851,8 @@
             .then(res => res.json())
             .then(result => {
                 if (result.success) {
+                    // THÊM DÒNG NÀY ĐỂ CẬP NHẬT BẢNG TỔNG QUAN
+                    updateRatingOverviewUI(result.newAverage, result.newTotal, result.newPercentages);
                     // Hiệu ứng mờ dần cực mượt trước khi xóa
                     const box = document.getElementById('review-box-' + reviewId);
                     box.style.transition = "all 0.4s ease-out";
@@ -1906,6 +1885,8 @@
             .then(res => res.json())
             .then(result => {
                 if (result.success) {
+                    // THÊM DÒNG NÀY ĐỂ CẬP NHẬT BẢNG TỔNG QUAN
+                    updateRatingOverviewUI(result.newAverage, result.newTotal, result.newPercentages);
                     const newRating = parseInt(formData.get('rating'));
                     const newComment = formData.get('comment');
                     
@@ -2269,7 +2250,7 @@
                                 '<div id="reply-edit-form-' + rId + '" style="display: none; margin-top: 5px;">' +
                                     '<form class="edit-reply-form">' +
                                         '<input type="hidden" name="action" value="updateReply"><input type="hidden" name="replyId" value="' + rId + '">' +
-                                        '<textarea name="replyContent" class="form-control form-control-sm mb-2" rows="2" required>' + escapedContent + '</textarea>' +
+                                        '<textarea name="replyContent" class="form-control form-control-sm mb-2" rows="2" maxlength="800" required>' + escapedContent + '</textarea>' +
                                         '<div class="text-end"><button type="button" class="btn btn-sm btn-light border py-1 px-2" style="font-size: 12px;" onclick="cancelEditReply(' + rId + ')">Hủy</button> <button type="submit" class="btn btn-sm text-white fw-bold py-1 px-2" style="background-color: #f5a623; font-size: 12px;">Lưu</button></div>' +
                                     '</form>' +
                                 '</div>' +
@@ -2688,6 +2669,85 @@ async function calculateQuickShippingGHN(toDistrictId, toWardCode) {
         console.error("Lỗi Fetch Detail:", error);
         document.getElementById('displayShippingFee').innerText = "Không tính được phí";
     }
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    let qtyInput = document.getElementById("qtyInput");
+    let maxStock = parseInt("${book.stockQuantity}") || 0;
+
+    if (qtyInput) {
+        // Lắng nghe ngay khi người dùng đang gõ
+        qtyInput.addEventListener("input", function() {
+            // Chặn nhập chữ và ký tự đặc biệt, chỉ giữ lại số
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+
+        // Lắng nghe khi người dùng gõ xong và click ra ngoài (hoặc ấn Enter)
+        qtyInput.addEventListener("change", function() {
+            let currentVal = parseInt(this.value);
+
+            // Nếu bỏ trống hoặc nhập số nhỏ hơn 1 -> Tự động đưa về 1
+            if (isNaN(currentVal) || currentVal < 1) {
+                this.value = 1;
+            } 
+            // Nếu nhập quá tồn kho -> Tự động đưa về max tồn kho và cảnh báo
+            else if (currentVal > maxStock) {
+                this.value = maxStock;
+                alert("Số lượng bạn chọn vượt quá tồn kho hiện tại (" + maxStock + " cuốn)!");
+            }
+        });
+    }
+});
+
+// Hàm chuyên dụng để cập nhật lại UI khu vực tổng quan đánh giá
+function updateRatingOverviewUI(newAverage, newTotal, newPercentages) {
+    // 1. Cập nhật Điểm trung bình to đùng ở dưới
+    document.getElementById('display-avg-score').innerHTML = 
+        newAverage.toFixed(1) + '<span style="font-size: 24px; color: #999; font-weight: normal;">/5</span>';
+    
+    // 2. Cập nhật Dòng chữ (X đánh giá) ở dưới
+    document.getElementById('display-total-reviews').innerText = '(' + newTotal + ' đánh giá)';
+    
+    // 3. Vẽ lại 5 ngôi sao vàng/xám/khuyết dựa trên trung bình mới
+    let starHtml = '';
+    for(let i = 1; i <= 5; i++) {
+        if(newAverage >= i) {
+            starHtml += '<i class="fa-solid fa-star"></i> ';
+        } else if(newAverage >= (i - 0.5)) {
+            starHtml += '<i class="fa-solid fa-star-half-stroke"></i> ';
+        } else {
+            starHtml += '<i class="fa-regular fa-star" style="color: #ddd;"></i> ';
+        }
+    }
+    
+    // Bơm ngôi sao vào cái bảng bự bên dưới
+    document.getElementById('display-stars-overview').innerHTML = starHtml;
+
+    // === PHẦN MỚI THÊM VÀO ĐỂ CẬP NHẬT GIAO DIỆN PHÍA TRÊN CÙNG ===
+    // Bơm ngôi sao vào cái khu vực nhỏ bên trên cạnh ảnh sản phẩm
+    let topStarsBox = document.getElementById('display-top-stars');
+    if (topStarsBox) topStarsBox.innerHTML = starHtml;
+
+    // Bơm tổng số lượt đánh giá vào khu vực nhỏ bên trên
+    let topTotalBox = document.getElementById('display-top-total');
+    if (topTotalBox) topTotalBox.innerText = '(' + newTotal + ' đánh giá)';
+    // ==============================================================
+
+    // 4. Cập nhật độ dài của 5 thanh màu cam và con số % tương ứng
+    for(let i = 1; i <= 5; i++) {
+        let pct = newPercentages[i] || 0; 
+        
+        let barFill = document.getElementById('bar-fill-' + i);
+        let barText = document.getElementById('bar-text-' + i);
+        
+        if(barFill) barFill.style.width = pct + '%';
+        if(barText) barText.innerText = pct + '%';
+    }
+}
+
+function cancelQAForm() {
+    document.getElementById('discussionForm').reset(); // Clear all inputs
+    toggleQAForm(); // Collapse the form
 }
     </script>
 </body>
