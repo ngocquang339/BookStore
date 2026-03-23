@@ -128,9 +128,10 @@ public class WarehouseOrderDAO extends DBContext {
 
                 // Nếu chưa có hóa đơn thì mới tạo
                 if (!isInvoiceExist) {
-                    String insertSaleInvoiceSql = "INSERT INTO Invoices (invoice_type, order_id, total_amount, status) " +
-                                                  "SELECT 'SALE', order_id, total_amount, 'COMPLETED' " +
-                                                  "FROM Orders WHERE order_id = ?";
+                    String insertSaleInvoiceSql = "INSERT INTO Invoices (invoice_type, order_id, total_amount, status) "
+                            +
+                            "SELECT 'SALE', order_id, total_amount, 'COMPLETED' " +
+                            "FROM Orders WHERE order_id = ?";
                     try (PreparedStatement psInvoice = conn.prepareStatement(insertSaleInvoiceSql)) {
                         psInvoice.setInt(1, orderId);
                         psInvoice.executeUpdate();
@@ -193,53 +194,56 @@ public class WarehouseOrderDAO extends DBContext {
         return info;
     }
 
-    public void confirmPicking(int orderId) throws Exception {
-
+    public void confirmPicking(int orderId, int userId) throws Exception {
+        // Thêm tham số userId (ID của tài khoản Warehouse đang đăng nhập) vào hàm
         Connection conn = null;
-
         try {
             conn = getConnection();
             conn.setAutoCommit(false);
 
             String sqlGetItems = "SELECT book_id, quantity FROM OrderDetails WHERE order_id = ?";
-
             PreparedStatement psGet = conn.prepareStatement(sqlGetItems);
             psGet.setInt(1, orderId);
-
             ResultSet rs = psGet.executeQuery();
 
             String sqlUpdateStock = "UPDATE Books SET stock_quantity = stock_quantity - ? WHERE book_id = ?";
-
             PreparedStatement psStock = conn.prepareStatement(sqlUpdateStock);
 
-            while (rs.next()) {
+            // TẠO THÊM LỆNH INSERT HISTORY
+            String sqlHistory = "INSERT INTO Inventory_History (book_id, transaction_type, quantity_changed, related_id, created_by) VALUES (?, 'EXPORT', ?, ?, ?)";
+            PreparedStatement psHistory = conn.prepareStatement(sqlHistory);
 
+            while (rs.next()) {
                 int bookId = rs.getInt("book_id");
                 int quantity = rs.getInt("quantity");
 
+                // 1. Lệnh trừ kho
                 psStock.setInt(1, quantity);
                 psStock.setInt(2, bookId);
                 psStock.addBatch();
+
+                // 2. Lệnh ghi log (Số lượng là số âm vì là xuất kho)
+                psHistory.setInt(1, bookId);
+                psHistory.setInt(2, -quantity);
+                psHistory.setInt(3, orderId);
+                psHistory.setInt(4, userId);
+                psHistory.addBatch();
             }
 
             psStock.executeBatch();
+            psHistory.executeBatch(); // Chạy lệnh lưu lịch sử
 
             String sqlUpdateOrder = "UPDATE Orders SET status = 3 WHERE order_id = ?";
-
             PreparedStatement psOrder = conn.prepareStatement(sqlUpdateOrder);
             psOrder.setInt(1, orderId);
             psOrder.executeUpdate();
 
             conn.commit();
-
         } catch (Exception e) {
-
             if (conn != null)
                 conn.rollback();
             throw e;
-
         } finally {
-
             if (conn != null) {
                 conn.setAutoCommit(true);
                 conn.close();

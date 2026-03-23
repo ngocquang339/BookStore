@@ -18,7 +18,8 @@
                     <div class="card p-4 shadow-sm h-100 border-primary">
                         <h4 class="text-primary"><i class="fas fa-boxes"></i> Inventory List</h4>
                         <p>Xem danh sách toàn bộ sách, tìm kiếm và lọc.</p>
-                        <a href="${pageContext.request.contextPath}/warehouse/inventory" class="btn btn-primary mt-auto">Truy
+                        <a href="${pageContext.request.contextPath}/warehouse/inventory"
+                            class="btn btn-primary mt-auto">Truy
                             cập</a>
                     </div>
                 </div>
@@ -36,7 +37,8 @@
                     <div class="card p-4 shadow-sm h-100 border-success">
                         <h4 class="text-success"><i class="fa-solid fa-truck-fast"></i> Supplier Mng.</h4>
                         <p>Quản lý thông tin nhà cung cấp, NXB (Thêm, Sửa, Xóa).</p>
-                        <a href="${pageContext.request.contextPath}/warehouse/supplier" class="btn btn-success mt-auto">Truy
+                        <a href="${pageContext.request.contextPath}/warehouse/supplier"
+                            class="btn btn-success mt-auto">Truy
                             cập</a>
                     </div>
                 </div>
@@ -96,6 +98,18 @@
                         </h4>
                         <p>Xem danh sách hóa đơn bán và nhập, kiểm tra chi tiết.</p>
                         <a href="${pageContext.request.contextPath}/warehouse/invoices" class="btn btn-primary mt-auto">
+                            Truy cập
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card p-4 shadow-sm h-100 border-dark">
+                        <h4 class="text-dark">
+                            <i class="fas fa-history"></i> Inventory History
+                        </h4>
+                        <p>Xem lịch sử biến động tồn kho (nhập, xuất, trả hàng).</p>
+                        <a href="${pageContext.request.contextPath}/warehouse/inventory-history"
+                            class="btn btn-dark mt-auto">
                             Truy cập
                         </a>
                     </div>

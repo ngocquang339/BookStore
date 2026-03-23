@@ -158,79 +158,93 @@ public class PurchaseOrderDAO extends DBContext {
     }
 
     // =======================================================
-    // 2. XÁC NHẬN NHẬP KHO (CỘNG KHO & ĐỔI TRẠNG THÁI PO)
+    // 2. XÁC NHẬN NHẬP KHO (CỘNG KHO, GHI LOG, ĐỔI TRẠNG THÁI & TẠO HÓA ĐƠN)
     // =======================================================
-    public boolean confirmReceive(int poId, String[] selectedBookIds) {
-    String updateStockSql = "UPDATE Books SET stock_quantity = stock_quantity + ? WHERE book_id = ?";
-    String updatePoStatusSql = "UPDATE Purchase_Orders SET status = 2 WHERE purchase_order_id = ?"; // 2: Received
+    // Thay đổi 1: Thêm tham số userId để biết ai là người nhập kho
+    public boolean confirmReceive(int poId, String[] selectedBookIds, int userId) {
+        String updateStockSql = "UPDATE Books SET stock_quantity = stock_quantity + ? WHERE book_id = ?";
+        String updatePoStatusSql = "UPDATE Purchase_Orders SET status = 2 WHERE purchase_order_id = ?"; // 2: Received
 
-    // NEW: Insert Invoice
-    String insertInvoiceSql = "INSERT INTO Invoices (invoice_type, purchase_order_id, total_amount, status) " +
-                              "SELECT 'PURCHASE', purchase_order_id, total_amount, 'COMPLETED' " +
-                              "FROM Purchase_Orders WHERE purchase_order_id = ?";
+        // THÊM MỚI 1: Lệnh SQL ghi log Inventory History (IMPORT)
+        String insertHistorySql = "INSERT INTO Inventory_History (book_id, transaction_type, quantity_changed, related_id, created_by) VALUES (?, 'IMPORT', ?, ?, ?)";
 
-    Connection conn = null;
-    try {
-        conn = new DBContext().getConnection();
-        conn.setAutoCommit(false); // Bắt đầu Transaction
+        // THÊM MỚI 2: Lệnh SQL tự động tạo Purchase Invoice
+        String insertInvoiceSql = "INSERT INTO Invoices (invoice_type, purchase_order_id, total_amount, status) " +
+                "SELECT 'PURCHASE', purchase_order_id, total_amount, 'COMPLETED' " +
+                "FROM Purchase_Orders WHERE purchase_order_id = ?";
 
-        // 1. Lấy chi tiết để biết số lượng cần cộng
-        List<PurchaseOrderDetail> items = getPoDetailsForReceive(poId);
+        Connection conn = null;
+        try {
+            conn = new DBContext().getConnection();
+            conn.setAutoCommit(false); // Bắt đầu Transaction
 
-        // 2. Cập nhật stock (batch)
-        try (PreparedStatement psStock = conn.prepareStatement(updateStockSql)) {
-            for (String bookIdStr : selectedBookIds) {
-                int bookId = Integer.parseInt(bookIdStr);
+            // 1. Lấy chi tiết để biết số lượng cần cộng (expected_quantity)
+            List<PurchaseOrderDetail> items = getPoDetailsForReceive(poId);
 
-                PurchaseOrderDetail currentItem = items.stream()
-                        .filter(i -> i.getBook().getId() == bookId)
-                        .findFirst().orElse(null);
+            // 2. Cập nhật số lượng kho VÀ Ghi log lịch sử bằng Batch
+            try (PreparedStatement psStock = conn.prepareStatement(updateStockSql);
+                    PreparedStatement psHistory = conn.prepareStatement(insertHistorySql)) { // Khởi tạo thêm psHistory
 
-                if (currentItem != null) {
-                    psStock.setInt(1, currentItem.getExpectedQuantity());
-                    psStock.setInt(2, bookId);
-                    psStock.addBatch();
+                for (String bookIdStr : selectedBookIds) {
+                    int bookId = Integer.parseInt(bookIdStr);
+
+                    PurchaseOrderDetail currentItem = items.stream()
+                            .filter(i -> i.getBook().getId() == bookId)
+                            .findFirst().orElse(null);
+
+                    if (currentItem != null) {
+                        int quantity = currentItem.getExpectedQuantity();
+
+                        // 2.1 Đưa lệnh cộng kho vào Batch
+                        psStock.setInt(1, quantity);
+                        psStock.setInt(2, bookId);
+                        psStock.addBatch();
+
+                        // 2.2 Đưa lệnh ghi log vào Batch (Số lượng dương vì là Nhập kho)
+                        psHistory.setInt(1, bookId);
+                        psHistory.setInt(2, quantity);
+                        psHistory.setInt(3, poId);
+                        psHistory.setInt(4, userId);
+                        psHistory.addBatch();
+                    }
+                }
+                psStock.executeBatch(); // Chạy đồng loạt lệnh cộng kho
+                psHistory.executeBatch(); // Chạy đồng loạt lệnh ghi log
+            }
+
+            // 3. Cập nhật trạng thái PO thành Received
+            try (PreparedStatement psStatus = conn.prepareStatement(updatePoStatusSql)) {
+                psStatus.setInt(1, poId);
+                psStatus.executeUpdate();
+            }
+
+            // 4. Tự động sinh Hóa đơn (Purchase Invoice)
+            try (PreparedStatement psInvoice = conn.prepareStatement(insertInvoiceSql)) {
+                psInvoice.setInt(1, poId);
+                psInvoice.executeUpdate();
+            }
+
+            conn.commit(); // Thành công tất cả thì Commit (Lưu vào DB)
+            return true;
+        } catch (Exception e) {
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
                 }
             }
-            psStock.executeBatch();
-        }
-
-        // 3. Update status PO -> Received
-        try (PreparedStatement psStatus = conn.prepareStatement(updatePoStatusSql)) {
-            psStatus.setInt(1, poId);
-            psStatus.executeUpdate();
-        }
-
-        // ================= NEW: TẠO PURCHASE INVOICE =================
-        try (PreparedStatement psInvoice = conn.prepareStatement(insertInvoiceSql)) {
-            psInvoice.setInt(1, poId);
-            psInvoice.executeUpdate();
-        }
-        // =============================================================
-
-        conn.commit(); // Commit tất cả
-        return true;
-
-    } catch (Exception e) {
-        if (conn != null) {
-            try {
-                conn.rollback();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
-        e.printStackTrace();
-        return false;
-
-    } finally {
-        if (conn != null) {
-            try {
-                conn.setAutoCommit(true);
-                conn.close();
-            } catch (Exception e) {
-                e.printStackTrace();
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
-}
 }
