@@ -48,12 +48,10 @@
             cursor: not-allowed !important;
             color: #888888 !important;
         }
-</style>
+    </style>
 </head>
 
 <body>
-
-    
 
     <c:if test="${not empty sessionScope.cartError}">
         <div class="alert alert-danger alert-dismissible fade show alert-fixed" role="alert">
@@ -63,7 +61,6 @@
         </div>
         <c:remove var="cartError" scope="session" />
     </c:if>
-
 
     <jsp:include page="component/header.jsp" />
 
@@ -102,7 +99,7 @@
                                         <td class="text-center">
                                             <input type="checkbox" name="selectedItems" value="${item.book.id}" 
                                                    class="form-check-input custom-checkbox item-checkbox"
-                                                   data-price="${item.book.price}"data-quantity="${item.quantity}">
+                                                   data-price="${item.book.price}" data-quantity="${item.quantity}">
                                         </td>
 
                                         <td>
@@ -113,10 +110,10 @@
                                                      onerror="this.src='https://placehold.co/80x100'">
                                                 <div>
                                                     <div class="product-title">
-    <a href="${pageContext.request.contextPath}/detail?pid=${item.book.id}" style="text-decoration: none; color: inherit;">
-        ${item.book.title}
-    </a>
-</div>
+                                                        <a href="${pageContext.request.contextPath}/detail?pid=${item.book.id}" style="text-decoration: none; color: inherit;">
+                                                            ${item.book.title}
+                                                        </a>
+                                                    </div>
                                                     <div style="font-size: 14px; color: #555;">
                                                         <fmt:formatNumber value="${item.book.price}" type="currency" currencySymbol="₫"/>
                                                     </div>
@@ -126,23 +123,28 @@
                                         
                                         <td>
                                             <div class="d-flex justify-content-center">
-                                                <a href="${pageContext.request.contextPath}/add-to-cart?id=${item.book.id}&action=dec" class="btn-qty text-decoration-none">-</a>
+                                                <%-- ĐÃ ĐỔI THÀNH update-cart ĐỂ XỬ LÝ GIẢM SỐ LƯỢNG --%>
+                                                <a href="${pageContext.request.contextPath}/update-cart?id=${item.book.id}&action=dec" class="btn-qty text-decoration-none">-</a>
                                                 
+                                                <%-- ĐÃ ĐỔI THÀNH update-cart ĐỂ XỬ LÝ NHẬP TRỰC TIẾP --%>
                                                 <input type="number" class="qty-input" value="${item.quantity}" min="1"
                                                        onkeypress="if(event.keyCode === 13) { event.preventDefault(); this.blur(); return false; }"
-                                                       onchange="if(this.value.trim() !== '') { window.location.href='${pageContext.request.contextPath}/add-to-cart?id=${item.book.id}&action=update&quantity=' + this.value.trim(); } else { this.value = '${item.quantity}'; }">
+                                                       onchange="if(this.value.trim() !== '') { window.location.href='${pageContext.request.contextPath}/update-cart?id=${item.book.id}&action=update&quantity=' + this.value.trim(); } else { this.value = '${item.quantity}'; }">
                                                 
-                                                <a href="${pageContext.request.contextPath}/add-to-cart?id=${item.book.id}&action=inc" class="btn-qty text-decoration-none">+</a>
+                                                <%-- ĐÃ ĐỔI THÀNH update-cart ĐỂ XỬ LÝ TĂNG SỐ LƯỢNG --%>
+                                                <a href="${pageContext.request.contextPath}/update-cart?id=${item.book.id}&action=inc" class="btn-qty text-decoration-none">+</a>
                                             </div>
                                         </td>
                                         
                                         <td class="text-center">
                                             <span class="price-text">
-                                                <fmt:formatNumber value="${item.totalPrice}" type="currency" currencySymbol="₫"/>
+                                                <fmt:formatNumber value="${item.book.price * item.quantity}" type="currency" currencySymbol="₫"/>
                                             </span>
                                         </td>
-<td class="text-center">
-                                            <a href="${pageContext.request.contextPath}/add-to-cart?id=${item.book.id}&action=remove" 
+                                        
+                                        <td class="text-center">
+                                            <%-- ĐÃ ĐỔI THÀNH update-cart ĐỂ XỬ LÝ XÓA --%>
+                                            <a href="${pageContext.request.contextPath}/update-cart?id=${item.book.id}&action=remove" 
                                                class="btn-delete" title="Xóa sản phẩm"
                                                onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này không?');">
                                                 <i class="fa-solid fa-trash-can"></i>
@@ -170,6 +172,7 @@
             </c:choose>
         </div>
     </div>
+    
     <jsp:include page="component/footer.jsp" />
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -204,7 +207,7 @@
 
             // Đổi trạng thái ô "Chọn tất cả"
             if(selectAll) {
-selectAll.checked = (checkedCount === itemCheckboxes.length && itemCheckboxes.length > 0);
+                selectAll.checked = (checkedCount === itemCheckboxes.length && itemCheckboxes.length > 0);
             }
 
             // BẬT / TẮT NÚT THANH TOÁN
