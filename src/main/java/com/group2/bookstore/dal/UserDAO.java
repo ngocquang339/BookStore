@@ -283,7 +283,7 @@ public class UserDAO extends DBContext {
     }
 
     // HÀM LỌC CRM NÂNG CAO
-    public List<User> getFilteredCustomers(String keyword, String memberTier, Double minSpend, Double maxSpend) {
+    public List<User> getFilteredCustomers(String keyword, String memberTier, Integer minPoint, Integer maxPoint) {
         List<User> list = new ArrayList<>();
 
         StringBuilder sql = new StringBuilder(
@@ -309,28 +309,28 @@ public class UserDAO extends DBContext {
             params.add(kw);
             params.add(keyword);
         }
-        if (minSpend != null) {
-            sql.append(" AND c.total_spend >= ? ");
-            params.add(minSpend);
+        if (minPoint != null) {
+            sql.append(" AND c.current_month_points >= ? ");
+            params.add(minPoint);
         }
-        if (maxSpend != null) {
-            sql.append(" AND c.total_spend <= ? ");
-            params.add(maxSpend);
+        if (maxPoint != null) {
+            sql.append(" AND c.current_month_points <= ? ");
+            params.add(maxPoint);
         }
 
         if (memberTier != null && !memberTier.equals("all")) {
             switch (memberTier) {
                 case "diamond":
-                    sql.append(" AND c.total_spend >= 10000000 ");
+                    sql.append(" AND c.current_month_points >= 5000 ");
                     break;
                 case "gold":
-                    sql.append(" AND c.total_spend >= 5000000 AND c.total_spend < 10000000 ");
+                    sql.append(" AND c.current_month_points >= 2000 AND c.current_month_points < 5000 ");
                     break;
                 case "silver":
-                    sql.append(" AND c.total_spend >= 1000000 AND c.total_spend < 5000000 ");
+                    sql.append(" AND c.current_month_points >= 500 AND c.current_month_points < 2000 ");
                     break;
                 case "bronze":
-                    sql.append(" AND c.total_spend < 1000000 ");
+                    sql.append(" AND c.current_month_points < 500 ");
                     break;
             }
         }

@@ -2236,6 +2236,16 @@
                             }
                             updateGalleryView();
                         }
+    // 3. Xử lý Gửi Form báo cáo
+    document.getElementById('reportDiscussionForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const form = e.target;
+        const data = new URLSearchParams(new FormData(form));
+        
+        // Nếu chọn "Khác" thì gộp lý do
+        if(data.get('reason') === 'Khác'){
+            data.set('reason', data.get('customReason'));
+        }
 
                         // Chuyển sang ảnh TRƯỚC ĐÓ
                         function prevImage() {
@@ -2253,8 +2263,46 @@
                             let mainImg = document.getElementById('modalMainImage');
                             mainImg.style.transform = 'scale(1)';
 
-                            // 2. Đổi ảnh to
-                            mainImg.src = galleryImages[currentIndex];
+    // =========================================================
+    // JS: TỰ ĐỘNG CUỘN ĐẾN BÌNH LUẬN KHI BẤM TỪ THÔNG BÁO TỚI
+    // =========================================================
+    window.addEventListener('load', function() {
+        const hash = window.location.hash; // Lấy phần #... trên URL
+        
+        if (hash && (hash.startsWith('#reply-box-') || hash.startsWith('#review-box-'))) {
+            const targetEl = document.querySelector(hash);
+            
+            if (targetEl) {
+                // 1. Tìm cái thẻ div cha đang chứa câu trả lời này (mặc định nó đang bị display: none)
+                const parentSection = targetEl.closest('[id^="replies-section-"]');
+                
+                // 2. Mở khóa ẩn, cho nó hiện ra
+                if (parentSection) {
+                    parentSection.style.display = 'block';
+                }
+                
+                // 3. Cuộn mượt mà đến giữa màn hình và tạo hiệu ứng nhấp nháy
+                setTimeout(() => {
+                    targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    
+                    // Thêm class bôi vàng 
+                    const innerBox = targetEl.querySelector('div[style*="flex: 1"]'); // Lấy cái hộp nội dung bên trong
+                    if(innerBox) {
+                        innerBox.classList.add('highlight-target');
+                    } else {
+                        targetEl.classList.add('highlight-target');
+                    }
+                }, 300); // Đợi 300ms cho DOM render xong
+            }
+        }
+    });
+    // =================================================================
+// 1. CẤU HÌNH API GHN (Hệ thống thật)
+// =================================================================
+const GHN_TOKEN = '79a7c86a-1ef8-11f1-a3ea-4e2619480a9f'; 
+const GHN_SHOP_ID = 6322897; 
+const SHOP_DISTRICT_ID = 3440; 
+const GHN_URL = 'https://online-gateway.ghn.vn/shiip/public-api/master-data';
 
                             // 3. Cập nhật viền đỏ ở dưới
                             let allThumbs = document.querySelectorAll('.modal-thumb-item');

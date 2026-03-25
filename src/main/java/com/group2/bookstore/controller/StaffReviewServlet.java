@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.List;
 
 @WebServlet(name = "StaffReviewServlet", urlPatterns = { "/staff/reviews", "/staff/delete-review",
-        "/staff/mass-delete-reviews", "/staff/mark-spam-reviews" })
+        "/staff/mass-delete-reviews", "/staff/ignore-reports" })
 public class StaffReviewServlet extends HttpServlet {
 
     @Override
@@ -73,6 +73,7 @@ public class StaffReviewServlet extends HttpServlet {
         String toDate = request.getParameter("toDate");
         String replyStatus = request.getParameter("replyStatus");
         String commentKeyword = request.getParameter("commentKeyword");
+        String isReported = request.getParameter("isReported");
         int starValue = 0;
         int bookId = 0;
         int userId = 0;
@@ -102,7 +103,7 @@ public class StaffReviewServlet extends HttpServlet {
         // 2. Gọi DAO để lấy dữ liệu
         ReviewDAO reviewDAO = new ReviewDAO();
         List<Review> listReviews = reviewDAO.getFilteredReviews(starValue, bookId, userId, fromDate, toDate,
-                replyStatus, commentKeyword);
+                replyStatus, commentKeyword, isReported);
         List<Review> listBooks = reviewDAO.getDistinctReviewedBooks();
 
         // 3. Đẩy dữ liệu sang JSP
@@ -111,6 +112,7 @@ public class StaffReviewServlet extends HttpServlet {
         request.setAttribute("selectedBookId", (bookId == 0) ? "" : String.valueOf(bookId));
         request.setAttribute("selectedUserId", (userId == 0) ? "" : String.valueOf(userId));
         request.setAttribute("listBooks", listBooks);
+        request.setAttribute("isReported", "true".equals(isReported));
 
         // 4. Chuyển hướng sang file JSP
         request.getRequestDispatcher("/view/staff/review-manage.jsp").forward(request, response);
@@ -154,17 +156,26 @@ public class StaffReviewServlet extends HttpServlet {
             return; // Xóa xong thì kết thúc luôn, không chạy xuống dưới nữa
         }
         // ==========================================
-        // LUỒNG 1.5: XỬ LÝ NÚT BẤM "ĐÁNH DẤU SPAM HÀNG LOẠT"
+        // LUỒNG 1.5: XỬ LÝ NÚT BẤM "BỎ QUA BÁO CÁO"
         // ==========================================
-        if ("/staff/mark-spam-reviews".equals(path)) {
+        if ("/staff/ignore-reports".equals(path)) {
             String[] reviewIds = request.getParameterValues("reviewIds");
 
             if (reviewIds != null && reviewIds.length > 0) {
                 ReviewDAO dao = new ReviewDAO();
-                dao.markMultipleAsSpam(reviewIds); // Gọi hàm ẩn comment
+                boolean ignored = dao.ignoreMultipleReports(reviewIds);
+
+                if (ignored) {
+                    request.getSession().setAttribute("reviewMessage",
+                            "Đã đánh dấu An Toàn (Bỏ qua báo cáo) cho " + reviewIds.length + " bình luận!");
+                    request.getSession().setAttribute("reviewMessageType", "success");
+                }
+            } else {
+                request.getSession().setAttribute("reviewMessage", "Chưa chọn bình luận nào!");
+                request.getSession().setAttribute("reviewMessageType", "warning");
             }
             response.sendRedirect(request.getContextPath() + "/staff/reviews");
-            return; // Xong thì kết thúc
+            return;
         }
         // ==========================================
         // LUỒNG 2: XỬ LÝ NÚT BẤM "TRẢ LỜI ĐÁNH GIÁ" & GỬI THÔNG BÁO
@@ -182,20 +193,21 @@ public class StaffReviewServlet extends HttpServlet {
 
                 // 2. Nếu lưu thành công thì bắn thông báo cho khách
                 if (isSuccess) {
-                    Review review = reviewDAO.getReviewById(reviewId); 
+                    Review review = reviewDAO.getReviewById(reviewId);
                     if (review != null) {
                         com.group2.bookstore.dal.NotificationDAO notifDAO = new com.group2.bookstore.dal.NotificationDAO();
-                        
+
                         String message = "Quản trị viên đã phản hồi bình luận của bạn.";
-                        
+
                         // Đã sửa lại đường dẫn cho khớp với định dạng "detail?pid=" trong DB của bạn
-                        String link = "detail?pid=" + review.getBookId(); 
-                        
+                        String link = "detail?pid=" + review.getBookId() + "#review-box-" + review.getReviewId();
+
                         // Chỉ truyền 3 tham số: userId, message, link
                         notifDAO.insertNotification(review.getUserId(), message, link);
                     }
-                    
-                    request.getSession().setAttribute("reviewMessage", "Đã trả lời bình luận và gửi thông báo cho khách!");
+
+                    request.getSession().setAttribute("reviewMessage",
+                            "Đã trả lời bình luận và gửi thông báo cho khách!");
                     request.getSession().setAttribute("reviewMessageType", "success");
                 }
 

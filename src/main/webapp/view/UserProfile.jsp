@@ -119,14 +119,14 @@
                         <div class="form-row">
                             <label class="form-label-custom">Tên đăng nhập</label>
                             <div class="form-input-custom">
-                                <input type="text" name="username" value="${sessionScope.user.username}" class="form-control" readonly title="Không thể thay đổi tên đăng nhập">
+                                <input type="text" name="username" value="${sessionScope.user.username}" class="form-control" readonly required title="Không thể thay đổi tên đăng nhập">
                             </div>
                         </div>
 
                         <div class="form-row">
                             <label class="form-label-custom">Họ và tên</label>
                             <div class="form-input-custom">
-                                <input type="text" name="fullname" value="${sessionScope.user.fullname}" class="form-control" placeholder="Nhập họ tên đầy đủ">
+                                <input type="text" name="fullname" value="${sessionScope.user.fullname}" class="form-control" placeholder="Nhập họ tên đầy đủ" required maxlength="50">
                             </div>
                         </div>
 
@@ -199,8 +199,8 @@
 
                 <div class="modal-group" style="margin-bottom: 15px;">
                     <label style="display: block; margin-bottom: 5px; font-weight: 500;">Mã xác nhận OTP</label>
-                    <input type="text" id="otpCodePhone" name="otp_code" maxlength="6" class="modal-input" placeholder="Nhập 6 số OTP" required
-                        style="width: 100%; padding: 10px; border: 1px solid ${not empty requestScope.otpError ? '#dc3545' : '#ddd'}; border-radius: 5px; text-align: center; letter-spacing: 3px; font-size: 16px; font-weight: bold;">
+                    <input type="text" id="otpCodeEmailAjax" name="Userotp" maxlength="6" pattern="\d{6}" class="modal-input" placeholder="6 ký tự số" required oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                        style="width: 100%; padding: 10px; border: 1px solid ${not empty requestScope.otpEmailError ? '#dc3545' : '#ddd'}; border-radius: 5px; letter-spacing: 2px; text-align: center; font-size: 16px; font-weight: bold;">
                     
                     <small style="color: #dc3545; font-size: 13px; margin-top: 5px; font-weight: bold; display: ${not empty requestScope.otpError ? 'block' : 'none'};">
                         <i class="fa-solid fa-triangle-exclamation"></i> ${requestScope.otpError}
@@ -214,7 +214,7 @@
                 <div class="modal-group" style="margin-bottom: 25px;">
                     <label style="display: block; margin-bottom: 5px; font-weight: 500;">Số điện thoại mới</label>
                     <input type="text" id="newPhoneInput" name="new_phone" class="modal-input" 
-                        placeholder="Nhập số điện thoại mới" required oninput="validatePhone()"
+                        placeholder="Nhập số điện thoại mới" required maxlength="10" pattern="^0\d{9}$" oninput="validatePhone()"
                         style="width: 100%; padding: 10px; border: 1px solid ${not empty requestScope.phoneErrorServer ? '#dc3545' : '#ddd'}; border-radius: 5px;">
                     
                     <small style="color: #dc3545; font-size: 13px; margin-top: 5px; font-weight: bold; display: ${not empty requestScope.phoneErrorServer ? 'block' : 'none'};">
@@ -263,7 +263,7 @@
 
                 <div class="modal-group" style="margin-bottom: 20px;">
                     <label style="display: block; margin-bottom: 5px; font-weight: 500;">Mã xác nhận OTP</label>
-                    <input type="number" id="otpCodeEmailAjax" name="Userotp" maxlength="6" class="modal-input" placeholder="6 ký tự" required
+                    <input type="text" id="otpCodeEmailAjax" name="Userotp" maxlength="6" pattern="\d{6}" class="modal-input" placeholder="6 ký tự số" required oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                         style="width: 100%; padding: 10px; border: 1px solid ${not empty requestScope.otpEmailError ? '#dc3545' : '#ddd'}; border-radius: 5px; letter-spacing: 2px; text-align: center; font-size: 16px; font-weight: bold;">
                     
                     <small style="color: #dc3545; font-size: 13px; margin-top: 5px; font-weight: bold; display: ${not empty requestScope.otpEmailError ? 'block' : 'none'};">
@@ -649,7 +649,7 @@
         var phoneRegex = /^0\d{9}$/;
 
         if (!phoneRegex.test(value)) {
-            errorMsg.innerText = 'Phone number must be 10 digits and start with 0.';
+            errorMsg.innerText = 'Số điện thoại phải bao gồm 10 chữ số và bắt đầu bằng 0!';
             errorMsg.style.display = 'block';
             input.style.borderColor = '#dc3545'; 
             btn.disabled = true; 

@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import com.group2.bookstore.dal.PurchaseOrderDAO;
 import com.group2.bookstore.model.PurchaseOrderDetail;
+import com.group2.bookstore.model.User; // Thêm import User
 
 @WebServlet("/warehouse/receive-goods")
 public class ReceiveGoodsServlet extends HttpServlet {
@@ -49,14 +50,28 @@ public class ReceiveGoodsServlet extends HttpServlet {
                 int poId = Integer.parseInt(poIdParam);
                 PurchaseOrderDAO dao = new PurchaseOrderDAO();
                 
-                // Thực thi Transaction cộng kho và đổi trạng thái
-                boolean success = dao.confirmReceive(poId, selectedBooks);
+                // ================= LẤY USER ID TỪ SESSION =================
+                // (Nhớ đổi "account" thành key thực tế bạn dùng lưu session lúc đăng nhập nếu khác nhé)
+                User loginUser = (User) request.getSession().getAttribute("user"); // ĐÚNG
                 
-                if (success) {
-                    // Về lại trang danh sách PO (có thể bắt param msg để hiện alert toastr nếu muốn)
-                    response.sendRedirect("view-po?msg=receive_success");
+                if (loginUser != null) {
+                    int userId = loginUser.getId();
+                    
+                    // Thực thi Transaction cộng kho, đổi trạng thái, ghi log VÀ tạo hóa đơn
+                    boolean success = dao.confirmReceive(poId, selectedBooks, userId);
+                    
+                    if (success) {
+                        // Về lại trang danh sách PO (có thể bắt param msg để hiện alert toastr nếu muốn)
+                        response.sendRedirect("view-po?msg=receive_success");
+                        return;
+                    }
+                } else {
+                    // Xử lý rủi ro nếu người dùng mất session (hết hạn đăng nhập)
+                    response.sendRedirect(request.getContextPath() + "/login?msg=session_expired");
                     return;
                 }
+                // ==========================================================
+                
             } catch (NumberFormatException e) {
                 e.printStackTrace();
             }
