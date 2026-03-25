@@ -807,4 +807,40 @@ public double getLatestImportPrice(int bookId) {
     }
     return 0.0; // Return 0 if the book has never been purchased
 }
+
+public List<Book> getAllBooks() {
+    List<Book> list = new ArrayList<>();
+    
+    // Dùng JOIN để lấy luôn tên Category (Giả sử bảng của bạn tên là Categories)
+    String sql = "SELECT b.*, c.category_name " +
+                 "FROM Books b " +
+                 "LEFT JOIN Categories c ON b.category_id = c.category_id";
+                 
+    try (Connection conn = getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+         
+        while (rs.next()) {
+            Book b = new Book();
+            b.setId(rs.getInt("book_id"));
+            b.setTitle(rs.getString("title"));
+            b.setAuthor(rs.getString("author"));
+            b.setPrice(rs.getDouble("price"));
+            b.setPublisher(rs.getString("publisher"));
+            b.setImageUrl(rs.getString("image"));
+            b.setStockQuantity(rs.getInt("stock_quantity"));
+            b.setCategoryId(rs.getInt("category_id"));
+            
+            // Cột category_name giờ đã an toàn để lấy trực tiếp vì câu SQL đã JOIN
+            b.setCategoryName(rs.getString("category_name"));
+
+            list.add(b);
+        }
+    } catch (Exception e) {
+        // Luôn luôn in lỗi ra Console để biết đường mà sửa nếu DB có vấn đề
+        System.out.println("Lỗi tại getAllBooks: " + e.getMessage());
+        e.printStackTrace(); 
+    }
+    return list;
+}
 }
