@@ -865,44 +865,55 @@
 
     function validateRegister(e) {
         // Chỉ chạy validate nếu đang ở bước điền form (không phải bước OTP)
+        console.log("1. Bắt đầu chạy validateRegister...");
         let isOtpStep = "${not empty requestScope.showOtpStep}";
         if (isOtpStep === "true") return true;
 
         let isValid = true;
 
-        // Lấy danh sách các ô cần kiểm tra (Giả sử bạn đã thêm id cho chúng)
-        // Nếu bạn dùng name thì đổi thành document.querySelector('input[name="fullname"]')
-        let fields = [
-            { id: document.querySelector('input[name="fullname"]'), errId: 'err-reg-fullname' },
-            { id: document.querySelector('input[name="phone_number"]'), errId: 'err-reg-phone' },
-            { id: document.querySelector('input[name="username"]'), errId: 'err-reg-username' },
-            { id: document.querySelector('input[name="email"]'), errId: 'err-reg-email' },
-            { id: document.querySelector('input[name="password"]'), errId: 'err-reg-password' },
-            { id: document.querySelector('input[name="re_pass"]'), errId: 'err-reg-repass' }
-        ];
+        // Chỉ đích danh tìm trong form đăng ký
+        let regForm = document.getElementById("registerForm"); 
+        try{
+            console.log("2. Bắt đầu quét các ô input...");
+            let fields = [
+                { id: regForm.querySelector('input[name="fullname"]'), errId: 'err-reg-fullname' },
+                { id: regForm.querySelector('input[name="phone_number"]'), errId: 'err-reg-phone' },
+                { id: regForm.querySelector('input[name="username"]'), errId: 'err-reg-username' },
+                { id: regForm.querySelector('input[name="email"]'), errId: 'err-reg-email' },
+                { id: regForm.querySelector('input[name="password"]'), errId: 'err-reg-password' },
+                { id: regForm.querySelector('input[name="re_pass"]'), errId: 'err-reg-repass' }
+            ];
 
-        // Duyệt qua từng ô, nếu rỗng thì chặn lại và hiện thông báo lỗi
-        for (let field of fields) {
-            let inputEle = field.id;
-            
-            // Tự động tạo thẻ span báo lỗi nếu bạn chưa tự tay viết trong HTML
-            let errSpan = inputEle.parentElement.nextElementSibling;
-            if (!errSpan || !errSpan.classList.contains('err-msg-dynamic')) {
-                errSpan = document.createElement('span');
-                errSpan.className = 'err-msg-dynamic';
-                errSpan.style = 'display:none; color: #dc3545; font-size: 13px; margin-top: 5px;';
-                errSpan.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> This field is required';
-                inputEle.parentElement.after(errSpan);
-            }
+            // Duyệt qua từng ô, nếu rỗng thì chặn lại và hiện thông báo lỗi
+            for (let field of fields) {
+                if (field.id === null) {
+                    console.error("LỖI RỒI: Không tìm thấy ô input nào đó trên form!");
+                }
+                let inputEle = field.id;
+                
+                // Tự động tạo thẻ span báo lỗi nếu bạn chưa tự tay viết trong HTML
+                let errSpan = inputEle.parentElement.nextElementSibling;
+                if (!errSpan || !errSpan.classList.contains('err-msg-dynamic')) {
+                    errSpan = document.createElement('span');
+                    errSpan.className = 'err-msg-dynamic';
+                    errSpan.style = 'display:none; color: #dc3545; font-size: 13px; margin-top: 5px;';
+                    errSpan.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> This field is required';
+                    inputEle.parentElement.after(errSpan);
+                }
 
-            if (inputEle.value.trim() === "") {
-                errSpan.style.display = "block";
-                isValid = false;
-            } else {
-                errSpan.style.display = "none";
+                if (inputEle.value.trim() === "") {
+                    errSpan.style.display = "block";
+                    isValid = false;
+                } else {
+                    errSpan.style.display = "none";
+                }
             }
+            console.log("3. Kết quả Validate: " + isValid);
         }
-
+        catch (error) {
+            console.error("CÓ LỖI CRASH JAVASCRIPT: ", error);
+            isValid = false;
+        }
         // Kiểm tra EX 6 (Terms and Conditions)
         let termsCheck = document.getElementById("reg_terms");
         let errTerms = document.getElementById("err-reg-terms");
@@ -914,7 +925,11 @@
         }
 
         if (!isValid) {
+            console.log("4. Bị chặn lại, không gửi xuống Server!");
             e.preventDefault();
+        }
+        else{
+            console.log("4. Hợp lệ! Đang chuẩn bị gửi dữ liệu xuống Java Servlet...");
         }
         return isValid;
     }
