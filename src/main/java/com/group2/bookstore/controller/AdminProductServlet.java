@@ -106,6 +106,7 @@ public class AdminProductServlet extends HttpServlet {
 
             int id = Integer.parseInt(request.getParameter("id"));
             Book b = bookDAO.getBookById(id);
+            b.setImportPrice(bookDAO.getLatestImportPrice(id));
 
             List<Category> listC = categoryDAO.getAllCategories();
 
