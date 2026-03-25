@@ -1121,4 +1121,21 @@ public class OrderDAO extends DBContext {
         }
         return list;
     }
+
+    // =========================================================================
+    // HÀM TỰ ĐỘNG CHỐT ĐƠN: Chuyển status 4 -> 5 sau 7 ngày
+    // =========================================================================
+    public int autoCompleteDeliveredOrders() {
+        // DATEDIFF(day, order_date, GETDATE()) >= 7 : So sánh ngày đặt với ngày hiện tại (nếu >= 7 ngày)
+        String sql = "UPDATE Orders SET status = 5 " +
+                     "WHERE status = 4 AND DATEDIFF(day, order_date, GETDATE()) >= 0";
+        
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            return ps.executeUpdate(); // Trả về số lượng đơn hàng đã được update
+        } catch (Exception e) {
+            System.out.println("Lỗi tại autoCompleteDeliveredOrders: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return 0;
+    }
 }
