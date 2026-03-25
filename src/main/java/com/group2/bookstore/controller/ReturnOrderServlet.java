@@ -8,24 +8,25 @@ import java.io.IOException;
 
 @WebServlet("/warehouse/returns")
 public class ReturnOrderServlet extends HttpServlet {
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) 
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         WarehouseOrderDAO dao = new WarehouseOrderDAO();
         String search = request.getParameter("searchName");
         int status = 0;
         try {
             status = Integer.parseInt(request.getParameter("statusFilter"));
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
 
         // Xử lý xem chi tiết (Modal)
         String viewId = request.getParameter("viewId");
         if (viewId != null) {
             int id = Integer.parseInt(viewId);
             request.setAttribute("selectedOrder", dao.getOrderCustomerInfo(id));
-            request.setAttribute("details", dao.getOrderDetails(id));
+            // SỬA DÒNG NÀY: Dùng hàm mới lấy chi tiết từ bảng ReturnRequests
+            request.setAttribute("details", dao.getReturnOrderDetails(id));
         }
-
         request.setAttribute("returnList", dao.getReturnOrders(search, status));
         request.getRequestDispatcher("/view/warehouse/return_order_list.jsp").forward(request, response);
     }

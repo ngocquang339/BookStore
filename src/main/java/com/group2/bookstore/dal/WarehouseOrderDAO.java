@@ -395,38 +395,55 @@ public class WarehouseOrderDAO extends DBContext {
     }
     // Thêm vào WarehouseOrderDAO.java
 
+    // Hàm lấy danh sách đơn trả hàng (Group by OrderId để không bị lặp dòng khi
+    // hiển thị)
     public List<Map<String, Object>> getReturnOrders(String searchName, int statusFilter) {
         List<Map<String, Object>> list = new ArrayList<>();
+        // Dùng Group By vì 1 order_id có thể có nhiều dòng trong ReturnRequests (mỗi
+        // sách 1 dòng)
         StringBuilder sql = new StringBuilder(
-                "SELECT o.order_id, o.order_date, o.total_amount, o.status, u.fullname " +
-                        "FROM Orders o JOIN Users u ON o.user_id = u.user_id WHERE o.status IN (7, 8, 9, 10) ");
+                "SELECT o.order_id, o.order_date, o.total_amount, o.status, u.fullname, " +
+                        "MAX(rr.created_at) as return_date, " +
+                        "MAX(rr.customer_reason) as customer_reason " +
+                        "FROM Orders o " +
+                        "JOIN Users u ON o.user_id = u.user_id " +
+                        "JOIN ReturnRequests rr ON o.order_id = rr.order_id " +
+                        "WHERE 1=1 ");
 
         if (searchName != null && !searchName.trim().isEmpty()) {
             sql.append(" AND u.fullname LIKE ? ");
         }
+        // Lọc theo status của Orders
         if (statusFilter >= 7) {
             sql.append(" AND o.status = ? ");
+        } else {
+            sql.append(" AND o.status IN (7, 8, 9, 10) ");
         }
-        sql.append(" ORDER BY o.order_date DESC");
+        sql.append(" GROUP BY o.order_id, o.order_date, o.total_amount, o.status, u.fullname ");
+        sql.append(" ORDER BY MAX(rr.created_at) DESC");
 
         try (Connection conn = getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+
             int paramIndex = 1;
             if (searchName != null && !searchName.trim().isEmpty()) {
                 ps.setString(paramIndex++, "%" + searchName + "%");
             }
             if (statusFilter >= 7) {
-                ps.setInt(paramIndex++, statusFilter);
+                ps.setInt(paramIndex, statusFilter);
             }
+
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                Map<String, Object> order = new HashMap<>();
-                order.put("order_id", rs.getInt("order_id"));
-                order.put("order_date", rs.getTimestamp("order_date"));
-                order.put("total_amount", rs.getDouble("total_amount"));
-                order.put("status", rs.getInt("status"));
-                order.put("fullname", rs.getString("fullname"));
-                list.add(order);
+                Map<String, Object> map = new HashMap<>();
+                map.put("order_id", rs.getInt("order_id"));
+                map.put("order_date", rs.getTimestamp("order_date"));
+                map.put("total_amount", rs.getDouble("total_amount"));
+                map.put("status", rs.getInt("status"));
+                map.put("fullname", rs.getString("fullname"));
+                map.put("return_date", rs.getTimestamp("return_date"));
+                map.put("customer_reason", rs.getString("customer_reason"));
+                list.add(map);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -434,14 +451,43 @@ public class WarehouseOrderDAO extends DBContext {
         return list;
     }
 
+    // Hàm lấy chi tiết CÁC SÁCH BỊ TRẢ LẠI (Thay thế getOrderDetails cũ cho luồng
+    // Return)
+    public List<Map<String, Object>> getReturnOrderDetails(int orderId) {
+        List<Map<String, Object>> list = new ArrayList<>();
+        String sql = "SELECT b.title, b.image as image_url, rr.quantity, rr.customer_reason " +
+                "FROM ReturnRequests rr " +
+                "JOIN Books b ON rr.book_id = b.book_id " +
+                "WHERE rr.order_id = ?";
+
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, orderId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("title", rs.getString("title"));
+                map.put("image_url", rs.getString("image_url"));
+                map.put("quantity", rs.getInt("quantity"));
+                map.put("customer_reason", rs.getString("customer_reason"));
+                list.add(map);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // Sửa lại hàm cộng kho: Chỉ cộng lại đúng số lượng hàng có trong ReturnRequests
     public void confirmReturnToStock(int orderId) throws Exception {
         Connection conn = null;
         try {
             conn = getConnection();
             conn.setAutoCommit(false);
 
-            // 1. Lấy danh sách sách cần hoàn trả
-            String sqlItems = "SELECT book_id, quantity FROM OrderDetails WHERE order_id = ?";
+            // 1. Lấy danh sách sách thực tế khách trả từ ReturnRequests thay vì
+            // OrderDetails
+            String sqlItems = "SELECT book_id, quantity FROM ReturnRequests WHERE order_id = ?";
             PreparedStatement psItems = conn.prepareStatement(sqlItems);
             psItems.setInt(1, orderId);
             ResultSet rs = psItems.executeQuery();
@@ -456,12 +502,19 @@ public class WarehouseOrderDAO extends DBContext {
             }
             psStock.executeBatch();
 
-            // 3. Cập nhật trạng thái cuối cùng: RETURN_COMPLETED (10)
+            // 3. Cập nhật trạng thái Orders: RETURN_COMPLETED (10)
             String sqlStatus = "UPDATE Orders SET status = ? WHERE order_id = ?";
             PreparedStatement psStatus = conn.prepareStatement(sqlStatus);
             psStatus.setInt(1, OrderStatus.RETURN_COMPLETED);
             psStatus.setInt(2, orderId);
             psStatus.executeUpdate();
+
+            // 4. (Tùy chọn) Cập nhật trạng thái của ReturnRequests đồng bộ với Orders
+            String sqlRR = "UPDATE ReturnRequests SET status = ? WHERE order_id = ?";
+            PreparedStatement psRR = conn.prepareStatement(sqlRR);
+            psRR.setInt(1, OrderStatus.RETURN_COMPLETED);
+            psRR.setInt(2, orderId);
+            psRR.executeUpdate();
 
             conn.commit();
         } catch (Exception e) {

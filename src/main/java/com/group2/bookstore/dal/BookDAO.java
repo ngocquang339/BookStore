@@ -490,7 +490,7 @@ public class BookDAO extends DBContext {
     }
 
     public int insertBook(Book b) {
-    String sql = "INSERT INTO Books (title, author, price, description, image, stock_quantity, category_id, is_active, import_price, publisher, supplier, yearOfPublish, number_page) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"; 
+    String sql = "INSERT INTO Books (title, author, price, description, image, stock_quantity, category_id, is_active, publisher, supplier, yearOfPublish, number_page) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     
     int generatedId = 0; // This will hold the new ID
 
@@ -506,11 +506,13 @@ public class BookDAO extends DBContext {
         ps.setInt(6, b.getStockQuantity());
         ps.setInt(7, b.getCategoryId());
         ps.setBoolean(8, b.isActive());
-        ps.setDouble(9, b.getImportPrice());
-        ps.setString(10, b.getPublisher());
-        ps.setString(11, b.getSupplier());
-        ps.setInt(12, b.getYearOfPublish());
-        ps.setInt(13, b.getNumberPage());
+        
+        // Removed ps.setDouble(9, b.getImportPrice());
+        
+        ps.setString(9, b.getPublisher());
+        ps.setString(10, b.getSupplier());
+        ps.setInt(11, b.getYearOfPublish());
+        ps.setInt(12, b.getNumberPage());
         
         ps.executeUpdate();
         
@@ -529,22 +531,24 @@ public class BookDAO extends DBContext {
 }
 
     public void updateBook(Book b) {
-        String sql = "UPDATE Books SET title=?, author=?, price=?, description=?, image=?, stock_quantity=?, category_id=?, is_active=?, import_price=?, publisher=?, supplier=?, yearOfPublish=?, number_page=? WHERE book_id=?";
+        String sql = "UPDATE Books SET title=?, author=?, price=?, description=?, image=?, stock_quantity=?, category_id=?, is_active=?, publisher=?, supplier=?, yearOfPublish=?, number_page=? WHERE book_id=?";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, b.getTitle());
-            ps.setString(2, b.getAuthor());
-            ps.setDouble(3, b.getPrice());
-            ps.setString(4, b.getDescription());
-            ps.setString(5, b.getImageUrl());
-            ps.setInt(6, b.getStockQuantity());
-            ps.setInt(7, b.getCategoryId());
-            ps.setBoolean(8, b.isActive());
-            ps.setDouble(9, b.getImportPrice());
-            ps.setString(10, b.getPublisher());
-            ps.setString(11, b.getSupplier());
-            ps.setInt(12, b.getYearOfPublish());
-            ps.setInt(13, b.getNumberPage());
-            ps.setInt(14, b.getId());
+        ps.setString(2, b.getAuthor());
+        ps.setDouble(3, b.getPrice());
+        ps.setString(4, b.getDescription());
+        ps.setString(5, b.getImageUrl());
+        ps.setInt(6, b.getStockQuantity());
+        ps.setInt(7, b.getCategoryId());
+        ps.setBoolean(8, b.isActive());
+        
+        // Removed ps.setDouble(9, b.getImportPrice());
+
+        ps.setString(9, b.getPublisher());
+        ps.setString(10, b.getSupplier());
+        ps.setInt(11, b.getYearOfPublish());
+        ps.setInt(12, b.getNumberPage());
+        ps.setInt(13, b.getId());
             
             int rowsAffected = ps.executeUpdate();
             
@@ -733,11 +737,7 @@ public class BookDAO extends DBContext {
             b.setActive(rs.getBoolean("is_active"));
         } catch (SQLException e) {
         }
-        try {
-            b.setImportPrice(rs.getDouble("import_price"));
-        } catch (SQLException e) {
-        }
-
+        
         return b;
     }
 
@@ -790,4 +790,21 @@ public class BookDAO extends DBContext {
 
         return list;
     }
+
+    // Fetch the most recent price paid for this book from the PO details table
+public double getLatestImportPrice(int bookId) {
+    String sql = "SELECT TOP 1 price FROM Purchase_Order_Details WHERE book_id = ? ORDER BY po_detail_id DESC";
+    try (Connection conn = getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setInt(1, bookId);
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getDouble("price");
+            }
+        }
+    } catch (Exception e) {
+        System.out.println("Error fetching latest import price: " + e.getMessage());
+    }
+    return 0.0; // Return 0 if the book has never been purchased
+}
 }

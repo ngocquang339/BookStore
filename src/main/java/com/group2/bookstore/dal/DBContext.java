@@ -12,10 +12,10 @@ public class DBContext {
         // OPTION 1: Connection using Named Instance (YOUR ACTIVE SERVER)
         // Use this if your server name is like "DESKTOP-XXX\SQLEXPRESS"
         // =============================================================
-        //  String serverName = "DESKTOP-V0CJE41\\SQLEXPRESS01"; 
+        //  String serverName = "DESKTOP-VL0LH0R\\DUYDONG";
         //  String dbName = "BookShop";
         //  String userID = "sa";
-        //  String password = "1";
+        //  String password = "123";
         //  // Connection String for Named Instance (Note: No port number needed here)
         //  String url = "jdbc:sqlserver://" + serverName + ";databaseName=" + dbName 
         //             + ";encrypt=true;trustServerCertificate=true;";

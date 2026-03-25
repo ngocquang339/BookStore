@@ -94,17 +94,7 @@
                         <div class="info-label">Logistics Preference</div>
                         <div class="info-value"><i class="fa-solid fa-truck"></i> ${req.returnMethod}</div>
 
-                        <div class="info-label" style="color: #198754;">Customer Banking Details</div>
-                        <div class="info-value"
-                            style="background: #e9ecef; padding: 10px; border-radius: 4px; border-left: 4px solid #198754;">
-                            <i class="fa-solid fa-building-columns"></i> Bank: ${req.bankName != null ? req.bankName :
-                            'N/A'}<br>
-                            <i class="fa-solid fa-user"></i> Owner: ${req.accountOwner != null ? req.accountOwner :
-                            'N/A'}<br>
-                            <i class="fa-solid fa-hashtag"></i> Account: <span
-                                style="font-family: monospace; font-size: 1.1em;">${req.accountNumber != null ?
-                                req.accountNumber : 'N/A'}</span>
-                        </div>
+                        
 
                         <div class="info-label" style="color: #dc3545;">Customer's Stated Reason</div>
                         <div class="info-value"
@@ -159,13 +149,13 @@
                                 <label style="font-weight: bold; color: #198754; font-size: 0.9em;">Refund Amount
                                     (VND)</label>
                                 <input type="number" name="refundAmount" id="refundAmount" class="form-control"
-                                    placeholder="e.g., 80000" min="0" max="${req.maxRefundableAmount}">
+                                    placeholder="Enter amount to add to customer wallet..." min="0"
+                                    max="${req.maxRefundableAmount}">
 
-                                <label
-                                    style="font-weight: bold; color: #198754; font-size: 0.9em; margin-top: 10px; display: block;">Bank
-                                    Transfer Reference Code</label>
-                                <input type="text" name="bankReference" id="bankReference" class="form-control"
-                                    placeholder="Paste the transaction ID from your banking app">
+                                <div style="margin-top: 10px; color: #198754; font-size: 0.85em; font-weight: bold;">
+                                    <i class="fa-solid fa-wallet"></i> This amount will be credited directly to the
+                                    customer's Website Wallet.
+                                </div>
                             </div>
 
                             <div style="margin-top: 15px;">
@@ -187,7 +177,7 @@
                         var note = document.getElementById("adminNote");
                         var refundSection = document.getElementById("refundSection");
                         var refundAmount = document.getElementById("refundAmount");
-                        var bankRef = document.getElementById("bankReference");
+                        
 
                         // 1. Handle the Admin Note Requirement
                         if (status === "2" || status === "4" || status === "6") {
@@ -209,7 +199,7 @@
                             refundAmount.required = false;
                             bankRef.required = false;
                             refundAmount.value = ""; // Clear it out if they change their mind
-                            bankRef.value = "";
+                       
                         }
                     }
 

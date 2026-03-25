@@ -23,7 +23,7 @@ public class ReturnProcessServlet extends HttpServlet {
         }
 
         request.setAttribute("orderInfo", dao.getOrderCustomerInfo(orderId));
-        request.setAttribute("items", dao.getOrderDetails(orderId));
+        request.setAttribute("items", dao.getReturnOrderDetails(orderId));
         
         // THÊM DÒNG NÀY ĐỂ TRUYỀN ID SANG JSP (Fix lỗi chuỗi rỗng)
         request.setAttribute("orderId", orderId); 

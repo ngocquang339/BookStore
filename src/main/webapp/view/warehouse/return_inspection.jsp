@@ -95,16 +95,22 @@
 
                             <tbody>
                                 <c:forEach items="${items}" var="item">
-                                    <tr>
+                                    <tr class="align-middle">
                                         <td>
-                                            <img src="${item.image_url}" width="45" height="65"
-                                                style="object-fit: cover;">
+                                            <input type="checkbox" class="form-check-input inspect-checkbox checkbox-lg"
+                                                onchange="handleRow(this)">
+                                        </td>
+                                        <td>
+                                            <img src="${pageContext.request.contextPath}/${item.image_url}" alt="book"
+                                                class="img-thumbnail"
+                                                style="width: 50px; height: 70px; object-fit: cover;">
                                         </td>
                                         <td class="fw-bold">${item.title}</td>
-                                        <td class="text-center text-primary fw-bold">${item.quantity}</td>
-                                        <td class="text-center">
-                                            <input type="checkbox" class="inspect-checkbox checkbox-lg"
-                                                onchange="handleRow(this)">
+                                        <td>
+                                            <span class="badge bg-danger fs-6">${item.quantity}</span>
+                                        </td>
+                                        <td class="text-muted fst-italic">
+                                            ${item.customer_reason}
                                         </td>
                                     </tr>
                                 </c:forEach>

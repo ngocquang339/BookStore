@@ -92,10 +92,14 @@
                             <div class="col-md-3">
                                 <select name="statusFilter" class="form-select">
                                     <option value="0">Tất cả trạng thái trả hàng</option>
-                                    <option value="7" ${param.statusFilter=='7' ? 'selected' : '' }> Return Requested</option>
-                                    <option value="8" ${param.statusFilter=='8' ? 'selected' : '' }> Return Approved</option>
-                                    <option value="9" ${param.statusFilter=='9' ? 'selected' : '' }> Received / Inspecting</option>
-                                    <option value="10" ${param.statusFilter=='10' ? 'selected' : '' }> Return Completed</option>
+                                    <option value="7" ${param.statusFilter=='7' ? 'selected' : '' }> Return Requested
+                                    </option>
+                                    <option value="8" ${param.statusFilter=='8' ? 'selected' : '' }> Return Approved
+                                    </option>
+                                    <option value="9" ${param.statusFilter=='9' ? 'selected' : '' }> Received /
+                                        Inspecting</option>
+                                    <option value="10" ${param.statusFilter=='10' ? 'selected' : '' }> Return Completed
+                                    </option>
                                 </select>
                             </div>
                             <div class="col-md-2">
@@ -199,15 +203,20 @@
                                         <table class="table table-bordered">
                                             <thead class="table-light">
                                                 <tr>
-                                                    <th>Sách</th>
-                                                    <th class="text-center">Số lượng trả</th>
+                                                    <th>Tên sách trả</th>
+                                                    <th class="text-center">Số lượng</th>
+                                                    <th>Lý do</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <c:forEach items="${details}" var="item">
                                                     <tr>
-                                                        <td>${item.title}</td>
-                                                        <td class="text-center">${item.quantity}</td>
+                                                        <td>
+                                                            ${item.title}
+                                                        </td>
+                                                        <td class="text-center text-danger fw-bold">${item.quantity}
+                                                        </td>
+                                                        <td>${item.customer_reason}</td>
                                                     </tr>
                                                 </c:forEach>
                                             </tbody>
