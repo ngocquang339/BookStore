@@ -24,7 +24,7 @@ public class EmailUtility {
 
         // 2. Tài khoản Gmail của bạn (Người gửi)
         final String fromEmail = "quangakashi@gmail.com";
-        final String password = "gkjy pimg ynqr ogur"; // KHÔNG PHẢI PASS ĐĂNG NHẬP
+        final String password = "mxql uvdw avbd cjtx"; // KHÔNG PHẢI PASS ĐĂNG NHẬP
 
         // 3. Tạo phiên làm việc (Session)
         Session session = Session.getInstance(props, new Authenticator() {
@@ -59,7 +59,7 @@ public class EmailUtility {
         props.put("mail.smtp.starttls.enable", "true");
 
         final String fromEmail = "quangakashi@gmail.com";
-        final String password = "gkjy pimg ynqr ogur";
+        final String password = "mxql uvdw avbd cjtx";
 
         Session session = Session.getInstance(props, new Authenticator() {
             @Override
@@ -95,7 +95,7 @@ public class EmailUtility {
 
         // Sử dụng lại tài khoản của bạn
         final String fromEmail = "quangakashi@gmail.com";
-        final String password = "gkjy pimg ynqr ogur";
+        final String password = "mxql uvdw avbd cjtx";
 
         Session session = Session.getInstance(props, new Authenticator() {
             @Override
@@ -146,7 +146,7 @@ public class EmailUtility {
         props.put("mail.smtp.starttls.enable", "true");
 
         final String fromEmail = "quangakashi@gmail.com";
-        final String password = "gkjy pimg ynqr ogur"; // Nhớ đổi mật khẩu này sau nhé!
+        final String password = "mxql uvdw avbd cjtx"; // Nhớ đổi mật khẩu này sau nhé!
 
         Session session = Session.getInstance(props, new Authenticator() {
             @Override
@@ -195,7 +195,7 @@ public class EmailUtility {
         props.put("mail.smtp.starttls.enable", "true");
 
         final String fromEmail = "quangakashi@gmail.com";
-        final String password = "gkjy pimg ynqr ogur"; // Update this with your new app password
+        final String password = "mxql uvdw avbd cjtx"; // Update this with your new app password
 
         Session session = Session.getInstance(props, new Authenticator() {
             @Override
@@ -243,7 +243,7 @@ public class EmailUtility {
         props.put("mail.smtp.starttls.enable", "true");
 
         final String fromEmail = "quangakashi@gmail.com";
-        final String password = "gkjy pimg ynqr ogur"; // Update this with your App Password
+        final String password = "mxql uvdw avbd cjtx"; // Update this with your App Password
 
         Session session = Session.getInstance(props, new Authenticator() {
             @Override
@@ -298,7 +298,7 @@ public class EmailUtility {
     public static void sendStoreCreditEmail(String toEmail, double amount, String voucherCode, boolean customerKeepsItem, String note) {
         // 1. SETUP SENDER CREDENTIALS (Use your real email and an APP PASSWORD, not your real password)
         final String fromEmail = "quangakashi@gmail.com";
-        final String password = "gkjy pimg ynqr ogur";
+        final String password = "mxql uvdw avbd cjtx";
         // 2. CONFIGURE SMTP SERVER SETTINGS (Gmail)
         Properties props = new Properties();
         props.put("mail.smtp.host", "smtp.gmail.com");

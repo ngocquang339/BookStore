@@ -45,12 +45,12 @@
                         <span class="input-group-text" style="background: white; border-right: none; color: #C92127;">
                             <i class="fa-solid fa-magnifying-glass"></i>
                         </span>
-                        <input type="text" class="form-control" name="search" value="${paramSearch}" placeholder="Tìm tên sách trong bộ sưu tập này..." style="border-left: none; box-shadow: none;">
+                        <input type="text" class="form-control" name="search" value="${paramSearch}" maxlength="100" placeholder="Tìm tên sách trong bộ sưu tập này..." style="border-left: none; box-shadow: none;">
                     </div>
                 </div>
 
                 <div style="width: 220px;">
-                    <select name="sort" class="form-select" onchange="this.form.submit()" style="cursor: pointer; box-shadow: none;">
+                    <select name="sort" class="form-select" style="cursor: pointer; box-shadow: none;">
                         <option value="newest" ${paramSort == 'newest' ? 'selected' : ''}>⏳ Mới thêm gần đây</option>
                         <option value="price_asc" ${paramSort == 'price_asc' ? 'selected' : ''}>📈 Giá: Thấp đến Cao</option>
                         <option value="price_desc" ${paramSort == 'price_desc' ? 'selected' : ''}>📉 Giá: Cao xuống Thấp</option>

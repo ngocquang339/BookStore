@@ -32,7 +32,8 @@ public class StaffTicketServlet extends HttpServlet {
         // 2. DỮ LIỆU MỚI CHO TAB TRẢ HÀNG (Sử dụng hàm DAO của bạn)
         OrderDAO orderDao = new OrderDAO();
         ReturnRequestDAO returnDao = new ReturnRequestDAO(); // [MỚI] Khởi tạo DAO này
-        List<Order> listReturnOrders = orderDao.getOrdersByStatus(7, "order_date", "DESC");
+        // Gọi hàm mới: Truyền sortBy = null, sortOrder = "DESC" (để mặc định nó lấy ngày tạo yêu cầu giảm dần), searchQuery = rỗng
+        List<Order> listReturnOrders = orderDao.getOrdersWithReturnRequests(null, "DESC", "");
         
         // =========================================================
         // [MỚI THÊM] TÍNH TOÁN SỐ TIỀN HOÀN LẠI THỰC TẾ CHO TỪNG ĐƠN
@@ -40,14 +41,20 @@ public class StaffTicketServlet extends HttpServlet {
         java.util.Map<Integer, Double> refundMap = new java.util.HashMap<>();
         // [MỚI] Tạo Map để chứa danh sách ảnh/lý do của từng đơn
         java.util.Map<Integer, List<ReturnRequest>> returnDetailsMap = new java.util.HashMap<>();
+        System.out.println("\n========== KIỂM TRA DỮ LIỆU TRƯỚC KHI GỬI LÊN GIAO DIỆN ==========");
+        System.out.println("Tổng số đơn status 7 tìm thấy trong DB: " + listReturnOrders.size());
         for (Order order : listReturnOrders) {
+            System.out.print("-> Đang kiểm tra Đơn ID: " + order.getId());
             // Lấy id đơn hàng, tính tiền và nhét vào Map
             double refundAmount = orderDao.calculateRefundAmount(order.getId());
             refundMap.put(order.getId(), refundAmount);
             // [MỚI] Lấy chi tiết ảnh, lý do của đơn này nhét vào Map
             List<ReturnRequest> details = returnDao.getReturnRequestsByOrderId(order.getId());
+            int soLuongSanPham = (details != null) ? details.size() : 0;
+            System.out.println(" | Số lượng sản phẩm trả về: " + soLuongSanPham);
             returnDetailsMap.put(order.getId(), details);
         }
+        System.out.println("==================================================================\n");
         request.setAttribute("refundMap", refundMap); // Bắn Map này sang file JSP
         request.setAttribute("returnDetailsMap", returnDetailsMap); // [MỚI] Bắn sang JSP
         request.setAttribute("listReturnOrders", listReturnOrders);

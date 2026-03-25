@@ -1605,129 +1605,57 @@
                                                                                                         <div id="reply-content-text-${reply.replyId}"
                                                                                                             style="font-size: ${isNested ? '13px' : '13.5px'}; color: #444; margin-top: 5px; line-height: 1.4;">
 
-                                                                                                            <%-- CODE TÔ
-                                                                                                                MÀU XANH
-                                                                                                                CHO TAG
-                                                                                                                VÀ ẨN
-                                                                                                                TAG
-                                                                                                                CHÍNH
-                                                                                                                MÌNH
-                                                                                                                --%>
-                                                                                                                <% com.group2.bookstore.model.Discussion
-                                                                                                                    currentD=(com.group2.bookstore.model.Discussion)
-                                                                                                                    pageContext.getAttribute("d");
-                                                                                                                    com.group2.bookstore.model.DiscussionReply
-                                                                                                                    currentR=(com.group2.bookstore.model.DiscussionReply)
-                                                                                                                    pageContext.getAttribute("reply");
-                                                                                                                    String
-                                                                                                                    rawContent=currentR.getReplyContent();
-                                                                                                                    if
-                                                                                                                    (rawContent
-                                                                                                                    !=null)
-                                                                                                                    {
-                                                                                                                    String
-                                                                                                                    escapedContent=rawContent.replace("&", "&amp;"
-                                                                                                                    ).replace("<", "&lt;"
-                                                                                                                    ).replace(">
-                                                                                                                    ",
-                                                                                                                    "&gt;").replace("\"",
-                                                                                                                    "&quot;").replace("'",
-                                                                                                                    "&#x27;");
-
-                                                                                                                    java.util.Set
-                                                                                                                    <String>
-                                                                                                                        validUsers
-                                                                                                                        =
-                                                                                                                        new
-                                                                                                                        java.util.HashSet
-                                                                                                                        <String>
-                                                                                                                            ();
-                                                                                                                            if(currentD.getUsername()
-                                                                                                                            !=
-                                                                                                                            null)
-                                                                                                                            validUsers.add(currentD.getUsername());
-                                                                                                                            if(currentD.getReplies()
-                                                                                                                            !=
-                                                                                                                            null)
-                                                                                                                            {
-                                                                                                                            for(com.group2.bookstore.model.DiscussionReply
-                                                                                                                            rep
-                                                                                                                            :
-                                                                                                                            currentD.getReplies())
-                                                                                                                            {
-                                                                                                                            if(rep.getUsername()
-                                                                                                                            !=
-                                                                                                                            null)
-                                                                                                                            validUsers.add(rep.getUsername());
+                                                                                                            <% 
+                                                                                                                com.group2.bookstore.model.Discussion currentD = (com.group2.bookstore.model.Discussion) pageContext.getAttribute("d");
+                                                                                                                com.group2.bookstore.model.DiscussionReply currentR = (com.group2.bookstore.model.DiscussionReply) pageContext.getAttribute("reply");
+                                                                                                                String rawContent = currentR.getReplyContent();
+                                                                                                                
+                                                                                                                if (rawContent != null) {
+                                                                                                                    // 1. Chống XSS an toàn
+                                                                                                                    String escapedContent = rawContent.replace("&", "&amp;")
+                                                                                                                                                    .replace("<", "&lt;")
+                                                                                                                                                    .replace(">", "&gt;")
+                                                                                                                                                    .replace("\"", "&quot;")
+                                                                                                                                                    .replace("'", "&#x27;");
+                                                                                                                    
+                                                                                                                    // 2. Gom danh sách người dùng hợp lệ để Tag
+                                                                                                                    java.util.Set<String> validUsers = new java.util.HashSet<String>();
+                                                                                                                    if (currentD.getUsername() != null) {
+                                                                                                                        validUsers.add(currentD.getUsername());
+                                                                                                                    }
+                                                                                                                    if (currentD.getReplies() != null) {
+                                                                                                                        for (com.group2.bookstore.model.DiscussionReply rep : currentD.getReplies()) {
+                                                                                                                            if (rep.getUsername() != null) {
+                                                                                                                                validUsers.add(rep.getUsername());
                                                                                                                             }
+                                                                                                                        }
+                                                                                                                    }
+                                                                                                                    
+                                                                                                                    // 3. Quét chữ @ và bôi xanh tên người dùng
+                                                                                                                    java.util.regex.Pattern p = java.util.regex.Pattern.compile("(^|\\s)@(\\w+)");
+                                                                                                                    java.util.regex.Matcher m = p.matcher(escapedContent);
+                                                                                                                    StringBuffer sb = new StringBuffer();
+                                                                                                                    
+                                                                                                                    while (m.find()) {
+                                                                                                                        String space = m.group(1);
+                                                                                                                        String matchedUser = m.group(2);
+                                                                                                                        
+                                                                                                                        if (validUsers.contains(matchedUser)) {
+                                                                                                                            if (currentR.getUsername() != null && currentR.getUsername().equals(matchedUser)) {
+                                                                                                                                m.appendReplacement(sb, "");
+                                                                                                                            } else {
+                                                                                                                                // DÒNG BỊ LỖI CỦA BẠN ĐÃ ĐƯỢC VIẾT LIỀN MẠCH VÀO ĐÂY:
+                                                                                                                                m.appendReplacement(sb, java.util.regex.Matcher.quoteReplacement(space + "<span style='color: #2489F4; font-weight: bold;'>@" + matchedUser + "</span>"));
                                                                                                                             }
-
-                                                                                                                            java.util.regex.Pattern
-                                                                                                                            p
-                                                                                                                            =
-                                                                                                                            java.util.regex.Pattern.compile("(^|\\s)@(\\w+)");
-                                                                                                                            java.util.regex.Matcher
-                                                                                                                            m
-                                                                                                                            =
-                                                                                                                            p.matcher(escapedContent);
-                                                                                                                            StringBuffer
-                                                                                                                            sb
-                                                                                                                            =
-                                                                                                                            new
-                                                                                                                            StringBuffer();
-
-                                                                                                                            while
-                                                                                                                            (m.find())
-                                                                                                                            {
-                                                                                                                            String
-                                                                                                                            space
-                                                                                                                            =
-                                                                                                                            m.group(1);
-                                                                                                                            String
-                                                                                                                            matchedUser
-                                                                                                                            =
-                                                                                                                            m.group(2);
-
-                                                                                                                            if
-                                                                                                                            (validUsers.contains(matchedUser))
-                                                                                                                            {
-                                                                                                                            if
-                                                                                                                            (currentR.getUsername()
-                                                                                                                            !=
-                                                                                                                            null
-                                                                                                                            &&
-                                                                                                                            currentR.getUsername().equals(matchedUser))
-                                                                                                                            {
-                                                                                                                            m.appendReplacement(sb,
-                                                                                                                            "");
-                                                                                                                            }
-                                                                                                                            else
-                                                                                                                            {
-                                                                                                                            m.appendReplacement(sb,
-                                                                                                                            java.util.regex.Matcher.quoteReplacement(space
-                                                                                                                            +
-                                                                                                                            "<span
-                                                                                                                                style='color: #2489F4; font-weight: bold;'>@"
-                                                                                                                                +
-                                                                                                                                matchedUser
-                                                                                                                                +
-                                                                                                                                "</span>"));
-                                                                                                                            }
-                                                                                                                            }
-                                                                                                                            else
-                                                                                                                            {
-                                                                                                                            m.appendReplacement(sb,
-                                                                                                                            java.util.regex.Matcher.quoteReplacement(space
-                                                                                                                            +
-                                                                                                                            "@"
-                                                                                                                            +
-                                                                                                                            matchedUser));
-                                                                                                                            }
-                                                                                                                            }
-                                                                                                                            m.appendTail(sb);
-                                                                                                                            out.print(sb.toString().trim());
-                                                                                                                            }
-                                                                                                                            %>
+                                                                                                                        } else {
+                                                                                                                            m.appendReplacement(sb, java.util.regex.Matcher.quoteReplacement(space + "@" + matchedUser));
+                                                                                                                        }
+                                                                                                                    }
+                                                                                                                    m.appendTail(sb);
+                                                                                                                    out.print(sb.toString().trim());
+                                                                                                                }
+                                                                                                            %>
+                                                                                                                
                                                                                                         </div>
                                                                                                     </div>
 
