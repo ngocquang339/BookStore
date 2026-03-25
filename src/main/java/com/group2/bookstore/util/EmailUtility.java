@@ -234,7 +234,7 @@ public class EmailUtility {
         }
     }
 
-    // Thêm hàm mới: Gửi email Hoàn Tiền Thành Công (Status 5 & 7)
+    // Thêm hàm mới: Gửi email Hoàn Tiền Thành Công (Status 5 & 7) - ĐÃ CẬP NHẬT CHO VÍ WALLET
     public static void sendRefundSuccessEmail(String toEmail, double refundAmount, boolean customerKeepsItem, String adminNote) {
         Properties props = new Properties();
         props.put("mail.smtp.host", "smtp.gmail.com");
@@ -256,7 +256,7 @@ public class EmailUtility {
             Message msg = new MimeMessage(session);
             msg.setFrom(new InternetAddress(fromEmail, "BookStore Support"));
             msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
-            msg.setSubject("Hoàn tiền thành công cho yêu cầu trả hàng của bạn - BookStore");
+            msg.setSubject("Hoàn tiền thành công vào Ví BookStore của bạn");
 
             // Format số tiền (VD: 150000 -> 150,000đ)
             java.text.NumberFormat formatter = new java.text.DecimalFormat("#,###");
@@ -267,17 +267,19 @@ public class EmailUtility {
                     ? "<p style='color: #856404; background-color: #fff3cd; padding: 10px; border-radius: 4px;'><strong>Lưu ý:</strong> Bạn không cần phải gửi trả lại sản phẩm này. Hãy giữ lại hoặc xử lý theo ý muốn nhé.</p>"
                     : "<p>Chúng tôi đã nhận được sản phẩm hoàn trả tại kho và hoàn tất thủ tục.</p>";
 
-            // Tạo nội dung HTML chuyên nghiệp (Màu xanh ngọc cho giao dịch tiền tệ)
+            // Tạo nội dung HTML chuyên nghiệp cho Wallet
             String htmlContent = "<div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto;'>"
-                    + "<h2 style='color: #17a2b8; border-bottom: 2px solid #17a2b8; padding-bottom: 10px;'><i class='fa-solid fa-money-bill-transfer'></i> Hoàn tiền thành công</h2>"
+                    + "<h2 style='color: #28a745; border-bottom: 2px solid #28a745; padding-bottom: 10px;'><i class='fa-solid fa-wallet'></i> Hoàn tiền thành công</h2>"
                     + "<p>Chào bạn,</p>"
-                    + "<p>Yêu cầu trả hàng của bạn đã được xử lý xong. Khoản hoàn tiền trị giá <strong><span style='color: #dc3545; font-size: 18px;'>" + formattedAmount + "</span></strong> đã được chuyển vào tài khoản của bạn.</p>"
+                    + "<p>Yêu cầu trả hàng của bạn đã được xử lý xong. Khoản hoàn tiền trị giá <strong><span style='color: #28a745; font-size: 18px;'>+" + formattedAmount + "</span></strong> đã được cộng trực tiếp vào <strong>Ví BookStore</strong> của bạn.</p>"
                     + itemInstruction
-                    + "<p><strong>Ghi chú từ kế toán:</strong></p>"
-                    + "<div style='background-color: #e2e3e5; padding: 15px; border-left: 5px solid #17a2b8; margin: 15px 0; border-radius: 4px;'>"
+                    + "<p><strong>Ghi chú từ quản trị viên:</strong></p>"
+                    + "<div style='background-color: #e2e3e5; padding: 15px; border-left: 5px solid #28a745; margin: 15px 0; border-radius: 4px;'>"
                     + adminNote
                     + "</div>"
-                    + "<p>Tùy thuộc vào ngân hàng của bạn, có thể mất từ 1-3 ngày làm việc để số tiền hiển thị trong tài khoản.</p>"
+                    + "<p style='background-color: #f8f9fa; padding: 15px; border-radius: 4px; border: 1px solid #dee2e6;'>"
+                    + "💡 <strong>Số tiền này đã có sẵn trong Ví!</strong> Bạn có thể sử dụng ngay lập tức để thanh toán cho các đơn hàng tiếp theo. Vui lòng đăng nhập và kiểm tra mục <strong>Ví của tôi (My Wallet)</strong> trên website để xem chi tiết giao dịch."
+                    + "</p>"
                     + "<p>Cảm ơn bạn đã đồng hành cùng BookStore!</p>"
                     + "<p>Trân trọng,<br><strong>Đội ngũ BookStore</strong></p>"
                     + "</div>";
@@ -285,10 +287,10 @@ public class EmailUtility {
             msg.setContent(htmlContent, "text/html; charset=UTF-8");
 
             Transport.send(msg);
-            System.out.println("Gửi mail 'Refund Success' thành công tới: " + toEmail);
+            System.out.println("Gửi mail 'Wallet Refund Success' thành công tới: " + toEmail);
 
         } catch (Exception e) {
-            System.out.println("Lỗi khi gửi mail 'Refund Success' tới: " + toEmail);
+            System.out.println("Lỗi khi gửi mail 'Wallet Refund Success' tới: " + toEmail);
             e.printStackTrace();
         }
     }

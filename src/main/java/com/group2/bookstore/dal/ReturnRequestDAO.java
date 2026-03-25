@@ -54,14 +54,14 @@ public class ReturnRequestDAO extends DBContext {
         // We join OrderDetails to find the exact discounted price the customer paid for this specific book
         // ✨ NEW: Added u.email AS customer_email to support automated email notifications ✨
         String sql = "SELECT r.*, b.title AS book_title, u.username AS customer_name, u.email AS customer_email, "
-           + "(od.price * r.quantity) AS max_refundable "
-           + "FROM ReturnRequests r "
-           + "LEFT JOIN Books b ON r.book_id = b.book_id "
-           + "LEFT JOIN Orders o ON r.order_id = o.order_id "
-           + "LEFT JOIN Users u ON o.user_id = u.user_id "
-           + "LEFT JOIN OrderDetails od ON o.order_id = od.order_id AND r.book_id = od.book_id "
-           + "WHERE r.return_id = ?";
-try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+                + "(od.price * r.quantity) AS max_refundable "
+                + "FROM ReturnRequests r "
+                + "LEFT JOIN Books b ON r.book_id = b.book_id "
+                + "LEFT JOIN Orders o ON r.order_id = o.order_id "
+                + "LEFT JOIN Users u ON o.user_id = u.user_id "
+                + "LEFT JOIN OrderDetails od ON o.order_id = od.order_id AND r.book_id = od.book_id "
+                + "WHERE r.return_id = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, returnId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -77,11 +77,6 @@ try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareState
                     req.setStatus(rs.getInt("status"));
                     req.setAdminNote(rs.getString("admin_note"));
 
-                    // The banking details your teammate will insert
-                    req.setBankName(rs.getString("bank_name"));
-                    req.setAccountNumber(rs.getString("account_number"));
-                    req.setAccountOwner(rs.getString("account_owner"));
-
                     req.setCreatedAt(rs.getTimestamp("created_at"));
                     req.setBookTitle(rs.getString("book_title"));
                     req.setCustomerName(rs.getString("customer_name"));
@@ -93,13 +88,13 @@ try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareState
                     req.setMaxRefundableAmount(rs.getDouble("max_refundable"));
                     System.out.println("[DAO DEBUG] Successfully mapped data to model. Returning object.");
                     return req;
-                }else {
+                } else {
                     System.out.println("[DAO DEBUG] rs.next() is FALSE. No record found for ID: " + returnId);
                 }
             }
         } catch (Exception e) {
             System.out.println("[DAO CRASH] An error occurred in getReturnById!");
-        System.out.println("[DAO ERROR MESSAGE] " + e.getMessage());
+            System.out.println("[DAO ERROR MESSAGE] " + e.getMessage());
             e.printStackTrace();
         }
         return null;
@@ -119,13 +114,13 @@ try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareState
     }
 
     public boolean processRefund(int returnId, int newStatus, int bookId, int quantity,
-String adminUsername, double refundAmount, String bankRef, String adminNote) {
+            String adminUsername, double refundAmount, String bankRef, String adminNote) {
 
         String updateStatusSql = "UPDATE ReturnRequests SET status = ?, admin_note = ? WHERE return_id = ?";
-        
+
         // ✨ FIXED: Updated column names to match your SQL Server exactly ✨
         String insertLedgerSql = "INSERT INTO RefundTransactions (return_id, processed_by, refund_amount, bank_reference) VALUES (?, ?, ?, ?)";
-        
+
         String updateInventorySql = "UPDATE Books SET stock_quantity = stock_quantity + ? WHERE book_id = ?";
 
         Connection conn = null;
@@ -183,7 +178,7 @@ String adminUsername, double refundAmount, String bankRef, String adminNote) {
             }
             e.printStackTrace();
             return false;
-} finally {
+        } finally {
             if (conn != null) {
                 try {
                     conn.setAutoCommit(true);
@@ -223,7 +218,7 @@ String adminUsername, double refundAmount, String bankRef, String adminNote) {
     }
 
     public void autoCancelStaleReturns() {
-        
+
         String sql = "UPDATE ReturnRequests "
                 + "SET status = 6, "
                 + "    admin_note = 'System Auto-Cancel: Customer did not ship within 5 days' "
@@ -254,6 +249,77 @@ String adminUsername, double refundAmount, String bankRef, String adminNote) {
             ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public boolean processWalletRefund(int returnId, int orderId, int newStatus, int bookId, int quantity,
+            int userId, double refundAmount, String adminNote) {
+
+        String updateStatusSql = "UPDATE ReturnRequests SET status = ?, admin_note = ? WHERE return_id = ?";
+        String updateWalletSql = "UPDATE Users SET wallet_balance = wallet_balance + ? WHERE user_id = ?";
+        String insertHistorySql = "INSERT INTO Wallet_History (user_id, amount, transaction_type, description, order_id, created_at) VALUES (?, ?, 'REFUND', ?, ?, GETDATE())";
+        String updateInventorySql = "UPDATE Books SET stock_quantity = stock_quantity + ? WHERE book_id = ?";
+
+        Connection conn = null;
+        try {
+            conn = getConnection();
+            conn.setAutoCommit(false); // START TRANSACTION
+
+            // 1. Update Return Status
+            try (PreparedStatement ps1 = conn.prepareStatement(updateStatusSql)) {
+                ps1.setInt(1, newStatus);
+                ps1.setString(2, adminNote);
+                ps1.setInt(3, returnId);
+                ps1.executeUpdate();
+            }
+
+            // 2. Add money to User Wallet
+            try (PreparedStatement ps2 = conn.prepareStatement(updateWalletSql)) {
+                ps2.setDouble(1, refundAmount);
+                ps2.setInt(2, userId);
+                ps2.executeUpdate();
+            }
+
+            // 3. Log the Wallet History
+            try (PreparedStatement ps3 = conn.prepareStatement(insertHistorySql)) {
+                ps3.setInt(1, userId);
+                ps3.setDouble(2, refundAmount);
+                ps3.setString(3, "Hoàn tiền từ yêu cầu trả hàng #" + returnId);
+                ps3.setInt(4, orderId);
+                ps3.executeUpdate();
+            }
+
+            // 4. INVENTORY RESTOCK (Only if Status 5: Item returned to store)
+            if (newStatus == 5) {
+                try (PreparedStatement ps4 = conn.prepareStatement(updateInventorySql)) {
+                    ps4.setInt(1, quantity);
+                    ps4.setInt(2, bookId);
+                    ps4.executeUpdate();
+                    System.out.println("[INVENTORY] Restocked " + quantity + " units for Book ID: " + bookId);
+                }
+            }
+
+            conn.commit(); // SAVE EVERYTHING
+            return true;
+
+        } catch (Exception e) {
+            System.out.println("[TRANSACTION ERROR] Rolling back wallet refund for Return ID: " + returnId);
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (Exception ex) {
+                }
+            }
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (Exception ex) {
+                }
+            }
         }
     }
 }
