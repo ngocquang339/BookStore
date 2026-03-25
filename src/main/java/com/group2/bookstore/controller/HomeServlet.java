@@ -5,10 +5,12 @@ import java.util.List;
 
 import com.group2.bookstore.dal.BookDAO;
 import com.group2.bookstore.dal.CategoryDAO;
+import com.group2.bookstore.dal.PromotionDAO;
 import com.group2.bookstore.model.Book;
 import com.group2.bookstore.model.BookImage;
 import com.group2.bookstore.model.User;
 import com.group2.bookstore.model.Category;
+import com.group2.bookstore.model.Promotion;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -34,7 +36,7 @@ public class HomeServlet extends HttpServlet {
         if (currentUser != null) {
             roleId = currentUser.getRole(); 
         }
-
+        
         // 2. HANDLE REQUESTS
         
         // CASE A: SEARCH
@@ -55,15 +57,24 @@ public class HomeServlet extends HttpServlet {
             List<Book> bestSellers = dao.getBestSellers();
             List<Book> suggestedBooks = dao.getRandomBook(roleId, 20); 
             List<Book> randomBooks = dao.getRandomBook(roleId, 10);
-            List<Book> flashSaleBooks = dao.getRandomBook(roleId, 10);
             List<Category> listCategories = cateDAO.getCategories();
+            PromotionDAO promoDao = new PromotionDAO();
+            Promotion activePromo = promoDao.getCurrentActivePromotion();
+            
+            if (activePromo != null) {
+                // Lấy danh sách sách đang sale của đợt này
+                List<Book> flashSaleBooks = promoDao.getBooksByPromotionId(activePromo.getPromoId());
+                
+                // Đẩy sang JSP
+                request.setAttribute("activePromo", activePromo);
+                request.setAttribute("flashSaleBooks", flashSaleBooks);
+            }
             
             request.setAttribute("listCategories", listCategories);
             request.setAttribute("newBooks", newArrivals);
             request.setAttribute("suggestedBooks", suggestedBooks); // Tên này phải khớp với ${suggestedBooks} trong JSP
             request.setAttribute("bestBooks", bestSellers);
             request.setAttribute("randomBooks", randomBooks);
-            request.setAttribute("flashSaleBooks", flashSaleBooks);
         
             request.getRequestDispatcher("view/Home.jsp").forward(request, response);
         }

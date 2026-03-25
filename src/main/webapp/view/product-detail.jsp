@@ -712,19 +712,26 @@
                                                         book.soldQuantity : 0}</div>
                                         </div>
 
-                                        <div class="price-box" style="margin-bottom: 12px;">
+                                        <div class="price-box" style="margin-bottom: 12px; display: flex; align-items: center;">
+                                            <%-- 1. GIÁ BÁN THỰC TẾ (Luôn luôn hiển thị) --%>
                                             <span class="price-current"
                                                 style="color: #C92127; font-size: 34px; font-weight: bold;">
                                                 <fmt:formatNumber value="${book.price}" type="currency"
                                                     currencySymbol="đ" maxFractionDigits="0" />
                                             </span>
-                                            <span
-                                                style="color:#999; text-decoration:line-through; font-size: 16px; margin-left: 10px;">
-                                                <fmt:formatNumber value="${book.price * 1.2}" type="currency"
-                                                    currencySymbol="đ" maxFractionDigits="0" />
-                                            </span>
-                                            <span
-                                                style="background:#C92127; color:white; padding:3px 8px; border-radius:4px; font-size:14px; font-weight: bold; margin-left: 10px;">-20%</span>
+
+                                            <%-- 2. NẾU SÁCH CÓ FLASH SALE -> Mới hiện giá gốc gạch chéo và cái tag -% --%>
+                                            <c:if test="${not empty discountPercent and discountPercent > 0}">
+                                                <span
+                                                    style="color:#999; text-decoration:line-through; font-size: 16px; margin-left: 15px;">
+                                                    <fmt:formatNumber value="${originalPrice}" type="currency"
+                                                        currencySymbol="đ" maxFractionDigits="0" />
+                                                </span>
+                                                <span
+                                                    style="background:#C92127; color:white; padding:3px 8px; border-radius:4px; font-size:14px; font-weight: bold; margin-left: 10px;">
+                                                    -${discountPercent}%
+                                                </span>
+                                            </c:if>
                                         </div>
 
                                         <div style="font-size: 13px; color: #C92127; margin-bottom: 5px;">

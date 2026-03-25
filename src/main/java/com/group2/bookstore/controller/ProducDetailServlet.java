@@ -10,6 +10,7 @@ import com.group2.bookstore.model.Discussion;
 import com.group2.bookstore.dal.BookDAO;
 import com.group2.bookstore.dal.CollectionDAO;
 import com.group2.bookstore.dal.DiscussionDAO;
+import com.group2.bookstore.dal.PromotionDAO;
 import com.group2.bookstore.dal.ReviewDAO;
 import com.group2.bookstore.model.Book;
 import com.group2.bookstore.model.BookImage;
@@ -52,6 +53,21 @@ public class ProducDetailServlet extends HttpServlet{
             
             // 2. Get the Main Book
             Book book = dao.getBookById(id);
+            // ===============================================================
+            // LOGIC LẤY % GIẢM GIÁ TỪ BẢNG KHUYẾN MÃI (FLASH SALE)
+            // ===============================================================
+            PromotionDAO promoDao = new PromotionDAO();
+            int discountPercent = promoDao.getActiveDiscountPercent(book.getId()); // Hàm này mình đã viết ở các bước trước
+
+            if (discountPercent > 0) {
+                // Tính ngược lại giá gốc từ % giảm
+                // (Vì book.getPrice() hiện tại đang đóng vai trò là giá khách phải trả)
+                double originalPrice = book.getPrice() / (1.0 - (discountPercent / 100.0));
+                
+                // Gửi sang JSP
+                request.setAttribute("discountPercent", discountPercent);
+                request.setAttribute("originalPrice", originalPrice);
+            }
             System.out.println("========== DEBUG CHI TIẾT SÁCH ==========");
             System.out.println("[1] Đã lấy sách: " + (book != null ? book.getTitle() : "NULL"));
             if (book == null) {
