@@ -150,12 +150,7 @@ public class ReturnRequestDAO extends DBContext {
             // =============================================================
             if (newStatus == 5) {
                 // Status 5: Item returned in sellable condition -> ADD back to stock
-                try (PreparedStatement ps3 = conn.prepareStatement(updateInventorySql)) {
-                    ps3.setInt(1, quantity);
-                    ps3.setInt(2, bookId);
-                    ps3.executeUpdate();
-                    System.out.println("[INVENTORY] Restocked " + quantity + " units for Book ID: " + bookId);
-                }
+                
             } else if (newStatus == 7) {
                 // Status 7: Customer keeps the item -> NO restock
                 System.out.println("[INVENTORY] Status 7 (Customer Keeps Item). No active stock added.");
@@ -291,12 +286,7 @@ public class ReturnRequestDAO extends DBContext {
 
             // 4. INVENTORY RESTOCK (Only if Status 5: Item returned to store)
             if (newStatus == 5) {
-                try (PreparedStatement ps4 = conn.prepareStatement(updateInventorySql)) {
-                    ps4.setInt(1, quantity);
-                    ps4.setInt(2, bookId);
-                    ps4.executeUpdate();
-                    System.out.println("[INVENTORY] Restocked " + quantity + " units for Book ID: " + bookId);
-                }
+            
             }
 
             conn.commit(); // SAVE EVERYTHING

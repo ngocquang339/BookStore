@@ -40,95 +40,75 @@
                                 <fmt:formatDate value="${order.orderDate}" pattern="MMM dd, yyyy HH:mm" />
                             </div>
 
-                            <c:choose>
-                                <%-- 1. Lock the UI if the order is Completed (Status 4) --%>
-                                    <c:when test="${order.status == 4}">
-                                        <div
-                                            style="margin-top: 20px; background-color: #d1e7dd; color: #0f5132; padding: 15px; border-radius: 8px; border: 1px solid #badbcc;">
-                                            <div><i class="fa-solid fa-lock"></i> This order is
-                                                <strong>Completed</strong> and archived. The status can no longer be
-                                                modified.</div>
+                           <c:choose>
+                                <%-- 1. Lock the UI if the order is Delivered (Status 5) --%>
+                                    <c:when test="${order.status == 5}">
+                                        <div style="margin-top: 20px; background-color: #d1e7dd; color: #0f5132; padding: 15px; border-radius: 8px; border: 1px solid #badbcc;">
+                                            <div><i class="fa-solid fa-lock"></i> This order is <strong>Delivered</strong> and archived. The status can no longer be modified.</div>
                                             <c:if test="${not empty order.statusNote}">
-                                                <div
-                                                    style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #badbcc; font-size: 0.95em;">
-                                                    <strong><i class="fa-solid fa-comment-dots"></i> Note:</strong>
-                                                    ${order.statusNote}
+                                                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #badbcc; font-size: 0.95em;">
+                                                    <strong><i class="fa-solid fa-comment-dots"></i> Note:</strong> ${order.statusNote}
                                                 </div>
                                             </c:if>
                                         </div>
                                     </c:when>
 
-                                    <%-- 2. Lock the UI if the order is Cancelled (Status 5) --%>
-                                        <c:when test="${order.status == 5}">
-                                            <div
-                                                style="margin-top: 20px; background-color: #f8d7da; color: #842029; padding: 15px; border-radius: 8px; border: 1px solid #f5c2c7;">
-                                                <div><i class="fa-solid fa-ban"></i> This order is
-                                                    <strong>Cancelled</strong> and archived. The status can no longer be
-                                                    modified.</div>
-                                                <c:if test="${not empty order.statusNote}">
-                                                    <div
-                                                        style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #f5c2c7; font-size: 0.95em;">
-                                                        <strong><i class="fa-solid fa-circle-exclamation"></i>
-                                                            Reason:</strong> ${order.statusNote}
-                                                    </div>
-                                                </c:if>
-                                            </div>
-                                        </c:when>
+                                <%-- 2. Lock the UI if the order is Cancelled (Status 6) --%>
+                                    <c:when test="${order.status == 6}">
+                                        <div style="margin-top: 20px; background-color: #f8d7da; color: #842029; padding: 15px; border-radius: 8px; border: 1px solid #f5c2c7;">
+                                            <div><i class="fa-solid fa-ban"></i> This order is <strong>Cancelled</strong> and archived. The status can no longer be modified.</div>
+                                            <c:if test="${not empty order.statusNote}">
+                                                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #f5c2c7; font-size: 0.95em;">
+                                                    <strong><i class="fa-solid fa-circle-exclamation"></i> Reason:</strong> ${order.statusNote}
+                                                </div>
+                                            </c:if>
+                                        </div>
+                                    </c:when>
 
-                                        <%-- 3. Show the update form only if the order is Pending, Processing, or
-                                            Shipping --%>
-                                            <c:otherwise>
-                                                <form action="${pageContext.request.contextPath}/admin/order/update"
-                                                    method="post"
-                                                    style="margin-top: 20px; background: #f8f9fa; padding: 15px; border-radius: 8px;">
-                                                    <input type="hidden" name="orderId" value="${order.id}">
-                                                    <label style="font-weight:bold;">Update Order Status:</label>
+                                <%-- 3. Show the update form for Statuses 1, 2, 3, 4 --%>
+                                    <c:otherwise>
+                                        <form action="${pageContext.request.contextPath}/admin/order/update" method="post" style="margin-top: 20px; background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                                            <input type="hidden" name="orderId" value="${order.id}">
+                                            <label style="font-weight:bold;">Update Order Status:</label>
 
-                                                    <select name="status" id="statusDropdown" class="status-select"
-                                                        onchange="toggleReasonField()">
-                                                        <option value="1" ${order.status==1 ? 'selected' : '' }>Pending
-                                                        </option>
-                                                        <option value="2" ${order.status==2 ? 'selected' : '' }>
-                                                            Processing</option>
-                                                        <option value="3" ${order.status==3 ? 'selected' : '' }>Shipping
-                                                        </option>
-                                                        <option value="4">Completed</option>
-                                                        <option value="5">Cancelled</option>
-                                                    </select>
+                                            <select name="status" id="statusDropdown" class="status-select" onchange="toggleReasonField()" style="padding: 8px; border-radius: 4px; border: 1px solid #ced4da; margin-top: 5px; width: 100%;">
+                                                <option value="1" ${order.status==1 ? 'selected' : '' }>Pending</option>
+                                                <option value="2" ${order.status==2 ? 'selected' : '' }>Processing</option>
+                                                <option value="3" ${order.status==3 ? 'selected' : '' }>Packed</option>
+                                                <option value="4" ${order.status==4 ? 'selected' : '' }>Shipping</option>
+                                                <option value="5" ${order.status==5 ? 'selected' : '' }>Delivered</option>
+                                                <option value="6" ${order.status==6 ? 'selected' : '' }>Cancelled</option>
+                                            </select>
 
-                                                    <%-- The hidden reason box --%>
-                                                        <div id="reasonBox" style="display: none; margin-top: 15px;">
-                                                            <label style="font-weight:bold; color: #dc3545;">Reason /
-                                                                Note (Required):</label>
-                                                            <textarea name="statusNote" id="statusNoteInput"
-                                                                class="form-control" rows="3"
-                                                                placeholder="Explain why this order is being completed or cancelled..."
-                                                                style="width: 100%; margin-top: 5px; padding: 10px; border: 1px solid #ced4da; border-radius: 4px;"></textarea>
-                                                        </div>
+                                            <%-- The hidden reason box --%>
+                                                <div id="reasonBox" style="display: none; margin-top: 15px;">
+                                                    <label style="font-weight:bold; color: #dc3545;">Reason / Note (Required):</label>
+                                                    <textarea name="statusNote" id="statusNoteInput" class="form-control" rows="3" placeholder="Explain why this order is being delivered or cancelled..." style="width: 100%; margin-top: 5px; padding: 10px; border: 1px solid #ced4da; border-radius: 4px;"></textarea>
+                                                </div>
 
-                                                        <button type="submit" class="btn-update"
-                                                            style="margin-top: 15px; background-color: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">Update
-                                                            Status</button>
-                                                </form>
+                                                <button type="submit" class="btn-update" style="margin-top: 15px; background-color: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">Update Status</button>
+                                        </form>
 
-                                                <%-- CRITICAL: Updated JavaScript to match 4 and 5 --%>
-                                                    <script>
-                                                        function toggleReasonField() {
-                                                            var dropdown = document.getElementById("statusDropdown");
-                                                            var reasonBox = document.getElementById("reasonBox");
-                                                            var reasonInput = document.getElementById("statusNoteInput");
+                                        <%-- ✨ FIXED: JS now triggers on 5 (Delivered) and 6 (Cancelled) ✨ --%>
+                                            <script>
+                                                function toggleReasonField() {
+                                                    var dropdown = document.getElementById("statusDropdown");
+                                                    var reasonBox = document.getElementById("reasonBox");
+                                                    var reasonInput = document.getElementById("statusNoteInput");
 
-                                                            if (dropdown.value === "4" || dropdown.value === "5") {
-                                                                reasonBox.style.display = "block";
-                                                                reasonInput.required = true;
-                                                            } else {
-                                                                reasonBox.style.display = "none";
-                                                                reasonInput.required = false;
-                                                                reasonInput.value = "";
-                                                            }
-                                                        }
-                                                    </script>
-                                            </c:otherwise>
+                                                    if (dropdown.value === "5" || dropdown.value === "6") {
+                                                        reasonBox.style.display = "block";
+                                                        reasonInput.required = true;
+                                                    } else {
+                                                        reasonBox.style.display = "none";
+                                                        reasonInput.required = false;
+                                                        reasonInput.value = "";
+                                                    }
+                                                }
+                                                // Call on load to ensure proper state if page refreshes
+                                                window.onload = toggleReasonField;
+                                            </script>
+                                    </c:otherwise>
                             </c:choose>
                         </div>
 
