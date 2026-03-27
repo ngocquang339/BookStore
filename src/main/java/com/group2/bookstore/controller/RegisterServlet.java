@@ -186,7 +186,7 @@ public class RegisterServlet extends HttpServlet{
             request.setAttribute("mess", "Hệ thống gửi thư đang gặp sự cố. Vui lòng thử lại sau!");
             request.setAttribute("activeTab", "register");
             request.getRequestDispatcher("view/Login.jsp").forward(request, response);
-            return; // Kết thúc sớm, không cho nhảy sang form OTP
+            return;
         }
 
         System.out.println("[6] Lưu Session và chuyển hướng sang trang OTP...");

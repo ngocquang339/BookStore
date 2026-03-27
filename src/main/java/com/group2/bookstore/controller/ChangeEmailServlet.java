@@ -54,7 +54,7 @@ public class ChangeEmailServlet extends HttpServlet {
             return;
         }
 
-        // 5. MỌI THỨ HỢP LỆ -> Tạo OTP, Gửi Mail và trả về JSON Thành Công
+        
         String otp = EmailUtility.getRandomOTP();
         EmailUtility.sendEmail(newEmail, otp);
 

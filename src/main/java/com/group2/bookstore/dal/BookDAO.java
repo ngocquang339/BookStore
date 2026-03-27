@@ -123,13 +123,10 @@ public class BookDAO extends DBContext {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                // 1. Catch the book object first
                 Book b = mapResultSetToBook(rs);
                 
-                // 2. Fetch the gallery images and attach them!
                 b.setDetailImages(getDetailImages(id));
                 
-                // 3. Now return the fully loaded book
                 return b;
             }
         } catch (Exception e) {
@@ -732,7 +729,7 @@ public class BookDAO extends DBContext {
         b.setSupplier(rs.getString("supplier"));
         b.setYearOfPublish(rs.getInt("yearOfPublish"));
         b.setNumberPage(rs.getInt("number_page"));
-
+        b.setIsbn(rs.getString("ISBN"));
         try {
             b.setActive(rs.getBoolean("is_active"));
         } catch (SQLException e) {

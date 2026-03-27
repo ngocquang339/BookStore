@@ -17,7 +17,6 @@ public class ChangePasswordServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Chuyển hướng sang trang JSP để hiển thị form (Dành cho đổi MK bình thường)
         request.getRequestDispatcher("view/ChangePassword.jsp").forward(request, response);
     }
 
@@ -29,9 +28,6 @@ public class ChangePasswordServlet extends HttpServlet {
         String flag = request.getParameter("flag");
         UserDAO userDAO = new UserDAO();
 
-        // ========================================================
-        // NHÁNH 1: KHÔI PHỤC MẬT KHẨU (QUÊN MẬT KHẨU TỪ TRANG LOGIN)
-        // ========================================================
         if ("1".equals(flag)) {
             String email = request.getParameter("email");
             String newPassword = request.getParameter("newPassword");
@@ -49,14 +45,11 @@ public class ChangePasswordServlet extends HttpServlet {
                 return;
             }
 
-            // 2. Tìm User qua Email và cập nhật mật khẩu
             User user = userDAO.checkEmailExist(email);
             if (user != null) {
-                // Gọi hàm changePassword giống như lúc đổi mật khẩu bình thường
                 boolean isUpdated = userDAO.changePassword(newPassword, user);
 
                 if (isUpdated) {
-                    // Xóa OTP đi để không bị lợi dụng đổi lại lần nữa
                     session.removeAttribute("forgot_otp_" + email);
                     request.setAttribute("message", "Khôi phục mật khẩu thành công! Vui lòng đăng nhập với mật khẩu mới.");
                 } else {
@@ -66,17 +59,12 @@ public class ChangePasswordServlet extends HttpServlet {
                 request.setAttribute("error", "Tài khoản không tồn tại!");
             }
             
-            // Đổi xong thì trả về trang Login kèm thông báo
-            response.sendRedirect(request.getContextPath() + "/login");  //Thay đổi ở đây
-            return; // KẾT THÚC NHÁNH QUÊN MẬT KHẨU
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
         }
 
-        // ========================================================
-        // NHÁNH 2: ĐỔI MẬT KHẨU THÔNG THƯỜNG (KHI ĐÃ ĐĂNG NHẬP)
-        // ========================================================
         User user = (User) session.getAttribute("user");
 
-        // [SỬA LỖI EX 6 - Session Timeout]: Thêm thông báo trước khi đá về login
         if (user == null) {
             session.setAttribute("mess", "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."); 
             response.sendRedirect(request.getContextPath() + "/login");
@@ -91,22 +79,19 @@ public class ChangePasswordServlet extends HttpServlet {
         if(currentPass == null || newPass == null || confirmPass == null ||
            currentPass.isEmpty() || newPass.isEmpty() || confirmPass.isEmpty() ||
            currentPass.length() > 30 || newPass.length() > 30 || confirmPass.length() > 30) {
-            session.setAttribute("mess", "Tất cả các trường là bắt buộc và không được quá dài!"); // EX 5
+            session.setAttribute("mess", "Tất cả các trường là bắt buộc và không được quá dài!"); 
             session.setAttribute("status", "error");
             response.sendRedirect(request.getContextPath() + "/change-password");
             return;
         }   
         
-        // 2. VALIDATE (Kiểm tra dữ liệu)
         String message = "";
-        String status = "error"; // Mặc định là lỗi
+        String status = "error"; 
 
-        // Kiểm tra logic mật khẩu
         if (!user.getPassword().equals(currentPass)) {
             message = "Mật khẩu hiện tại không đúng!";
         }
         else if (newPass.length() < 6) {
-            // [SỬA LỖI EX 3 - Weak Password]: Chặn mật khẩu dưới 6 ký tự
             message = "Mật khẩu phải dài ít nhất 6 ký tự!"; 
         }
         else if (!newPass.equals(confirmPass)) {
@@ -116,12 +101,10 @@ public class ChangePasswordServlet extends HttpServlet {
             message = "Mật khẩu mới không được trùng với mật khẩu cũ!";
         }
         else {
-            // 3. MỌI THỨ OK -> GỌI DAO ĐỂ UPDATE
             boolean isUpdated = userDAO.changePassword(newPass, user);
 
             if (isUpdated) {
-                // Cập nhật lại password trong session để không phải đăng nhập lại
-                user.setPassword("");
+                user.setPassword(newPass);
                 session.setAttribute("user", user);
                 
                 message = "Đổi mật khẩu thành công!";
@@ -134,7 +117,6 @@ public class ChangePasswordServlet extends HttpServlet {
         session.setAttribute("mess", message);
         session.setAttribute("status", status);
 
-        // 4. Quay lại trang đổi mật khẩu
         response.sendRedirect("change-password");
     }
 }

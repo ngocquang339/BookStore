@@ -85,7 +85,7 @@
 
             .category-item input[type="radio"] {
                 display: none;
-                /* ẨN HOÀN TOÀN Ô TRÒN RADIO */
+                
             }
 
             .category-item .cat-name {
@@ -236,7 +236,7 @@
                                     <span style="color: #999;">-</span>
                                     <input type="number" name="maxPrice" placeholder="Đến (đ)" min="0">
                                 </div>
-                                <%-- [THÊM MỚI]: Dòng chữ báo lỗi, mặc định display: none (ẩn) --%>
+                                
                                 <div id="priceErrorText" style="color: #C92127; font-size: 12px; margin-top: 8px; display: none; font-weight: 500;">
                                     <i class="fa-solid fa-circle-exclamation"></i> Giá tối đa phải lớn hơn hoặc bằng giá tối thiểu
                                 </div>
@@ -269,13 +269,11 @@
                                 <h4 style="margin-top: 30px;"><i class="fa-solid fa-star"></i> Đánh giá</h4>
                                 
                                 <div class="category-list">
-                                    <%-- Lựa chọn 0: Tất cả --%>
                                     <label class="category-item">
                                         <input type="radio" name="rating" value="0" ${empty ratingFilter or ratingFilter == 0 ? 'checked' : ''}> 
                                         <span class="cat-name">Tất cả</span>
                                     </label>
 
-                                    <%-- Lựa chọn 5 Sao --%>
                                     <label class="category-item">
                                         <input type="radio" name="rating" value="5" ${ratingFilter == 5 ? 'checked' : ''}> 
                                         <span class="cat-name">
@@ -334,7 +332,7 @@
 
             <div class="header-icons" style="display: flex; align-items: center; gap: 20px;">
                 
-                <div class="icon-item dropdown" style="position: relative; cursor: pointer; display: flex; flex-direction: column; align-items: center;" data-bs-toggle="dropdown">
+                <div class="icon-item dropdown" style="position: relative; cursor: pointer; display: flex; flex-direction: column; align-items: center;"  >
                     <i class="fa-regular fa-bell" style="font-size: 20px;"></i>
                     <c:if test="${unreadCount > 0}">
                         <span class="position-absolute translate-middle badge rounded-pill bg-danger" 
@@ -445,19 +443,17 @@
 
     <script>
         let lastScrollTop = 0;
-        const header = document.querySelector('header'); // Make sure your tag is <header>
-        const scrollThreshold = 150; // Distance in pixels before hiding (length of a "section")
+        const header = document.querySelector('header'); 
+        const scrollThreshold = 150; 
 
         window.addEventListener('scroll', function () {
             let currentScroll = window.pageYOffset || document.documentElement.scrollTop;
 
-            // 1. Hide header if scrolling down beyond the threshold
+            
             if (currentScroll > lastScrollTop && currentScroll > scrollThreshold) {
                 header.classList.add('header-hidden');
             }
 
-            // 2. Reappear header when scrolling back up to the top
-            // Note: 'currentScroll <= 10' ensures it feels snappy when hitting the top
             if (currentScroll < lastScrollTop || currentScroll <= 10) {
                 header.classList.remove('header-hidden');
             }
@@ -465,13 +461,13 @@
             lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
         }, false);
         function readAndRedirect(notifId, link) {
-            // Gọi AJAX ngầm xuống server để đánh dấu Đã đọc
+           
             fetch('${pageContext.request.contextPath}/notification', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                 body: 'action=markRead&notifId=' + notifId
             }).then(res => {
-                // Đánh dấu xong (hoặc kể cả lỗi) thì vẫn chuyển hướng người dùng đến đúng comment
+                
                 window.location.href = link;
             }).catch(err => {
                 window.location.href = link;

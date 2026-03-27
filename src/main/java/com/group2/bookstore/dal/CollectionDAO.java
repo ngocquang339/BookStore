@@ -10,9 +10,6 @@ import java.util.List;
 
 public class CollectionDAO extends DBContext {
 
-    // =======================================================================
-    // 1. CREATE (Tạo bộ sưu tập mới)
-    // =======================================================================
     public boolean createCollection(Collection c) {
         String sql = "INSERT INTO Collections (user_id, collection_name, description, is_public, cover_color) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -29,9 +26,6 @@ public class CollectionDAO extends DBContext {
         return false;
     }
 
-    // =======================================================================
-    // 2. READ (Lấy danh sách bộ sưu tập của 1 User - Kèm tổng số sách)
-    // =======================================================================
     public List<Collection> getCollectionsByUserId(int userId) {
         List<Collection> list = new ArrayList<>();
         // Câu SQL này cực "ăn điểm" vì có dùng Subquery để đếm số lượng sách bên trong
@@ -122,11 +116,6 @@ public class CollectionDAO extends DBContext {
         return false;
     }
 
-    // =======================================================================
-    // CÁC HÀM THAO TÁC VỚI BẢNG TRUNG GIAN (Thêm/Bớt sách vào Giá sách)
-    // =======================================================================
-    
-    // Khách hàng bấm: "Lưu vào Giá sách"
     public boolean addBookToCollection(int collectionId, int bookId) {
         String sql = "INSERT INTO Collection_Books (collection_id, book_id) VALUES (?, ?)";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -141,7 +130,6 @@ public class CollectionDAO extends DBContext {
         return false;
     }
 
-    // Khách hàng bấm: "Xóa khỏi Giá sách"
     public boolean removeBookFromCollection(int collectionId, int bookId) {
         String sql = "DELETE FROM Collection_Books WHERE collection_id = ? AND book_id = ?";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -154,35 +142,28 @@ public class CollectionDAO extends DBContext {
         return false;
     }
 
-    // =======================================================================
-    // 5. READ BOOKS IN COLLECTION (CÓ TÌM KIẾM VÀ SẮP XẾP)
-    // =======================================================================
     public List<Book> getBooksByCollectionId(int collectionId, String keyword, String sortBy) {
         List<Book> list = new ArrayList<>();
         
-        // Dùng StringBuilder để cộng chuỗi SQL động (Ghi điểm mạnh chỗ này)
         StringBuilder sql = new StringBuilder("SELECT b.book_id, b.title, b.image, b.price, b.author ");
         sql.append("FROM Books b INNER JOIN Collection_Books cb ON b.book_id = cb.book_id ");
         sql.append("WHERE cb.collection_id = ? ");
 
-        // Nếu khách có gõ chữ tìm kiếm
         if (keyword != null && !keyword.trim().isEmpty()) {
             sql.append("AND b.title LIKE ? ");
         }
 
-        // Logic Sắp xếp
         if ("price_asc".equals(sortBy)) {
             sql.append("ORDER BY b.price ASC");
         } else if ("price_desc".equals(sortBy)) {
             sql.append("ORDER BY b.price DESC");
         } else {
-            sql.append("ORDER BY cb.added_at DESC"); // Mặc định: Sách mới thêm lên đầu
+            sql.append("ORDER BY cb.added_at DESC");
         }
 
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql.toString())) {
             ps.setInt(1, collectionId);
             
-            // Nếu có tìm kiếm thì set tham số thứ 2
             if (keyword != null && !keyword.trim().isEmpty()) {
                 ps.setString(2, "%" + keyword.trim() + "%");
             }
@@ -204,7 +185,6 @@ public class CollectionDAO extends DBContext {
         return list;
     }
 
-    // Hàm kiểm tra trùng tên (Bỏ qua ID của collection đang sửa, truyền -1 nếu là tạo mới)
     public boolean isNameExist(int userId, String name, int excludeCollectionId) {
         String sql = "SELECT 1 FROM Collections WHERE user_id = ? AND name = ? AND collection_id != ?";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -212,7 +192,7 @@ public class CollectionDAO extends DBContext {
             ps.setString(2, name);
             ps.setInt(3, excludeCollectionId);
             try (ResultSet rs = ps.executeQuery()) {
-                return rs.next(); // Trả về true nếu tìm thấy trùng lặp
+                return rs.next(); 
             }
         } catch (Exception e) {
             e.printStackTrace();
