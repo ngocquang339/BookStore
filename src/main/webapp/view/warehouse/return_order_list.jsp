@@ -100,7 +100,6 @@
                                 <table id="returnTable" class="table table-hover align-middle mb-0">
                                     <thead>
                                         <tr>
-                                            <!-- 🔥 PRIORITY (ẩn cột để DataTables sort) -->
                                             <th style="display:none;">priority</th>
 
                                             <th class="ps-3">Mã đơn</th>
@@ -197,7 +196,7 @@
                                 <div class="modal-content">
                                     <div class="modal-header bg-light">
                                         <h5 class="modal-title">Chi tiết đơn trả hàng #${selectedOrder.orderId}</h5>
-                                        <a href="returns" class="btn-close"></a>
+                                        <a href="${pageContext.request.contextPath}/warehouse/returns" class="btn-close"></a>
                                     </div>
                                     <div class="modal-body">
                                         <div class="row mb-3">
@@ -258,9 +257,9 @@
                                         </table>
                                     </div>
                                     <div class="modal-footer">
-                                        <a href="returns" class="btn btn-secondary">Đóng</a>
+                                        <a href="${pageContext.request.contextPath}/warehouse/returns" class="btn btn-secondary">Đóng</a>
                                         <c:if test="${selectedOrder.status == 3}">
-                                            <a href="return-process?orderId=${selectedOrder.orderId}"
+                                            <a href="${pageContext.request.contextPath}/warehouse/return-process?orderId=${selectedOrder.orderId}"
                                                 class="btn btn-primary">Bắt đầu kiểm hàng ngay</a>
                                         </c:if>
                                     </div>

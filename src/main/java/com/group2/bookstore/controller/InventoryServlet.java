@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import com.group2.bookstore.dal.CategoryDAO;
 
 @WebServlet(name = "InventoryServlet", urlPatterns = { "/warehouse/inventory" })
 public class InventoryServlet extends HttpServlet {
@@ -19,7 +20,7 @@ public class InventoryServlet extends HttpServlet {
 
         request.setCharacterEncoding("UTF-8");
         BookDAO dao = new BookDAO();
-        com.group2.bookstore.dal.CategoryDAO cDao = new com.group2.bookstore.dal.CategoryDAO(); // Khởi tạo CategoryDAO
+        CategoryDAO cDao = new CategoryDAO();
 
         String keyword = request.getParameter("keyword");
         String author = request.getParameter("author");

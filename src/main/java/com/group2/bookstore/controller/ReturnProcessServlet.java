@@ -60,7 +60,7 @@ public class ReturnProcessServlet extends HttpServlet {
         WarehouseOrderDAO dao = new WarehouseOrderDAO();
 
         try {
-            // ❗ CHỈ CHO PHÉP PASS
+            // Chỉ xử lý khi hành động là "PASS" (Nhập kho thành công)
             if ("PASS".equals(qcAction)) {
                 dao.processQualityControl(orderId, qcAction, null);
 

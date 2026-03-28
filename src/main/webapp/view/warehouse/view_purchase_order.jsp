@@ -94,7 +94,7 @@
 
                                 <div class="col-md-2">
                                     <a href="${pageContext.request.contextPath}/warehouse/view-po" class="btn btn-outline-secondary w-100">
-                                        <i class="fas fa-sync"></i> Reset
+                                        <i class="fas fa-sync"></i> Làm mới
                                     </a>
                                 </div>
 
@@ -182,13 +182,6 @@
                                                     </button>
                                                 </c:if>
 
-                                            </td>
-
-                                            <td class="ps-4 fw-bold text-primary">
-                                                <a
-                                                    href="${pageContext.request.contextPath}/admin/po-detail?poId=${po.purchaseOrderId}">
-                                                    #PO-${po.purchaseOrderId}
-                                                </a>
                                             </td>
 
                                         </tr>

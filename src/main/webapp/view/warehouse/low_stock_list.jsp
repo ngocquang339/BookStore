@@ -88,7 +88,7 @@
                                     <i class="fa-solid fa-filter"></i> Lọc
                                 </button>
                                 <a href="${pageContext.request.contextPath}/warehouse/low-stock" class="btn btn-secondary w-50">
-                                    Reset
+                                    Làm mới
                                 </a>
                             </div>
 
