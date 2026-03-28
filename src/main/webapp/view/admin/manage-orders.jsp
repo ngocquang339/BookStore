@@ -7,7 +7,7 @@
 
             <head>
                 <title>Order Management</title>
-                <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/manage-orders.css?v=4">
+                <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/manage-orders.css?v=5">
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
             </head>
 
@@ -45,10 +45,12 @@
                             <label class="filter-label">Status</label>
                             <select name="status" class="form-control">
                                 <option value="">All Statuses</option>
-                                <option value="Pending" ${status=='Pending' ? 'selected' : '' }>Pending</option>
-                                <option value="Shipping" ${status=='Shipping' ? 'selected' : '' }>Shipping</option>
-                                <option value="Completed" ${status=='Completed' ? 'selected' : '' }>Completed</option>
-                                <option value="Cancelled" ${status=='Cancelled' ? 'selected' : '' }>Cancelled</option>
+                                <option value="1" ${status=='1' ? 'selected' : '' }>Pending</option>
+                                <option value="2" ${status=='2' ? 'selected' : '' }>Processing</option>
+                                <option value="3" ${status=='3' ? 'selected' : '' }>Packed</option>
+                                <option value="4" ${status=='4' ? 'selected' : '' }>Shipping</option>
+                                <option value="5" ${status=='5' ? 'selected' : '' }>Delivered</option>
+                                <option value="6" ${status=='6' ? 'selected' : '' }>Cancelled</option>
                             </select>
                         </div>
 
@@ -139,13 +141,16 @@
                                                             <span class="status-badge status-2">Processing</span>
                                                         </c:when>
                                                         <c:when test="${o.status == 3}">
-                                                            <span class="status-badge status-3">Shipping</span>
+                                                            <span class="status-badge status-3">Packed</span>
                                                         </c:when>
                                                         <c:when test="${o.status == 4}">
-                                                            <span class="status-badge status-4">Completed</span>
+                                                            <span class="status-badge status-4">Shipping</span>
                                                         </c:when>
                                                         <c:when test="${o.status == 5}">
-                                                            <span class="status-badge status-5">Cancelled</span>
+                                                            <span class="status-badge status-5">Delivered</span>
+                                                        </c:when>
+                                                        <c:when test="${o.status == 6}">
+                                                            <span class="status-badge status-6">Cancelled</span>
                                                         </c:when>
                                                     </c:choose>
                                                 </td>

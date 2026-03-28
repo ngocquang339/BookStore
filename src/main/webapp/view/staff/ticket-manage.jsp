@@ -14,7 +14,7 @@
 </head>
 
 <body style="background-color: #f4f6f9;">
-    <jsp:include page="../component/header.jsp" />
+    
 
     <div class="container-fluid py-4 px-4">
         <div class="d-flex justify-content-between align-items-center mb-4">

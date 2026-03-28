@@ -935,7 +935,7 @@ background: #C92127; color: white; */
                 <i class="fa-regular fa-star" data-value="5"></i>
             </div>
 
-            <%-- [ĐÃ SỬA]: Bỏ thuộc tính required đi để ta dùng JS tự bắt lỗi --%>
+
             <textarea name="comment" class="review-textarea"
                 placeholder="Chia sẻ cảm nhận của bạn về cuốn sách này nhé..."></textarea>
 
@@ -1365,7 +1365,8 @@ background: #C92127; color: white; */
             <div class="modal-header">
                 <h5 class="modal-title fw-bold"><i
                         class="fa-solid fa-triangle-exclamation text-warning me-2"></i>Báo Cáo
-                    Vi Phạm</h5>
+                    Vi Phạm
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form id="reportReviewForm">
@@ -1475,27 +1476,17 @@ background: #C92127; color: white; */
     function nextImage() {
         currentIndex++;
         if (currentIndex >= galleryImages.length) {
-            currentIndex = 0; // Quay về đầu nếu hết ảnh
+            currentIndex = 0; 
         }
         updateGalleryView();
     }
-    // 3. Xử lý Gửi Form báo cáo
-    document.getElementById('reportDiscussionForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const form = e.target;
-    const data = new URLSearchParams(new FormData(form));
-
-    // Nếu chọn "Khác" thì gộp lý do
-    if(data.get('reason') === 'Khác'){
-    data.set('reason', data.get('customReason'));
-    }
-    });
+    
 
     // Chuyển sang ảnh TRƯỚC ĐÓ
     function prevImage() {
         currentIndex--;
         if (currentIndex < 0) {
-            currentIndex = galleryImages.length - 1; // Nhảy về cuối nếu đang ở đầu
+            currentIndex = galleryImages.length - 1; 
         }
         updateGalleryView();
     }
@@ -1506,10 +1497,8 @@ background: #C92127; color: white; */
     let mainImg = document.getElementById('modalMainImage');
     mainImg.style.transform = 'scale(1)';
 
-    // 2. CẬP NHẬT NGUỒN ẢNH CHÍNH (ĐÂY LÀ DÒNG BẠN BỊ THIẾU)
     mainImg.src = galleryImages[currentIndex];
 
-    // 3. Cập nhật viền đỏ ở thanh thumbnail bên dưới
     let allThumbs = document.querySelectorAll('.modal-thumb-item');
     allThumbs.forEach((thumb, index) => {
         if (index === currentIndex) {
@@ -1523,7 +1512,6 @@ background: #C92127; color: white; */
 }
 
     // --- CÁC HÀM XỬ LÝ SỰ KIỆN CŨ (Đã nâng cấp) ---
-
     function openFullscreenGallery() {
         // Mặc định mở lên là chọn ảnh bìa (index 0) hoặc bạn có thể logic phức tạp hơn
         currentIndex = 3; // Vì bấm nút +Xem thêm thường là đang ở ảnh thứ 4
@@ -1679,7 +1667,7 @@ background: #C92127; color: white; */
     stars.forEach(star => {
         star.addEventListener("click", function () {
             const value = this.getAttribute("data-value");
-            ratingInput.value = value; // Cập nhật giá trị vào input hidden để submit lên Server
+            ratingInput.value = value;
 
             // Đổi màu các sao
             stars.forEach(s => {
@@ -1702,17 +1690,11 @@ background: #C92127; color: white; */
         const ratingVal = document.getElementById("ratingValue").value;
         const commentVal = form.querySelector('textarea[name="comment"]').value.trim();
 
-        // =========================================================
-        // [THÊM MỚI] XỬ LÝ EX 1: CHƯA CHỌN SAO
-        // =========================================================
         if (!ratingVal || ratingVal === "") {
             alert("Vui lòng chọn số sao đánh giá!");
             return; // Dừng lại, không chạy tiếp lệnh gửi
         }
 
-        // =========================================================
-        // [THÊM MỚI] XỬ LÝ EX 2: ĐỂ TRỐNG NỘI DUNG
-        // =========================================================
         if (commentVal === '') {
             alert("Vui lòng chia sẻ cảm nhận của bạn về cuốn sách này!");
             form.querySelector('textarea[name="comment"]').focus();
@@ -1852,7 +1834,7 @@ background: #C92127; color: white; */
         document.getElementById('review-content-display-' + reviewId).style.display = 'block';
     }
 
-    // --- MA THUẬT AJAX CHO SỬA & XÓA BÌNH LUẬN ---
+    // --- AJAX SỬA & XÓA BÌNH LUẬN ---
     document.getElementById('reviewListContainer').addEventListener('submit', function (e) {
 
         // 1. XỬ LÝ NÚT XÓA
@@ -1865,7 +1847,9 @@ background: #C92127; color: white; */
             const data = new URLSearchParams(new FormData(form));
 
             fetch('${pageContext.request.contextPath}/review', {
-                method: 'POST', body: data, headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                method: 'POST', 
+                body: data, 
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
             })
                 .then(res => res.json())
                 .then(result => {
@@ -1897,7 +1881,9 @@ background: #C92127; color: white; */
             submitBtn.disabled = true;
 
             fetch('${pageContext.request.contextPath}/review', {
-                method: 'POST', body: data, headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                method: 'POST', 
+                body: data, 
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
             })
                 .then(res => res.json())
                 .then(result => {
@@ -2025,9 +2011,6 @@ background: #C92127; color: white; */
             });
     });
 
-    // =========================================================
-    // JS: TỰ ĐỘNG CUỘN ĐẾN BÌNH LUẬN KHI BẤM TỪ THÔNG BÁO TỚI
-    // =========================================================
     window.addEventListener('load', function () {
         const hash = window.location.hash; // Lấy phần #... trên URL
 
@@ -2058,9 +2041,7 @@ background: #C92127; color: white; */
             }
         }
     });
-    // =================================================================
-    // 1. CẤU HÌNH API GHN (Hệ thống thật)
-    // =================================================================
+    
     const GHN_TOKEN = '79a7c86a-1ef8-11f1-a3ea-4e2619480a9f';
     const GHN_SHOP_ID = 6322897;
     const SHOP_DISTRICT_ID = 3440;
@@ -2068,9 +2049,7 @@ background: #C92127; color: white; */
 
     let isProvinceLoaded = false;
 
-    // =================================================================
-    // 2. HÀM MỞ & ĐÓNG MODAL CỦA BẠN
-    // =================================================================
+    
     function openAddressModal() {
         // Hiển thị modal
         document.getElementById('addressModalOverlay').style.display = 'flex'; // Hoặc 'block' tùy CSS của bạn
@@ -2086,9 +2065,6 @@ background: #C92127; color: white; */
         document.getElementById('addressModalOverlay').style.display = 'none';
     }
 
-    // =================================================================
-    // 3. XỬ LÝ SỰ KIỆN KHI BẤM "XÁC NHẬN"
-    // =================================================================
     function confirmAddress() {
         // Xem người dùng đang chọn Radio button nào
         let addressType = document.querySelector('input[name="address_type"]:checked').value;
@@ -2202,61 +2178,100 @@ background: #C92127; color: white; */
     // 5. HÀM TÍNH TOÁN PHÍ SHIP VÀ THỜI GIAN ĐỘC LẬP
     // =================================================================
     async function calculateQuickShippingGHN(toDistrictId, toWardCode) {
-        try {
-            // GỌI LẤY PHÍ SHIP
-            const feeRes = await fetch('https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'token': GHN_TOKEN },
-                body: JSON.stringify({
-                    "service_type_id": 2,
-                    "from_district_id": SHOP_DISTRICT_ID,
-                    "to_district_id": parseInt(toDistrictId),
-                    "to_ward_code": String(toWardCode),
-                    "weight": 500, // Khối lượng quyển sách (500g)
-                    "length": 20, "width": 15, "height": 10
-                })
-            });
-            const feeData = await feeRes.json();
-            if (feeData.code === 200) {
-                const feeFormatted = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(feeData.data.total);
-                document.getElementById('displayShippingFee').innerText = feeFormatted;
-            }
+    try {
+        // ===== 1. LẤY SERVICE_ID =====
+        const serviceRes = await fetch('https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/available-services', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'token': GHN_TOKEN
+            },
+            body: JSON.stringify({
+                shop_id: GHN_SHOP_ID,
+                from_district: SHOP_DISTRICT_ID,
+                to_district: parseInt(toDistrictId)
+            })
+        });
 
-            // GỌI API LẤY THỜI GIAN GIAO HÀNG
-            const timeRes = await fetch('https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/leadtime', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'token': GHN_TOKEN, 'ShopId': String(GHN_SHOP_ID) },
-                body: JSON.stringify({
-                    "from_district_id": SHOP_DISTRICT_ID,
-                    "to_district_id": parseInt(toDistrictId),
-                    "to_ward_code": String(toWardCode),
-                    "service_type_id": 2 // <--- THÊM DÒNG NÀY ĐỂ GHN BIẾT LÀ GIAO TIÊU CHUẨN
-                })
-            });
-            const timeData = await timeRes.json();
+        const serviceData = await serviceRes.json();
 
-            if (timeData.code === 200) {
-                let leadTimeUnix = timeData.data.leadtime;
-
-                // CODE BẢO HIỂM: Nếu GHN lỗi trả về 0 hoặc null, tự động cộng 3 ngày từ hôm nay
-                if (!leadTimeUnix || leadTimeUnix === 0) {
-                    leadTimeUnix = Math.floor(Date.now() / 1000) + (3 * 24 * 60 * 60);
-                }
-
-                const dateObj = new Date(leadTimeUnix * 1000);
-                const days = ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'];
-                const dayName = days[dateObj.getDay()];
-                const dateString = String(dateObj.getDate()).padStart(2, '0') + '/' + String(dateObj.getMonth() + 1).padStart(2, '0');
-
-                document.getElementById('expectedDeliveryText').innerHTML = "Dự kiến giao: <strong>" + dayName + " - " + dateString + "</strong>";
-            }
-
-        } catch (error) {
-            console.error("Lỗi Fetch Detail:", error);
-            document.getElementById('displayShippingFee').innerText = "Không tính được phí";
+        if (!serviceData.data || serviceData.data.length === 0) {
+            throw new Error("Không có service khả dụng");
         }
-    }
-    </script>
-</body>
 
-</html>
+        const serviceId = serviceData.data[0].service_id;
+
+        // ===== 2. TÍNH PHÍ =====
+        const feeRes = await fetch('https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'token': GHN_TOKEN
+            },
+            body: JSON.stringify({
+                service_id: serviceId,
+                from_district_id: SHOP_DISTRICT_ID,
+                to_district_id: parseInt(toDistrictId),
+                to_ward_code: String(toWardCode),
+                weight: 500,
+                length: 20,
+                width: 15,
+                height: 10
+            })
+        });
+
+        const feeData = await feeRes.json();
+
+        if (feeData.code === 200) {
+            const feeFormatted = new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            }).format(feeData.data.total);
+
+            document.getElementById('displayShippingFee').innerText = feeFormatted;
+        }
+
+        // ===== 3. LEADTIME =====
+        const timeRes = await fetch('https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/leadtime', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'token': GHN_TOKEN,
+                'ShopId': String(GHN_SHOP_ID)
+            },
+            body: JSON.stringify({
+                from_district_id: SHOP_DISTRICT_ID,
+                to_district_id: parseInt(toDistrictId),
+                to_ward_code: String(toWardCode),
+                service_id: serviceId
+            })
+        });
+
+        const timeData = await timeRes.json();
+
+        if (timeData.code === 200) {
+            let leadTimeUnix = timeData.data.leadtime;
+
+            if (!leadTimeUnix || leadTimeUnix === 0) {
+                leadTimeUnix = Math.floor(Date.now() / 1000) + (3 * 24 * 60 * 60);
+            }
+
+            const dateObj = new Date(leadTimeUnix * 1000);
+            const days = ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'];
+
+            const dayName = days[dateObj.getDay()];
+            const dateString =
+                String(dateObj.getDate()).padStart(2, '0') + '/' +
+                String(dateObj.getMonth() + 1).padStart(2, '0');
+
+            document.getElementById('expectedDeliveryText').innerHTML =
+                "Dự kiến giao: <strong>" + dayName + " - " + dateString + "</strong>";
+        }
+
+    } catch (error) {
+        console.error("Lỗi GHN:", error);
+        document.getElementById('displayShippingFee').innerText = "Không tính được phí";
+    }
+}
+    </script>
+</body

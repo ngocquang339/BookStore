@@ -175,4 +175,32 @@ public class PromotionDAO extends DBContext {
         }
         return 0; // Nếu không có khuyến mãi nào đang chạy, trả về 0
     }
+
+    public boolean updatePromotion(int promoId, String promoName, int discountPercent, String startDate, String endDate, boolean isActive) {
+        String sql = "UPDATE Promotions SET promo_name = ?, discount_percent = ?, start_date = ?, end_date = ?, is_active = ? WHERE promo_id = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, promoName);
+            ps.setInt(2, discountPercent);
+            ps.setString(3, startDate);
+            ps.setString(4, endDate);
+            ps.setBoolean(5, isActive); 
+            ps.setInt(6, promoId);
+            
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            System.out.println("Lỗi tại updatePromotion: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public boolean deletePromotion(int promoId) {
+        String sql = "DELETE FROM Promotions WHERE promo_id = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, promoId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            System.out.println("Lỗi tại deletePromotion: " + e.getMessage());
+        }
+        return false;
+    }
 }

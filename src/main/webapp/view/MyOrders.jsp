@@ -432,7 +432,6 @@
                                                             </button>
                                                         </c:if>
                                                         
-                                                        <%-- Nút Mua Lại thì luôn hiện --%>
                                                         <button type="button" class="btn btn-buy-again" style="padding: 8px 20px; font-size: 14px; background: #C92127; color: white; border: none;" onclick="repurchaseOrder(${order.id})">Mua lại</button>
                                                     </c:when>
                                                     <c:when test="${order.status == 4}">

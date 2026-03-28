@@ -1,272 +1,249 @@
-/* 1. Global Font Reset */
+/* manage-orders.css */
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
-    padding: 0;
 }
 
-/* 2. Page Container */
 .page-container {
-    max-width: 1200px;
-    margin: 40px auto;
-    padding: 0 20px;
-}
-
-/* 3. Header Area */
-.header-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 25px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #dee2e6;
-}
-
-.header-actions h1 {
-    margin: 0;
-    color: #343a40;
-    font-size: 28px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    padding: 20px 30px;
 }
 
 .back-link {
+    text-decoration: none;
+    color: #495057;
+    font-weight: 600;
+    margin-bottom: 20px;
+    display: inline-block;
+    font-size: 0.95rem;
+}
+
+.back-link:hover {
+    color: #212529;
+}
+
+.header-actions h1 {
+    font-size: 1.75rem;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Filter Bar */
+.filter-bar {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: flex-end;
+    margin-bottom: 25px;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 150px;
+}
+
+.filter-group-search {
+    flex: 2;
+    min-width: 250px;
+}
+
+.filter-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 5px;
+}
+
+.form-control {
+    padding: 9px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.form-control:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.search-input-wrapper {
+    position: relative;
+}
+
+.search-input {
+    width: 100%;
+    padding-left: 35px;
+    box-sizing: border-box;
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #adb5bd;
+}
+
+.filter-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-sm {
+    padding: 9px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #fff;
+    text-decoration: none;
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    color: #6c757d;
-    font-weight: 500;
-    margin-bottom: 20px;
-    transition: color 0.2s;
+    gap: 6px;
 }
-.back-link:hover { color: #343a40; }
 
-/* 4. Table Styling */
+.btn-filter { background-color: #0d6efd; }
+.btn-filter:hover { background-color: #0b5ed7; }
+
+.btn-reset { background-color: #6c757d; }
+.btn-reset:hover { background-color: #5c636a; }
+
+/* Table Styling */
 .table-responsive {
-    background: white;
+    background: #ffffff;
     border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    overflow: hidden; /* Rounds corners */
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    overflow-x: auto;
 }
 
 .admin-table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 800px; /* Prevents squishing on small screens */
 }
 
-.admin-table thead {
-    background-color: #343a40; /* Dark Header like Product Page */
-    color: white;
-}
-
-.admin-table th, .admin-table td {
-    padding: 15px;
+.admin-table thead th {
+    background-color: #343a40; /* Dark header from screenshot */
+    padding: 16px;
     text-align: left;
-    border-bottom: 1px solid #dee2e6;
+    font-size: 0.85rem;
+    text-transform: uppercase;
 }
 
-.admin-table th {
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.85rem;
-    letter-spacing: 0.5px;
+.admin-table thead th a {
+    color: #a855f7; /* Purple/Blue links from screenshot */
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 700;
+}
+
+.admin-table thead th a:hover {
+    color: #cba6fc;
+}
+
+.admin-table tbody td {
+    padding: 16px;
+    border-bottom: 1px solid #f1f3f5;
+    vertical-align: middle;
+    color: #333;
 }
 
 .admin-table tbody tr:hover {
     background-color: #f8f9fa;
 }
 
-/* 5. Status Badges */
-.status-badge {
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 0.85em;
-    font-weight: 700;
-    display: inline-block;
-    text-align: center;
-    min-width: 80px;
-}
-
-.status-1 { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; } /* Pending */
-.status-2 { background-color: #cce5ff; color: #004085; border: 1px solid #b8daff; } /* Shipping */
-.status-3 { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; } /* Completed */
-.status-4 { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; } /* Cancelled */
-
-/* 6. Action Buttons */
-.btn-view {
-    background-color: #17a2b8;
-    color: white;
-    padding: 6px 14px;
-    text-decoration: none;
-    border-radius: 4px;
-    font-size: 14px;
-    font-weight: 500;
-    transition: background 0.2s;
-}
-.btn-view:hover { background-color: #138496; }
-
-/* 7. Empty State (For when there are no orders) */
-.empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-}
-.empty-state i {
-    font-size: 60px;
-    color: #dee2e6;
-    margin-bottom: 20px;
-}
-.empty-state p {
-    color: #6c757d;
-    font-size: 18px;
-}
-
-/* =========================================
-   Filter Bar & Search Forms
-   ========================================= */
-.filter-bar {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 20px;
-    align-items: flex-end;
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 8px;
-    flex-wrap: wrap;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.filter-group {
-    display: flex;
-    flex-direction: column;
-    min-width: 140px;
-}
-
-.filter-group-search {
-    flex-grow: 1;
-    min-width: 250px;
-}
-
-.filter-group-status {
-    min-width: 150px;
-}
-
-.filter-label {
-    font-size: 12px;
-    font-weight: bold;
-    margin-bottom: 5px;
-    color: #555;
-}
-
-.search-input-wrapper {
-    position: relative;
-    width: 100%;
-}
-
-.form-control {
-    height: 38px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    width: 100%;
-}
-
-.search-input {
-    padding-left: 35px;
-}
-
-.search-icon {
-    position: absolute;
-    left: 12px;
-    top: 11px;
-    color: #999;
-}
-
-.filter-actions {
-    display: flex;
-    gap: 8px;
-}
-
-.btn-filter {
-    background: #0d6efd;
-    color: white;
-    border: none;
-    padding: 0 20px;
-    cursor: pointer;
-    height: 38px;
-    border-radius: 4px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: background-color 0.2s;
-}
-
-.btn-filter:hover {
-    background: #0b5ed7;
-}
-
-.btn-reset {
-    background: #6c757d;
-    color: white;
-    border: none;
-    padding: 0 15px;
-    cursor: pointer;
-    height: 38px;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    transition: background-color 0.2s;
-}
-
-.btn-reset:hover {
-    background: #5c636a;
-}
-
-/* =========================================
-   Table Text Formatting
-   ========================================= */
+/* Specific Cell Data */
 .customer-phone {
-    font-size: 0.9em;
-    color: #666;
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-top: 4px;
+    display: block;
 }
 
 .total-amount {
-    font-weight: bold;
-    color: #C92127;
+    color: #dc3545; /* Red color from screenshot */
+    font-weight: 700;
+    font-size: 1.05rem;
 }
 
-/* =========================================
-   Status Badges & Pagination
-   ========================================= */
+/* Status Badges */
 .status-badge {
-    padding: 5px 12px;
-    border-radius: 15px;
-    font-weight: bold;
-    font-size: 13px;
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: center;
     display: inline-block;
+    min-width: 90px;
 }
 
-/* Make sure you have the other statuses defined! Here is the cancelled one: */
-.status-0 {
-    background-color: #fee2e2;
-    color: #ef4444;
+/* Matching your new 1-6 OrderStatus mapping */
+.status-1 { background-color: #fff3cd; color: #856404; } /* Pending - Yellow */
+.status-2 { background-color: #cff4fc; color: #055160; } /* Processing - Light Blue */
+.status-3 { background-color: #fff8e6; color: #fd7e14; } /* Packed - Orange */
+.status-4 { background-color: #cfe2ff; color: #084298; } /* Shipping - Blue */
+.status-5 { background-color: #d1e7dd; color: #0f5132; } /* Delivered - Green */
+.status-6 { background-color: #e2e3e5; color: #41464b; } /* Cancelled - Grey */
+
+/* View Action Button */
+.btn-view {
+    background-color: #17a2b8; /* Teal color from screenshot */
+    color: #ffffff;
+    padding: 6px 14px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
 
+.btn-view:hover {
+    background-color: #138496;
+    color: #ffffff;
+}
+
+/* Pagination */
 .pagination {
+    padding: 20px;
     display: flex;
     justify-content: center;
-    margin-top: 20px;
-    gap: 5px;
-<<<<<<< HEAD
+    gap: 8px;
+    border-top: 1px solid #f1f3f5;
 }
-=======
+
+.page-btn {
+    color: #6f42c1;
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-weight: 500;
 }
->>>>>>> 736d6299164d3064077504be0f8e1b7b7f12aef9
+
+.page-btn:hover { background-color: #f1f3f5; }
+.page-btn.active { background-color: #6f42c1; color: #ffffff; }
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 50px 20px;
+    background: #fff;
+    border-radius: 8px;
+    color: #6c757d;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    color: #dee2e6;
+}

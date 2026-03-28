@@ -1122,9 +1122,6 @@ public class OrderDAO extends DBContext {
         return list;
     }
 
-    // =========================================================================
-    // HÀM TỰ ĐỘNG CHỐT ĐƠN: Chuyển status 4 -> 5 sau 7 ngày
-    // =========================================================================
     public int autoCompleteDeliveredOrders() {
         // DATEDIFF(day, order_date, GETDATE()) >= 7 : So sánh ngày đặt với ngày hiện tại (nếu >= 7 ngày)
         String sql = "UPDATE Orders SET status = 5 " +

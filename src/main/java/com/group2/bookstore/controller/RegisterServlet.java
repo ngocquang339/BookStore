@@ -39,6 +39,10 @@ public class RegisterServlet extends HttpServlet{
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         System.out.println("\n========== BẮT ĐẦU LUỒNG ĐĂNG KÝ ==========");
+        // THÊM 2 DÒNG NÀY VÀO ĐÂY:
+        // Dọn dẹp dữ liệu đăng ký cũ trong session (nếu có) để không bị ghi đè UI
+        HttpSession session = request.getSession();
+        session.removeAttribute("tempUser");
         String fn = request.getParameter("fullname");
         String u = request.getParameter("username");
         String p = request.getParameter("password");
@@ -191,8 +195,6 @@ public class RegisterServlet extends HttpServlet{
 
         System.out.println("[6] Lưu Session và chuyển hướng sang trang OTP...");
 
-        // Lưu thông tin tạm vào Session 
-        HttpSession session = request.getSession();
         User tempUser = new User(u, p, e, fn, phone); 
         
         session.setAttribute("tempUser", tempUser); 

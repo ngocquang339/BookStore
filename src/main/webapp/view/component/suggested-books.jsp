@@ -29,11 +29,6 @@
                         <span style="color: #C92127; font-size: 16px; font-weight: bold;">
                             <fmt:formatNumber value="${b.price}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
                         </span>
-                        <span style="background: #C92127; color: white; font-size: 12px; padding: 2px 4px; border-radius: 3px;">-20%</span>
-                    </div>
-
-                    <div style="color: #999; font-size: 13px; text-decoration: line-through; margin-bottom: 5px;">
-                        <fmt:formatNumber value="${b.price * 1.2}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
                     </div>
                 </div>
             </a>

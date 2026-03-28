@@ -5,6 +5,7 @@ import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
+import com.group2.bookstore.model.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -44,7 +45,7 @@ public class NotificationServlet extends HttpServlet {
         else if ("deleteAllNotif".equals(action)) {
             try {
                 // Lấy user đang đăng nhập từ session để bảo mật
-                com.group2.bookstore.model.User user = (com.group2.bookstore.model.User) request.getSession().getAttribute("user");
+                User user = (User) request.getSession().getAttribute("user");
                 
                 if (user != null) {
                     NotificationDAO dao = new NotificationDAO();
