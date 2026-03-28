@@ -94,7 +94,7 @@
                         <div class="info-label">Logistics Preference</div>
                         <div class="info-value"><i class="fa-solid fa-truck"></i> ${req.returnMethod}</div>
 
-                        
+
 
                         <div class="info-label" style="color: #dc3545;">Customer's Stated Reason</div>
                         <div class="info-value"
@@ -112,6 +112,14 @@
                             style="background: #eee; height: 150px; display: flex; align-items: center; justify-content: center; border-radius: 4px; border: 2px dashed #ccc; margin-bottom: 20px;">
                             <span style="color: #888;"><i class="fa-solid fa-image"></i> Awaiting Image System</span>
                         </div>
+                        <c:if test="${request.status == 8}">
+                            <div class="alert alert-success"
+                                style="background-color: #d1e7dd; color: #0f5132; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
+                                <strong><i class="fa-solid fa-check-circle"></i> Warehouse QC Passed!</strong><br>
+                                The warehouse has successfully received and inspected this item. Please select
+                                <b>"Completed & Refunded"</b> to finalize this return.
+                            </div>
+                        </c:if>
 
                         <form action="${pageContext.request.contextPath}/admin/returns/review" method="post">
                             <input type="hidden" name="returnId" value="${req.returnId}">
@@ -124,16 +132,20 @@
                                     Photos)</option>
                                 <option value="3" ${req.status==3 ? 'selected' : '' }>Approved (Awaiting Physical Item)
                                 </option>
-                                <option value="4" ${req.status==4 ? 'selected' : '' }>Failed QC (Item received but
-                                    rejected)</option>
 
-                                <option value="5" ${req.status==5 ? 'selected' : '' }>Completed & Refunded (Item
-                                    Returned to Store)</option>
+                                <%-- Only show 'Ready for Refund' if the warehouse already set it to 8. Admins cannot
+                                    manually pick this from other states! --%>
+                                    <c:if test="${req.status == 8}">
+                                        <option value="8" selected>Ready for Refund (Passed QC)</option>
+                                    </c:if>
 
-                                <option value="7" ${req.status==7 ? 'selected' : '' }>Completed & Refunded (Customer
-                                    Keeps Item)</option>
-
-                                <option value="6" ${req.status==6 ? 'selected' : '' }>Rejected Upfront</option>
+                                    <option value="4" ${req.status==4 ? 'selected' : '' }>Failed QC (Item received but
+                                        rejected)</option>
+                                    <option value="5" ${req.status==5 ? 'selected' : '' }>Completed & Refunded (Item
+                                        Returned to Store)</option>
+                                    <option value="7" ${req.status==7 ? 'selected' : '' }>Completed & Refunded (Customer
+                                        Keeps Item)</option>
+                                    <option value="6" ${req.status==6 ? 'selected' : '' }>Rejected Upfront</option>
                             </select>
 
                             <div id="refundSection"
@@ -177,7 +189,7 @@
                         var note = document.getElementById("adminNote");
                         var refundSection = document.getElementById("refundSection");
                         var refundAmount = document.getElementById("refundAmount");
-                        
+
 
                         // 1. Handle the Admin Note Requirement
                         if (status === "2" || status === "4" || status === "6") {
@@ -199,7 +211,7 @@
                             refundAmount.required = false;
                             bankRef.required = false;
                             refundAmount.value = ""; // Clear it out if they change their mind
-                       
+
                         }
                     }
 

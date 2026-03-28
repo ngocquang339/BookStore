@@ -13,7 +13,8 @@ public class NotificationDAO extends DBContext {
     // 1. Get all unread notifications
     public List<AdminNotification> getUnreadNotifications() {
         List<AdminNotification> list = new ArrayList<>();
-        String sql = "SELECT notification_id, order_id, message FROM AdminNotifications WHERE is_read = 0 ORDER BY created_at ASC";
+        // ✨ CHANGED: Replaced order_id with link
+        String sql = "SELECT notification_id, link, message FROM AdminNotifications WHERE is_read = 0 ORDER BY created_at ASC"; 
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
@@ -22,7 +23,7 @@ public class NotificationDAO extends DBContext {
             while (rs.next()) {
                 list.add(new AdminNotification(
                     rs.getInt("notification_id"),
-                    rs.getInt("order_id"),
+                    rs.getString("link"), // ✨ CHANGED: Fetching string instead of int
                     rs.getString("message")
                 ));
             }
@@ -40,6 +41,21 @@ public class NotificationDAO extends DBContext {
             ps.setInt(1, notificationId);
             ps.executeUpdate();
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Thêm vào NotificationDAO.java
+    public void insertAdminNotification(String message, String link) {
+        // Lưu ý: Đảm bảo bạn đã sửa bảng AdminNotifications trong SQL Server 
+        // Thay cột order_id thành cột link (VARCHAR/NVARCHAR)
+        String sql = "INSERT INTO AdminNotifications (message, link, is_read, created_at) VALUES (?, ?, 0, GETDATE())";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setNString(1, message);
+            ps.setString(2, link);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            System.err.println("Lỗi gửi thông báo cho Admin: " + e.getMessage());
             e.printStackTrace();
         }
     }

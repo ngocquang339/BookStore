@@ -523,7 +523,7 @@ public class BookDAO extends DBContext {
             }
         }
     } catch (Exception e) {
-        e.printStackTrace();
+        System.err.println("Database error in insertBook: " + e.getMessage());
     }
     
     // Return the new ID back to the Servlet so it can save the detail images!

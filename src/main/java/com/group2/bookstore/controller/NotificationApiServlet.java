@@ -18,23 +18,23 @@ public class NotificationApiServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // This tells the browser: "I am sending you raw JSON data, not a web page!"
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
         NotificationDAO dao = new NotificationDAO();
         List<AdminNotification> unread = dao.getUnreadNotifications();
 
-        // Safely building a JSON array by hand so we don't have to install external libraries like Gson right now
         StringBuilder json = new StringBuilder("[");
         for (int i = 0; i < unread.size(); i++) {
             AdminNotification n = unread.get(i);
+            
+            // ✨ CHANGED: Safely append the 'link' string instead of 'orderId'
             json.append("{\"id\":").append(n.getId())
-                .append(",\"orderId\":").append(n.getOrderId())
-                .append(",\"message\":\"").append(n.getMessage().replace("\"", "\\\"")).append("\"}");
+                .append(",\"link\":\"").append(n.getLink() != null ? n.getLink().replace("\"", "\\\"") : "").append("\"")
+                .append(",\"message\":\"").append(n.getMessage() != null ? n.getMessage().replace("\"", "\\\"") : "").append("\"}");
             
             if (i < unread.size() - 1) {
-                json.append(","); // Add a comma between items
+                json.append(","); 
             }
         }
         json.append("]");
