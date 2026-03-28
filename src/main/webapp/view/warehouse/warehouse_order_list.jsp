@@ -70,7 +70,7 @@
                     <div class="d-flex justify-content-between align-items-center mb-4">
 
                         <!-- LEFT -->
-                        <a href="dashboard" class="btn btn-outline-secondary">
+                        <a href="${pageContext.request.contextPath}/warehouse/dashboard" class="btn btn-outline-secondary">
                             <i class="fa-solid fa-arrow-left"></i> Dashboard
                         </a>
 
@@ -310,18 +310,6 @@
                                 <div class="modal-footer bg-light">
                                     <a href="${pageContext.request.contextPath}/warehouse/orders?search=${currentSearch}&status=${currentStatus}"
                                         class="btn btn-secondary">Đóng</a>
-
-                                    <c:if test="${selectedOrderStatus == 2 || selectedOrderStatus == 3}">
-                                        <form action="${pageContext.request.contextPath}/warehouse/orders" method="POST"
-                                            class="d-inline m-0">
-                                            <input type="hidden" name="action" value="cancel">
-                                            <input type="hidden" name="orderId" value="${selectedOrderId}">
-                                            <button type="submit" class="btn btn-danger"
-                                                onclick="return confirm('Báo lỗi/Hủy đơn hàng này?');">
-                                                <i class="fa-solid fa-ban"></i> Báo lỗi (Cancel)
-                                            </button>
-                                        </form>
-                                    </c:if>
 
                                     <c:if test="${selectedOrderStatus == 2}">
                                         <a href="${pageContext.request.contextPath}/warehouse/picking?orderId=${selectedOrderId}"

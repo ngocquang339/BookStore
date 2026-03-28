@@ -31,7 +31,7 @@
     <div class="container-fluid py-4">
         <div class="position-relative mb-4">
             <div class="position-absolute start-0 top-50 translate-middle-y">
-                <a href="dashboard" class="btn btn-outline-secondary">
+                <a href="${pageContext.request.contextPath}/warehouse/dashboard" class="btn btn-outline-secondary">
                     <i class="fa-solid fa-arrow-left me-1"></i> Dashboard
                 </a>
             </div>
@@ -43,7 +43,7 @@
         </div>
 
         <div class="card p-3 mb-4">
-            <form method="GET" action="returns" class="row g-3">
+            <form method="GET" action="${pageContext.request.contextPath}/warehouse/returns" class="row g-3">
                 <div class="col-md-4">
                     <div class="input-group">
                         <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
@@ -66,7 +66,7 @@
                     <button type="submit" class="btn btn-primary w-100">Lọc dữ liệu</button>
                 </div>
                 <div class="col-md-2">
-                    <a href="returns" class="btn btn-outline-secondary w-100">Làm mới</a>
+                    <a href="${pageContext.request.contextPath}/warehouse/returns" class="btn btn-outline-secondary w-100">Làm mới</a>
                 </div>
             </form>
         </div>

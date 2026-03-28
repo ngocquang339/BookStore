@@ -35,7 +35,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-4">
 
                     <!-- LEFT -->
-                    <a href="dashboard" class="btn btn-outline-secondary">
+                    <a href="${pageContext.request.contextPath}/warehouse/dashboard" class="btn btn-outline-secondary">
                         <i class="fa-solid fa-arrow-left"></i> Dashboard
                     </a>
 
@@ -54,7 +54,7 @@
 
                 <!-- ===== FILTER THEO KHU (THÊM MỚI) ===== -->
                 <div class="mb-3 p-3 bg-white rounded shadow-sm">
-                    <form method="get" action="location" class="row g-2 align-items-center">
+                    <form method="get" action="${pageContext.request.contextPath}/warehouse/location" class="row g-2 align-items-center">
                         <div class="col-auto">
                             <label class="col-form-label fw-semibold">Filter theo Khu:</label>
                         </div>
@@ -113,7 +113,7 @@
                                             <i class="fa-solid fa-pen-to-square"></i>
                                         </button>
 
-                                        <form action="location" method="post" class="d-inline"
+                                        <form action="${pageContext.request.contextPath}/warehouse/location" method="post" class="d-inline"
                                             onsubmit="return confirm('Bạn có chắc chắn muốn xóa vị trí này?');">
                                             <input type="hidden" name="action" value="delete">
                                             <input type="hidden" name="id" value="${l.id}">
@@ -132,7 +132,7 @@
             <c:forEach var="modalType" items="add,edit">
                 <div class="modal fade" id="${modalType}Modal" tabindex="-1">
                     <div class="modal-dialog">
-                        <form action="location" method="post" class="modal-content">
+                        <form action="${pageContext.request.contextPath}/warehouse/location" method="post" class="modal-content">
                             <div class="modal-header ${modalType == 'add' ? 'bg-info text-white' : 'bg-warning'}">
                                 <h5 class="modal-title">
                                     ${modalType == 'add' ? 'Thêm Vị Trí Mới' : 'Cập Nhật Vị Trí'}

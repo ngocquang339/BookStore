@@ -49,7 +49,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-4">
 
                     <!-- LEFT -->
-                    <a href="dashboard" class="btn btn-outline-secondary">
+                    <a href="${pageContext.request.contextPath}/warehouse/dashboard" class="btn btn-outline-secondary">
                         <i class="fa-solid fa-arrow-left"></i> Dashboard
                     </a>
 
@@ -103,7 +103,7 @@
                                             <i class="fa-solid fa-pen-to-square"></i>
                                         </button>
 
-                                        <form action="supplier" method="post" class="d-inline"
+                                        <form action="${pageContext.request.contextPath}/warehouse/supplier" method="post" class="d-inline"
                                             onsubmit="return confirm('Bạn có chắc muốn xóa?');">
                                             <input type="hidden" name="action" value="delete">
                                             <input type="hidden" name="id" value="${s.id}">
@@ -151,7 +151,7 @@
                                                 <td>${sd.name}</td>
                                                 <td>${sd.phone}</td>
                                                 <td class="text-center">
-                                                    <form action="supplier" method="post">
+                                                    <form action="${pageContext.request.contextPath}/warehouse/supplier" method="post">
                                                         <input type="hidden" name="action" value="restore">
                                                         <input type="hidden" name="id" value="${sd.id}">
                                                         <button type="submit" class="btn btn-sm btn-success">
@@ -174,7 +174,7 @@
             <!-- ======================= MODAL ADD ======================= -->
             <div class="modal fade" id="addModal" tabindex="-1">
                 <div class="modal-dialog">
-                    <form action="supplier" method="POST" class="modal-content">
+                    <form action="${pageContext.request.contextPath}/warehouse/supplier" method="POST" class="modal-content">
                         <div class="modal-header bg-success text-white">
                             <h5 class="modal-title">Thêm Nhà Cung Cấp</h5>
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -220,7 +220,7 @@
             <!-- ======================= MODAL EDIT ======================= -->
             <div class="modal fade" id="editModal" tabindex="-1">
                 <div class="modal-dialog">
-                    <form action="supplier" method="post" class="modal-content">
+                    <form action="${pageContext.request.contextPath}/warehouse/supplier" method="post" class="modal-content">
                         <div class="modal-header bg-primary text-white">
                             <h5 class="modal-title">Cập nhật NCC</h5>
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>

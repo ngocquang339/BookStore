@@ -29,7 +29,7 @@
         </div>
     </div>
 
-    <form action="receive-goods" method="post" id="receiveForm">
+    <form action="${pageContext.request.contextPath}/warehouse/receive-goods" method="post" id="receiveForm">
         <input type="hidden" name="poId" value="${poId}">
         
         <div class="card">

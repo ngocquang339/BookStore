@@ -22,7 +22,7 @@ public class WarehouseOrderDAO extends DBContext {
         List<Map<String, Object>> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder(
                 "SELECT o.order_id, o.order_date, o.total_amount, o.status, o.shipping_address, u.fullname "
-                + "FROM Orders o JOIN Users u ON o.user_id = u.user_id WHERE 1=1 ");
+                        + "FROM Orders o JOIN Users u ON o.user_id = u.user_id WHERE 1=1 ");
 
         if (searchName != null && !searchName.trim().isEmpty()) {
             sql.append(" AND u.fullname LIKE ? ");
@@ -32,8 +32,8 @@ public class WarehouseOrderDAO extends DBContext {
         }
         sql.append(
                 " ORDER BY "
-                + " CASE WHEN o.status = 2 THEN 0 ELSE 1 END, "
-                + " o.order_date DESC");
+                        + " CASE WHEN o.status = 2 THEN 0 ELSE 1 END, "
+                        + " o.order_date DESC");
 
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql.toString())) {
 
@@ -157,7 +157,8 @@ public class WarehouseOrderDAO extends DBContext {
         String sql = "UPDATE Orders SET status = 4 WHERE order_id = ?";
 
         try (
-                Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+                Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, orderId);
             ps.executeUpdate();
@@ -167,7 +168,8 @@ public class WarehouseOrderDAO extends DBContext {
     public Map<String, Object> getOrderCustomerInfo(int orderId) {
         Map<String, Object> info = new HashMap<>();
 
-        // [ĐÃ SỬA]: Gọi thêm 3 cột total_amount, discount_amount, shipping_fee từ bảng Orders
+        // [ĐÃ SỬA]: Gọi thêm 3 cột total_amount, discount_amount, shipping_fee từ bảng
+        // Orders
         String sql = "SELECT o.order_date, o.shipping_address, o.total_amount, o.discount_amount, o.shipping_fee, u.fullname, u.phone_number "
                 + "FROM Orders o "
                 + "JOIN Users u ON o.user_id = u.user_id "
@@ -183,7 +185,7 @@ public class WarehouseOrderDAO extends DBContext {
                 info.put("phone", rs.getString("phone_number"));
                 info.put("address", rs.getString("shipping_address"));
                 info.put("order_date", rs.getTimestamp("order_date"));
-                
+
                 // [ĐÃ SỬA]: Nạp dữ liệu vào Map để gửi sang JSP
                 info.put("totalAmount", rs.getDouble("total_amount"));
                 info.put("discountAmount", rs.getDouble("discount_amount"));
@@ -260,7 +262,8 @@ public class WarehouseOrderDAO extends DBContext {
         List<Supplier> list = new ArrayList<>();
         String sql = "SELECT * FROM Suppliers WHERE is_active = 1";
         try (Connection conn = new DBContext().getConnection(); // Thay bằng class kết nối DB của bạn
-                 PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 Supplier s = new Supplier();
                 s.setId(rs.getInt("supplier_id"));
@@ -278,7 +281,9 @@ public class WarehouseOrderDAO extends DBContext {
     public List<Book> getAllActiveBooks() {
         List<Book> list = new ArrayList<>();
         String sql = "SELECT * FROM Books WHERE is_active = 1";
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = new DBContext().getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 Book b = new Book();
                 b.setId(rs.getInt("book_id"));
@@ -407,19 +412,19 @@ public class WarehouseOrderDAO extends DBContext {
 
     // Hàm lấy danh sách đơn trả hàng (Group by OrderId để không bị lặp dòng khi
     // hiển thị)
-    // 1. Lấy danh sách Đơn trả hàng (CHỈ lấy các đơn đã Approved - Đang chờ nhận hàng)
+    // 1. Lấy danh sách Đơn trả hàng (CHỈ lấy các đơn đã Approved - Đang chờ nhận
+    // hàng)
     public List<ReturnRequest> getReturnOrders(String searchName, int statusFilter) {
         List<ReturnRequest> list = new ArrayList<>();
 
         // Truy vấn trực tiếp từ bảng ReturnRequests
         StringBuilder sql = new StringBuilder(
                 "SELECT r.*, b.title AS book_title, u.fullname AS customer_name "
-                + "FROM ReturnRequests r "
-                + "JOIN Books b ON r.book_id = b.book_id "
-                + "JOIN Orders o ON r.order_id = o.order_id "
-                + "JOIN Users u ON o.user_id = u.user_id "
-                + "WHERE 1=1 "
-        );
+                        + "FROM ReturnRequests r "
+                        + "JOIN Books b ON r.book_id = b.book_id "
+                        + "JOIN Orders o ON r.order_id = o.order_id "
+                        + "JOIN Users u ON o.user_id = u.user_id "
+                        + "WHERE 1=1 ");
 
         List<Object> params = new ArrayList<>();
 
@@ -428,13 +433,13 @@ public class WarehouseOrderDAO extends DBContext {
             params.add("%" + searchName + "%");
         }
 
-        
         if (statusFilter > 0) {
             sql.append(" AND r.status = ? ");
             params.add(statusFilter);
         } else {
             // Default: Lock the view to Status 3 (Approved waiting for physical item)
-            // NOTE: Change this to '2' if your teammate changed the database status numbers!
+            // NOTE: Change this to '2' if your teammate changed the database status
+            // numbers!
             sql.append(" AND r.status = 3 ");
         }
 
@@ -561,79 +566,82 @@ public class WarehouseOrderDAO extends DBContext {
 
     // Lấy thông tin ReturnRequest thay vì Order
     public void updateReturnRequestStatus(int orderId, int status) throws Exception {
-        // Cập nhật trạng thái cho ReturnRequests thay vì Orders
         String sql = "UPDATE ReturnRequests SET status = ? WHERE order_id = ?";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, status);
+            ps.setInt(2, orderId); // ✅ THÊM DÒNG NÀY
             ps.executeUpdate();
         }
     }
 
     public void processQualityControl(int orderId, String action, String failReason) throws Exception {
-    Connection conn = null;
-    try {
-        conn = getConnection();
-        conn.setAutoCommit(false);
+        Connection conn = null;
+        try {
+            conn = getConnection();
+            conn.setAutoCommit(false);
 
-        // 1. LẤY SỐ LƯỢNG VÀ RETURN_ID TỪ YÊU CẦU TRẢ HÀNG
-        int returnId = 0;
-        String sqlItems = "SELECT return_id, book_id, quantity FROM ReturnRequests WHERE order_id = ?";
-        PreparedStatement psItems = conn.prepareStatement(sqlItems);
-        psItems.setInt(1, orderId);
-        ResultSet rs = psItems.executeQuery();
-        
-        // Lưu dữ liệu để xử lý cộng kho
-        List<int[]> bookQuantities = new ArrayList<>();
-        while (rs.next()) {
-            if (returnId == 0) returnId = rs.getInt("return_id"); // Lấy ID để làm link thông báo
-            bookQuantities.add(new int[]{rs.getInt("book_id"), rs.getInt("quantity")});
-        }
+            // 1. LẤY SỐ LƯỢNG VÀ RETURN_ID TỪ YÊU CẦU TRẢ HÀNG
+            int returnId = 0;
+            String sqlItems = "SELECT return_id, book_id, quantity FROM ReturnRequests WHERE order_id = ?";
+            PreparedStatement psItems = conn.prepareStatement(sqlItems);
+            psItems.setInt(1, orderId);
+            ResultSet rs = psItems.executeQuery();
 
-        NotificationDAO notifDao = new NotificationDAO(); // Chuẩn bị DAO thông báo
-
-        if ("PASS".equals(action)) {
-            // 2. CỘNG KHO TRỰC TIẾP
-            String sqlUpdateStock = "UPDATE Books SET stock_quantity = stock_quantity + ? WHERE book_id = ?";
-            PreparedStatement psStock = conn.prepareStatement(sqlUpdateStock);
-            for (int[] bq : bookQuantities) {
-                psStock.setInt(1, bq[1]); // quantity
-                psStock.setInt(2, bq[0]); // book_id
-                psStock.addBatch();
+            // Lưu dữ liệu để xử lý cộng kho
+            List<int[]> bookQuantities = new ArrayList<>();
+            while (rs.next()) {
+                if (returnId == 0)
+                    returnId = rs.getInt("return_id"); // Lấy ID để làm link thông báo
+                bookQuantities.add(new int[] { rs.getInt("book_id"), rs.getInt("quantity") });
             }
-            psStock.executeBatch();
 
-            // 3. ĐỔI STATUS THÀNH 8 (QC PASSED)
-            String sqlUpdateNote = "UPDATE ReturnRequests SET status = 8, admin_note = CONCAT(ISNULL(admin_note, ''), CHAR(13), ?) WHERE order_id = ?";
-            PreparedStatement psUpdateNote = conn.prepareStatement(sqlUpdateNote);
-            psUpdateNote.setString(1, "[Warehouse]: Hàng đã qua QC và được nhập lại vào kho. Chờ hoàn tiền.");
-            psUpdateNote.setInt(2, orderId);
-            psUpdateNote.executeUpdate();
+            NotificationDAO notifDao = new NotificationDAO(); // Chuẩn bị DAO thông báo
 
-            // 🔔 GỬI THÔNG BÁO CHO ADMIN (PASS)
-            String msg = "💰 Kho đã nhận hàng (Passed QC) cho Đơn #" + orderId + ". Cần hoàn tiền ngay!";
-            String link = "/admin/returns/review?id=" + returnId;
-            notifDao.insertAdminNotification(msg, link);
+            if ("PASS".equals(action)) {
+                // 2. CỘNG KHO TRỰC TIẾP
+                String sqlUpdateStock = "UPDATE Books SET stock_quantity = stock_quantity + ? WHERE book_id = ?";
+                PreparedStatement psStock = conn.prepareStatement(sqlUpdateStock);
+                for (int[] bq : bookQuantities) {
+                    psStock.setInt(1, bq[1]); // quantity
+                    psStock.setInt(2, bq[0]); // book_id
+                    psStock.addBatch();
+                }
+                psStock.executeBatch();
 
-        } else if ("FAIL".equals(action)) {
-            // 1. ĐỔI STATUS THÀNH 4 (FAILED QC) VÀ KHÔNG CỘNG KHO
-            String sqlFail = "UPDATE ReturnRequests SET status = 4, admin_note = CONCAT(ISNULL(admin_note, ''), CHAR(13), ?) WHERE order_id = ?";
-            PreparedStatement psFail = conn.prepareStatement(sqlFail);
-            psFail.setString(1, "[Warehouse - TỪ CHỐI QC]: " + failReason);
-            psFail.setInt(2, orderId);
-            psFail.executeUpdate();
+                // 3. ĐỔI STATUS THÀNH 8 (QC PASSED)
+                String sqlUpdateNote = "UPDATE ReturnRequests SET status = 8, admin_note = CONCAT(ISNULL(admin_note, ''), CHAR(13), ?) WHERE order_id = ?";
+                PreparedStatement psUpdateNote = conn.prepareStatement(sqlUpdateNote);
+                psUpdateNote.setString(1, "[Warehouse]: Hàng đã qua QC và được nhập lại vào kho. Chờ hoàn tiền.");
+                psUpdateNote.setInt(2, orderId);
+                psUpdateNote.executeUpdate();
 
-            // 🔔 GỬI THÔNG BÁO CHO ADMIN (FAIL)
-            String msg = "⚠️ Kho TỪ CHỐI nhận hàng (Failed QC) cho Đơn #" + orderId + ". Xem lý do!";
-            String link = "/admin/returns/review?id=" + returnId;
-            notifDao.insertAdminNotification(msg, link);
+                // 🔔 GỬI THÔNG BÁO CHO ADMIN (PASS)
+                String msg = "💰 Kho đã nhận hàng (Passed QC) cho Đơn #" + orderId + ". Cần hoàn tiền ngay!";
+                String link = "/admin/returns/review?id=" + returnId;
+                notifDao.insertAdminNotification(msg, link);
+
+            } else if ("FAIL".equals(action)) {
+                // 1. ĐỔI STATUS THÀNH 4 (FAILED QC) VÀ KHÔNG CỘNG KHO
+                String sqlFail = "UPDATE ReturnRequests SET status = 4, admin_note = CONCAT(ISNULL(admin_note, ''), CHAR(13), ?) WHERE order_id = ?";
+                PreparedStatement psFail = conn.prepareStatement(sqlFail);
+                psFail.setString(1, "[Warehouse - TỪ CHỐI QC]: " + failReason);
+                psFail.setInt(2, orderId);
+                psFail.executeUpdate();
+
+                // 🔔 GỬI THÔNG BÁO CHO ADMIN (FAIL)
+                String msg = "⚠️ Kho TỪ CHỐI nhận hàng (Failed QC) cho Đơn #" + orderId + ". Xem lý do!";
+                String link = "/admin/returns/review?id=" + returnId;
+                notifDao.insertAdminNotification(msg, link);
+            }
+
+            conn.commit();
+        } catch (Exception e) {
+            if (conn != null)
+                conn.rollback();
+            throw e;
+        } finally {
+            if (conn != null)
+                conn.close();
         }
-
-        conn.commit();
-    } catch (Exception e) {
-        if (conn != null) conn.rollback();
-        throw e;
-    } finally {
-        if (conn != null) conn.close();
     }
-}
 }

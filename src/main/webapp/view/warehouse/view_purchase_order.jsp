@@ -67,7 +67,7 @@
                     <!-- FILTER -->
                     <div class="card mb-4">
                         <div class="card-body">
-                            <form action="view-po" method="get" class="row g-3 align-items-end">
+                            <form action="${pageContext.request.contextPath}/warehouse/view-po" method="get" class="row g-3 align-items-end">
 
                                 <div class="col-md-4">
                                     <label class="form-label fw-bold text-muted">Tên Nhà Cung Cấp</label>
@@ -93,7 +93,7 @@
                                 </div>
 
                                 <div class="col-md-2">
-                                    <a href="view-po" class="btn btn-outline-secondary w-100">
+                                    <a href="${pageContext.request.contextPath}/warehouse/view-po" class="btn btn-outline-secondary w-100">
                                         <i class="fas fa-sync"></i> Reset
                                     </a>
                                 </div>

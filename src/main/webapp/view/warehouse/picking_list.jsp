@@ -63,14 +63,7 @@
                     <input type="hidden" name="orderId" value="${orderId}">
 
                     <div class="card card-custom">
-                        <div class="p-3 border-bottom bg-light">
-                            <button type="button" class="btn btn-sm btn-outline-success me-2" onclick="checkAll(true)">
-                                ✔ Check all
-                            </button>
-                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="checkAll(false)">
-                                ✖ Uncheck all
-                            </button>
-                        </div>
+                        
                         <div class="table-responsive">
                             <table class="table table-hover align-middle table-bordered mb-0">
                                 <thead class="table-dark">

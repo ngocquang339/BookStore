@@ -36,7 +36,7 @@
 
     <div class="container mt-5 mb-5">
 
-        <a href="returns" class="btn btn-outline-secondary mb-3">
+        <a href="${pageContext.request.contextPath}/warehouse/returns" class="btn btn-outline-secondary mb-3">
             <i class="fas fa-arrow-left me-2"></i>Quay lại
         </a>
 
@@ -56,16 +56,7 @@
                 </span>
             </div>
 
-            <div class="mb-3">
-                <button type="button" class="btn btn-sm btn-outline-success me-2" onclick="checkAll(true)">
-                    ✔ Check all
-                </button>
-                <button type="button" class="btn btn-sm btn-outline-danger" onclick="checkAll(false)">
-                    ✖ Uncheck all
-                </button>
-            </div>
-
-            <form action="return-process" method="POST" onsubmit="return validateReturnForm()">
+            <form action="${pageContext.request.contextPath}/warehouse/return-process" method="POST" onsubmit="return validateReturnForm()">
                 <input type="hidden" name="orderId" value="${orderId}">
 
                 <table class="table table-hover align-middle">
@@ -108,9 +99,6 @@
                 </div>
 
                 <div class="d-flex justify-content-end gap-2 mt-4">
-                    <button type="button" class="btn btn-outline-danger px-4 fw-bold" data-bs-toggle="modal" data-bs-target="#failQCModal">
-                        <i class="fas fa-times me-1"></i> Hàng lỗi / Không đạt QC
-                    </button>
                     
                     <button id="submitBtn" type="submit" name="qcAction" value="PASS" class="btn btn-success px-4 fw-bold disabled-btn">
                         <i class="fas fa-check me-1"></i> Đạt QC & Nhập kho
@@ -118,29 +106,6 @@
                 </div>
 
             </form>
-        </div>
-    </div>
-
-    <div class="modal fade" id="failQCModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form action="return-process" method="POST">
-                    <input type="hidden" name="orderId" value="${orderId}">
-                    <input type="hidden" name="qcAction" value="FAIL">
-                    <div class="modal-header bg-danger text-white">
-                        <h5 class="modal-title">Từ chối nhập kho (Failed QC)</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p>Vui lòng ghi rõ lý do hàng không đạt chuẩn (rách, ướt, tráo hàng...). Admin sẽ dựa vào đây để từ chối hoàn tiền cho khách.</p>
-                        <textarea name="failReason" class="form-control" rows="3" required placeholder="Nhập lý do..."></textarea>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                        <button type="submit" class="btn btn-danger">Xác nhận Không Đạt</button>
-                    </div>
-                </form>
-            </div>
         </div>
     </div>
 
