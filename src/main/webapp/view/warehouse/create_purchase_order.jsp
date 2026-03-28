@@ -82,7 +82,7 @@
                     </div>
                 </c:if>
 
-                <form action="create-po" method="post" id="poForm">
+                <form action="${pageContext.request.contextPath}/warehouse/create-po" method="post" id="poForm">
 
                     <!-- INFO -->
                     <div class="card mb-4">

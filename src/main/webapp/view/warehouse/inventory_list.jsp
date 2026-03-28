@@ -31,7 +31,7 @@
 
                 <div class="container-fluid px-4 mt-4 mb-5">
                     <div class="mb-3">
-                        <a href="dashboard" class="btn btn-outline-secondary btn-sm mb-2 shadow-sm">
+                        <a href="${pageContext.request.contextPath}/warehouse/dashboard" class="btn btn-outline-secondary btn-sm mb-2 shadow-sm">
                             <i class="fa-solid fa-arrow-left"></i>Dashboard
                         </a>
                         <h3 class="text-uppercase fw-bold text-dark"><i class="fa-solid fa-warehouse text-primary"></i>
@@ -39,7 +39,7 @@
                     </div>
 
                     <div class="filter-container">
-                        <form action="inventory" method="get" class="row g-3">
+                        <form action="${pageContext.request.contextPath}/warehouse/inventory" method="get" class="row g-3">
 
                             <div class="col-md-3">
                                 <label class="form-label fw-bold">Từ khóa (Tên sách)</label>
@@ -81,7 +81,7 @@
                             <div class="col-md-3 d-flex align-items-end">
                                 <button type="submit" class="btn btn-primary me-2 w-50"><i
                                         class="fa-solid fa-filter"></i> Lọc</button>
-                                <a href="inventory" class="btn btn-secondary w-50"><i
+                                <a href="${pageContext.request.contextPath}/warehouse/inventory" class="btn btn-secondary w-50"><i
                                         class="fa-solid fa-rotate-right"></i> Xóa lọc</a>
                             </div>
                         </form>
