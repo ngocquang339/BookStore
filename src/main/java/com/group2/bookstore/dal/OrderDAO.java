@@ -232,6 +232,14 @@ public class OrderDAO extends DBContext {
             psDelCart.setInt(1, user.getId());
             psDelCart.executeUpdate();
 
+            if (generatedOrderId > 0) {
+                com.group2.bookstore.dal.NotificationDAO notifDao = new com.group2.bookstore.dal.NotificationDAO();
+                // Dùng user.getFullname() hoặc user.getUsername() để thông báo chi tiết hơn
+                String msg = "🛍️ Khách hàng vừa đặt Đơn hàng mới (#" + generatedOrderId + "). Chờ xử lý đóng gói!";
+                String link = "/admin/order/detail?id=" + generatedOrderId;
+                notifDao.insertAdminNotification(msg, link);
+            }
+
             cn.commit(); // TẤT CẢ THÀNH CÔNG -> CHỐT LƯU VÀO DB
             
         } catch (Exception e) {

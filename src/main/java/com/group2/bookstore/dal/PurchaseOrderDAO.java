@@ -258,6 +258,19 @@ public class PurchaseOrderDAO extends DBContext {
         }
     }
 
+    public boolean rejectPO(int poId, int adminId, String rejectReason) {
+        String sql = "UPDATE Purchase_Orders SET status = 3, approved_by = ?, status_note = ? WHERE purchase_order_id = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, adminId);
+            ps.setString(2, rejectReason);
+            ps.setInt(3, poId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public PurchaseOrder getPurchaseOrderById(int poId) {
         String sql = "SELECT po.*, s.supplier_name, u.username as created_by_name "
                 + "FROM Purchase_Orders po "
