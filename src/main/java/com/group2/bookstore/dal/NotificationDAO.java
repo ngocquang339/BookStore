@@ -5,12 +5,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
-
+import com.group2.bookstore.model.Notification;
 import com.group2.bookstore.model.AdminNotification;
 
 public class NotificationDAO extends DBContext {
 
-    // 1. Get all unread notifications
     public List<AdminNotification> getUnreadNotifications() {
         List<AdminNotification> list = new ArrayList<>();
         // ✨ CHANGED: Replaced order_id with link
@@ -41,21 +40,6 @@ public class NotificationDAO extends DBContext {
             ps.setInt(1, notificationId);
             ps.executeUpdate();
         } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Thêm vào NotificationDAO.java
-    public void insertAdminNotification(String message, String link) {
-        // Lưu ý: Đảm bảo bạn đã sửa bảng AdminNotifications trong SQL Server 
-        // Thay cột order_id thành cột link (VARCHAR/NVARCHAR)
-        String sql = "INSERT INTO AdminNotifications (message, link, is_read, created_at) VALUES (?, ?, 0, GETDATE())";
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setNString(1, message);
-            ps.setString(2, link);
-            ps.executeUpdate();
-        } catch (Exception e) {
-            System.err.println("Lỗi gửi thông báo cho Admin: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -95,16 +79,15 @@ public class NotificationDAO extends DBContext {
         return -1; // Không tìm thấy
     }
 
-    // 4. Lấy danh sách thông báo mới nhất (VD: 10 cái)
-    public java.util.List<com.group2.bookstore.model.Notification> getTopNotifications(int userId, int limit) {
-        java.util.List<com.group2.bookstore.model.Notification> list = new java.util.ArrayList<>();
+    public List<Notification> getTopNotifications(int userId, int limit) {
+        List<Notification> list = new java.util.ArrayList<>();
         String sql = "SELECT TOP " + limit + " * FROM Notifications WHERE user_id = ? ORDER BY created_at DESC";
         
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, userId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    com.group2.bookstore.model.Notification n = new com.group2.bookstore.model.Notification();
+                    Notification n = new Notification();
                     n.setId(rs.getInt("notification_id"));
                     n.setUserId(rs.getInt("user_id"));
                     n.setMessage(rs.getString("message"));
@@ -139,9 +122,8 @@ public class NotificationDAO extends DBContext {
         return 0;
     }
 
-    // Lấy thông báo theo Trang (Paging)
-    public java.util.List<com.group2.bookstore.model.Notification> getNotificationsPaging(int userId, int page, int pageSize) {
-        java.util.List<com.group2.bookstore.model.Notification> list = new java.util.ArrayList<>();
+    public List<Notification> getNotificationsPaging(int userId, int page, int pageSize) {
+        List<Notification> list = new ArrayList<>();
         int offset = (page - 1) * pageSize;
         
         String sql = "SELECT * FROM Notifications WHERE user_id = ? ORDER BY created_at DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
@@ -153,7 +135,7 @@ public class NotificationDAO extends DBContext {
             
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    com.group2.bookstore.model.Notification n = new com.group2.bookstore.model.Notification();
+                    Notification n = new Notification();
                     n.setId(rs.getInt("notification_id"));
                     n.setUserId(rs.getInt("user_id"));
                     n.setMessage(rs.getString("message"));
@@ -199,6 +181,20 @@ public class NotificationDAO extends DBContext {
             ps.executeUpdate();
         } catch (Exception e) {
             System.err.println("Lỗi khi tạo thông báo: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+     public void insertAdminNotification(String message, String link) {
+        // Lưu ý: Đảm bảo bạn đã sửa bảng AdminNotifications trong SQL Server 
+        // Thay cột order_id thành cột link (VARCHAR/NVARCHAR)
+        String sql = "INSERT INTO AdminNotifications (message, link, is_read, created_at) VALUES (?, ?, 0, GETDATE())";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setNString(1, message);
+            ps.setString(2, link);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            System.err.println("Lỗi gửi thông báo cho Admin: " + e.getMessage());
             e.printStackTrace();
         }
     }

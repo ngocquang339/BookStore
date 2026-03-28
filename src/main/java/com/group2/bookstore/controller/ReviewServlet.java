@@ -11,9 +11,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.List; // Bổ sung import List
+import java.util.List; 
 
-// Chú ý: urlPatterns khớp với thuộc tính action="submit-review" trong thẻ <form> của bạn
+
 @WebServlet(name = "ReviewServlet", urlPatterns = {"/review"})
 public class ReviewServlet extends HttpServlet {
 
@@ -41,31 +41,29 @@ public class ReviewServlet extends HttpServlet {
             response.setCharacterEncoding("UTF-8");
 
             if ("update".equals(action)) {
-                // XỬ LÝ SỬA BÌNH LUẬN
+                
                 int reviewId = Integer.parseInt(request.getParameter("reviewId"));
                 int rating = Integer.parseInt(request.getParameter("rating"));
                 String comment = request.getParameter("comment");
                 
                 boolean isUpdated = reviewDAO.updateReview(reviewId, user.getId(), rating, comment); 
                 
-                // Tính toán lại điểm số
+                
                 String ratingData = getUpdatedRatingJson(reviewDAO, bookId);
                 
                 response.getWriter().write("{\"success\": " + isUpdated + ", " + ratingData + "}");
 
             } else if ("delete".equals(action)) {
-                // XỬ LÝ XÓA BÌNH LUẬN
+                
                 int reviewId = Integer.parseInt(request.getParameter("reviewId"));
                 
                 boolean isDeleted = reviewDAO.deleteReview(reviewId, user.getId()); 
                 
-                // Tính toán lại điểm số
                 String ratingData = getUpdatedRatingJson(reviewDAO, bookId);
                 
                 response.getWriter().write("{\"success\": " + isDeleted + ", " + ratingData + "}");
 
             } else if ("report".equals(action)) {
-                // XỬ LÝ TỐ CÁO BÌNH LUẬN (Không ảnh hưởng điểm số trung bình)
                 int reviewId = Integer.parseInt(request.getParameter("reviewId"));
                 String reason = request.getParameter("reason");
                 
@@ -74,7 +72,7 @@ public class ReviewServlet extends HttpServlet {
                 response.getWriter().write("{\"success\": " + isReported + "}");
 
             } else {
-                // XỬ LÝ ĐĂNG BÌNH LUẬN MỚI
+                
                 int rating = Integer.parseInt(request.getParameter("rating"));
                 String comment = request.getParameter("comment");
 
@@ -97,9 +95,7 @@ public class ReviewServlet extends HttpServlet {
         }
     }
 
-    // =========================================================================
-// HÀM HỖ TRỢ: Truy vấn lại DB và tính toán điểm trung bình, % từng sao
-// =========================================================================
+    
 private String getUpdatedRatingJson(ReviewDAO dao, int bookId) {
     List<Review> listReviews = dao.getReviewsByBookId(bookId);
     int totalReviews = listReviews.size();

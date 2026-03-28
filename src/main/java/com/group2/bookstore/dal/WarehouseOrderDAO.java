@@ -167,7 +167,8 @@ public class WarehouseOrderDAO extends DBContext {
     public Map<String, Object> getOrderCustomerInfo(int orderId) {
         Map<String, Object> info = new HashMap<>();
 
-        String sql = "SELECT o.order_date, o.shipping_address, u.fullname, u.phone_number "
+        // [ĐÃ SỬA]: Gọi thêm 3 cột total_amount, discount_amount, shipping_fee từ bảng Orders
+        String sql = "SELECT o.order_date, o.shipping_address, o.total_amount, o.discount_amount, o.shipping_fee, u.fullname, u.phone_number "
                 + "FROM Orders o "
                 + "JOIN Users u ON o.user_id = u.user_id "
                 + "WHERE o.order_id = ?";
@@ -182,6 +183,11 @@ public class WarehouseOrderDAO extends DBContext {
                 info.put("phone", rs.getString("phone_number"));
                 info.put("address", rs.getString("shipping_address"));
                 info.put("order_date", rs.getTimestamp("order_date"));
+                
+                // [ĐÃ SỬA]: Nạp dữ liệu vào Map để gửi sang JSP
+                info.put("totalAmount", rs.getDouble("total_amount"));
+                info.put("discountAmount", rs.getDouble("discount_amount"));
+                info.put("shippingFee", rs.getDouble("shipping_fee"));
             }
 
         } catch (Exception e) {
@@ -422,7 +428,7 @@ public class WarehouseOrderDAO extends DBContext {
             params.add("%" + searchName + "%");
         }
 
-        // 🚨 WAREHOUSE CORE LOGIC: Only show Approved items waiting to be received
+        
         if (statusFilter > 0) {
             sql.append(" AND r.status = ? ");
             params.add(statusFilter);

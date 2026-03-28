@@ -124,6 +124,12 @@
                             <p>Tương tác, tư vấn và hỗ trợ khách hàng theo thời gian thực</p>
                         </a>
 
+                        <a href="${pageContext.request.contextPath}/staff/promotions" class="admin-card">
+                            <i class="fa-solid fa-bolt" style="color: #ff4757;"></i>
+                            <h3>Quản lý Flash Sale</h3>
+                            <p>Tạo chương trình khuyến mãi, cài đặt mức giảm giá và chọn sách tham gia</p>
+                        </a>
+
                     </div>
                 </main>
 

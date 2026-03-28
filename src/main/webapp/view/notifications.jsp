@@ -19,22 +19,18 @@
     <div class="container profile-container py-4">
         <div class="row">
             
-            <%-- Cột trái: Sidebar --%>
             <div class="col-md-3">
                 <jsp:include page="component/sidebar.jsp" />
             </div>
 
-            <%-- Cột phải: Danh sách Thông báo --%>
             <div class="col-md-9">
                 <div class="main-profile-content bg-white p-4" style="border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
                     
-                    <%-- Tiêu đề và nút Xóa tất cả --%>
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h5 class="fw-bold mb-0" style="color: #333; text-transform: uppercase;">
                             <i class="fa-regular fa-bell text-danger me-2"></i> Tất cả thông báo
                         </h5>
                         
-                        <%-- Nút Xóa tất cả (Chỉ hiện khi có ít nhất 1 thông báo) --%>
                         <c:if test="${not empty listNotif}">
                             <button onclick="removeAllNotifications()" class="btn btn-sm btn-outline-danger fw-bold" style="border-radius: 6px;">
                                 <i class="fa-solid fa-trash-can me-1"></i> Xóa tất cả

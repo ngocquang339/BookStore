@@ -292,14 +292,13 @@
             document.getElementById('edit_id').value = id;
             document.getElementById('edit_name').value = name;
             
-            // Xử lý nạp description (tránh lỗi nếu bị rỗng)
+            
             if (desc !== 'null' && desc !== '') {
                 document.getElementById('edit_desc').value = desc;
             } else {
                 document.getElementById('edit_desc').value = '';
             }
             
-            // isPublic trả về boolean (true/false)
             document.getElementById('edit_public').value = isPublic ? "1" : "0";
             document.getElementById('edit_color').value = color;
             

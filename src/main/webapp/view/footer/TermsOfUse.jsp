@@ -153,21 +153,6 @@
         </div>
 <div class="container mb-5">
     <div class="row">
-        
-        <div class="col-md-3 mb-4">
-            <div class="policy-sidebar">
-                <div class="policy-sidebar-header">
-                    <h5>CHÍNH SÁCH</h5>
-                </div>
-                <ul class="policy-sidebar-list">
-                    <li><a href="${pageContext.request.contextPath}/privacy">Chính sách bảo mật</a></li>
-                    <li><a href="${pageContext.request.contextPath}/terms" class="active">Điều khoản sử dụng</a></li>
-                    <li><a href="${pageContext.request.contextPath}/payment-policy">Chính sách thanh toán</a></li>
-                    <li><a href="${pageContext.request.contextPath}/shipping-policy">Chính sách vận chuyển</a></li>
-                    <li><a href="${pageContext.request.contextPath}/return-policy">Chính sách đổi trả</a></li>
-                </ul>
-            </div>
-        </div>
 
         <div class="col-md-9">
             <div class="policy-content">

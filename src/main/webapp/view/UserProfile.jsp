@@ -83,9 +83,9 @@
         <c:redirect url="/login"/>
     </c:if>
 
-    <%-- SỬA THÀNH requestScope --%>
+    
     <c:if test="${not empty requestScope.mess or not empty sessionScope.mess}">
-        <%-- Lấy biến ra (Ưu tiên request, nếu không có mới lấy session) --%>
+        
         <c:set var="finalMess" value="${not empty requestScope.mess ? requestScope.mess : sessionScope.mess}" />
         <c:set var="finalStatus" value="${not empty requestScope.status ? requestScope.status : sessionScope.status}" />
 
@@ -504,11 +504,10 @@
         btn.style.pointerEvents = "none";
         btn.style.color = "#888";
         
-        // Ẩn các thông báo cũ
+        
         errorMsg.style.display = "none";
         successMsg.style.display = "none";
 
-        // Bắn AJAX xuống ChangeEmailServlet
         fetch('${pageContext.request.contextPath}/change-email', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

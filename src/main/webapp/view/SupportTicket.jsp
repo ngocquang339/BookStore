@@ -48,14 +48,14 @@
                     <h4 class="mb-4 fw-bold" style="color: #333;"><i class="fa-solid fa-headset me-2" style="color: #C92127;"></i> Trung tâm Hỗ trợ</h4>
                     
                     <c:if test="${not empty sessionScope.successMsg}">
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <div class="alert alert-success alert-dismissible fade show">
                             <i class="fa-solid fa-circle-check me-2"></i>${sessionScope.successMsg}
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                         <c:remove var="successMsg" scope="session" />
                     </c:if>
                     <c:if test="${not empty sessionScope.errorMsg}">
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <div class="alert alert-danger alert-dismissible fade show" >
                             <i class="fa-solid fa-circle-xmark me-2"></i>${sessionScope.errorMsg}
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
@@ -99,7 +99,6 @@
                                             <h6 class="fw-bold mb-2">${t.ticketSubject}</h6>
                                             <p class="text-muted mb-0" style="font-size: 14px; line-height: 1.5;">${t.ticketMessage}</p>
                                             
-                                            <%-- Chỉ hiện hộp Admin Reply nếu Admin đã trả lời --%>
                                             <c:if test="${not empty t.adminReply}">
                                                 <div class="admin-reply-box">
                                                     <strong><i class="fa-solid fa-user-shield text-primary me-1"></i> Phản hồi từ Admin:</strong>
@@ -120,8 +119,6 @@
                                         <select class="form-select" name="issueType" required>
                                             <option value="" disabled selected>-- Chọn loại vấn đề --</option>
                                             <option value="Lỗi website / Ứng dụng">Lỗi website / Ứng dụng</option>
-                                            <option value="Sản phẩm lỗi / Thiếu hàng">Sản phẩm lỗi / Thiếu hàng</option>
-                                            <option value="Vấn đề thanh toán / Hoàn tiền">Vấn đề thanh toán / Hoàn tiền</option>
                                             <option value="Chậm giao hàng">Chậm giao hàng</option>
                                             <option value="Tư vấn / Hỏi đáp khác">Tư vấn / Hỏi đáp khác</option>
                                         </select>

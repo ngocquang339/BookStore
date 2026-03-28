@@ -34,7 +34,7 @@ public class OrderStatusJob implements ServletContextListener {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }, 0, 1, TimeUnit.MINUTES); // THAY ĐỔI THỜI GIAN LẶP LẠI Ở ĐÂY
+        }, 0, 12, TimeUnit.HOURS); // THAY ĐỔI THỜI GIAN LẶP LẠI Ở ĐÂY
         
         System.out.println("========== [JOB START] Robot quét đơn hàng tự động đã KHỞI ĐỘNG ==========");
     }

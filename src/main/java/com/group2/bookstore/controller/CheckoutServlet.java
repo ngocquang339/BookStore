@@ -256,7 +256,7 @@ public class CheckoutServlet extends HttpServlet {
             }
             
             // 3. Cập nhật lại số tiền cuối cùng khách phải trả
-            finalTotal = grandTotal - discount; 
+            finalTotal = (grandTotal + shippingFee) - discount;
             // ===============================================================
             // ===============================================================
 

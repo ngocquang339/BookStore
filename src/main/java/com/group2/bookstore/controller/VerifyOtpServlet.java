@@ -32,7 +32,7 @@ public class VerifyOtpServlet extends HttpServlet {
         String actionType = request.getParameter("action_type"); // Lấy cờ phân luồng (Đổi Email hay Đăng ký)
 
         // BẢO VỆ GIAO DIỆN: Nạp lại sách gợi ý
-        com.group2.bookstore.dal.BookDAO bookDAO = new com.group2.bookstore.dal.BookDAO();
+        BookDAO bookDAO = new BookDAO();
         request.setAttribute("suggestedBooks", bookDAO.getRandomBook(2, 20));
 
         // 2. KIỂM TRA HẠN SỬ DỤNG (60 GIÂY)
@@ -77,9 +77,7 @@ public class VerifyOtpServlet extends HttpServlet {
             return;
         }
 
-        // ==========================================
-        // 4. MỌI THỨ OK -> THỰC HIỆN LƯU VÀO DB
-        // ==========================================
+       
         UserDAO dao = new UserDAO();
         
         if ("change_email".equals(actionType) && tempEmail != null) {

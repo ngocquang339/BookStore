@@ -9,7 +9,7 @@ import com.group2.bookstore.dal.BookDAO;
 import com.group2.bookstore.model.Book;
 import com.group2.bookstore.model.CartItem;
 import com.group2.bookstore.model.User;
-
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -23,15 +23,12 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-                // [BỔ SUNG BƯỚC NÀY] ĐỌC COOKIE TRƯỚC KHI TẢI TRANG (AF 1)
-            jakarta.servlet.http.Cookie[] cookies = request.getCookies();
+                
+            Cookie[] cookies = request.getCookies();
             if (cookies != null) {
-                for (jakarta.servlet.http.Cookie cookie : cookies) {
+                for (Cookie cookie : cookies) {
                     if ("rememberedUser".equals(cookie.getName())) {
                         request.setAttribute("savedUser", cookie.getValue());
-                    }
-                    if ("rememberedPass".equals(cookie.getName())) {
-                        request.setAttribute("savedPass", cookie.getValue());
                     }
                 }
             }
@@ -54,19 +51,19 @@ public class LoginServlet extends HttpServlet {
         String u = request.getParameter("username");
         String p = request.getParameter("password");
 
-        // 1. Kiểm tra đầu vào rỗng
+        
         if (u == null || u.trim().isEmpty() || p == null || p.trim().isEmpty() || u.contains(" ") || p.contains(" ") || u.length() < 1  || u.length() > 50|| p.length() < 3 || p.length() > 50) {
             request.setAttribute("mess", "Thông tin không hợp lệ!");
             request.getRequestDispatcher("view/Login.jsp").forward(request, response);
             return;
         }
 
-        // 2. Gọi DAO để kiểm tra tài khoản
+        
         UserDAO dao = new UserDAO();
         User account = dao.checkLogin(u, p);
 
         if (account == null) {
-            // Đăng nhập thất bại
+            
             request.setAttribute("mess", "Thông tin đăng nhập không chính xác!");
             System.out.println("===> DEBUG: Sai tài khoản hoặc mật khẩu!");
             request.getRequestDispatcher("view/Login.jsp").forward(request, response);
@@ -75,36 +72,25 @@ public class LoginServlet extends HttpServlet {
             if (account.getStatus() == 0) { 
                 request.setAttribute("mess", "Tài khoản của bạn đã bị khóa! Vui lòng liên hệ Admin để được hỗ trợ.");
                 request.getRequestDispatcher("view/Login.jsp").forward(request, response);
-                return; // Lập tức dừng hàm, đuổi ra ngoài không cho chạy tiếp xuống dưới
+                return; 
             }
-            // Đăng nhập thành công
+            
             HttpSession session = request.getSession();
+            
             session.setAttribute("user", account);
-            // ============================================================
-            // [MỚI] XỬ LÝ CHỨC NĂNG REMEMBER ME (AF 1) BẰNG COOKIE
-            // ============================================================
             String remember = request.getParameter("remember");
             if ("true".equals(remember)) {
-                // Tạo cookie lưu 7 ngày
-                jakarta.servlet.http.Cookie userCookie = new jakarta.servlet.http.Cookie("rememberedUser", u);
-                jakarta.servlet.http.Cookie passCookie = new jakarta.servlet.http.Cookie("rememberedPass", p);
+                
+                Cookie userCookie = new Cookie("rememberedUser", u);
                 userCookie.setMaxAge(60 * 60 * 24 * 7); 
-                passCookie.setMaxAge(60 * 60 * 24 * 7);
                 response.addCookie(userCookie);
-                response.addCookie(passCookie);
             } else {
-                // Nếu khách không tích ô Remember -> Hủy Cookie cũ đi (nếu có)
-                jakarta.servlet.http.Cookie userCookie = new jakarta.servlet.http.Cookie("rememberedUser", "");
-                jakarta.servlet.http.Cookie passCookie = new jakarta.servlet.http.Cookie("rememberedPass", "");
-                userCookie.setMaxAge(0); // Set = 0 để xóa
-                passCookie.setMaxAge(0);
+                Cookie userCookie = new Cookie("rememberedUser", "");
+                userCookie.setMaxAge(0);
                 response.addCookie(userCookie);
-                response.addCookie(passCookie);
             }
 
-            // ============================================================
-            // [MỚI] TÍNH NĂNG GỘP GIỎ HÀNG (SESSION -> DATABASE)
-            // ============================================================
+            
             try {
                 CartDAO cartDao = new CartDAO();
                 
@@ -133,18 +119,10 @@ public class LoginServlet extends HttpServlet {
             int role = account.getRole();
 
             if (role == 2) {
-                // Warehouse Role (Thủ kho)
                 response.sendRedirect("warehouse/dashboard");
             } 
-            else if (role == 1) {
-                // Admin Role (Quản trị viên)
-                response.sendRedirect("admin/dashboard");
-            } 
-            else if (role == 3) {
-                response.sendRedirect(request.getContextPath() + "/staff-dashboard");
-}
+            
             else {
-                // Customer Role (Khách hàng) -> Về trang chủ
                 response.sendRedirect("home");
             }
         }

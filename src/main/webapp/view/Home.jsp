@@ -85,6 +85,29 @@
             opacity: 0.9; transform: translateY(-2px);
             transition: all 0.2s ease;
         }
+
+        .chat-widget-btn {
+            position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px;
+            border-radius: 50%; background: #1e74b6; color: white; display: flex;
+            align-items: center; justify-content: center; font-size: 28px; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 9999; transition: transform 0.3s ease;
+        }
+        .chat-widget-btn:hover { transform: scale(1.1); }
+        .chat-window {
+            position: fixed; bottom: 100px; right: 30px; width: 350px; height: 480px;
+            background: white; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            display: none; flex-direction: column; z-index: 9999; overflow: hidden; font-family: Arial, sans-serif;
+        }
+        .chat-header { background: #1e74b6; color: white; padding: 15px; display: flex; align-items: center; justify-content: space-between; }
+        .chat-header img { width: 45px; height: 45px; border-radius: 50%; border: 2px solid white; margin-right: 12px; object-fit: cover; }
+        .chat-body { flex: 1; padding: 15px; overflow-y: auto; background: #f8f9fa; display: flex; flex-direction: column; gap: 12px; }
+        .chat-message { max-width: 80%; padding: 10px 15px; border-radius: 18px; font-size: 14px; line-height: 1.4; }
+        .chat-message.bot { background: white; color: black; align-self: flex-start; border-bottom-left-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .chat-message.user { background: #1e74b6; color: white; align-self: flex-end; border-bottom-right-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .chat-footer { padding: 12px; border-top: 1px solid #eee; background: white; display: flex; align-items: center; }
+        .chat-footer input { flex: 1; border: none; outline: none; padding: 10px 15px; border-radius: 20px; background: #f1f1f1; margin-right: 10px; }
+        .chat-footer button { background: none; border: none; color: #1e74b6; font-size: 22px; cursor: pointer; padding: 0 5px; }
+        .chat-footer button:hover { color: #15558d; }
     </style>
 </head>
 
@@ -256,14 +279,6 @@
                                                     <fmt:formatNumber value="${b.price / (1.0 - (activePromo.discountPercent / 100.0))}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
                                                 </span>
                                             </div>
-
-                                            <div class="fs-progress-bar">
-                                                <div class="progress-fill" style="width: ${b.stockQuantity < 10 ? '90%' : '40%'};"></div>
-                                                <span class="progress-text">Đã bán ${b.stockQuantity < 10 ? 'gần hết' : '12'}</span>
-                                                <c:if test="${b.stockQuantity < 10}">
-                                                    <img src="https://deo.shopeemobile.com/shopee/shopee-pcmall-live-sg/flashsale/ac7f81d9ee062223753413c2f305c304.png" class="fire-icon" alt="hot">
-                                                </c:if>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -337,9 +352,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-    // ==========================================
-    // 2. SCRIPT XỬ LÝ TRƯỢT (SLIDER LOGIC)
-    // ==========================================
     
     // Khai báo biến toàn cục
     let currentSlide = 0;
@@ -365,25 +377,16 @@
         if (currentSlide < 0) currentSlide = 0;
         if (currentSlide > maxSlide) currentSlide = maxSlide;
 
-        // Tính toán khoảng cách dịch chuyển (%)
-        // Mỗi cuốn sách chiếm 20% chiều rộng (100% / 5 cuốn)
-        // Dịch chuyển = Số thứ tự slide * 20%
         const translateValue = -(currentSlide * 20);
         // Thực hiện CSS Transform để trượt
         track.style.transform = "translateX(" + translateValue + "%)";
-        // Ẩn hiện nút bấm thông minh
-        // Nếu ở đầu (0) -> Ẩn nút Trái
         prevBtn.style.visibility = (currentSlide === 0) ? 'hidden' : 'visible';
         
         // Nếu ở cuối (maxSlide) -> Ẩn nút Phải
         nextBtn.style.visibility = (currentSlide >= maxSlide) ? 'hidden' : 'visible';
     }
 
-    // ==========================================
-    // 3. KHỞI CHẠY KHI TRANG LOAD XONG
-    // ==========================================
     document.addEventListener('DOMContentLoaded', function() {
-        // Chạy đồng hồ
         startCountdown();
 
         // Cấu hình Slider ban đầu
@@ -391,7 +394,6 @@
         const prevBtn = document.getElementById('fsPrevBtn');
 
         if (totalItems > itemsPerSlide) {
-            // Nếu có nhiều sách hơn 5 cuốn -> Kích hoạt Slider
             moveSlide(0); 
         } else {
             // Nếu ít hơn hoặc bằng 5 cuốn -> Ẩn luôn 2 nút mũi tên đi
@@ -401,30 +403,7 @@
     });
     </script>
 
-    <style>
-        .chat-widget-btn {
-            position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px;
-            border-radius: 50%; background: #1e74b6; color: white; display: flex;
-            align-items: center; justify-content: center; font-size: 28px; cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 9999; transition: transform 0.3s ease;
-        }
-        .chat-widget-btn:hover { transform: scale(1.1); }
-        .chat-window {
-            position: fixed; bottom: 100px; right: 30px; width: 350px; height: 480px;
-            background: white; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-            display: none; flex-direction: column; z-index: 9999; overflow: hidden; font-family: Arial, sans-serif;
-        }
-        .chat-header { background: #1e74b6; color: white; padding: 15px; display: flex; align-items: center; justify-content: space-between; }
-        .chat-header img { width: 45px; height: 45px; border-radius: 50%; border: 2px solid white; margin-right: 12px; object-fit: cover; }
-        .chat-body { flex: 1; padding: 15px; overflow-y: auto; background: #f8f9fa; display: flex; flex-direction: column; gap: 12px; }
-        .chat-message { max-width: 80%; padding: 10px 15px; border-radius: 18px; font-size: 14px; line-height: 1.4; }
-        .chat-message.bot { background: white; color: black; align-self: flex-start; border-bottom-left-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .chat-message.user { background: #1e74b6; color: white; align-self: flex-end; border-bottom-right-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .chat-footer { padding: 12px; border-top: 1px solid #eee; background: white; display: flex; align-items: center; }
-        .chat-footer input { flex: 1; border: none; outline: none; padding: 10px 15px; border-radius: 20px; background: #f1f1f1; margin-right: 10px; }
-        .chat-footer button { background: none; border: none; color: #1e74b6; font-size: 22px; cursor: pointer; padding: 0 5px; }
-        .chat-footer button:hover { color: #15558d; }
-    </style>
+    
 
     <div class="chat-widget-btn" onclick="toggleChat()"><i class="fa-solid fa-comment-dots"></i></div>
 

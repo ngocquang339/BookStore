@@ -21,10 +21,23 @@
 
     <div class="container-fluid main-content">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="text-danger fw-bold"><i class="fa-solid fa-bolt me-2"></i>QUẢN LÝ FLASH SALE</h2>
-            <button type="button" class="btn btn-danger fw-bold" data-bs-toggle="modal" data-bs-target="#createPromoModal">
-                <i class="fa-solid fa-plus me-1"></i> Tạo Đợt Sale Mới
-            </button>
+            <h2 class="text-danger fw-bold">
+                <i class="fa-solid fa-bolt me-2"></i>QUẢN LÝ FLASH SALE
+            </h2>
+            
+            <div class="d-flex gap-2">
+                
+                <a href="${pageContext.request.contextPath}/staff-dashboard" 
+                class="btn btn-secondary fw-bold">
+                    <i class="fa-solid fa-house me-1"></i> Trang chủ
+                </a>
+
+                <!-- Nút tạo mới -->
+                <button type="button" class="btn btn-danger fw-bold" 
+                        data-bs-toggle="modal" data-bs-target="#createPromoModal">
+                    <i class="fa-solid fa-plus me-1"></i> Tạo Đợt Sale Mới
+                </button>
+            </div>
         </div>
 
         <c:if test="${not empty sessionScope.successMessage}">
@@ -76,9 +89,22 @@
                                         </c:choose>
                                     </td>
                                     <td>
-                                        <a href="${pageContext.request.contextPath}/staff/promo-books?id=${p.promoId}" class="btn btn-sm btn-outline-primary">
-                                            <i class="fa-solid fa-book-open"></i> Thêm Sách
-                                        </a>
+                                        <div class="d-flex gap-2">
+                                            <a href="${pageContext.request.contextPath}/staff/promo-books?id=${p.promoId}" class="btn btn-sm btn-outline-primary" title="Thêm/Bớt sách">
+                                                <i class="fa-solid fa-book-open"></i> Sách
+                                            </a>
+                                            
+                                            <button class="btn btn-sm btn-warning text-dark" title="Sửa thông tin" 
+                                                onclick="openEditModal(${p.promoId}, '${p.promoName}', ${p.discountPercent}, '<fmt:formatDate value="${p.startDate}" pattern="yyyy-MM-dd'T'HH:mm" />', '<fmt:formatDate value="${p.endDate}" pattern="yyyy-MM-dd'T'HH:mm" />', ${p.active})">
+                                                <i class="fa-solid fa-pen"></i>
+                                            </button>
+                                            
+                                            <form action="${pageContext.request.contextPath}/staff/promotions" method="POST" style="margin: 0;" onsubmit="return confirm('Bạn có chắc chắn muốn XÓA VĨNH VIỄN đợt Flash Sale này không?');">
+                                                <input type="hidden" name="action" value="delete">
+                                                <input type="hidden" name="promoId" value="${p.promoId}">
+                                                <button type="submit" class="btn btn-sm btn-danger" title="Xóa chương trình"><i class="fa-solid fa-trash"></i></button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             </c:forEach>
@@ -102,7 +128,7 @@
                         
                         <div class="mb-3">
                             <label class="form-label fw-bold">Tên chương trình:</label>
-                            <input type="text" name="promoName" class="form-control" placeholder="Ví dụ: Siêu Sale 8/3..." required>
+                            <input type="text" name="promoName" class="form-control" placeholder="Ví dụ: Siêu Sale 8/3..." maxlength="100" required>
                         </div>
                         
                         <div class="mb-3">
@@ -129,6 +155,65 @@
         </div>
     </div>
 
+    <div class="modal fade" id="editPromoModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title fw-bold text-dark"><i class="fa-solid fa-pen me-2"></i>Chỉnh Sửa Flash Sale</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="${pageContext.request.contextPath}/staff/promotions" method="POST">
+                    <div class="modal-body">
+                        <input type="hidden" name="action" value="update">
+                        <input type="hidden" name="promoId" id="editPromoId">
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Tên chương trình:</label>
+                            <input type="text" name="promoName" id="editPromoName" class="form-control" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Mức giảm giá (%):</label>
+                            <input type="number" name="discountPercent" id="editDiscount" class="form-control" min="1" max="100" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Thời gian Bắt đầu:</label>
+                            <input type="datetime-local" name="startDate" id="editStartDate" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Thời gian Kết thúc:</label>
+                            <input type="datetime-local" name="endDate" id="editEndDate" class="form-control" required>
+                        </div>
+
+                        <div class="form-check form-switch mt-4">
+                            <input class="form-check-input" type="checkbox" id="editIsActive" name="isActive" value="true">
+                            <label class="form-check-label fw-bold text-success" for="editIsActive">Đang kích hoạt (Bật/Tắt hiển thị ngoài trang chủ)</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Hủy bỏ</button>
+                        <button type="submit" class="btn btn-warning fw-bold text-dark">Lưu thay đổi</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function openEditModal(id, name, discount, start, end, isActive) {
+            document.getElementById('editPromoId').value = id;
+            document.getElementById('editPromoName').value = name;
+            document.getElementById('editDiscount').value = discount;
+            document.getElementById('editStartDate').value = start;
+            document.getElementById('editEndDate').value = end;
+            document.getElementById('editIsActive').checked = isActive;
+            
+            var editModal = new bootstrap.Modal(document.getElementById('editPromoModal'));
+            editModal.show();
+        }
+    </script>
 </body>
 </html>

@@ -83,12 +83,10 @@
     <div class="container profile-container py-4">
         <div class="row">
             
-            <%-- CỘT TRÁI: SIDEBAR --%>
             <div class="col-md-3">
                 <jsp:include page="component/sidebar.jsp" />
             </div>
 
-            <%-- CỘT PHẢI: NỘI DUNG VÍ --%>
             <div class="col-md-9">
                 <div class="main-profile-content bg-white p-4" style="border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
                     
@@ -99,13 +97,12 @@
                         <p style="font-size: 14px; color: #666; margin-top: 5px;">Quản lý số dư hoàn tiền và lịch sử giao dịch của bạn</p>
                     </div>
 
-                    <%-- 1. THẺ HIỂN THỊ TỔNG SỐ DƯ --%>
                     <div class="wallet-balance-card">
                         <div class="d-flex justify-content-between align-items-center position-relative" style="z-index: 2;">
                             <div>
                                 <h6 class="mb-2" style="color: rgba(255,255,255,0.8); font-size: 15px;">Tổng số dư khả dụng</h6>
                                 <h2 class="fw-bold mb-0" style="font-size: 36px; letter-spacing: 1px;">
-                                    <%-- Lấy số dư từ session user hiện tại --%>
+                    
                                     <c:choose>
                                         <c:when test="${not empty sessionScope.user.walletBalance}">
                                             <fmt:formatNumber value="${sessionScope.user.walletBalance}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
@@ -139,8 +136,8 @@
                                 <table class="table transaction-table table-hover">
                                     <thead>
                                         <tr>
-                                            <th style="width: 15%;">Mã GD</th>
-                                            <th style="width: 20%;">Thời gian</th>
+                                            
+                                            <th style="width: 35%;">Thời gian</th>
                                             <th style="width: 20%;">Biến động</th>
                                             <th style="width: 45%;">Nội dung chi tiết</th>
                                         </tr>
@@ -148,14 +145,14 @@
                                     <tbody>
                                         <c:forEach var="h" items="${walletHistoryList}">
                                             <tr>
-                                                <td class="text-muted fw-bold">#${h.transactionId}</td>
+                                                
                                                 
                                                 <td style="font-size: 14px;">
                                                     <fmt:formatDate value="${h.createdAt}" pattern="dd/MM/yyyy HH:mm" />
                                                 </td>
                                                 
                                                 <td>
-                                                    <%-- Nếu tiền > 0 (Hoàn tiền) -> Màu xanh lá. Nếu tiền < 0 (Mua hàng) -> Màu đỏ --%>
+                                                    
                                                     <c:choose>
                                                         <c:when test="${h.amount > 0}">
                                                             <span class="text-success fw-bold" style="font-size: 16px;">
@@ -172,10 +169,7 @@
                                                 
                                                 <td>
                                                     ${h.description}
-                                                    <c:if test="${not empty h.orderId and h.orderId != 0}">
-                                                        <br><small class="text-muted">Đơn hàng liên quan: <a href="${pageContext.request.contextPath}/order-detail?id=${h.orderId}" class="text-decoration-none">#${h.orderId}</a></small>
-                                                    </c:if>
-                                                </td>
+                                                    
                                             </tr>
                                         </c:forEach>
                                     </tbody>

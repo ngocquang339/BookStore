@@ -475,7 +475,7 @@
                     <div class="form-group">
                         <label for="password">Mật khẩu</label>
                         <div style="position: relative;">
-                            <input type="password" id="password" name="password" value="${savedPass}" placeholder="Nhập mật khẩu" maxlength="50" style="width: 100%;" required>
+                            <input type="password" id="password" name="password" value="" placeholder="Nhập mật khẩu" maxlength="50" style="width: 100%;" required>
                             <span class="toggle-password" onclick="toggleLoginPassword()" style="position: absolute; right: 10px; top: 12px; cursor: pointer; color: #007bff; font-weight: bold; font-size: 13px;">Hiện</span>
                         </div>
                         <span id="err-password" style="display:none; color: #dc3545; font-size: 13px; margin-top: 5px;"><i class="fa-solid fa-circle-exclamation"></i> Vui lòng nhập thông tin này</span>
@@ -799,9 +799,8 @@
         document.getElementById("btnSubmitReset").disabled = true;
     }
 
-    // HÀM CHUYỂN ĐỔI GIỮA LOGIN VÀ REGISTER
+    
     function switchTab(tabName) {
-        // Tắt hết active
         document.getElementById('tab-login').classList.remove('active');
         document.getElementById('tab-register').classList.remove('active');
         document.getElementById('form-login').classList.remove('active');
