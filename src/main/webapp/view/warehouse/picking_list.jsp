@@ -160,7 +160,7 @@
                             alert("⚠️ Vui lòng hoàn tất việc lấy hàng! Bạn phải tick xác nhận ĐÃ LẤY (Picked) cho tất cả các sách trong danh sách trước khi đóng gói.");
                             return false; // Ngăn không cho form submit
                         }
-                        return confirm("Xác nhận đã đóng gói đầy đủ đơn hàng này? Hệ thống sẽ trừ tồn kho thực tế.");
+                        return confirm("Xác nhận đã đóng gói đầy đủ đơn hàng này? ");
                     }
 
                     // Checkbox tổng cho cột "Đã Lấy"
