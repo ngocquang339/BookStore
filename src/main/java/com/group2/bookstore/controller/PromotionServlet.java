@@ -19,13 +19,10 @@ public class PromotionServlet extends HttpServlet {
             throws ServletException, IOException {
         
         PromotionDAO dao = new PromotionDAO();
-        // 1. Lấy danh sách tất cả các đợt khuyến mãi
         List<Promotion> listPromos = dao.getAllPromotions();
         
-        // 2. Gắn vào request để gửi sang JSP
         request.setAttribute("listPromos", listPromos);
         
-        // 3. Điều hướng sang file JSP hiển thị (nhớ tạo thư mục và file này ở Bước 2 bên dưới)
         request.getRequestDispatcher("/view/staff/promotion-manage.jsp").forward(request, response);
     }
 
@@ -40,7 +37,7 @@ public class PromotionServlet extends HttpServlet {
             // Lấy dữ liệu từ Form do Staff nhập
             String promoName = request.getParameter("promoName");
             int discountPercent = Integer.parseInt(request.getParameter("discountPercent"));
-            String startDate = request.getParameter("startDate"); // Format chuẩn HTML5: YYYY-MM-DDTHH:mm
+            String startDate = request.getParameter("startDate"); 
             String endDate = request.getParameter("endDate");
 
             // =========================================================
@@ -59,6 +56,37 @@ public class PromotionServlet extends HttpServlet {
                 request.getSession().setAttribute("successMessage", "Tạo chương trình Flash Sale thành công!");
             } else {
                 request.getSession().setAttribute("errorMessage", "Có lỗi xảy ra, không thể tạo Khuyến mãi!");
+            }
+        }
+        // --- XỬ LÝ SỬA ---
+        else if ("update".equals(action)) {
+            int promoId = Integer.parseInt(request.getParameter("promoId"));
+            String promoName = request.getParameter("promoName");
+            int discountPercent = Integer.parseInt(request.getParameter("discountPercent"));
+            String startDate = request.getParameter("startDate");
+            String endDate = request.getParameter("endDate");
+            
+            boolean isActive = request.getParameter("isActive") != null; 
+
+            // Cắt chữ T giống như lúc Tạo mới
+            if (startDate != null && startDate.contains("T")) startDate = startDate.replace("T", " ") + ":00";
+            if (endDate != null && endDate.contains("T")) endDate = endDate.replace("T", " ") + ":00";
+
+            PromotionDAO dao = new PromotionDAO();
+            if (dao.updatePromotion(promoId, promoName, discountPercent, startDate, endDate, isActive)) {
+                request.getSession().setAttribute("successMessage", "Cập nhật Flash Sale thành công!");
+            } else {
+                request.getSession().setAttribute("errorMessage", "Lỗi khi cập nhật Khuyến mãi!");
+            }
+        } 
+        // --- XỬ LÝ XÓA ---
+        else if ("delete".equals(action)) {
+            int promoId = Integer.parseInt(request.getParameter("promoId"));
+            PromotionDAO dao = new PromotionDAO();
+            if (dao.deletePromotion(promoId)) {
+                request.getSession().setAttribute("successMessage", "Đã xóa chương trình Flash Sale!");
+            } else {
+                request.getSession().setAttribute("errorMessage", "Lỗi! Không thể xóa (Có thể đang có sách nằm trong chương trình này).");
             }
         }
         

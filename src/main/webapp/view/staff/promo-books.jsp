@@ -130,10 +130,7 @@
                 // Nếu công tắc đang bật -> hành động là add, nếu tắt -> hành động là remove
                 const action = this.checked ? 'add' : 'remove';
                 
-                // Vô hiệu hóa công tắc tạm thời trong lúc chờ Server
                 this.disabled = true;
-
-                // Gửi dữ liệu ngầm xuống PromoBookServlet (POST)
                 const data = new URLSearchParams();
                 data.append('action', action);
                 data.append('promoId', promoId);

@@ -56,7 +56,7 @@ public class UpdateProfileServlet extends HttpServlet{
             return;
         }
 
-        // Chỉ cập nhật fullname
+        
         currentUser.setFullname(newFullname.trim());
 
         UserDAO userDAO = new UserDAO();

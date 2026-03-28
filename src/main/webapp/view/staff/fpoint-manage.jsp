@@ -58,7 +58,7 @@
             </head>
 
             <body>
-                <jsp:include page="../component/header.jsp" />
+                
                 <div class="border-start border-2 border-secondary ps-4">
                     <div class="d-flex align-items-center gap-4">
                         <a href="${pageContext.request.contextPath}/staff-dashboard"

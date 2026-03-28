@@ -263,14 +263,48 @@
                                         </table>
                                     </div>
 
-                                    <div class="d-flex justify-content-end mt-3 border-top pt-3">
-                                        <h5 class="mb-0">Tổng thanh toán:
-                                            <span class="text-danger fw-bold ms-2">
-                                                <fmt:formatNumber value="${totalModalMoney}" type="currency"
-                                                    currencySymbol="VNĐ" />
-                                            </span>
-                                        </h5>
+                                    <div class="mt-3 border-top pt-3">
+                                        <div class="row">
+                                            <%-- Cột trống để đẩy nội dung sang phải --%>
+                                            <div class="col-md-7"></div>
+                                            
+                                            <%-- Cột chứa chi tiết tiền --%>
+                                            <div class="col-md-5">
+                                                <div class="d-flex justify-content-between mb-2">
+                                                    <span class="text-muted">Tổng tiền hàng:</span>
+                                                    <span class="fw-bold">
+                                                        <fmt:formatNumber value="${totalModalMoney}" type="currency" currencySymbol="VNĐ" />
+                                                    </span>
+                                                </div>
+                                                
+                                                <div class="d-flex justify-content-between mb-2">
+                                                    <span class="text-muted">Phí vận chuyển:</span>
+                                                    <span class="fw-bold">
+                                                        <fmt:formatNumber value="${c.shippingFee}" type="currency" currencySymbol="VNĐ" />
+                                                    </span>
+                                                </div>
+
+                                                <%-- Chỉ hiển thị dòng Giảm giá nếu có áp dụng --%>
+                                                <c:if test="${c.discountAmount > 0}">
+                                                    <div class="d-flex justify-content-between mb-2">
+                                                        <span class="text-muted">Voucher / Giảm giá:</span>
+                                                        <span class="fw-bold text-success">
+                                                            -<fmt:formatNumber value="${c.discountAmount}" type="currency" currencySymbol="VNĐ" />
+                                                        </span>
+                                                    </div>
+                                                </c:if>
+
+                                                <div class="d-flex justify-content-between mt-2 pt-2 border-top">
+                                                    <h5 class="mb-0 text-dark fw-bold">Tổng thanh toán:</h5>
+                                                    <h5 class="mb-0 text-danger fw-bold">
+                                                        <%-- Lấy thẳng tổng tiền cuối cùng từ Database cho chắc cú --%>
+                                                        <fmt:formatNumber value="${c.totalAmount}" type="currency" currencySymbol="VNĐ" />
+                                                    </h5>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
+                                
                                 </div>
 
                                 <div class="modal-footer bg-light">

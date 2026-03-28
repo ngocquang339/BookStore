@@ -32,22 +32,16 @@ public class MyWalletServlet extends HttpServlet {
         }
 
         try {
-            // ====================================================================
-            // 🚨 BƯỚC QUAN TRỌNG: Cập nhật lại số dư ví mới nhất vào Session
-            // Tránh việc User xài hết tiền rồi nhưng Web chưa kịp update số dư
-            // ====================================================================
             UserDAO userDAO = new UserDAO();
             User freshUser = userDAO.getUserById(user.getId());
             if (freshUser != null) {
                 // Đè lại thông tin user mới (chứa wallet_balance mới nhất) vào session
                 session.setAttribute("user", freshUser); 
             }
-
-            // 3. Lấy danh sách lịch sử giao dịch từ Database
+ 
             WalletHistoryDAO walletDAO = new WalletHistoryDAO();
             List<WalletHistory> walletHistoryList = walletDAO.getHistoryByUserId(user.getId());
 
-            // 4. Gói ghém dữ liệu và đẩy sang giao diện my-wallet.jsp
             request.setAttribute("walletHistoryList", walletHistoryList);
             request.getRequestDispatcher("view/my-wallet.jsp").forward(request, response);
 
@@ -60,7 +54,6 @@ public class MyWalletServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Trang ví tạm thời chỉ để "Ngắm", không có thao tác submit form nên ta chuyển hướng về doGet
         doGet(request, response);
     }
 }

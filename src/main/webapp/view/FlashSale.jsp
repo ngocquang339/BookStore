@@ -189,21 +189,10 @@
                                 <c:set var="totalItems" value="${book.soldQuantity + book.stockQuantity}" />
                                 <c:set var="percentSold" value="${totalItems > 0 ? (book.soldQuantity * 100.0 / totalItems) : 0}" />
                                 
-                                <div class="progress-container">
-                                    <div class="progress-fill" style="width: ${percentSold}%;"></div>
-                                    <div class="progress-text">
-                                        <c:choose>
-                                            <c:when test="${book.stockQuantity <= 0}">HẾT HÀNG</c:when>
-                                            <c:when test="${book.soldQuantity > 0}">ĐÃ BÁN ${book.soldQuantity}</c:when>
-                                            <c:otherwise>VỪA MỞ BÁN</c:otherwise>
-                                        </c:choose>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
                 </c:forEach>
-                
             </div>
         </div>
     </div>

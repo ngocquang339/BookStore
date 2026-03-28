@@ -32,11 +32,9 @@ public class CollectionDetailServlet extends HttpServlet {
         try {
             int collectionId = Integer.parseInt(request.getParameter("id"));
             
-            // Hứng tham số Tìm kiếm & Sắp xếp từ URL
             String search = request.getParameter("search");
             String sort = request.getParameter("sort");
             
-            // Khởi tạo giá trị mặc định nếu khách mới vào lần đầu
             if (search == null) search = "";
             if (sort == null) sort = "newest";
 
@@ -48,13 +46,11 @@ public class CollectionDetailServlet extends HttpServlet {
                 return;
             }
 
-            // GỌI HÀM DAO MỚI ĐÃ NÂNG CẤP (Truyền thêm search và sort)
             List<Book> books = dao.getBooksByCollectionId(collectionId, search, sort);
             
             request.setAttribute("collection", collection);
             request.setAttribute("booksInCollection", books);
             
-            // Giữ lại trạng thái trên giao diện để nó không bị mất chữ khi load lại trang
             request.setAttribute("paramSearch", search);
             request.setAttribute("paramSort", sort);
             

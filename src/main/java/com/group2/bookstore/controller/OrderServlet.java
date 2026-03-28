@@ -50,20 +50,7 @@ public class OrderServlet extends HttpServlet {
         OrderDAO orderDAO = new OrderDAO();
         // Gom 1 và 2 vào chung tab "Đang xử lý" của khách
         int countProcessing = orderDAO.countOrdersByStatus(user.getId(), 1)
-                + orderDAO.countOrdersByStatus(user.getId(), 2) + orderDAO.countOrdersByStatus(user.getId(), 3); // [SỬA]
-                                                                                                                 // Đang
-                                                                                                                 // xử
-                                                                                                                 // lý
-                                                                                                                 // là
-                                                                                                                 // 1, 2
-                                                                                                                 // và 3
-                                                                                                                 // (Chờ
-                                                                                                                 // duyệt,
-                                                                                                                 // Đã
-                                                                                                                 // duyệt,
-                                                                                                     // Đóng
-                                                                                                                 // gói
-                                                                                                                 // xong)
+                + orderDAO.countOrdersByStatus(user.getId(), 2) + orderDAO.countOrdersByStatus(user.getId(), 3); // [SỬA]                                                                                            // Đang                                                                                              // xử                                                                                              // lý                                                                                              // là                                                                                              // 1, 2                                                                                               // và 3                                                                                             // (Chờ                                                                                              // duyệt,                                                                                          // Đã                                                                                // duyệt,                                                                                // Đóng                                                                            // gói                                                                                               // xong)
         int countShipping = orderDAO.countOrdersByStatus(user.getId(), 4); // [SỬA] Đang giao là 4
         int countCompleted = orderDAO.countOrdersByStatus(user.getId(), 5); // [SỬA] Hoàn tất là 5
         int countCancelled = orderDAO.countOrdersByStatus(user.getId(), 6); // [SỬA] Hủy là 6
@@ -79,10 +66,7 @@ public class OrderServlet extends HttpServlet {
                 // Lấy cả 1 và 2 gộp lại cho tab Đang xử lý
                 listOrders.addAll(orderDAO.getOrdersByStatusForUser(user.getId(), 1));
                 listOrders.addAll(orderDAO.getOrdersByStatusForUser(user.getId(), 2));
-                listOrders.addAll(orderDAO.getOrdersByStatusForUser(user.getId(), 3)); // [SỬA] Thêm cả trạng thái 3 (Đã
-                                                                                       // đóng gói xong) vào tab Đang xử
-                                                                                       // lý
-
+                listOrders.addAll(orderDAO.getOrdersByStatusForUser(user.getId(), 3)); // [SỬA] Thêm cả trạng thái 3 (Đã                                                           // đóng gói xong) vào tab Đang xử                                                                     // lý
                 // THÊM ĐOẠN NÀY: Sắp xếp lại tổng thể danh sách vừa gộp (Mới nhất lên đầu)
                 java.util.Collections.sort(listOrders, new java.util.Comparator<Order>() {
                     @Override
@@ -146,8 +130,6 @@ public class OrderServlet extends HttpServlet {
                 // Lấy thông tin đơn hàng hiện tại lên để kiểm tra
                 Order currentOrder = orderDAO.getOrderById(orderId);
 
-                // Cực kỳ quan trọng: Chỉ cho phép hủy nếu đơn hàng thuộc về user này
-                // Và trạng thái đang là 1 (Chờ duyệt) hoặc 2 (Đã duyệt)
                 if (currentOrder != null && currentOrder.getUserId() == user.getId()
                         && (currentOrder.getStatus() == 1 || currentOrder.getStatus() == 2)) {
 
@@ -155,9 +137,6 @@ public class OrderServlet extends HttpServlet {
                     boolean isCancelled = orderDAO.updateOrderStatus(orderId, 6); // [SỬA] 6 là trạng thái Hủy
 
                     if (isCancelled) {
-                        // ==============================================================
-                        // [MỚI THÊM] - HOÀN LẠI VOUCHER VÀO VÍ KHÁCH HÀNG NẾU CÓ DÙNG
-                        // ==============================================================
                         if (currentOrder.getVoucher_id() > 0) {
                             com.group2.bookstore.dal.VoucherDAO voucherDAO = new com.group2.bookstore.dal.VoucherDAO();
                             voucherDAO.refundVoucher(user.getId(), currentOrder.getVoucher_id());
