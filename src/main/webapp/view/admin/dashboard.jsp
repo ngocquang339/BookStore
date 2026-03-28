@@ -134,6 +134,12 @@
                             <p>View and process customer orders</p>
                         </a>
 
+                        <a href="${pageContext.request.contextPath}/admin/po" class="admin-card">
+                            <i class="fa-solid fa-clipboard-check"></i>
+                            <h3>Purchase Orders</h3>
+                            <p>Approve and manage warehouse imports</p>
+                        </a>
+
                         <a href="${pageContext.request.contextPath}/admin/users" class="admin-card">
                             <i class="fa-solid fa-users"></i>
                             <h3>Users</h3>
@@ -211,7 +217,7 @@
                                         item.innerHTML = `
                         <div style="flex: 1; font-size: 0.9em; color: #444;">
                             <div style="margin-bottom: 4px;">` + notification.message + `</div>
-                            <a href="${pageContext.request.contextPath}/admin/order/detail?id=` + notification.orderId + `" style="color: #0d6efd; text-decoration: none; font-size: 0.85em;">View Order &rarr;</a>
+                            <a href="${pageContext.request.contextPath}` + notification.link + `" style="color: #0d6efd; text-decoration: none; font-size: 0.85em;">View Details &rarr;</a>
                         </div>
                         <button onclick="dismissNotification(` + notification.id + `)" style="background: none; border: none; color: #ccc; cursor: pointer; padding: 0; margin-top: -2px;">&times;</button>
                     `;

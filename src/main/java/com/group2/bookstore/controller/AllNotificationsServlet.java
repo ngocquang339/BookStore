@@ -27,7 +27,7 @@ public class AllNotificationsServlet extends HttpServlet {
         }
         
         int page = 1;
-        int pageSize = 10; // 10 thông báo 1 trang
+        int pageSize = 10; 
         String pageStr = request.getParameter("page");
         if (pageStr != null && !pageStr.isEmpty()) {
             try { page = Integer.parseInt(pageStr); } catch (Exception e) {}

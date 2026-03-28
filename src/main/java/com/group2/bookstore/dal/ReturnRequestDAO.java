@@ -113,6 +113,20 @@ public class ReturnRequestDAO extends DBContext {
         }
     }
 
+    public boolean updateReturnRequestStatus(int orderId, int status, String adminNote) {
+        String sql = "UPDATE ReturnRequests SET status = ?, admin_note = ? WHERE order_id = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, status);
+            ps.setString(2, adminNote);
+            ps.setInt(3, orderId);
+            ps.executeUpdate();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public boolean processRefund(int returnId, int newStatus, int bookId, int quantity,
             String adminUsername, double refundAmount, String bankRef, String adminNote) {
 

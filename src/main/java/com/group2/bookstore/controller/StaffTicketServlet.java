@@ -75,13 +75,13 @@ public class StaffTicketServlet extends HttpServlet {
             int orderId = Integer.parseInt(request.getParameter("orderId"));
             int userId = Integer.parseInt(request.getParameter("userId"));
             String decision = request.getParameter("decision"); // Lấy giá trị từ ô select
-
+            ReturnRequestDAO dao = new ReturnRequestDAO();
             OrderDAO orderDao = new OrderDAO();
             NotificationDAO notifDao = new NotificationDAO();
 
             if ("accept".equals(decision)) {
                 // CHẤP NHẬN: Chuyển order status sang 6 (Đã Hủy / Hoàn tiền)
-                boolean isUpdated = orderDao.updateOrderStatus(orderId, 8);
+                boolean isUpdated = dao.updateReturnRequestStatus(orderId, 3, "");
 
                 if (isUpdated) {
                     notifDao.createNotification(userId,

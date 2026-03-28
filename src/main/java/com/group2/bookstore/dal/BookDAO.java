@@ -259,11 +259,13 @@ public class BookDAO extends DBContext {
         
         List<Book> list = new ArrayList<>();
 
+        // [SỬA Ở ĐÂY 1]: Thêm cột wl.location_code vào SELECT và thêm lệnh LEFT JOIN
         StringBuilder sql = new StringBuilder(
-                "SELECT b.*, c.category_name, " +
+                "SELECT b.*, c.category_name, wl.location_code, " + 
                         "(SELECT TOP 1 bi.image_url FROM BookImages bi WHERE bi.book_id = b.book_id) AS cover_image " +
                         "FROM Books b " +
                         "LEFT JOIN Categories c ON b.category_id = c.category_id " +
+                        "LEFT JOIN Warehouse_Locations wl ON b.category_id = wl.category_id " + 
                         "WHERE 1=1 ");
         
         List<Object> params = new ArrayList<>();
@@ -300,7 +302,6 @@ public class BookDAO extends DBContext {
             params.add(minPrice);
         }
 
-        // [LOGIC MỚI CHỈ CHẠY KHI BẠN GỌI Ở TRANG SEARCH]
         if (ratingFilter > 0) {
             sql.append(" AND b.book_id IN (SELECT book_id FROM Review GROUP BY book_id HAVING AVG(CAST(rating AS FLOAT)) >= ?) ");
             params.add(ratingFilter);
@@ -344,6 +345,9 @@ public class BookDAO extends DBContext {
                 
                 try { b.setCategoryName(rs.getString("category_name")); } catch (Exception e) {}
                 try { b.setActive(rs.getBoolean("is_active")); } catch (Exception e) {}
+                
+                // [SỬA Ở ĐÂY 2]: Gán giá trị mã vị trí kệ vào đối tượng Book
+                try { b.setLocationCode(rs.getString("location_code")); } catch (Exception e) {}
                 
                 list.add(b);
             }
@@ -520,7 +524,7 @@ public class BookDAO extends DBContext {
             }
         }
     } catch (Exception e) {
-        e.printStackTrace();
+        System.err.println("Database error in insertBook: " + e.getMessage());
     }
     
     // Return the new ID back to the Servlet so it can save the detail images!
