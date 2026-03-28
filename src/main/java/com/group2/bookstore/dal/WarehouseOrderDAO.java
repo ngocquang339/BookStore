@@ -436,11 +436,6 @@ public class WarehouseOrderDAO extends DBContext {
         if (statusFilter > 0) {
             sql.append(" AND r.status = ? ");
             params.add(statusFilter);
-        } else {
-            // Default: Lock the view to Status 3 (Approved waiting for physical item)
-            // NOTE: Change this to '2' if your teammate changed the database status
-            // numbers!
-            sql.append(" AND r.status = 3 ");
         }
 
         sql.append(" ORDER BY r.created_at DESC");
@@ -580,56 +575,44 @@ public class WarehouseOrderDAO extends DBContext {
             conn = getConnection();
             conn.setAutoCommit(false);
 
-            // 1. LẤY SỐ LƯỢNG VÀ RETURN_ID TỪ YÊU CẦU TRẢ HÀNG
+            // 1. LẤY SỐ LƯỢNG VÀ RETURN_ID
             int returnId = 0;
             String sqlItems = "SELECT return_id, book_id, quantity FROM ReturnRequests WHERE order_id = ?";
             PreparedStatement psItems = conn.prepareStatement(sqlItems);
             psItems.setInt(1, orderId);
             ResultSet rs = psItems.executeQuery();
 
-            // Lưu dữ liệu để xử lý cộng kho
             List<int[]> bookQuantities = new ArrayList<>();
             while (rs.next()) {
                 if (returnId == 0)
-                    returnId = rs.getInt("return_id"); // Lấy ID để làm link thông báo
+                    returnId = rs.getInt("return_id");
                 bookQuantities.add(new int[] { rs.getInt("book_id"), rs.getInt("quantity") });
             }
 
-            NotificationDAO notifDao = new NotificationDAO(); // Chuẩn bị DAO thông báo
+            NotificationDAO notifDao = new NotificationDAO();
 
+            // CHỈ XỬ LÝ PASS
             if ("PASS".equals(action)) {
-                // 2. CỘNG KHO TRỰC TIẾP
+
+                // 2. CỘNG KHO
                 String sqlUpdateStock = "UPDATE Books SET stock_quantity = stock_quantity + ? WHERE book_id = ?";
                 PreparedStatement psStock = conn.prepareStatement(sqlUpdateStock);
                 for (int[] bq : bookQuantities) {
-                    psStock.setInt(1, bq[1]); // quantity
-                    psStock.setInt(2, bq[0]); // book_id
+                    psStock.setInt(1, bq[1]);
+                    psStock.setInt(2, bq[0]);
                     psStock.addBatch();
                 }
                 psStock.executeBatch();
 
-                // 3. ĐỔI STATUS THÀNH 8 (QC PASSED)
+                // 3. UPDATE STATUS = 8
                 String sqlUpdateNote = "UPDATE ReturnRequests SET status = 8, admin_note = CONCAT(ISNULL(admin_note, ''), CHAR(13), ?) WHERE order_id = ?";
                 PreparedStatement psUpdateNote = conn.prepareStatement(sqlUpdateNote);
                 psUpdateNote.setString(1, "[Warehouse]: Hàng đã qua QC và được nhập lại vào kho. Chờ hoàn tiền.");
                 psUpdateNote.setInt(2, orderId);
                 psUpdateNote.executeUpdate();
 
-                // 🔔 GỬI THÔNG BÁO CHO ADMIN (PASS)
+                // 🔔 THÔNG BÁO
                 String msg = "💰 Kho đã nhận hàng (Passed QC) cho Đơn #" + orderId + ". Cần hoàn tiền ngay!";
-                String link = "/admin/returns/review?id=" + returnId;
-                notifDao.insertAdminNotification(msg, link);
-
-            } else if ("FAIL".equals(action)) {
-                // 1. ĐỔI STATUS THÀNH 4 (FAILED QC) VÀ KHÔNG CỘNG KHO
-                String sqlFail = "UPDATE ReturnRequests SET status = 4, admin_note = CONCAT(ISNULL(admin_note, ''), CHAR(13), ?) WHERE order_id = ?";
-                PreparedStatement psFail = conn.prepareStatement(sqlFail);
-                psFail.setString(1, "[Warehouse - TỪ CHỐI QC]: " + failReason);
-                psFail.setInt(2, orderId);
-                psFail.executeUpdate();
-
-                // 🔔 GỬI THÔNG BÁO CHO ADMIN (FAIL)
-                String msg = "⚠️ Kho TỪ CHỐI nhận hàng (Failed QC) cho Đơn #" + orderId + ". Xem lý do!";
                 String link = "/admin/returns/review?id=" + returnId;
                 notifDao.insertAdminNotification(msg, link);
             }
